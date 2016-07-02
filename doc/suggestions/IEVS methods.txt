@@ -1,0 +1,86 @@
+Which of the IEVS methods do we support? (Quadelect, Quadcache supports less)
+
+		support (# = yes, ? = kinda, ?? = unsure)
+Socially Best	?
+Socially Worst	?
+Random Winner	#
+Plurality	#
+Borda		#
+IRV		#
+Approval
+Range		#
+Smith set	#
+Schwartz set	#
+Antiplurality	#
+Top 2 runoff		(To implement this, we'll need a concept of honesty
+			 vs. strategy. Otherwise, it's just the contingent
+			 vote.)
+Condorcet LR	#
+Simpson-Kramer	#
+Bucklin		?
+Copeland	#
+SimmonsCond		("First preference Copeland", requires Plur and Cond.)
+Smith,IRV	#	(But do fix the bugs in comma.)
+BTR-IRV		#	(STV-ME)
+DMC			(Smith,Approval)
+			(But we could also have "that's in a cycle" version...
+			 while there is a cycle, eliminate the weakest whatever
+			 in the cycle.)
+Dabagh		#	(2 * top ranks + 1 * second rank, positional)
+VtForAgainst	#
+SchulzeBeatpath	#
+PlurIR			(Contingent vote: requires Plur and Condorcet data)
+Black			("Condorcet set", then Black = Condorcet,Borda)
+RandomBallot	#	(Maybe also RandomVoterHierarchy)
+			(RB winner could be done positionally, roulette among 
+			 1st pref, but must then be FRACTIONAL and can't give
+			 info about further preferences, so call that "Random
+			 Positional" instead.)
+RandomPair	#	(Both utility and rank?)
+NansonBaldwin	#	(should perhaps make summable version)
+Nauru		#
+TopMedianRating	#	(OH YEAH.)
+LoMedianRank		(Should be possible to synthesize from the one above)
+RaynaudElim	??	(Loser-Elimination/Minmax?)
+ArrowRaynaud	??	(Loser-Elimination/Maximin?)
+Sinkhorn	#
+KeenerEig	#
+MDDA			(MD/A or MD,A)
+VenzkeDisqPlur
+CondorcetApprov		( C//A or C,A)
+Uncovered set	#
+BramsSanverPrAV
+Coombs		#
+Top3IRV			(Make force_truncate(int depth) in ballot_tools, then
+			 interface method. Permit "Top 3 Borda", etc. For
+			 force_truncate, beware of ties - should truncate after
+			 third rank, not third *entry*.)
+ContinCumul
+IterCopeland		(Could add as an INFINITY thing for nth order Copeland?)
+HeitzigRiver	#
+MCA
+Range3		#
+Range10		#
+HeismanTrophy	#
+BaseballMVP	#
+App2Runoff
+Range2Runoff
+HeitzigDFC
+ArmytagePCSChul		(Cardinal Pairwise / Schulze)
+Hay			(Perhaps a sqrt-range method and then "Roulette(X)"
+			 generic method for randomly picking with prob 
+			 proportional to rating? Generalization to multiple 
+			 cands: pick winner, eliminate, pick 2nd place, etc.)
+HeitzigLFC
+Benham2AppRunoff
+Benham2AppRunB
+WoodallDac	?
+UncAAO
+TidemanRP	#
+IRNR2
+IRNR1
+IRNR3
+IRNR9
+IRNRv
+IRNRm
+Rouse

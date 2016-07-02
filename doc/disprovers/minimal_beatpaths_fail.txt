@@ -1,0 +1,56 @@
+MAT failure with 5 candidates and 13 voters.
+Candidate was 1
+Other candidates: 2 1 
+Trying to find MAT failure for other candidates
+Found 2!
+	0 remain.
+Yipe! Found answer for all!
+The original ballot set is: 
+1: A > D > B > E > C
+1: A > D > C
+1: A > E > B > D
+1: B > E > C > D > A
+1: B > E > D
+2: C > B > A > D > E
+1: C > D > B > E > A
+1: D > A > B > E
+1: D > C > B > E > A
+1: E > A > D > C
+1: E > C
+1: E > C > B > A
+which gives: C = B > E > A > D
+
+
+
+For candidate 1: 
+1: A > D > B > E > C
+1: A > D > C
+1: A > E > B > D
+1: B > E > C > D > A
+1: B > E > D
+2: C > B > A > D > E
+1: C > D > B > E > A
+1: D > A > B > E
+1: D > C > B > E > A
+1: E > A > D > C
+1: E > C
+1: E > C > B > A
+1: B > D > E > A > C
+which gives: D > B > E > C > A
+
+For candidate 2: 
+1: A > D > B > E > C
+1: A > D > C
+1: A > E > B > D
+1: B > E > C > D > A
+1: B > E > D
+2: C > B > A > D > E
+1: C > D > B > E > A
+1: D > A > B > E
+1: D > C > B > E > A
+1: E > A > D > C
+1: E > C
+1: E > C > B > A
+1: C > D > B > E > A
+which gives: D > C > B > E > A
+

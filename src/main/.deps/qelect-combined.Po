@@ -1,0 +1,942 @@
+src/main/qelect-combined.o: src/main/combined.cc /usr/include/assert.h \
+  /usr/include/features.h /usr/include/sys/cdefs.h \
+  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+  /usr/include/gnu/stubs-64.h /usr/include/values.h \
+  /usr/lib/gcc/x86_64-linux-gnu/4.3.2/include-fixed/limits.h \
+  /usr/lib/gcc/x86_64-linux-gnu/4.3.2/include-fixed/syslimits.h \
+  /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+  /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+  /usr/include/bits/stdio_lim.h \
+  /usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/float.h \
+  /usr/include/errno.h /usr/include/bits/errno.h \
+  /usr/include/linux/errno.h /usr/include/asm/errno.h \
+  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+  /usr/include/ctype.h /usr/include/bits/types.h \
+  /usr/include/bits/typesizes.h /usr/include/endian.h \
+  /usr/include/bits/endian.h /usr/include/xlocale.h /usr/include/getopt.h \
+  /usr/include/c++/4.3/iostream \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/c++config.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/os_defines.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/cpu_defines.h \
+  /usr/include/c++/4.3/ostream /usr/include/c++/4.3/ios \
+  /usr/include/c++/4.3/iosfwd /usr/include/c++/4.3/bits/stringfwd.h \
+  /usr/include/c++/4.3/bits/postypes.h /usr/include/c++/4.3/cwchar \
+  /usr/include/c++/4.3/cstddef \
+  /usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/stddef.h \
+  /usr/include/wchar.h /usr/include/stdio.h \
+  /usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/stdarg.h \
+  /usr/include/bits/wchar.h \
+  /usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/stddef.h \
+  /usr/include/c++/4.3/tr1_impl/cwchar /usr/include/stdint.h \
+  /usr/include/c++/4.3/exception /usr/include/c++/4.3/bits/char_traits.h \
+  /usr/include/c++/4.3/bits/stl_algobase.h \
+  /usr/include/c++/4.3/bits/functexcept.h \
+  /usr/include/c++/4.3/exception_defines.h \
+  /usr/include/c++/4.3/bits/cpp_type_traits.h \
+  /usr/include/c++/4.3/ext/type_traits.h \
+  /usr/include/c++/4.3/ext/numeric_traits.h \
+  /usr/include/c++/4.3/bits/stl_pair.h \
+  /usr/include/c++/4.3/bits/stl_move.h \
+  /usr/include/c++/4.3/bits/concept_check.h \
+  /usr/include/c++/4.3/type_traits \
+  /usr/include/c++/4.3/tr1_impl/type_traits \
+  /usr/include/c++/4.3/bits/stl_iterator_base_types.h \
+  /usr/include/c++/4.3/bits/stl_iterator_base_funcs.h \
+  /usr/include/c++/4.3/bits/stl_iterator.h \
+  /usr/include/c++/4.3/debug/debug.h /usr/include/c++/4.3/cstdio \
+  /usr/include/stdio.h /usr/include/libio.h /usr/include/_G_config.h \
+  /usr/include/wchar.h /usr/include/bits/sys_errlist.h \
+  /usr/include/bits/stdio.h /usr/include/c++/4.3/tr1_impl/cstdio \
+  /usr/include/c++/4.3/bits/localefwd.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/c++locale.h \
+  /usr/include/c++/4.3/clocale /usr/include/locale.h \
+  /usr/include/bits/locale.h /usr/include/c++/4.3/cctype \
+  /usr/include/ctype.h /usr/include/c++/4.3/tr1_impl/cctype \
+  /usr/include/c++/4.3/bits/ios_base.h \
+  /usr/include/c++/4.3/ext/atomicity.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/gthr.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/gthr-default.h \
+  /usr/include/pthread.h /usr/include/sched.h /usr/include/time.h \
+  /usr/include/bits/sched.h /usr/include/bits/time.h \
+  /usr/include/signal.h /usr/include/bits/sigset.h \
+  /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
+  /usr/include/unistd.h /usr/include/bits/posix_opt.h \
+  /usr/include/bits/environments.h /usr/include/bits/confname.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/atomic_word.h \
+  /usr/include/c++/4.3/bits/locale_classes.h /usr/include/c++/4.3/string \
+  /usr/include/c++/4.3/bits/allocator.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/c++allocator.h \
+  /usr/include/c++/4.3/ext/new_allocator.h /usr/include/c++/4.3/new \
+  /usr/include/c++/4.3/bits/ostream_insert.h \
+  /usr/include/c++/4.3/cxxabi-forced.h \
+  /usr/include/c++/4.3/bits/stl_function.h \
+  /usr/include/c++/4.3/backward/binders.h \
+  /usr/include/c++/4.3/bits/basic_string.h \
+  /usr/include/c++/4.3/bits/basic_string.tcc \
+  /usr/include/c++/4.3/bits/locale_classes.tcc \
+  /usr/include/c++/4.3/streambuf /usr/include/c++/4.3/bits/streambuf.tcc \
+  /usr/include/c++/4.3/bits/basic_ios.h \
+  /usr/include/c++/4.3/bits/locale_facets.h /usr/include/c++/4.3/cwctype \
+  /usr/include/wctype.h /usr/include/c++/4.3/tr1_impl/cwctype \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/ctype_base.h \
+  /usr/include/c++/4.3/bits/streambuf_iterator.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/ctype_inline.h \
+  /usr/include/c++/4.3/bits/locale_facets.tcc \
+  /usr/include/c++/4.3/bits/basic_ios.tcc \
+  /usr/include/c++/4.3/bits/ostream.tcc /usr/include/c++/4.3/istream \
+  /usr/include/c++/4.3/bits/istream.tcc /usr/include/c++/4.3/fstream \
+  /usr/include/c++/4.3/bits/codecvt.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/basic_file.h \
+  /usr/include/c++/4.3/x86_64-linux-gnu/bits/c++io.h \
+  /usr/include/c++/4.3/bits/fstream.tcc /usr/include/c++/4.3/list \
+  /usr/include/c++/4.3/bits/stl_list.h /usr/include/c++/4.3/bits/list.tcc \
+  src/main/../ballot_tools.h src/main/../ballots.h \
+  /usr/include/c++/4.3/unordered_map /usr/include/c++/4.3/utility \
+  /usr/include/c++/4.3/bits/stl_relops.h \
+  /usr/include/c++/4.3/tr1_impl/utility \
+  /usr/include/c++/4.3/bits/functional_hash.h \
+  /usr/include/c++/4.3/tr1_impl/functional_hash.h \
+  /usr/include/c++/4.3/bits/hashtable.h \
+  /usr/include/c++/4.3/tr1_impl/hashtable \
+  /usr/include/c++/4.3/tr1_impl/hashtable_policy.h \
+  /usr/include/c++/4.3/tr1_impl/unordered_map /usr/include/c++/4.3/vector \
+  /usr/include/c++/4.3/bits/stl_construct.h \
+  /usr/include/c++/4.3/bits/stl_uninitialized.h \
+  /usr/include/c++/4.3/bits/stl_vector.h \
+  /usr/include/c++/4.3/bits/stl_bvector.h \
+  /usr/include/c++/4.3/bits/vector.tcc /usr/include/math.h \
+  /usr/include/bits/huge_val.h /usr/include/bits/huge_valf.h \
+  /usr/include/bits/huge_vall.h /usr/include/bits/inf.h \
+  /usr/include/bits/nan.h /usr/include/bits/mathdef.h \
+  /usr/include/bits/mathcalls.h /usr/include/bits/mathinline.h \
+  /usr/include/c++/4.3/set /usr/include/c++/4.3/bits/stl_tree.h \
+  /usr/include/c++/4.3/bits/stl_set.h \
+  /usr/include/c++/4.3/bits/stl_multiset.h /usr/include/c++/4.3/map \
+  /usr/include/c++/4.3/bits/stl_map.h \
+  /usr/include/c++/4.3/bits/stl_multimap.h src/main/../tools.h \
+  /usr/include/sys/time.h /usr/include/sys/select.h \
+  /usr/include/bits/select.h /usr/include/c++/4.3/sstream \
+  /usr/include/c++/4.3/bits/sstream.tcc /usr/include/c++/4.3/algorithm \
+  /usr/include/c++/4.3/bits/stl_algo.h /usr/include/c++/4.3/cstdlib \
+  /usr/include/stdlib.h /usr/include/bits/waitflags.h \
+  /usr/include/bits/waitstatus.h /usr/include/sys/types.h \
+  /usr/include/sys/sysmacros.h /usr/include/alloca.h \
+  /usr/include/c++/4.3/tr1_impl/cstdlib \
+  /usr/include/c++/4.3/bits/algorithmfwd.h \
+  /usr/include/c++/4.3/bits/stl_heap.h \
+  /usr/include/c++/4.3/bits/stl_tempbuf.h src/main/../ballots.h \
+  src/main/../tools.h src/main/../generator/all.h \
+  src/main/../generator/ballotgen.h \
+  src/main/../generator/../singlewinner/method.h \
+  src/main/../generator/../singlewinner/../ballots.h \
+  src/main/../generator/../singlewinner/../tools.h \
+  src/main/../generator/../singlewinner/../cache.h \
+  src/main/../generator/../singlewinner/../ballot_tools.h \
+  src/main/../generator/../singlewinner/../pairwise/matrix.h \
+  src/main/../generator/../singlewinner/../pairwise/../ballots.h \
+  src/main/../generator/../singlewinner/../pairwise/../tools.h \
+  src/main/../generator/../singlewinner/../pairwise/types.h \
+  src/main/../generator/../singlewinner/../pairwise/abstract_matrix.h \
+  /usr/include/c++/4.3/iterator \
+  /usr/include/c++/4.3/bits/stream_iterator.h \
+  src/main/../generator/../singlewinner/../pairwise/cache_matrix.h \
+  src/main/../generator/../singlewinner/../pairwise/matrix.h \
+  src/main/../generator/../ballot_tools.h \
+  src/main/../generator/../random/random.h \
+  /usr/include/c++/4.3/ext/numeric /usr/include/c++/4.3/numeric \
+  /usr/include/c++/4.3/bits/stl_numeric.h \
+  /usr/include/c++/4.3/ext/functional /usr/include/c++/4.3/functional \
+  /usr/include/c++/4.3/typeinfo /usr/include/c++/4.3/tuple \
+  /usr/include/c++/4.3/tr1_impl/functional \
+  src/main/../generator/dirichlet.h src/main/../generator/gaussian.h \
+  src/main/../generator/spatial.h src/main/../generator/impartial.h \
+  src/main/../singlewinner/all.h src/main/../singlewinner/elimination.h \
+  src/main/../singlewinner/method.h src/main/../singlewinner/../tools.h \
+  src/main/../singlewinner/../ballots.h \
+  src/main/../singlewinner/../ballot_tools.h \
+  src/main/../singlewinner/gradual_c_b.h \
+  src/main/../singlewinner/../pairwise/grad_matrix.h \
+  src/main/../singlewinner/../pairwise/matrix.h \
+  src/main/../singlewinner/../pairwise/../grad_median/grad_median.h \
+  /usr/include/c++/4.3/queue /usr/include/c++/4.3/deque \
+  /usr/include/c++/4.3/bits/stl_deque.h \
+  /usr/include/c++/4.3/bits/deque.tcc \
+  /usr/include/c++/4.3/bits/stl_queue.h \
+  src/main/../singlewinner/../grad_median/grad_median.h \
+  src/main/../singlewinner/pairwise/method.h \
+  src/main/../singlewinner/pairwise/../method.h \
+  src/main/../singlewinner/pairwise/../../pairwise/matrix.h \
+  /usr/include/c++/4.3/complex /usr/include/c++/4.3/cmath \
+  /usr/include/math.h /usr/include/c++/4.3/bits/cmath.tcc \
+  /usr/include/c++/4.3/tr1_impl/cmath \
+  /usr/include/c++/4.3/tr1_impl/complex /usr/include/glpk.h \
+  src/main/../singlewinner/young.h \
+  src/main/../singlewinner/../pairwise/matrix.h \
+  src/main/../singlewinner/meta/all.h \
+  src/main/../singlewinner/meta/comma.h \
+  src/main/../singlewinner/meta/../method.h \
+  src/main/../singlewinner/meta/../../ballots.h \
+  src/main/../singlewinner/meta/../../ballot_tools.h \
+  src/main/../singlewinner/meta/slash.h \
+  src/main/../singlewinner/pairwise/all.h \
+  src/main/../singlewinner/pairwise/keener.h \
+  src/main/../singlewinner/pairwise/method.h \
+  src/main/../singlewinner/pairwise/least_rev.h \
+  src/main/../singlewinner/pairwise/rpairs.h \
+  src/main/../singlewinner/pairwise/sinkhorn.h \
+  src/main/../singlewinner/pairwise/dodgson_approxs.h \
+  src/main/../singlewinner/pairwise/kemeny.h \
+  src/main/../singlewinner/pairwise/simple_methods.h \
+  src/main/../singlewinner/pairwise/../../pairwise/beatpath.h \
+  src/main/../singlewinner/pairwise/../../pairwise/matrix.h \
+  src/main/../singlewinner/pairwise/tournament.h \
+  src/main/../singlewinner/pairwise/odm/all.h \
+  src/main/../singlewinner/pairwise/odm/hits.h \
+  src/main/../singlewinner/pairwise/odm/odm_gen.h \
+  src/main/../singlewinner/pairwise/odm/../../../pairwise/matrix.h \
+  src/main/../singlewinner/pairwise/odm/../method.h \
+  src/main/../singlewinner/pairwise/odm/../../method.h \
+  src/main/../singlewinner/pairwise/odm/odm_atan.h \
+  src/main/../singlewinner/pairwise/odm/odm.h \
+  src/main/../singlewinner/pairwise/random/all.h \
+  src/main/../singlewinner/pairwise/random/randpair.h \
+  src/main/../singlewinner/pairwise/random/../../../pairwise/matrix.h \
+  src/main/../singlewinner/pairwise/random/../method.h \
+  src/main/../singlewinner/pairwise/random/../../method.h \
+  src/main/../singlewinner/positional/all.h \
+  src/main/../singlewinner/positional/aggregator.h \
+  src/main/../singlewinner/positional/../../ballots.h \
+  src/main/../singlewinner/positional/../method.h \
+  src/main/../singlewinner/positional/types.h \
+  src/main/../singlewinner/positional/as241.h \
+  src/main/../singlewinner/positional/positional.h \
+  src/main/../singlewinner/positional/simple_methods.h \
+  src/main/../singlewinner/random/all.h \
+  src/main/../singlewinner/random/randball.h \
+  src/main/../singlewinner/random/../method.h \
+  src/main/../singlewinner/random/../../tools.h \
+  src/main/../singlewinner/random/../../ballots.h \
+  src/main/../singlewinner/random/randcand.h \
+  src/main/../singlewinner/sets/all.h \
+  src/main/../singlewinner/sets/condorcet.h \
+  src/main/../singlewinner/sets/../method.h \
+  src/main/../singlewinner/sets/../pairwise/method.h \
+  src/main/../singlewinner/sets/mdd.h \
+  src/main/../singlewinner/sets/partition.h \
+  src/main/../singlewinner/sets/topological.h \
+  src/main/../singlewinner/sets/max_elements/all.h \
+  src/main/../singlewinner/sets/max_elements/c_tt.h \
+  src/main/../singlewinner/sets/max_elements/det_sets.h \
+  src/main/../singlewinner/sets/max_elements/../../method.h \
+  src/main/../singlewinner/sets/max_elements/../../pairwise/method.h \
+  src/main/../singlewinner/sets/max_elements/landau.h \
+  src/main/../singlewinner/sets/max_elements/schwartz.h \
+  src/main/../singlewinner/sets/max_elements/sdom.h \
+  src/main/../singlewinner/sets/max_elements/smith.h \
+  src/main/../singlewinner/stats/all.h \
+  src/main/../singlewinner/stats/cardinal.h \
+  src/main/../singlewinner/stats/../method.h \
+  src/main/../singlewinner/stats/../../tools.h \
+  src/main/../singlewinner/stats/../../ballots.h \
+  src/main/../singlewinner/stats/mode.h \
+  src/main/../singlewinner/stats/var_median/vmedian.h \
+  /usr/include/stdlib.h \
+  src/main/../singlewinner/stats/var_median/../../method.h \
+  src/main/../singlewinner/stats/var_median/../../../tools.h \
+  src/main/../singlewinner/stats/var_median/../../../ballots.h \
+  src/main/../singlewinner/stats/var_median/../../../grad_median/grad_median.h \
+  src/main/../singlewinner/stats/var_median/comparand.h \
+  src/main/../random/random.h src/main/../stats/stats.h \
+  src/main/../stats/../tools.h src/main/../stats/confidence/student.h \
+  src/main/../modes/breg.h src/main/../modes/mode.h \
+  src/main/../modes/../random/random.h src/main/../modes/../stats/stats.h \
+  src/main/../modes/../generator/ballotgen.h \
+  src/main/../modes/../singlewinner/method.h \
+  src/main/../modes/../singlewinner/stats/cardinal.h \
+  src/main/../modes/yee.h src/main/../modes/../ballots.h \
+  src/main/../modes/../generator/spatial.h \
+  src/main/../images/color/color.h /usr/include/openssl/sha.h \
+  /usr/include/openssl/e_os2.h /usr/include/openssl/opensslconf.h
+
+/usr/include/assert.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-64.h:
+
+/usr/include/values.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.3.2/include-fixed/limits.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.3.2/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/bits/xopen_lim.h:
+
+/usr/include/bits/stdio_lim.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/float.h:
+
+/usr/include/errno.h:
+
+/usr/include/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/asm/errno.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/ctype.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/getopt.h:
+
+/usr/include/c++/4.3/iostream:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/c++config.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/os_defines.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/cpu_defines.h:
+
+/usr/include/c++/4.3/ostream:
+
+/usr/include/c++/4.3/ios:
+
+/usr/include/c++/4.3/iosfwd:
+
+/usr/include/c++/4.3/bits/stringfwd.h:
+
+/usr/include/c++/4.3/bits/postypes.h:
+
+/usr/include/c++/4.3/cwchar:
+
+/usr/include/c++/4.3/cstddef:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/stddef.h:
+
+/usr/include/wchar.h:
+
+/usr/include/stdio.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/stdarg.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/4.3.2/include/stddef.h:
+
+/usr/include/c++/4.3/tr1_impl/cwchar:
+
+/usr/include/stdint.h:
+
+/usr/include/c++/4.3/exception:
+
+/usr/include/c++/4.3/bits/char_traits.h:
+
+/usr/include/c++/4.3/bits/stl_algobase.h:
+
+/usr/include/c++/4.3/bits/functexcept.h:
+
+/usr/include/c++/4.3/exception_defines.h:
+
+/usr/include/c++/4.3/bits/cpp_type_traits.h:
+
+/usr/include/c++/4.3/ext/type_traits.h:
+
+/usr/include/c++/4.3/ext/numeric_traits.h:
+
+/usr/include/c++/4.3/bits/stl_pair.h:
+
+/usr/include/c++/4.3/bits/stl_move.h:
+
+/usr/include/c++/4.3/bits/concept_check.h:
+
+/usr/include/c++/4.3/type_traits:
+
+/usr/include/c++/4.3/tr1_impl/type_traits:
+
+/usr/include/c++/4.3/bits/stl_iterator_base_types.h:
+
+/usr/include/c++/4.3/bits/stl_iterator_base_funcs.h:
+
+/usr/include/c++/4.3/bits/stl_iterator.h:
+
+/usr/include/c++/4.3/debug/debug.h:
+
+/usr/include/c++/4.3/cstdio:
+
+/usr/include/stdio.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/wchar.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/include/bits/stdio.h:
+
+/usr/include/c++/4.3/tr1_impl/cstdio:
+
+/usr/include/c++/4.3/bits/localefwd.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/c++locale.h:
+
+/usr/include/c++/4.3/clocale:
+
+/usr/include/locale.h:
+
+/usr/include/bits/locale.h:
+
+/usr/include/c++/4.3/cctype:
+
+/usr/include/ctype.h:
+
+/usr/include/c++/4.3/tr1_impl/cctype:
+
+/usr/include/c++/4.3/bits/ios_base.h:
+
+/usr/include/c++/4.3/ext/atomicity.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/gthr.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/gthr-default.h:
+
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/time.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/signal.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/bits/setjmp.h:
+
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/confname.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/atomic_word.h:
+
+/usr/include/c++/4.3/bits/locale_classes.h:
+
+/usr/include/c++/4.3/string:
+
+/usr/include/c++/4.3/bits/allocator.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/c++allocator.h:
+
+/usr/include/c++/4.3/ext/new_allocator.h:
+
+/usr/include/c++/4.3/new:
+
+/usr/include/c++/4.3/bits/ostream_insert.h:
+
+/usr/include/c++/4.3/cxxabi-forced.h:
+
+/usr/include/c++/4.3/bits/stl_function.h:
+
+/usr/include/c++/4.3/backward/binders.h:
+
+/usr/include/c++/4.3/bits/basic_string.h:
+
+/usr/include/c++/4.3/bits/basic_string.tcc:
+
+/usr/include/c++/4.3/bits/locale_classes.tcc:
+
+/usr/include/c++/4.3/streambuf:
+
+/usr/include/c++/4.3/bits/streambuf.tcc:
+
+/usr/include/c++/4.3/bits/basic_ios.h:
+
+/usr/include/c++/4.3/bits/locale_facets.h:
+
+/usr/include/c++/4.3/cwctype:
+
+/usr/include/wctype.h:
+
+/usr/include/c++/4.3/tr1_impl/cwctype:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/ctype_base.h:
+
+/usr/include/c++/4.3/bits/streambuf_iterator.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/ctype_inline.h:
+
+/usr/include/c++/4.3/bits/locale_facets.tcc:
+
+/usr/include/c++/4.3/bits/basic_ios.tcc:
+
+/usr/include/c++/4.3/bits/ostream.tcc:
+
+/usr/include/c++/4.3/istream:
+
+/usr/include/c++/4.3/bits/istream.tcc:
+
+/usr/include/c++/4.3/fstream:
+
+/usr/include/c++/4.3/bits/codecvt.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/basic_file.h:
+
+/usr/include/c++/4.3/x86_64-linux-gnu/bits/c++io.h:
+
+/usr/include/c++/4.3/bits/fstream.tcc:
+
+/usr/include/c++/4.3/list:
+
+/usr/include/c++/4.3/bits/stl_list.h:
+
+/usr/include/c++/4.3/bits/list.tcc:
+
+src/main/../ballot_tools.h:
+
+src/main/../ballots.h:
+
+/usr/include/c++/4.3/unordered_map:
+
+/usr/include/c++/4.3/utility:
+
+/usr/include/c++/4.3/bits/stl_relops.h:
+
+/usr/include/c++/4.3/tr1_impl/utility:
+
+/usr/include/c++/4.3/bits/functional_hash.h:
+
+/usr/include/c++/4.3/tr1_impl/functional_hash.h:
+
+/usr/include/c++/4.3/bits/hashtable.h:
+
+/usr/include/c++/4.3/tr1_impl/hashtable:
+
+/usr/include/c++/4.3/tr1_impl/hashtable_policy.h:
+
+/usr/include/c++/4.3/tr1_impl/unordered_map:
+
+/usr/include/c++/4.3/vector:
+
+/usr/include/c++/4.3/bits/stl_construct.h:
+
+/usr/include/c++/4.3/bits/stl_uninitialized.h:
+
+/usr/include/c++/4.3/bits/stl_vector.h:
+
+/usr/include/c++/4.3/bits/stl_bvector.h:
+
+/usr/include/c++/4.3/bits/vector.tcc:
+
+/usr/include/math.h:
+
+/usr/include/bits/huge_val.h:
+
+/usr/include/bits/huge_valf.h:
+
+/usr/include/bits/huge_vall.h:
+
+/usr/include/bits/inf.h:
+
+/usr/include/bits/nan.h:
+
+/usr/include/bits/mathdef.h:
+
+/usr/include/bits/mathcalls.h:
+
+/usr/include/bits/mathinline.h:
+
+/usr/include/c++/4.3/set:
+
+/usr/include/c++/4.3/bits/stl_tree.h:
+
+/usr/include/c++/4.3/bits/stl_set.h:
+
+/usr/include/c++/4.3/bits/stl_multiset.h:
+
+/usr/include/c++/4.3/map:
+
+/usr/include/c++/4.3/bits/stl_map.h:
+
+/usr/include/c++/4.3/bits/stl_multimap.h:
+
+src/main/../tools.h:
+
+/usr/include/sys/time.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/c++/4.3/sstream:
+
+/usr/include/c++/4.3/bits/sstream.tcc:
+
+/usr/include/c++/4.3/algorithm:
+
+/usr/include/c++/4.3/bits/stl_algo.h:
+
+/usr/include/c++/4.3/cstdlib:
+
+/usr/include/stdlib.h:
+
+/usr/include/bits/waitflags.h:
+
+/usr/include/bits/waitstatus.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/alloca.h:
+
+/usr/include/c++/4.3/tr1_impl/cstdlib:
+
+/usr/include/c++/4.3/bits/algorithmfwd.h:
+
+/usr/include/c++/4.3/bits/stl_heap.h:
+
+/usr/include/c++/4.3/bits/stl_tempbuf.h:
+
+src/main/../ballots.h:
+
+src/main/../tools.h:
+
+src/main/../generator/all.h:
+
+src/main/../generator/ballotgen.h:
+
+src/main/../generator/../singlewinner/method.h:
+
+src/main/../generator/../singlewinner/../ballots.h:
+
+src/main/../generator/../singlewinner/../tools.h:
+
+src/main/../generator/../singlewinner/../cache.h:
+
+src/main/../generator/../singlewinner/../ballot_tools.h:
+
+src/main/../generator/../singlewinner/../pairwise/matrix.h:
+
+src/main/../generator/../singlewinner/../pairwise/../ballots.h:
+
+src/main/../generator/../singlewinner/../pairwise/../tools.h:
+
+src/main/../generator/../singlewinner/../pairwise/types.h:
+
+src/main/../generator/../singlewinner/../pairwise/abstract_matrix.h:
+
+/usr/include/c++/4.3/iterator:
+
+/usr/include/c++/4.3/bits/stream_iterator.h:
+
+src/main/../generator/../singlewinner/../pairwise/cache_matrix.h:
+
+src/main/../generator/../singlewinner/../pairwise/matrix.h:
+
+src/main/../generator/../ballot_tools.h:
+
+src/main/../generator/../random/random.h:
+
+/usr/include/c++/4.3/ext/numeric:
+
+/usr/include/c++/4.3/numeric:
+
+/usr/include/c++/4.3/bits/stl_numeric.h:
+
+/usr/include/c++/4.3/ext/functional:
+
+/usr/include/c++/4.3/functional:
+
+/usr/include/c++/4.3/typeinfo:
+
+/usr/include/c++/4.3/tuple:
+
+/usr/include/c++/4.3/tr1_impl/functional:
+
+src/main/../generator/dirichlet.h:
+
+src/main/../generator/gaussian.h:
+
+src/main/../generator/spatial.h:
+
+src/main/../generator/impartial.h:
+
+src/main/../singlewinner/all.h:
+
+src/main/../singlewinner/elimination.h:
+
+src/main/../singlewinner/method.h:
+
+src/main/../singlewinner/../tools.h:
+
+src/main/../singlewinner/../ballots.h:
+
+src/main/../singlewinner/../ballot_tools.h:
+
+src/main/../singlewinner/gradual_c_b.h:
+
+src/main/../singlewinner/../pairwise/grad_matrix.h:
+
+src/main/../singlewinner/../pairwise/matrix.h:
+
+src/main/../singlewinner/../pairwise/../grad_median/grad_median.h:
+
+/usr/include/c++/4.3/queue:
+
+/usr/include/c++/4.3/deque:
+
+/usr/include/c++/4.3/bits/stl_deque.h:
+
+/usr/include/c++/4.3/bits/deque.tcc:
+
+/usr/include/c++/4.3/bits/stl_queue.h:
+
+src/main/../singlewinner/../grad_median/grad_median.h:
+
+src/main/../singlewinner/pairwise/method.h:
+
+src/main/../singlewinner/pairwise/../method.h:
+
+src/main/../singlewinner/pairwise/../../pairwise/matrix.h:
+
+/usr/include/c++/4.3/complex:
+
+/usr/include/c++/4.3/cmath:
+
+/usr/include/math.h:
+
+/usr/include/c++/4.3/bits/cmath.tcc:
+
+/usr/include/c++/4.3/tr1_impl/cmath:
+
+/usr/include/c++/4.3/tr1_impl/complex:
+
+/usr/include/glpk.h:
+
+src/main/../singlewinner/young.h:
+
+src/main/../singlewinner/../pairwise/matrix.h:
+
+src/main/../singlewinner/meta/all.h:
+
+src/main/../singlewinner/meta/comma.h:
+
+src/main/../singlewinner/meta/../method.h:
+
+src/main/../singlewinner/meta/../../ballots.h:
+
+src/main/../singlewinner/meta/../../ballot_tools.h:
+
+src/main/../singlewinner/meta/slash.h:
+
+src/main/../singlewinner/pairwise/all.h:
+
+src/main/../singlewinner/pairwise/keener.h:
+
+src/main/../singlewinner/pairwise/method.h:
+
+src/main/../singlewinner/pairwise/least_rev.h:
+
+src/main/../singlewinner/pairwise/rpairs.h:
+
+src/main/../singlewinner/pairwise/sinkhorn.h:
+
+src/main/../singlewinner/pairwise/dodgson_approxs.h:
+
+src/main/../singlewinner/pairwise/kemeny.h:
+
+src/main/../singlewinner/pairwise/simple_methods.h:
+
+src/main/../singlewinner/pairwise/../../pairwise/beatpath.h:
+
+src/main/../singlewinner/pairwise/../../pairwise/matrix.h:
+
+src/main/../singlewinner/pairwise/tournament.h:
+
+src/main/../singlewinner/pairwise/odm/all.h:
+
+src/main/../singlewinner/pairwise/odm/hits.h:
+
+src/main/../singlewinner/pairwise/odm/odm_gen.h:
+
+src/main/../singlewinner/pairwise/odm/../../../pairwise/matrix.h:
+
+src/main/../singlewinner/pairwise/odm/../method.h:
+
+src/main/../singlewinner/pairwise/odm/../../method.h:
+
+src/main/../singlewinner/pairwise/odm/odm_atan.h:
+
+src/main/../singlewinner/pairwise/odm/odm.h:
+
+src/main/../singlewinner/pairwise/random/all.h:
+
+src/main/../singlewinner/pairwise/random/randpair.h:
+
+src/main/../singlewinner/pairwise/random/../../../pairwise/matrix.h:
+
+src/main/../singlewinner/pairwise/random/../method.h:
+
+src/main/../singlewinner/pairwise/random/../../method.h:
+
+src/main/../singlewinner/positional/all.h:
+
+src/main/../singlewinner/positional/aggregator.h:
+
+src/main/../singlewinner/positional/../../ballots.h:
+
+src/main/../singlewinner/positional/../method.h:
+
+src/main/../singlewinner/positional/types.h:
+
+src/main/../singlewinner/positional/as241.h:
+
+src/main/../singlewinner/positional/positional.h:
+
+src/main/../singlewinner/positional/simple_methods.h:
+
+src/main/../singlewinner/random/all.h:
+
+src/main/../singlewinner/random/randball.h:
+
+src/main/../singlewinner/random/../method.h:
+
+src/main/../singlewinner/random/../../tools.h:
+
+src/main/../singlewinner/random/../../ballots.h:
+
+src/main/../singlewinner/random/randcand.h:
+
+src/main/../singlewinner/sets/all.h:
+
+src/main/../singlewinner/sets/condorcet.h:
+
+src/main/../singlewinner/sets/../method.h:
+
+src/main/../singlewinner/sets/../pairwise/method.h:
+
+src/main/../singlewinner/sets/mdd.h:
+
+src/main/../singlewinner/sets/partition.h:
+
+src/main/../singlewinner/sets/topological.h:
+
+src/main/../singlewinner/sets/max_elements/all.h:
+
+src/main/../singlewinner/sets/max_elements/c_tt.h:
+
+src/main/../singlewinner/sets/max_elements/det_sets.h:
+
+src/main/../singlewinner/sets/max_elements/../../method.h:
+
+src/main/../singlewinner/sets/max_elements/../../pairwise/method.h:
+
+src/main/../singlewinner/sets/max_elements/landau.h:
+
+src/main/../singlewinner/sets/max_elements/schwartz.h:
+
+src/main/../singlewinner/sets/max_elements/sdom.h:
+
+src/main/../singlewinner/sets/max_elements/smith.h:
+
+src/main/../singlewinner/stats/all.h:
+
+src/main/../singlewinner/stats/cardinal.h:
+
+src/main/../singlewinner/stats/../method.h:
+
+src/main/../singlewinner/stats/../../tools.h:
+
+src/main/../singlewinner/stats/../../ballots.h:
+
+src/main/../singlewinner/stats/mode.h:
+
+src/main/../singlewinner/stats/var_median/vmedian.h:
+
+/usr/include/stdlib.h:
+
+src/main/../singlewinner/stats/var_median/../../method.h:
+
+src/main/../singlewinner/stats/var_median/../../../tools.h:
+
+src/main/../singlewinner/stats/var_median/../../../ballots.h:
+
+src/main/../singlewinner/stats/var_median/../../../grad_median/grad_median.h:
+
+src/main/../singlewinner/stats/var_median/comparand.h:
+
+src/main/../random/random.h:
+
+src/main/../stats/stats.h:
+
+src/main/../stats/../tools.h:
+
+src/main/../stats/confidence/student.h:
+
+src/main/../modes/breg.h:
+
+src/main/../modes/mode.h:
+
+src/main/../modes/../random/random.h:
+
+src/main/../modes/../stats/stats.h:
+
+src/main/../modes/../generator/ballotgen.h:
+
+src/main/../modes/../singlewinner/method.h:
+
+src/main/../modes/../singlewinner/stats/cardinal.h:
+
+src/main/../modes/yee.h:
+
+src/main/../modes/../ballots.h:
+
+src/main/../modes/../generator/spatial.h:
+
+src/main/../images/color/color.h:
+
+/usr/include/openssl/sha.h:
+
+/usr/include/openssl/e_os2.h:
+
+/usr/include/openssl/opensslconf.h:

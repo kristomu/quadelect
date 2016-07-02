@@ -1,0 +1,13 @@
+Code for handling the different modes of operation will go here:
+	- Yee diagram drawing (ideally multiprocess)
+	- Kendall-tau distance calculations, virtual coordinate
+	- Criterion testing
+	- Bayesian regret (ideally proportionality too for multiwinner,
+		and graphing using interface into gnuplot).
+	- JGA-type strategic vulnerability testing. (Should also ask
+		JGA if he can give me the code for Gaussian so we can find
+		out why his Gaussian/spatial models give so different results
+		from mine.)
+	- Determining the winner based on input ballots. I still use CElect for
+		this, heh. Similarly, determining the winner given a Condorcet
+		matrix.

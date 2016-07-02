@@ -1,0 +1,750 @@
+0 0.356108 0.204651	Gradual-[SDom(wv)](None, ordinal)
+0.00402612 0.356358 0.204191	[SDom(wv)],[Gradual-[SDom(wv)](None, ordinal)]
+0.0543208 0.431398 0.197471	Gradual-[SDom(wv)](None, cardinal)
+0.0649405 0.427483 0.196355	[SDom(wv)],[Gradual-[SDom(wv)](None, cardinal)]
+0.20599 0.100621 0.225016	Random Pair
+0.218044 0.125629 0.210464	[SDom(wv)],[Random Pair]
+0.2707 0.61283 0.129157	Antiplurality
+0.271927 0.608473 0.125731	[SDom(wv)],[Antiplurality]
+0.35184 0.344968 0.0370819	[SDom(wv)],[VMedianOS-10(tiebreak)]
+0.423117 0.325513 0.0362441	Nauru Borda
+0.441521 0 0.102713	Mode-Ratings
+0.461796 0.572306 0.0177709	[SDom(wv)],[Keener(0.001, +1, norm)(PO)]
+0.461913 0.572316 0.0177709	Keener(0.001, +1, norm)(PO)
+0.495765 0.637699 0.0378788	Ext-Minmin(PO)
+0.496007 0.637746 0.0378788	[SDom(wv)],[Ext-Minmin(PO)]
+0.503516 0.251649 0.0442736	[SDom(wv)],[Eliminate-[Plurality]/fd]
+0.503916 0.251453 0.044712	Eliminate-[Plurality]/fd
+0.509791 0.606329 0.0289982	L-R offense/2.25(rel-margins)
+0.509871 0.606373 0.0289982	[SDom(wv)],[L-R offense/2.25(rel-margins)]
+0.511908 0.58879 0.0250771	[SDom(wv)],[L-R offense/2(rel-margins)]
+0.511949 0.58884 0.0250771	L-R offense/2(rel-margins)
+0.513921 0.577381 0.0227983	L-R offense/1.75(rel-margins)
+0.513959 0.57746 0.0227983	[SDom(wv)],[L-R offense/1.75(rel-margins)]
+0.515549 0.596469 0.0261373	HITS(0.001)(rel-margins)
+0.515553 0.596459 0.0261373	[SDom(wv)],[HITS(0.001)(rel-margins)]
+0.516411 0.563826 0.0197996	[SDom(wv)],[L-R offense/1.5(rel-margins)]
+0.516496 0.563782 0.0197996	L-R offense/1.5(rel-margins)
+0.525733 0.586832 0.0218369	[SDom(wv)],[L-R both/2.25(rel-margins)]
+0.52582 0.586873 0.0218369	L-R both/2.25(rel-margins)
+0.527001 0.526026 0.0132659	L-R offense/1.25(rel-margins)
+0.527055 0.525997 0.0132659	[SDom(wv)],[L-R offense/1.25(rel-margins)]
+0.532688 0.497453 0.00928377	L-R offense/1(rel-margins)
+0.532688 0.497453 0.00928377	[SDom(wv)],[L-R offense/1(rel-margins)]
+0.532812 0.421343 0.0097817	Dodgson-Quick(PO)
+0.532887 0.421346 0.0097817	[SDom(wv)],[Dodgson-Quick(PO)]
+0.533349 0.5657 0.0168244	L-R both/2(rel-margins)
+0.533464 0.565747 0.0168244	[SDom(wv)],[L-R both/2(rel-margins)]
+0.539314 0.547863 0.0134197	[SDom(wv)],[L-R both/1.75(rel-margins)]
+0.539388 0.547843 0.0134197	L-R both/1.75(rel-margins)
+0.541073 0.493786 0.00773069	Keener(0.001, +1, raw)(rel-margins)
+0.541091 0.493837 0.00773069	[SDom(wv)],[Keener(0.001, +1, raw)(rel-margins)]
+0.549248 0.454955 0.0060276	L-R offense/0.75(rel-margins)
+0.549261 0.454947 0.0060276	[SDom(wv)],[L-R offense/0.75(rel-margins)]
+0.549915 0.517928 0.00900376	[SDom(wv)],[L-R both/1.5(rel-margins)]
+0.549927 0.517911 0.00900376	L-R both/1.5(rel-margins)
+0.55302 0.497121 0.0067622	[SDom(wv)],[L-R defense/0.25(PO)]
+0.553054 0.49712 0.0067622	L-R defense/0.25(PO)
+0.554513 0.487939 0.0057258	[SDom(wv)],[L-R offense/2.25(PO)]
+0.554529 0.487964 0.0057258	L-R offense/2.25(PO)
+0.556851 0.480892 0.00510016	L-R offense/2(PO)
+0.5569 0.48084 0.00510016	[SDom(wv)],[L-R offense/2(PO)]
+0.557936 0.48493 0.00541741	[SDom(wv)],[L-R defense/0.5(PO)]
+0.558025 0.484916 0.00541741	L-R defense/0.5(PO)
+0.561331 0.474977 0.00464328	L-R offense/1.75(PO)
+0.561345 0.474986 0.00464328	[SDom(wv)],[L-R offense/1.75(PO)]
+0.561858 0.488004 0.00511891	HITS(0.001)(PO)
+0.561909 0.488025 0.00511891	[SDom(wv)],[HITS(0.001)(PO)]
+0.562395 0.492876 0.00573315	[SDom(wv)],[L-R both/1.25(rel-margins)]
+0.562483 0.492859 0.00573315	L-R both/1.25(rel-margins)
+0.563203 0.480419 0.00532239	L-R both/0.25(PO)
+0.56321 0.480432 0.00532239	[SDom(wv)],[L-R both/0.25(PO)]
+0.563375 0.472047 0.00452672	L-R offense/1.5(PO)
+0.563405 0.472054 0.00452672	[SDom(wv)],[L-R offense/1.5(PO)]
+0.564357 0.471785 0.00455636	L-R defense/0.75(PO)
+0.56437 0.4718 0.00455636	[SDom(wv)],[L-R defense/0.75(PO)]
+0.565619 0.470787 0.00441421	L-R offense/1.25(PO)
+0.565668 0.47079 0.00441421	[SDom(wv)],[L-R offense/1.25(PO)]
+0.566861 0.472589 0.00459615	L-R both/0.5(PO)
+0.566964 0.472587 0.00459615	[SDom(wv)],[L-R both/0.5(PO)]
+0.567631 0.470913 0.0044023	[SDom(wv)],[L-R both/2.25(PO)]
+0.567635 0.470894 0.0044023	L-R both/0.75(PO)
+0.567638 0.470892 0.0044023	[SDom(wv)],[L-R both/0.75(PO)]
+0.567645 0.470871 0.0044023	L-R both/2.25(PO)
+0.57026 0.451261 0.00419324	NREM-Opt
+0.570265 0.451212 0.00419324	[SDom(wv)],[NREM-Opt]
+0.57108 0.374197 0.0154335	HITS(0.001)(fwv)
+0.571123 0.374263 0.0154335	[SDom(wv)],[HITS(0.001)(fwv)]
+0.571324 0.374305 0.015433	[SDom(wv)],[HITS(0.001)(wv)]
+0.571341 0.374298 0.015433	HITS(0.001)(wv)
+0.571446 0.478538 0.00492303	[SDom(wv)],[ODM(0.001)(PO)]
+0.571516 0.478549 0.00492303	ODM(0.001)(PO)
+0.57171 0.477072 0.00470764	Sinkhorn(0.001, +1)(PO)
+0.571759 0.477093 0.00470764	[SDom(wv)],[Sinkhorn(0.001, +1)(PO)]
+0.573307 0.452671 0.00425938	L-R both/1(PO)
+0.573307 0.452684 0.00425938	[SDom(wv)],[Borda]
+0.573309 0.45268 0.00425938	L-R offense/1(PO)
+0.573312 0.45265 0.00425938	[SDom(wv)],[L-R defense/1(PO)]
+0.573312 0.452662 0.00425938	Borda
+0.573322 0.452653 0.00425938	L-R both/2(PO)
+0.573323 0.452647 0.00425938	L-R defense/1(PO)
+0.573327 0.452641 0.00425938	[SDom(wv)],[L-R offense/1(PO)]
+0.57333 0.452639 0.00425938	[SDom(wv)],[L-R both/1(PO)]
+0.573331 0.45264 0.00425938	[SDom(wv)],[L-R both/2(PO)]
+0.576188 0.454166 0.00421782	[SDom(wv)],[L-R both/1(rel-margins)]
+0.576255 0.454201 0.00421782	L-R both/1(rel-margins)
+0.581093 0.383538 0.0119189	[SDom(wv)],[L-R offense/2.25(fwv)]
+0.581273 0.383549 0.0119189	[SDom(wv)],[L-R offense/2.25(wv)]
+0.581307 0.383579 0.0119189	L-R offense/2.25(fwv)
+0.581316 0.383609 0.0119189	L-R offense/2.25(wv)
+0.581617 0.409594 0.00602633	L-R offense/0.5(rel-margins)
+0.581698 0.409635 0.00602633	[SDom(wv)],[L-R offense/0.5(rel-margins)]
+0.585105 0.280144 0.0312686	[SDom(wv)],[Gradual-[Smith(wv)](None, ordinal)]
+0.585124 0.279812 0.031366	Gradual-[Smith(wv)](None, ordinal)
+0.589458 0.375769 0.0134352	[SDom(wv)],[L-R offense/2(fwv)]
+0.589464 0.375768 0.0134352	L-R offense/2(wv)
+0.589465 0.375764 0.0134352	[SDom(wv)],[L-R offense/2(wv)]
+0.589465 0.375765 0.0134352	L-R offense/2(fwv)
+0.589521 0.440366 0.00411672	L-R both/1.25(PO)
+0.589547 0.440361 0.00411672	[SDom(wv)],[L-R both/1.25(PO)]
+0.589848 0.44052 0.00411672	[SDom(wv)],[L-R both/1.5(PO)]
+0.589875 0.440567 0.00411672	L-R both/1.5(PO)
+0.5903 0.441179 0.00411672	L-R both/1.75(PO)
+0.590364 0.44118 0.00411672	[SDom(wv)],[L-R both/1.75(PO)]
+0.592053 0.441325 0.00410481	[SDom(wv)],[L-R offense/0.75(PO)]
+0.592076 0.441276 0.00410481	L-R offense/0.75(PO)
+0.59339 0.33297 0.0244454	[MDD(sum)(wv)],[Plurality]
+0.594522 0.441137 0.00412229	[SDom(wv)],[L-R offense/0.5(PO)]
+0.594526 0.441216 0.00412229	L-R offense/0.5(PO)
+0.59469 0.444862 0.00410658	[SDom(wv)],[ODM-arctan(0.001)(PO)]
+0.59471 0.444878 0.00410658	ODM-arctan(0.001)(PO)
+0.594723 0.44166 0.00412685	L-R defense/1.25(PO)
+0.594793 0.441668 0.00412685	[SDom(wv)],[L-R defense/1.25(PO)]
+0.595346 0.443356 0.0041081	[SDom(wv)],[Keener(0.001, +1, norm)(rel-margins)]
+0.595355 0.443328 0.0041081	Keener(0.001, +1, norm)(rel-margins)
+0.595832 0.353235 0.0181401	[MDD(sum)(wv)],[HITS(0.001)(fwv)]
+0.595935 0.353194 0.0181396	[MDD(sum)(wv)],[HITS(0.001)(wv)]
+0.596142 0.36908 0.013925	L-R offense/1.75(fwv)
+0.596162 0.369061 0.013925	[SDom(wv)],[L-R offense/1.75(fwv)]
+0.596185 0.369099 0.013925	L-R offense/1.75(wv)
+0.596197 0.369068 0.013925	[SDom(wv)],[L-R offense/1.75(wv)]
+0.5967 0.303207 0.0301413	[SDom(wv)],[Keener(0.001, +1, norm)(tourn-wv)]
+0.596718 0.303189 0.0301413	Keener(0.001, +1, norm)(tourn-wv)
+0.596731 0.303308 0.0301413	[MDD(sum)(wv)],[Keener(0.001, +1, norm)(tourn-wv)]
+0.59677 0.436541 0.00394998	[SDom(wv)],[L-R offense/0.25(PO)]
+0.596842 0.436466 0.00394998	L-R offense/0.25(PO)
+0.597555 0.326686 0.0229245	[MDD(sum)(wv)],[Gradual-[SDom(wv)](None, cardinal)]
+0.598184 0.432876 0.00395429	L-R defense/1.5(PO)
+0.59821 0.432996 0.00395429	[SDom(wv)],[L-R defense/1.5(PO)]
+0.598363 0.441404 0.00411849	Sinkhorn(0.001, +1)(rel-margins)
+0.598396 0.441423 0.00411849	[SDom(wv)],[Sinkhorn(0.001, +1)(rel-margins)]
+0.598809 0.325272 0.0230834	[MDD(sum)(wv)],[Gradual-[SDom(wv)](None, ordinal)]
+0.601213 0.363078 0.0147922	L-R offense/1.5(wv)
+0.601218 0.363053 0.0147922	L-R offense/1.5(fwv)
+0.601241 0.363154 0.0147922	[SDom(wv)],[L-R offense/1.5(wv)]
+0.601249 0.363069 0.0147922	[SDom(wv)],[L-R offense/1.5(fwv)]
+0.601448 0.429023 0.0038362	L-R defense/1.75(PO)
+0.601471 0.429022 0.0038362	[SDom(wv)],[L-R defense/1.75(PO)]
+0.602298 0.312803 0.0254093	[MDD(sum)(wv)],[Gradual-[Landau(wv)](None, cardinal)]
+0.602483 0.419637 0.00451531	L-R both/0.75(rel-margins)
+0.602505 0.41966 0.00451531	[SDom(wv)],[L-R both/0.75(rel-margins)]
+0.603254 0.29896 0.0305242	[SDom(wv)],[2. order Copeland/2/1]
+0.603262 0.298981 0.0305242	2. order Copeland/2/1
+0.603269 0.298954 0.0305242	Sinkhorn(0.001, +1)(tourn-wv)
+0.603273 0.298969 0.0305242	[MDD(sum)(wv)],[2. order Copeland]
+0.603278 0.298948 0.0305242	2. order Copeland
+0.60328 0.298951 0.0305242	[SDom(wv)],[2. order Copeland/2/1]
+0.603282 0.298975 0.0305242	[MDD(sum)(wv)],[2. order Copeland/2/1]
+0.603282 0.298977 0.0305242	[MDD(sum)(wv)],[2. order Copeland]
+0.603283 0.298958 0.0305242	[MDD(sum)(wv)],[2. order Copeland]
+0.603285 0.298973 0.0305242	2. order Copeland/2/1
+0.603286 0.298968 0.0305242	[SDom(wv)],[ODM-arctan(0.001)(tourn-wv)]
+0.603287 0.29895 0.0305242	ODM-arctan(0.001)(tourn-wv)
+0.603288 0.29898 0.0305242	[SDom(wv)],[2. order Copeland]
+0.603288 0.298985 0.0305242	[MDD(sum)(wv)],[2. order Copeland/2/1]
+0.603291 0.298998 0.0305242	[SDom(wv)],[Sinkhorn(0.001, +1)(tourn-wv)]
+0.603292 0.298963 0.0305242	[SDom(wv)],[2. order Copeland/2/1]
+0.603292 0.298974 0.0305242	[SDom(wv)],[2. order Copeland]
+0.603293 0.298966 0.0305242	[MDD(sum)(wv)],[ODM-arctan(0.001)(tourn-wv)]
+0.603293 0.298974 0.0305242	[MDD(sum)(wv)],[Sinkhorn(0.001, +1)(tourn-wv)]
+0.603293 0.299 0.0305242	[MDD(sum)(wv)],[2. order Copeland/2/1]
+0.603295 0.29896 0.0305242	2. order Copeland
+0.603295 0.298965 0.0305242	2. order Copeland
+0.603295 0.298991 0.0305242	2. order Copeland/2/1
+0.603296 0.298981 0.0305242	2. order Copeland/2/1
+0.603299 0.298954 0.0305242	[SDom(wv)],[2. order Copeland]
+0.603299 0.298967 0.0305242	[MDD(sum)(wv)],[2. order Copeland/2/1]
+0.603299 0.298988 0.0305242	[MDD(sum)(wv)],[2. order Copeland]
+0.603303 0.29899 0.0305242	[SDom(wv)],[2. order Copeland]
+0.603304 0.298976 0.0305242	[MDD(sum)(wv)],[2. order Copeland]
+0.603305 0.298976 0.0305242	[SDom(wv)],[2. order Copeland/2/1]
+0.603307 0.298969 0.0305242	[SDom(wv)],[2. order Copeland]
+0.603308 0.298984 0.0305242	[SDom(wv)],[2. order Copeland/2/1]
+0.603309 0.298972 0.0305242	2. order Copeland
+0.603309 0.298983 0.0305242	2. order Copeland/2/1
+0.603314 0.298992 0.0305242	[MDD(sum)(wv)],[2. order Copeland/2/1]
+0.603326 0.298995 0.0305242	2. order Copeland
+0.603589 0.31162 0.0254795	[MDD(sum)(wv)],[Gradual-[Smith(wv)](None, cardinal)]
+0.603643 0.313855 0.0254785	[MDD(sum)(wv)],[Gradual-[Landau(wv)](None, ordinal)]
+0.603738 0.360185 0.0148525	L-R offense/1.25(fwv)
+0.603754 0.360167 0.0148525	[SDom(wv)],[L-R offense/1.25(wv)]
+0.603776 0.36015 0.0148525	[SDom(wv)],[L-R offense/1.25(fwv)]
+0.603795 0.310614 0.0259445	[MDD(sum)(wv)],[Gradual-[Condorcet](None, cardinal)]
+0.603809 0.360144 0.0148525	L-R offense/1.25(wv)
+0.603978 0.425088 0.00408251	L-R defense/2(PO)
+0.604026 0.425115 0.00408251	[SDom(wv)],[L-R defense/2(PO)]
+0.604121 0.357876 0.0157447	[MDD(sum)(wv)],[HITS(0.001)(rel-margins)]
+0.60446 0.311873 0.0256054	[MDD(sum)(wv)],[Gradual-[Smith(wv)](None, ordinal)]
+0.604726 0.356655 0.0156291	[MDD(sum)(wv)],[L-R offense/2.25(rel-margins)]
+0.60484 0.310593 0.0260453	[MDD(sum)(wv)],[Gradual-[Condorcet](None, ordinal)]
+0.604859 0.356648 0.0154994	[MDD(sum)(wv)],[L-R offense/2(rel-margins)]
+0.60487 0.357599 0.0148307	L-R offense/1(fwv)
+0.604873 0.43207 0.0037873	Keener(0.001, +1, raw)(PO)
+0.60491 0.357558 0.0148307	[SDom(wv)],[L-R offense/1(fwv)]
+0.604953 0.432068 0.0037873	[SDom(wv)],[Keener(0.001, +1, raw)(PO)]
+0.605089 0.356657 0.0148955	L-R offense/1(wv)
+0.605095 0.356656 0.0148955	[SDom(wv)],[L-R offense/1(wv)]
+0.605387 0.357207 0.0153696	[MDD(sum)(wv)],[L-R offense/1.75(rel-margins)]
+0.606004 0.357478 0.0150453	[MDD(sum)(wv)],[L-R offense/1.5(wv)]
+0.606006 0.357475 0.0150453	[MDD(sum)(wv)],[L-R offense/1.5(rel-margins)]
+0.606006 0.35748 0.0150453	[MDD(sum)(wv)],[L-R offense/1.25(rel-margins)]
+0.606007 0.35748 0.0150453	[MDD(sum)(wv)],[L-R offense/2(wv)]
+0.606009 0.357478 0.0150453	[MDD(sum)(wv)],[L-R offense/1.5(fwv)]
+0.60601 0.357478 0.0150453	[MDD(sum)(wv)],[L-R offense/2.25(wv)]
+0.606011 0.357476 0.0150453	[MDD(sum)(wv)],[L-R offense/2.25(fwv)]
+0.606011 0.357477 0.0150453	[MDD(sum)(wv)],[L-R offense/1.75(wv)]
+0.606013 0.357477 0.0150453	[MDD(sum)(wv)],[L-R offense/1.25(fwv)]
+0.606013 0.357477 0.0150453	[MDD(sum)(wv)],[L-R offense/2(fwv)]
+0.606017 0.357477 0.0150453	[MDD(sum)(wv)],[L-R offense/1.25(wv)]
+0.606018 0.357475 0.0150453	[MDD(sum)(wv)],[L-R offense/1.75(fwv)]
+0.606095 0.358044 0.0154021	[MDD(sum)(wv)],[Ext-Minmin(PO)]
+0.606435 0.356298 0.0149533	[MDD(sum)(wv)],[L-R offense/1(fwv)]
+0.606588 0.347915 0.0159294	[MDD(sum)(wv)],[Dodgson-Quick(PO)]
+0.606664 0.355595 0.0150182	[MDD(sum)(wv)],[L-R offense/1(wv)]
+0.60682 0.356488 0.0150886	[MDD(sum)(wv)],[L-R offense/1(rel-margins)]
+0.607456 0.424087 0.00408301	[SDom(wv)],[L-R defense/2.25(PO)]
+0.607547 0.424109 0.00408301	L-R defense/2.25(PO)
+0.607573 0.359957 0.0143637	L-R offense/0.25(rel-margins)
+0.607576 0.359932 0.0143637	[SDom(wv)],[L-R offense/0.25(rel-margins)]
+0.608515 0.358266 0.0149688	L-R offense/0.75(wv)
+0.608521 0.358254 0.0149688	L-R offense/0.25(wv)
+0.608527 0.358267 0.0149688	[SDom(wv)],[L-R offense/0.75(fwv)]
+0.608528 0.358264 0.0149688	[MDD(sum)(wv)],[L-R offense/0.25(wv)]
+0.608531 0.358237 0.0149688	[MDD(sum)(wv)],[L-R offense/0.25(fwv)]
+0.608537 0.358249 0.0149688	[SDom(wv)],[L-R offense/0.25(fwv)]
+0.608539 0.358269 0.0149688	[SDom(wv)],[L-R offense/0.25(wv)]
+0.60854 0.358238 0.0149688	L-R offense/0.25(fwv)
+0.608541 0.358259 0.0149688	[MDD(sum)(wv)],[L-R offense/0.75(fwv)]
+0.608541 0.358272 0.0149688	[MDD(sum)(wv)],[L-R offense/0.75(wv)]
+0.608542 0.358254 0.0149688	L-R offense/0.75(fwv)
+0.608546 0.358276 0.0149688	L-R offense/0.5(fwv)
+0.608549 0.358243 0.0149688	[SDom(wv)],[L-R offense/0.5(wv)]
+0.608551 0.358248 0.0149688	[MDD(sum)(wv)],[L-R offense/0.5(fwv)]
+0.608551 0.358284 0.0149688	[MDD(sum)(wv)],[L-R offense/0.75(rel-margins)]
+0.608555 0.358236 0.0149688	L-R offense/0.5(wv)
+0.608556 0.35823 0.0149688	[SDom(wv)],[L-R offense/0.5(fwv)]
+0.608556 0.358246 0.0149688	[MDD(sum)(wv)],[L-R offense/0.5(wv)]
+0.608564 0.358286 0.0149688	[SDom(wv)],[L-R offense/0.75(wv)]
+0.608878 0.358282 0.0149728	[MDD(sum)(wv)],[L-R offense/0.5(rel-margins)]
+0.609329 0.357208 0.0151259	[MDD(sum)(wv)],[L-R offense/0.25(rel-margins)]
+0.609556 0.359141 0.0146885	[MDD(sum)(wv)],[L-R both/2.25(rel-margins)]
+0.610109 0.366333 0.0136569	L-R both/2.25(fwv)
+0.610109 0.366354 0.0136569	[SDom(wv)],[L-R both/2.25(fwv)]
+0.610306 0.367096 0.0136478	[SDom(wv)],[L-R both/2.25(wv)]
+0.610323 0.367067 0.0136478	L-R both/2.25(wv)
+0.610579 0.360799 0.0144285	[MDD(sum)(wv)],[Keener(0.001, +1, raw)(rel-margins)]
+0.610929 0.362136 0.0142965	[MDD(sum)(wv)],[Keener(0.001, +1, norm)(PO)]
+0.611519 0.359037 0.0142669	[MDD(sum)(wv)],[L-R both/2(rel-margins)]
+0.61217 0.363368 0.0136858	L-R both/2(wv)
+0.612182 0.363358 0.0136858	[SDom(wv)],[L-R both/2(wv)]
+0.612492 0.363979 0.0136863	[SDom(wv)],[L-R both/2(fwv)]
+0.612529 0.363959 0.0136863	L-R both/2(fwv)
+0.612591 0.359452 0.0141047	[MDD(sum)(wv)],[L-R both/1.75(rel-margins)]
+0.612635 0.359837 0.0139749	[MDD(sum)(wv)],[L-R offense/2(PO)]
+0.612764 0.360736 0.0139658	[MDD(sum)(wv)],[L-R offense/2.25(PO)]
+0.612773 0.360189 0.0139749	[MDD(sum)(wv)],[L-R defense/0.25(PO)]
+0.61303 0.35986 0.0139101	[MDD(sum)(wv)],[L-R offense/1.75(PO)]
+0.613032 0.359541 0.0139749	[MDD(sum)(wv)],[L-R both/1.5(rel-margins)]
+0.613044 0.359543 0.0139749	[MDD(sum)(wv)],[L-R both/1.25(rel-margins)]
+0.613304 0.362564 0.0137494	L-R both/1.75(wv)
+0.613304 0.362564 0.0137494	[SDom(wv)],[L-R both/1.75(wv)]
+0.613408 0.360477 0.0138341	[SDom(wv)],[L-R both/1.5(wv)]
+0.613414 0.360478 0.0138341	L-R both/1.5(wv)
+0.613432 0.35985 0.0139141	[MDD(sum)(wv)],[L-R offense/1.5(PO)]
+0.613476 0.36 0.0139141	[MDD(sum)(wv)],[L-R defense/0.75(PO)]
+0.613554 0.360708 0.0139286	[MDD(sum)(wv)],[L-R defense/0.5(PO)]
+0.61366 0.3595 0.0139101	[MDD(sum)(wv)],[L-R both/2.25(fwv)]
+0.613664 0.36223 0.0139663	[MDD(sum)(wv)],[HITS(0.001)(PO)]
+0.613736 0.360652 0.0139141	[MDD(sum)(wv)],[L-R offense/1.25(PO)]
+0.613756 0.363061 0.0137489	L-R both/1.75(fwv)
+0.613809 0.363075 0.0137489	[SDom(wv)],[L-R both/1.75(fwv)]
+0.613815 0.360148 0.0139009	[MDD(sum)(wv)],[L-R both/2.25(wv)]
+0.613918 0.359428 0.0139141	[MDD(sum)(wv)],[L-R both/2.25(PO)]
+0.61392 0.359435 0.0139141	[MDD(sum)(wv)],[L-R both/2(wv)]
+0.613923 0.359425 0.0139141	[MDD(sum)(wv)],[L-R both/1.5(wv)]
+0.613925 0.359442 0.0139141	[MDD(sum)(wv)],[L-R both/0.5(PO)]
+0.613927 0.359439 0.0139141	[MDD(sum)(wv)],[L-R both/0.25(PO)]
+0.613931 0.359427 0.0139141	[MDD(sum)(wv)],[L-R both/0.75(PO)]
+0.61399 0.361306 0.0138249	[SDom(wv)],[L-R both/1.5(fwv)]
+0.614014 0.361271 0.0138249	L-R both/1.5(fwv)
+0.614075 0.297491 0.030269	[SDom(wv)],[L-R both/0.5(tourn-wv)]
+0.614075 0.297492 0.030269	[MDD(sum)(wv)],[Dodgson-Quick(rel-margins)]
+0.614075 0.297493 0.030269	Dodgson-Quick(rel-margins)
+0.614075 0.297493 0.030269	L-R both/1.75(tourn-wv)
+0.614076 0.29749 0.030269	[MDD(sum)(wv)],[L-R both/2(tourn-wv)]
+0.614076 0.29749 0.030269	[SDom(wv)],[Ext-Minmin(tourn-wv)]
+0.614076 0.297491 0.030269	Ext-Minmin(tourn-wv)
+0.614076 0.297491 0.030269	L-R offense/1(tourn-wv)
+0.614076 0.297491 0.030269	[MDD(sum)(wv)],[Copeland]
+0.614076 0.297491 0.030269	[MDD(sum)(wv)],[L-R defense/2(tourn-wv)]
+0.614076 0.297492 0.030269	L-R both/0.25(tourn-wv)
+0.614076 0.297492 0.030269	L-R offense/0.75(tourn-wv)
+0.614076 0.297492 0.030269	[MDD(sum)(wv)],[L-R both/1.75(tourn-wv)]
+0.614076 0.297492 0.030269	[SDom(wv)],[L-R defense/0.75(tourn-wv)]
+0.614076 0.297493 0.030269	Dodgson-Quick(tourn-wv)
+0.614076 0.297493 0.030269	L-R offense/2(tourn-wv)
+0.614076 0.297493 0.030269	[MDD(sum)(wv)],[L-R offense/2(tourn-wv)]
+0.614076 0.297494 0.030269	Copeland
+0.614076 0.297494 0.030269	L-R both/0.75(tourn-wv)
+0.614076 0.297494 0.030269	[MDD(sum)(wv)],[Schulze(tourn-wv)]
+0.614076 0.297494 0.030269	[SDom(wv)],[L-R defense/2.25(tourn-wv)]
+0.614076 0.297495 0.030269	[MDD(sum)(wv)],[L-R offense/2.25(tourn-wv)]
+0.614076 0.297495 0.030269	[SDom(wv)],[Copeland]
+0.614077 0.297488 0.030269	Dodgson-Quick(fwv)
+0.614077 0.297488 0.030269	L-R defense/2.25(tourn-wv)
+0.614077 0.297489 0.030269	L-R both/2(tourn-wv)
+0.614077 0.297489 0.030269	L-R defense/0.25(tourn-wv)
+0.614077 0.297489 0.030269	[MDD(sum)(wv)],[Dodgson-Quick(tourn-wv)]
+0.614077 0.297489 0.030269	[MDD(sum)(wv)],[L-R both/0.25(tourn-wv)]
+0.614077 0.297489 0.030269	[SDom(wv)],[Dodgson-Quick(fwv)]
+0.614077 0.29749 0.030269	L-R defense/2(tourn-wv)
+0.614077 0.29749 0.030269	L-R offense/2.25(tourn-wv)
+0.614077 0.29749 0.030269	[MDD(sum)(wv)],[Copeland]
+0.614077 0.29749 0.030269	[MDD(sum)(wv)],[L-R offense/1(tourn-wv)]
+0.614077 0.29749 0.030269	[SDom(wv)],[L-R both/1.25(tourn-wv)]
+0.614077 0.29749 0.030269	[SDom(wv)],[L-R offense/2.25(tourn-wv)]
+0.614077 0.297491 0.030269	L-R defense/0.5(tourn-wv)
+0.614077 0.297491 0.030269	[MDD(sum)(wv)],[L-R defense/0.25(tourn-wv)]
+0.614077 0.297491 0.030269	[MDD(sum)(wv)],[L-R defense/0.75(tourn-wv)]
+0.614077 0.297491 0.030269	[MDD(sum)(wv)],[L-R defense/1.75(tourn-wv)]
+0.614077 0.297491 0.030269	[MDD(sum)(wv)],[L-R defense/2.25(tourn-wv)]
+0.614077 0.297491 0.030269	[SDom(wv)],[Dodgson-Quick(tourn-wv)]
+0.614077 0.297492 0.030269	L-R defense/1.5(tourn-wv)
+0.614077 0.297492 0.030269	[MDD(sum)(wv)],[Copeland]
+0.614077 0.297492 0.030269	[MDD(sum)(wv)],[Ext-Minmin(tourn-wv)]
+0.614077 0.297492 0.030269	[MDD(sum)(wv)],[L-R defense/1.25(tourn-wv)]
+0.614077 0.297492 0.030269	[MDD(sum)(wv)],[L-R offense/0.75(tourn-wv)]
+0.614077 0.297492 0.030269	[SDom(wv)],[Ext-Minmax(tourn-wv)]
+0.614077 0.297492 0.030269	[SDom(wv)],[L-R defense/0.5(tourn-wv)]
+0.614077 0.297493 0.030269	L-R both/1(tourn-wv)
+0.614077 0.297493 0.030269	L-R both/2.25(tourn-wv)
+0.614077 0.297493 0.030269	L-R defense/1.75(tourn-wv)
+0.614077 0.297493 0.030269	L-R offense/1.5(tourn-wv)
+0.614077 0.297493 0.030269	[MDD(sum)(wv)],[L-R both/0.5(tourn-wv)]
+0.614077 0.297493 0.030269	[SDom(wv)],[Dodgson-Quick(rel-margins)]
+0.614077 0.297494 0.030269	Copeland
+0.614077 0.297494 0.030269	[SDom(wv)],[Copeland]
+0.614078 0.297485 0.030269	Copeland
+0.614078 0.297486 0.030269	[MDD(sum)(wv)],[L-R defense/1.5(tourn-wv)]
+0.614078 0.297486 0.030269	[MDD(sum)(wv)],[L-R defense/1(tourn-wv)]
+0.614078 0.297486 0.030269	[MDD(sum)(wv)],[L-R offense/1.75(tourn-wv)]
+0.614078 0.297486 0.030269	[SDom(wv)],[L-R both/2(tourn-wv)]
+0.614078 0.297487 0.030269	[MDD(sum)(wv)],[L-R both/2.25(tourn-wv)]
+0.614078 0.297487 0.030269	[MDD(sum)(wv)],[L-R offense/0.5(tourn-wv)]
+0.614078 0.297487 0.030269	[SDom(wv)],[L-R defense/0.25(tourn-wv)]
+0.614078 0.297487 0.030269	[SDom(wv)],[L-R defense/1.25(tourn-wv)]
+0.614078 0.297488 0.030269	L-R offense/0.25(tourn-wv)
+0.614078 0.297488 0.030269	[MDD(sum)(wv)],[L-R both/1.25(tourn-wv)]
+0.614078 0.297489 0.030269	L-R both/0.5(tourn-wv)
+0.614078 0.297489 0.030269	L-R both/1.5(tourn-wv)
+0.614078 0.297489 0.030269	[MDD(sum)(wv)],[L-R offense/1.25(tourn-wv)]
+0.614078 0.297489 0.030269	[SDom(wv)],[Copeland]
+0.614078 0.297489 0.030269	[SDom(wv)],[L-R both/1(tourn-wv)]
+0.614078 0.297489 0.030269	[SDom(wv)],[L-R offense/0.25(tourn-wv)]
+0.614078 0.297489 0.030269	[SDom(wv)],[L-R offense/1.5(tourn-wv)]
+0.614078 0.29749 0.030269	Copeland
+0.614078 0.29749 0.030269	[MDD(sum)(wv)],[L-R offense/0.25(tourn-wv)]
+0.614078 0.297491 0.030269	[MDD(sum)(wv)],[L-R both/0.75(tourn-wv)]
+0.614078 0.297491 0.030269	[SDom(wv)],[L-R offense/0.75(tourn-wv)]
+0.614079 0.297483 0.030269	[SDom(wv)],[L-R defense/1(tourn-wv)]
+0.614079 0.297484 0.030269	L-R offense/0.5(tourn-wv)
+0.614079 0.297484 0.030269	[MDD(sum)(wv)],[L-R both/1.5(tourn-wv)]
+0.614079 0.297485 0.030269	L-R defense/1.25(tourn-wv)
+0.614079 0.297485 0.030269	[MDD(sum)(wv)],[Dodgson-Quick(fwv)]
+0.614079 0.297485 0.030269	[MDD(sum)(wv)],[L-R offense/1.5(tourn-wv)]
+0.614079 0.297485 0.030269	[SDom(wv)],[Copeland]
+0.614079 0.297485 0.030269	[SDom(wv)],[L-R both/0.25(tourn-wv)]
+0.614079 0.297486 0.030269	L-R both/1.25(tourn-wv)
+0.614079 0.297486 0.030269	L-R defense/0.75(tourn-wv)
+0.614079 0.297486 0.030269	[MDD(sum)(wv)],[Ext-Minmax(tourn-wv)]
+0.614079 0.297486 0.030269	[MDD(sum)(wv)],[L-R both/1(tourn-wv)]
+0.614079 0.297486 0.030269	[MDD(sum)(wv)],[L-R defense/0.5(tourn-wv)]
+0.614079 0.297486 0.030269	[SDom(wv)],[Copeland]
+0.614079 0.297486 0.030269	[SDom(wv)],[L-R both/1.5(tourn-wv)]
+0.614079 0.297486 0.030269	[SDom(wv)],[L-R defense/1.75(tourn-wv)]
+0.614079 0.297486 0.030269	[SDom(wv)],[L-R offense/1.75(tourn-wv)]
+0.614079 0.297486 0.030269	[SDom(wv)],[L-R offense/1(tourn-wv)]
+0.614079 0.297487 0.030269	L-R defense/1(tourn-wv)
+0.614079 0.297487 0.030269	[MDD(sum)(wv)],[Copeland]
+0.614079 0.297487 0.030269	[MDD(sum)(wv)],[Copeland]
+0.614079 0.297487 0.030269	[MDD(sum)(wv)],[Minmax(tourn-wv)]
+0.614079 0.297487 0.030269	[SDom(wv)],[L-R both/2.25(tourn-wv)]
+0.614079 0.297487 0.030269	[SDom(wv)],[L-R offense/1.25(tourn-wv)]
+0.614079 0.297489 0.030269	[SDom(wv)],[L-R both/0.75(tourn-wv)]
+0.61408 0.297482 0.030269	[SDom(wv)],[L-R both/1.75(tourn-wv)]
+0.61408 0.297484 0.030269	Copeland
+0.61408 0.297484 0.030269	Ext-Minmax(tourn-wv)
+0.61408 0.297484 0.030269	[SDom(wv)],[L-R defense/2(tourn-wv)]
+0.61408 0.297485 0.030269	L-R offense/1.75(tourn-wv)
+0.61408 0.297485 0.030269	[SDom(wv)],[L-R offense/0.5(tourn-wv)]
+0.61408 0.297486 0.030269	[SDom(wv)],[L-R defense/1.5(tourn-wv)]
+0.61408 0.297486 0.030269	[SDom(wv)],[L-R offense/2(tourn-wv)]
+0.61408 0.297487 0.030269	L-R offense/1.25(tourn-wv)
+0.614103 0.36003 0.0139146	[SDom(wv)],[L-R both/1.25(wv)]
+0.614113 0.360051 0.0139146	L-R both/1.25(wv)
+0.614119 0.36001 0.0139146	[MDD(sum)(wv)],[L-R both/2(fwv)]
+0.61413 0.360058 0.0139146	[MDD(sum)(wv)],[L-R both/1.25(wv)]
+0.614187 0.354481 0.0135804	[MDD(sum)(wv)],[Cardinal-10]
+0.61424 0.360241 0.0139146	[MDD(sum)(wv)],[L-R both/1.75(wv)]
+0.614354 0.360071 0.0139141	L-R both/1.25(fwv)
+0.614357 0.360068 0.0139141	[SDom(wv)],[L-R both/1.25(fwv)]
+0.614363 0.36006 0.0139141	[MDD(sum)(wv)],[L-R both/1.25(fwv)]
+0.614481 0.36009 0.0139045	[MDD(sum)(wv)],[L-R both/1.5(fwv)]
+0.614713 0.360623 0.0139136	[MDD(sum)(wv)],[L-R both/1.75(fwv)]
+0.615532 0.362004 0.0139136	[MDD(sum)(wv)],[ODM(0.001)(PO)]
+0.615591 0.361995 0.0139136	[MDD(sum)(wv)],[Sinkhorn(0.001, +1)(PO)]
+0.615649 0.35827 0.0139141	[MDD(sum)(wv)],[L-R both/1(rel-margins)]
+0.615697 0.257731 0.039047	Schulze(tourn-wv)
+0.615791 0.356937 0.0139141	[MDD(sum)(wv)],[L-R both/1(wv)]
+0.615792 0.356938 0.0139141	[MDD(sum)(wv)],[L-R both/2(PO)]
+0.615792 0.35694 0.0139141	[MDD(sum)(wv)],[L-R defense/1(PO)]
+0.615793 0.356933 0.0139141	L-R both/1(wv)
+0.615793 0.35694 0.0139141	[MDD(sum)(wv)],[L-R both/1(PO)]
+0.615794 0.356938 0.0139141	[SDom(wv)],[L-R both/1(wv)]
+0.615795 0.356939 0.0139141	[MDD(sum)(wv)],[Borda]
+0.615797 0.356935 0.0139141	[MDD(sum)(wv)],[L-R offense/1(PO)]
+0.615971 0.258245 0.0388524	[SDom(wv)],[Schulze(tourn-wv)]
+0.617649 0.375743 0.0108029	L-R both/0.5(rel-margins)
+0.617651 0.375751 0.0108029	[SDom(wv)],[L-R both/0.5(rel-margins)]
+0.617863 0.359633 0.0139055	[MDD(sum)(wv)],[L-R both/1(fwv)]
+0.617868 0.359668 0.0139055	[SDom(wv)],[L-R both/1(fwv)]
+0.617917 0.359677 0.0139055	L-R both/1(fwv)
+0.617978 0.31608 0.0243096	[MDD(sum)(wv)],[Dodgson-Quick(wv)]
+0.617995 0.316061 0.0243096	[SDom(wv)],[Dodgson-Quick(wv)]
+0.618033 0.316078 0.0243096	Dodgson-Quick(wv)
+0.618171 0.362837 0.015211	Keener(0.001, +1, raw)(fwv)
+0.618197 0.36279 0.015211	[MDD(sum)(wv)],[Keener(0.001, +1, raw)(fwv)]
+0.61822 0.362668 0.015211	[SDom(wv)],[Keener(0.001, +1, raw)(fwv)]
+0.618875 0.242549 0.0466309	[SDom(wv)],[Minmax(tourn-wv)]
+0.619148 0.361808 0.0139215	[MDD(sum)(wv)],[NREM-Opt]
+0.619217 0.358635 0.0139141	[MDD(sum)(wv)],[L-R both/1.25(PO)]
+0.619352 0.358738 0.0139141	[MDD(sum)(wv)],[L-R both/1.5(PO)]
+0.619425 0.358934 0.0139141	[SDom(wv)],[L-R both/0.75(wv)]
+0.619426 0.35893 0.0139141	L-R both/0.75(wv)
+0.619442 0.358903 0.0139141	[MDD(sum)(wv)],[L-R both/0.75(wv)]
+0.619512 0.359242 0.0139146	[MDD(sum)(wv)],[L-R both/1.75(PO)]
+0.619689 0.358964 0.0139141	[MDD(sum)(wv)],[L-R both/0.75(rel-margins)]
+0.61988 0.359401 0.0139326	[MDD(sum)(wv)],[L-R both/0.5(fwv)]
+0.61989 0.359412 0.0139326	L-R both/0.5(fwv)
+0.619901 0.358707 0.0139141	[MDD(sum)(wv)],[L-R defense/1.75(PO)]
+0.619903 0.3594 0.0139326	[SDom(wv)],[L-R both/0.5(fwv)]
+0.619913 0.358716 0.0139141	[MDD(sum)(wv)],[L-R defense/1.5(PO)]
+0.619917 0.35871 0.0139141	[MDD(sum)(wv)],[L-R defense/2(PO)]
+0.619937 0.359279 0.0139136	[MDD(sum)(wv)],[L-R both/0.25(wv)]
+0.619956 0.359286 0.0139136	[SDom(wv)],[L-R both/0.25(wv)]
+0.619971 0.359281 0.0139136	L-R both/0.25(wv)
+0.619997 0.359375 0.0139326	L-R both/0.75(fwv)
+0.620004 0.359379 0.0139326	[SDom(wv)],[L-R both/0.75(fwv)]
+0.620014 0.359353 0.0139326	[MDD(sum)(wv)],[L-R both/0.75(fwv)]
+0.620078 0.359481 0.0139321	[MDD(sum)(wv)],[L-R both/0.5(wv)]
+0.620089 0.359467 0.0139321	L-R both/0.5(wv)
+0.62009 0.359473 0.0139321	[SDom(wv)],[L-R both/0.5(wv)]
+0.620195 0.359864 0.0139146	L-R both/0.25(fwv)
+0.620199 0.359841 0.0139146	[MDD(sum)(wv)],[L-R both/0.25(fwv)]
+0.620205 0.359864 0.0139146	[SDom(wv)],[L-R both/0.25(fwv)]
+0.620301 0.359058 0.0139141	[MDD(sum)(wv)],[L-R offense/0.75(PO)]
+0.620404 0.359243 0.0139136	[MDD(sum)(wv)],[L-R offense/0.25(PO)]
+0.620427 0.359851 0.013905	[MDD(sum)(wv)],[L-R both/0.5(rel-margins)]
+0.620636 0.365531 0.0151768	[MDD(sum)(wv)],[Gradual-[Copeland](None, ordinal)]
+0.620644 0.365487 0.0151768	Gradual-[Copeland](None, ordinal)
+0.620676 0.365497 0.0151768	[SDom(wv)],[Gradual-[Copeland](None, ordinal)]
+0.620726 0.359411 0.0139141	[MDD(sum)(wv)],[L-R defense/2.25(PO)]
+0.620977 0.361289 0.0139136	[MDD(sum)(wv)],[ODM-arctan(0.001)(PO)]
+0.621049 0.359776 0.0139141	[MDD(sum)(wv)],[L-R defense/1.25(PO)]
+0.621124 0.359802 0.0139326	[MDD(sum)(wv)],[L-R offense/0.5(PO)]
+0.62147 0.361011 0.0139136	[MDD(sum)(wv)],[Keener(0.001, +1, norm)(fwv)]
+0.621471 0.233916 0.0523856	Minmax(tourn-wv)
+0.621474 0.361012 0.0139136	[SDom(wv)],[Keener(0.001, +1, norm)(fwv)]
+0.62148 0.361016 0.0139136	Keener(0.001, +1, norm)(fwv)
+0.622027 0.357929 0.0141792	[MDD(sum)(wv)],[L-R both/0.25(rel-margins)]
+0.622037 0.357889 0.0141792	[SDom(wv)],[L-R both/0.25(rel-margins)]
+0.622044 0.357912 0.0141792	L-R both/0.25(rel-margins)
+0.622069 0.360724 0.0139136	[MDD(sum)(wv)],[Keener(0.001, +1, raw)(PO)]
+0.622235 0.360778 0.0139136	[MDD(sum)(wv)],[Keener(0.001, +1, norm)(rel-margins)]
+0.622316 0.361041 0.01392	[MDD(sum)(wv)],[Sinkhorn(0.001, +1)(rel-margins)]
+0.622382 0.361835 0.0139331	Sinkhorn(0.001, +1)(fwv)
+0.622384 0.361834 0.0139331	[SDom(wv)],[Sinkhorn(0.001, +1)(fwv)]
+0.622386 0.361835 0.0139331	[MDD(sum)(wv)],[Sinkhorn(0.001, +1)(fwv)]
+0.624064 0.360355 0.0139326	[MDD(sum)(wv)],[Cardinal-10(norm)]
+0.626117 0.36325 0.0151046	[MDD(sum)(wv)],[ODM(0.001)(rel-margins)]
+0.626129 0.363267 0.0151046	[SDom(wv)],[ODM(0.001)(rel-margins)]
+0.626147 0.363243 0.0151046	ODM(0.001)(rel-margins)
+0.626504 0.354417 0.0157594	[MDD(sum)(wv)],[Ext-Minmax(PO)]
+0.626517 0.354414 0.0157594	[MDD(sum)(wv)],[Ext-Minmax(wv)]
+0.626708 0.360179 0.0152582	[SDom(wv)],[ODM-arctan(0.001)(wv)]
+0.626752 0.360154 0.0152582	[MDD(sum)(wv)],[ODM-arctan(0.001)(wv)]
+0.62677 0.360198 0.0152582	ODM-arctan(0.001)(wv)
+0.628311 0.36548 0.0150714	[SDom(wv)],[Gradual-[Copeland](None, cardinal)]
+0.628342 0.365446 0.0150714	Gradual-[Copeland](None, cardinal)
+0.628345 0.365469 0.0150714	[MDD(sum)(wv)],[Gradual-[Copeland](None, cardinal)]
+0.62856 0.360702 0.0154606	Sinkhorn(0.001, +1)(wv)
+0.62858 0.360732 0.0154606	[SDom(wv)],[Sinkhorn(0.001, +1)(wv)]
+0.628581 0.360688 0.0154606	[MDD(sum)(wv)],[Sinkhorn(0.001, +1)(wv)]
+0.628801 0.332748 0.020446	[SDom(wv)],[Ext-Minmin(fwv)]
+0.628803 0.33275 0.020446	[SDom(wv)],[L-R defense/0.75(fwv)]
+0.628806 0.33276 0.020446	L-R defense/1.5(wv)
+0.628806 0.332767 0.020446	L-R defense/1.5(fwv)
+0.628807 0.332755 0.020446	[MDD(sum)(wv)],[L-R defense/0.5(wv)]
+0.628807 0.332756 0.020446	[MDD(sum)(wv)],[L-R defense/1(rel-margins)]
+0.628807 0.332756 0.020446	[SDom(wv)],[Ext-Minmin(wv)]
+0.628808 0.332745 0.020446	[SDom(wv)],[L-R defense/2(fwv)]
+0.628809 0.332744 0.020446	L-R defense/1.75(wv)
+0.628809 0.332755 0.020446	[MDD(sum)(wv)],[L-R defense/2.25(fwv)]
+0.628809 0.332755 0.020446	[SDom(wv)],[L-R defense/2(wv)]
+0.628809 0.332758 0.020446	[MDD(sum)(wv)],[Minmax(PO)]
+0.62881 0.332749 0.020446	L-R defense/0.25(wv)
+0.62881 0.332751 0.020446	[MDD(sum)(wv)],[L-R defense/1.75(rel-margins)]
+0.62881 0.332752 0.020446	[MDD(sum)(wv)],[L-R defense/2.25(wv)]
+0.62881 0.332756 0.020446	L-R defense/1.75(fwv)
+0.628811 0.332741 0.020446	[MDD(sum)(wv)],[L-R defense/1.25(fwv)]
+0.628811 0.332747 0.020446	[SDom(wv)],[L-R defense/1.25(wv)]
+0.628811 0.332749 0.020446	Ext-Minmin(rel-margins)
+0.628811 0.332757 0.020446	[SDom(wv)],[L-R defense/0.5(fwv)]
+0.628812 0.332747 0.020446	[MDD(sum)(wv)],[L-R defense/0.75(rel-margins)]
+0.628812 0.332749 0.020446	[MDD(sum)(wv)],[L-R defense/1.25(wv)]
+0.628812 0.332751 0.020446	L-R defense/1(fwv)
+0.628812 0.332753 0.020446	L-R defense/0.25(rel-margins)
+0.628813 0.332741 0.020446	[MDD(sum)(wv)],[L-R defense/0.5(fwv)]
+0.628813 0.332751 0.020446	L-R defense/2.25(fwv)
+0.628813 0.332751 0.020446	[MDD(sum)(wv)],[L-R defense/1.5(wv)]
+0.628813 0.332754 0.020446	[MDD(sum)(wv)],[Ext-Minmin(wv)]
+0.628813 0.332754 0.020446	[MDD(sum)(wv)],[L-R defense/2(fwv)]
+0.628813 0.332754 0.020446	[SDom(wv)],[L-R defense/1(fwv)]
+0.628814 0.332739 0.020446	[MDD(sum)(wv)],[Minmax(wv)]
+0.628814 0.332742 0.020446	[SDom(wv)],[L-R defense/1.25(fwv)]
+0.628814 0.332754 0.020446	[MDD(sum)(wv)],[Ext-Minmax(fwv)]
+0.628815 0.332741 0.020446	L-R defense/1.25(fwv)
+0.628815 0.332743 0.020446	[SDom(wv)],[L-R defense/2.25(fwv)]
+0.628815 0.332745 0.020446	[MDD(sum)(wv)],[L-R defense/0.5(rel-margins)]
+0.628815 0.332746 0.020446	[MDD(sum)(wv)],[L-R defense/2(wv)]
+0.628815 0.332751 0.020446	[MDD(sum)(wv)],[L-R defense/0.25(rel-margins)]
+0.628816 0.332741 0.020446	Ext-Minmin(fwv)
+0.628816 0.332742 0.020446	[SDom(wv)],[L-R defense/0.75(wv)]
+0.628816 0.332743 0.020446	L-R defense/0.75(wv)
+0.628817 0.332741 0.020446	[MDD(sum)(wv)],[L-R defense/1(wv)]
+0.628817 0.332745 0.020446	[MDD(sum)(wv)],[L-R defense/0.75(wv)]
+0.628817 0.332746 0.020446	[SDom(wv)],[L-R defense/1.5(wv)]
+0.628817 0.332747 0.020446	[SDom(wv)],[L-R defense/1.75(wv)]
+0.628817 0.332754 0.020446	L-R defense/2(fwv)
+0.628817 0.332757 0.020446	[SDom(wv)],[L-R defense/2.25(wv)]
+0.628818 0.332731 0.020446	[MDD(sum)(wv)],[L-R defense/0.75(fwv)]
+0.628818 0.332744 0.020446	[MDD(sum)(wv)],[L-R defense/2.25(rel-margins)]
+0.628818 0.332747 0.020446	L-R defense/0.75(fwv)
+0.628818 0.332747 0.020446	[MDD(sum)(wv)],[L-R defense/2(rel-margins)]
+0.628819 0.332744 0.020446	[SDom(wv)],[L-R defense/0.25(fwv)]
+0.628819 0.332747 0.020446	[MDD(sum)(wv)],[L-R defense/1.5(fwv)]
+0.628819 0.332747 0.020446	[SDom(wv)],[L-R defense/0.5(wv)]
+0.628819 0.332748 0.020446	L-R defense/0.5(fwv)
+0.628819 0.332748 0.020446	[SDom(wv)],[Ext-Minmin(rel-margins)]
+0.62882 0.332736 0.020446	[MDD(sum)(wv)],[L-R defense/0.25(fwv)]
+0.62882 0.33274 0.020446	[MDD(sum)(wv)],[Ext-Minmax(rel-margins)]
+0.62882 0.332747 0.020446	[MDD(sum)(wv)],[L-R defense/1.75(wv)]
+0.628821 0.332741 0.020446	L-R defense/0.25(fwv)
+0.628821 0.332745 0.020446	[MDD(sum)(wv)],[L-R defense/1.25(rel-margins)]
+0.628821 0.332748 0.020446	[MDD(sum)(wv)],[L-R defense/0.25(wv)]
+0.628822 0.332728 0.020446	L-R defense/1(wv)
+0.628822 0.332738 0.020446	[MDD(sum)(wv)],[Ext-Minmin(rel-margins)]
+0.628822 0.332738 0.020446	[SDom(wv)],[L-R defense/1.75(fwv)]
+0.628822 0.332746 0.020446	[MDD(sum)(wv)],[Minmax(fwv)]
+0.628822 0.332748 0.020446	[MDD(sum)(wv)],[L-R defense/1.5(rel-margins)]
+0.628823 0.332735 0.020446	[MDD(sum)(wv)],[Minmax(rel-margins)]
+0.628823 0.332743 0.020446	Ext-Minmin(wv)
+0.628823 0.332751 0.020446	[MDD(sum)(wv)],[L-R defense/1.75(fwv)]
+0.628824 0.332729 0.020446	L-R defense/0.5(wv)
+0.628824 0.33273 0.020446	[SDom(wv)],[L-R defense/0.25(rel-margins)]
+0.628824 0.332733 0.020446	[MDD(sum)(wv)],[L-R defense/1(fwv)]
+0.628824 0.332738 0.020446	[SDom(wv)],[L-R defense/1(wv)]
+0.628824 0.332746 0.020446	L-R defense/2.25(wv)
+0.628824 0.332746 0.020446	[SDom(wv)],[L-R defense/1.5(fwv)]
+0.628826 0.332737 0.020446	L-R defense/1.25(wv)
+0.628827 0.33274 0.020446	[SDom(wv)],[L-R defense/0.25(wv)]
+0.628827 0.332742 0.020446	[MDD(sum)(wv)],[Ext-Minmin(fwv)]
+0.62883 0.332738 0.020446	L-R defense/2(wv)
+0.629251 0.332712 0.0204136	[MDD(sum)(wv)],[Schulze(fwv)]
+0.629252 0.332719 0.0204136	[MDD(sum)(wv)],[Schulze(PO)]
+0.629256 0.332715 0.0204136	[MDD(sum)(wv)],[Schulze(rel-margins)]
+0.629256 0.332717 0.0204136	[MDD(sum)(wv)],[Schulze(wv)]
+0.62943 0.332836 0.0204136	L-R defense/0.5(rel-margins)
+0.629459 0.332854 0.0204136	[SDom(wv)],[L-R defense/0.5(rel-margins)]
+0.629737 0.256896 0.0381269	[SDom(wv)],[Gradual-[Condorcet](None, ordinal)]
+0.63014 0.356236 0.0161217	[SDom(wv)],[Ext-Minmax(wv)]
+0.630142 0.356221 0.0161217	[SDom(wv)],[Ext-Minmax(PO)]
+0.630157 0.356219 0.0161217	Ext-Minmax(wv)
+0.630174 0.356236 0.0161217	Ext-Minmax(PO)
+0.630613 0.250511 0.0429088	Gradual-[Condorcet](None, ordinal)
+0.632758 0.332311 0.0206457	[SDom(wv)],[Ext-Minmax(fwv)]
+0.632766 0.332305 0.0206457	L-R defense/1(rel-margins)
+0.63277 0.332312 0.0206457	[SDom(wv)],[L-R defense/1.75(rel-margins)]
+0.632773 0.332322 0.0206457	L-R defense/0.75(rel-margins)
+0.632776 0.3323 0.0206457	[SDom(wv)],[L-R defense/2(rel-margins)]
+0.632777 0.3323 0.0206457	L-R defense/1.25(rel-margins)
+0.632777 0.332302 0.0206457	L-R defense/1.75(rel-margins)
+0.63278 0.332309 0.0206457	[SDom(wv)],[L-R defense/1(rel-margins)]
+0.63278 0.33231 0.0206457	[SDom(wv)],[L-R defense/1.5(rel-margins)]
+0.63278 0.332314 0.0206457	L-R defense/2(rel-margins)
+0.632783 0.3323 0.0206457	L-R defense/1.5(rel-margins)
+0.632784 0.332294 0.0206457	Ext-Minmax(rel-margins)
+0.632784 0.332301 0.0206457	[SDom(wv)],[L-R defense/0.75(rel-margins)]
+0.632784 0.332311 0.0206457	[SDom(wv)],[L-R defense/1.25(rel-margins)]
+0.632786 0.3323 0.0206457	[SDom(wv)],[L-R defense/2.25(rel-margins)]
+0.632786 0.332309 0.0206457	L-R defense/2.25(rel-margins)
+0.632787 0.332316 0.0206457	[SDom(wv)],[Ext-Minmax(rel-margins)]
+0.63279 0.332299 0.0206457	Ext-Minmax(fwv)
+0.63291 0.357516 0.01633	[MDD(sum)(wv)],[Gradual-[Schwartz(wv)](None, ordinal)]
+0.633077 0.295616 0.028091	[SDom(wv)],[Gradual-[Landau(wv)](None, ordinal)]
+0.633124 0.29569 0.028091	Gradual-[Landau(wv)](None, ordinal)
+0.6357 0.359669 0.0190766	[MDD(sum)(wv)],[VoteForAgainst]
+0.637045 0.356667 0.0161587	[MDD(sum)(wv)],[Gradual-[Schwartz(wv)](None, cardinal)]
+0.637491 0.293606 0.0280566	[SDom(wv)],[Gradual-[Landau(wv)](None, cardinal)]
+0.637501 0.293545 0.0280566	Gradual-[Landau(wv)](None, cardinal)
+0.637735 0.368832 0.0203168	[MDD(sum)(wv)],[ODM(0.001)(wv)]
+0.637812 0.368851 0.0203168	[SDom(wv)],[ODM(0.001)(wv)]
+0.637819 0.368785 0.0203168	ODM(0.001)(wv)
+0.638234 0.368929 0.0203168	[MDD(sum)(wv)],[ODM(0.001)(fwv)]
+0.638256 0.369058 0.0203168	ODM(0.001)(fwv)
+0.638287 0.36879 0.0203168	[SDom(wv)],[ODM(0.001)(fwv)]
+0.638734 0.361916 0.0165621	[SDom(wv)],[Gradual-[Schwartz(wv)](None, ordinal)]
+0.638747 0.361982 0.0165621	Gradual-[Schwartz(wv)](None, ordinal)
+0.640993 0.299713 0.029393	ODM(0.001)(tourn-wv)
+0.641158 0.299749 0.029393	[MDD(sum)(wv)],[ODM(0.001)(tourn-wv)]
+0.641224 0.299689 0.029393	[SDom(wv)],[ODM(0.001)(tourn-wv)]
+0.641955 0.355037 0.0207161	[SDom(wv)],[Keener(0.001, +1, raw)(wv)]
+0.641979 0.355113 0.0207161	Keener(0.001, +1, raw)(wv)
+0.642007 0.355096 0.0207161	[MDD(sum)(wv)],[Keener(0.001, +1, raw)(wv)]
+0.642038 0.3597 0.0190361	[MDD(sum)(wv)],[Nauru Borda]
+0.642522 0.328941 0.0223455	[SDom(wv)],[Schulze(fwv)]
+0.642524 0.328933 0.0223455	[SDom(wv)],[Schulze(PO)]
+0.642527 0.328912 0.0223455	[SDom(wv)],[Schulze(wv)]
+0.642537 0.328928 0.0223455	Schulze(PO)
+0.642548 0.328957 0.0223455	Schulze(fwv)
+0.642556 0.328941 0.0223455	Schulze(rel-margins)
+0.642561 0.328938 0.0223455	Schulze(wv)
+0.642561 0.32896 0.0223455	[SDom(wv)],[Schulze(rel-margins)]
+0.643787 0.328388 0.0227583	[SDom(wv)],[Minmax(fwv)]
+0.643799 0.328396 0.0227583	[SDom(wv)],[Minmax(PO)]
+0.643801 0.328407 0.0227583	Minmax(rel-margins)
+0.643802 0.3284 0.0227583	Minmax(fwv)
+0.643807 0.328398 0.0227583	Minmax(wv)
+0.643809 0.328413 0.0227583	[SDom(wv)],[Minmax(wv)]
+0.64381 0.328399 0.0227583	[SDom(wv)],[Minmax(rel-margins)]
+0.643827 0.328417 0.0227583	Minmax(PO)
+0.644185 0.361382 0.0163744	[SDom(wv)],[Gradual-[Schwartz(wv)](None, cardinal)]
+0.644197 0.275999 0.0312953	Gradual-[Smith(wv)](None, cardinal)
+0.644257 0.361288 0.0163744	Gradual-[Schwartz(wv)](None, cardinal)
+0.644355 0.276352 0.031198	[SDom(wv)],[Gradual-[Smith(wv)](None, cardinal)]
+0.645293 0.262157 0.0379982	[SDom(wv)],[Gradual-[Condorcet](None, cardinal)]
+0.646126 0.348313 0.0209743	[MDD(sum)(wv)],[Ranked Pairs(fwv)]
+0.64617 0.348356 0.0209743	[MDD(sum)(wv)],[Ranked Pairs(PO)]
+0.646171 0.348294 0.0209743	[MDD(sum)(wv)],[Ranked Pairs(wv)]
+0.646196 0.348339 0.0209743	[MDD(sum)(wv)],[Ranked Pairs(rel-margins)]
+0.646366 0.354687 0.0212227	[MDD(sum)(wv)],[ODM-arctan(0.001)(fwv)]
+0.646373 0.353398 0.0211578	[MDD(sum)(wv)],[ODM-arctan(0.001)(rel-margins)]
+0.646434 0.354842 0.0212227	ODM-arctan(0.001)(fwv)
+0.646471 0.354826 0.0212227	[SDom(wv)],[ODM-arctan(0.001)(fwv)]
+0.646838 0.256271 0.0427441	Gradual-[Condorcet](None, cardinal)
+0.646991 0.360957 0.020133	[MDD(sum)(wv)],[VMedianOS-10(norm, tiebreak)]
+0.647004 0.361897 0.0200271	[MDD(sum)(wv)],[VMedianOS-10(tiebreak)]
+0.647946 0.354612 0.0212227	ODM-arctan(0.001)(rel-margins)
+0.648032 0.354618 0.0212227	[SDom(wv)],[ODM-arctan(0.001)(rel-margins)]
+0.648357 0.351576 0.0218052	Gradual-[2. order Copeland/2/1](None, ordinal)
+0.648407 0.351682 0.0218052	[SDom(wv)],[Gradual-[2. order Copeland/2/1](None, ordinal)]
+0.648429 0.351579 0.0218052	[MDD(sum)(wv)],[Gradual-[2. order Copeland/2/1](None, ordinal)]
+0.649236 0.348687 0.0229944	[MDD(sum)(wv)],[Keener(0.001, +1, norm)(wv)]
+0.65012 0.348179 0.0227468	Gradual-[2. order Copeland](None, ordinal)
+0.650217 0.348167 0.0227468	[MDD(sum)(wv)],[Gradual-[2. order Copeland](None, ordinal)]
+0.650257 0.302756 0.0308004	[SDom(wv)],[HITS(0.001)(tourn-wv)]
+0.650298 0.348284 0.0227468	[SDom(wv)],[Gradual-[2. order Copeland](None, ordinal)]
+0.650322 0.302699 0.0308004	[MDD(sum)(wv)],[HITS(0.001)(tourn-wv)]
+0.650362 0.302664 0.0308004	HITS(0.001)(tourn-wv)
+0.651392 0.344213 0.0222223	[MDD(sum)(wv)],[AVGEliminate-[NREM-Opt]/fd]
+0.651609 0.344436 0.0222776	[MDD(sum)(wv)],[AVGEliminate-[Borda]/fd]
+0.651645 0.360584 0.0233953	[MDD(sum)(wv)],[Antiplurality]
+0.65228 0.351983 0.0231837	[MDD(sum)(wv)],[AVGEliminate-[VoteForAgainst]/fd]
+0.652325 0.347821 0.0217175	[MDD(sum)(wv)],[Gradual-[2. order Copeland/2/1](None, cardinal)]
+0.652397 0.347858 0.0217175	Gradual-[2. order Copeland/2/1](None, cardinal)
+0.652427 0.34786 0.0217175	[SDom(wv)],[Gradual-[2. order Copeland/2/1](None, cardinal)]
+0.6528 0.349842 0.0216504	[SDom(wv)],[Ranked Pairs(wv)]
+0.652828 0.349939 0.0216504	Ranked Pairs(wv)
+0.652845 0.34993 0.0216504	Ranked Pairs(fwv)
+0.652867 0.34982 0.0216504	Ranked Pairs(rel-margins)
+0.652874 0.349883 0.0216504	Ranked Pairs(PO)
+0.652875 0.349877 0.0216504	[SDom(wv)],[Ranked Pairs(PO)]
+0.652896 0.349916 0.0216504	[SDom(wv)],[Ranked Pairs(rel-margins)]
+0.652906 0.349682 0.0216504	[SDom(wv)],[Ranked Pairs(fwv)]
+0.654439 0.344392 0.0226582	Gradual-[2. order Copeland](None, cardinal)
+0.654459 0.344381 0.0226582	[SDom(wv)],[Gradual-[2. order Copeland](None, cardinal)]
+0.654463 0.344269 0.0226582	[MDD(sum)(wv)],[Gradual-[2. order Copeland](None, cardinal)]
+0.654565 0.311315 0.030993	[MDD(sum)(wv)],[Keener(0.001, +1, raw)(tourn-wv)]
+0.654617 0.311345 0.030993	[SDom(wv)],[Keener(0.001, +1, raw)(tourn-wv)]
+0.654794 0.311372 0.030993	Keener(0.001, +1, raw)(tourn-wv)
+0.655157 0.345533 0.0223794	[SDom(wv)],[AVGEliminate-[NREM-Opt]/fd]
+0.655182 0.34554 0.0223794	AVGEliminate-[NREM-Opt]/fd
+0.655249 0.345876 0.0224347	[SDom(wv)],[AVGEliminate-[Borda]/fd]
+0.655272 0.345914 0.0224347	AVGEliminate-[Borda]/fd
+0.656106 0.489077 0.00252056	Cardinal-10(norm)
+0.656169 0.489041 0.00252056	[SDom(wv)],[Cardinal-10(norm)]
+0.658746 0.337387 0.0274036	[MDD(sum)(wv)],[Eliminate-[VoteForAgainst]/fd]
+0.658826 0.337015 0.0272333	[MDD(sum)(wv)],[Eliminate-[NREM-Opt]/fd]
+0.65909 0.336624 0.0272596	[MDD(sum)(wv)],[Eliminate-[Borda]/fd]
+0.660444 0.351484 0.0245769	[MDD(sum)(wv)],[AVGEliminate-[Antiplurality]/fd]
+0.660626 0.340677 0.0259508	[MDD(sum)(wv)],[AVGEliminate-[Nauru Borda]/fd]
+0.661067 0.348885 0.0242442	[MDD(sum)(wv)],[Mode-Ratings]
+0.661786 0.346066 0.0253518	[MDD(sum)(wv)],[Eliminate-[Antiplurality]/fd]
+0.662901 0.35569 0.0241867	[SDom(wv)],[Keener(0.001, +1, norm)(wv)]
+0.662903 0.355691 0.0241867	Keener(0.001, +1, norm)(wv)
+0.664103 0.332261 0.028871	[MDD(sum)(wv)],[Eliminate-[Nauru Borda]/fd]
+0.665008 0.338357 0.0285659	[MDD(sum)(wv)],[AVGEliminate-[Plurality]/fd]
+0.665823 0.332077 0.0297351	[MDD(sum)(wv)],[Eliminate-[Plurality]/fd]
+0.666352 0.336335 0.0303095	Eliminate-[NREM-Opt]/fd
+0.666371 0.336341 0.0303095	[SDom(wv)],[Eliminate-[NREM-Opt]/fd]
+0.666614 0.335972 0.0302061	Eliminate-[Borda]/fd
+0.666614 0.336093 0.0302061	[SDom(wv)],[Eliminate-[Borda]/fd]
+0.666953 0.507112 1.72311e-05	[SDom(wv)],[Cardinal-10]
+0.667503 0.507408 0	Cardinal-10
+0.668041 0.337209 0.0303171	[SDom(wv)],[Eliminate-[VoteForAgainst]/fd]
+0.668101 0.337265 0.0303171	Eliminate-[VoteForAgainst]/fd
+0.668229 0.33308 0.031627	[MDD(sum)(wv)],[Random Pair]
+0.669164 0.357242 0.026595	[SDom(wv)],[AVGEliminate-[VoteForAgainst]/fd]
+0.669174 0.357095 0.026595	AVGEliminate-[VoteForAgainst]/fd
+0.669244 0.330912 0.0316832	[MDD(sum)(wv)],[Ranked Pairs(tourn-wv)]
+0.676114 0.337803 0.0349267	[SDom(wv)],[Ranked Pairs(tourn-wv)]
+0.67615 0.337682 0.0349267	Ranked Pairs(tourn-wv)
+0.700536 0.329149 0.0353137	Eliminate-[Nauru Borda]/fd
+0.700603 0.329153 0.0353137	[SDom(wv)],[Eliminate-[Nauru Borda]/fd]
+0.707489 0.343209 0.0316338	AVGEliminate-[Nauru Borda]/fd
+0.707617 0.343245 0.0316338	[SDom(wv)],[AVGEliminate-[Nauru Borda]/fd]
+0.708319 0.50952 0.0270719	[SDom(wv)],[VoteForAgainst]
+0.708335 0.509235 0.0270719	VoteForAgainst
+0.717154 0.369028 0.036343	[SDom(wv)],[Eliminate-[Antiplurality]/fd]
+0.717238 0.368839 0.036343	Eliminate-[Antiplurality]/fd
+0.737853 0.427159 0.0416775	[SDom(wv)],[AVGEliminate-[Antiplurality]/fd]
+0.73832 0.427341 0.0421853	AVGEliminate-[Antiplurality]/fd
+0.783808 0.506324 0.0344833	[SDom(wv)],[VMedianOS-10(norm, tiebreak)]
+0.784024 0.507666 0.0345327	VMedianOS-10(norm, tiebreak)
+0.790769 0.445813 0.0362725	[SDom(wv)],[Nauru Borda]
+0.808564 0.334945 0.0550823	[SDom(wv)],[AVGEliminate-[Plurality]/fd]
+0.809076 0.334434 0.0551918	AVGEliminate-[Plurality]/fd
+0.813347 0.546094 0.0375879	VMedianOS-10(tiebreak)
+0.946269 0.428681 0.0968488	[SDom(wv)],[Plurality]
+0.950547 0.43163 0.100305	Plurality
+1 0.377547 0.0993442	[SDom(wv)],[Mode-Ratings]

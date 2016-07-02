@@ -1,0 +1,72 @@
+#include "beatpath.h"
+
+using namespace std;
+
+///////////////////////////////////////////////////////////////////////////
+// Beatpath matrix.
+
+void beatpath::make_beatpaths(const abstract_condmat & input, 
+		const vector<bool> & hopefuls) {
+
+	int num_candidates = input.get_num_candidates();
+	set_num_voters(input.get_num_voters());
+
+	contents = vector<vector<double> > (num_candidates, vector<double>(
+				num_candidates, 0));
+
+	// Copy it over.
+	int i, j, k;
+
+	for (i = 0; i < num_candidates; ++i)
+		if (hopefuls[i])
+			for (j = 0; j < num_candidates; ++j)
+				if (hopefuls[j])
+					contents[i][j] = input.get_magnitude(i,
+							j, hopefuls);
+
+	// Calculate beatpaths by Floyd-Warshall.
+
+	for (i = 0; i < num_candidates; ++i)
+		for (j = 0; j < num_candidates; ++j) {
+			if (i == j) continue;
+			for (k = 0; k < num_candidates; ++k) {
+				if (i == k || j == k)
+					continue;
+
+				contents[j][k] = max(contents[j][k],
+						min(contents[j][i],
+							contents[i][k]));
+			}
+		}
+
+	// All done!
+}
+
+double beatpath::get_internal(int candidate, int against, bool raw) const {
+	// Same as in pairwise_matrix.
+
+	assert (candidate >= 0 && candidate < contents.size());
+	assert (against >= 0 && against < contents.size());
+
+	if (raw)
+		return(contents[candidate][against]);
+	else	return(type.transform(contents[candidate][against],
+				contents[against][candidate], num_voters));
+}
+
+beatpath::beatpath(const abstract_condmat & input, pairwise_type 
+		type_in) : abstract_condmat(type_in) {
+	make_beatpaths(input, vector<bool>(input.get_num_candidates(), true));
+}
+
+beatpath::beatpath(const abstract_condmat & input, pairwise_type type_in,
+		const vector<bool> & hopefuls) : abstract_condmat(type_in) {
+	make_beatpaths(input, hopefuls);
+}
+
+// ... I think?
+beatpath::beatpath(const list<ballot_group> & scores, int num_candidates,
+		pairwise_type type_in) : abstract_condmat(CM_PAIRWISE_OPP) {
+	make_beatpaths(condmat(scores, num_candidates, type_in),
+			vector<bool>(num_candidates, true));
+}

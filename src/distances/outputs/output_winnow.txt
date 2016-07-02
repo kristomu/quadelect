@@ -1,0 +1,93 @@
+0 0.723221 	Mode-Ratings
+0.0351892 0.441729 	Plurality
+0.0401185 0.619319 	Random Pair
+0.0548531 0.475971 	AVGEliminate-[Plurality]/fd
+0.172773 0.621324 	VoteForAgainst
+0.195764 0.172186 	Maximin(wv)
+0.205317 0.688486 	Eliminate-[Antiplurality]/fd
+0.208942 0.413692 	Antiplurality
+0.24859 0.879631 	Ext-Minmin(PO)
+0.345589 0.833099 	HITS(0.001)(rel-margins)
+0.376643 0.798866 	L-R offense/1(rel-margins)
+0.380169 0.66734 	Gradual-[Landau(wv)](None, ordinal)
+0.380876 0.797481 	Keener(0.001, +1, raw)(rel-margins)
+0.381813 0.695269 	Schulze(wv)
+0.382733 0.662172 	Gradual-[Landau(wv)](None, cardinal)
+0.397045 0.89107 	Keener(0.001, +1, norm)(PO)
+0.401099 0.729051 	HITS(0.001)(wv)
+0.407221 0.670916 	Gradual-[2. order Copeland](None, ordinal)
+0.407404 0.672397 	Gradual-[2. order Copeland](None, cardinal)
+0.416281 0.687653 	Keener(0.001, +1, raw)(wv)
+0.420627 0.695449 	ODM(0.001)(wv)
+0.421426 0.708243 	Gradual-[Copeland](None, cardinal)
+0.421539 0.718001 	L-R offense/1(wv)
+0.422511 0.641347 	2. order Copeland
+0.422928 0.709892 	Gradual-[Copeland](None, ordinal)
+0.427753 0.713513 	ODM(0.001)(rel-margins)
+0.433952 0.803938 	Cardinal-10(norm)
+0.436346 0.700353 	Sinkhorn(0.001, +1)(wv)
+0.443983 0.671106 	Copeland
+0.446319 0.713901 	ODM-arctan(0.001)(wv)
+0.447199 0.717453 	L-R both/1(wv)
+0.450939 0.803491 	HITS(0.001)(PO)
+0.458696 0.67175 	Dodgson-Quick(rel-margins)
+0.461828 0.797049 	ODM-arctan(0.001)(PO)
+0.462424 0.793289 	Sinkhorn(0.001, +1)(rel-margins)
+0.462517 0.804137 	ODM(0.001)(PO)
+0.462588 0.803664 	Sinkhorn(0.001, +1)(PO)
+0.463174 0.798506 	L-R both/1(rel-margins)
+0.463586 0.797918 	L-R defense/1(PO)
+0.46365 0.797866 	L-R offense/1(PO)
+0.463665 0.797968 	Borda
+0.463685 0.797782 	L-R both/1(PO)
+0.465466 0.796572 	Keener(0.001, +1, norm)(rel-margins)
+0.467125 0.800156 	Dodgson-Quick(PO)
+0.469955 0.700801 	Ext-Minmin(wv)
+0.469999 0.700882 	Ext-Minmin(rel-margins)
+0.472151 0.706157 	Dodgson-Quick(wv)
+0.472631 0.708599 	L-R defense/1(wv)
+0.475905 0.805444 	NREM-Opt
+0.476601 0.794847 	Keener(0.001, +1, raw)(PO)
+0.480108 0.526099 	Gradual-[Smith(wv)](None, cardinal)
+0.484237 0.527355 	Gradual-[Smith(wv)](None, ordinal)
+0.489842 0.785978 	Cardinal-10
+0.500896 0.378013 	Gradual-[Condorcet](None, cardinal)
+0.503541 0.781165 	ODM-arctan(0.001)(rel-margins)
+0.504502 0.671018 	Ranked Pairs(rel-margins)
+0.504589 0.67091 	Ranked Pairs(wv)
+0.505081 0.768876 	AVGEliminate-[Borda]/fd
+0.506473 0.672905 	Ranked Pairs(PO)
+0.507478 0.691282 	Gradual-[Schwartz(wv)](None, ordinal)
+0.508671 0.689086 	Gradual-[Schwartz(wv)](None, cardinal)
+0.514961 0.768251 	AVGEliminate-[NREM-Opt]/fd
+0.526288 0.335654 	Gradual-[Condorcet](None, ordinal)
+0.529151 0.76009 	Eliminate-[Borda]/fd
+0.536489 0.753549 	Eliminate-[NREM-Opt]/fd
+0.539506 0.767119 	L-R defense/1(rel-margins)
+0.566238 0.445733 	VMedianOS-10(norm)
+0.598717 0.463778 	VMedianOS-10()
+0.602364 0.637944 	VMedianOS-10(norm, tiebreak)
+0.616952 0.691482 	Eliminate-[VoteForAgainst]/fd
+0.622835 0.634709 	VMedianOS-10(tiebreak)
+0.627131 0.831719 	Ext-Minmax(PO)
+0.627371 0.831638 	Ext-Minmax(wv)
+0.629595 0.828339 	Ext-Minmax(rel-margins)
+0.6512 0.663633 	AVGEliminate-[VoteForAgainst]/fd
+0.657169 0.816278 	Minmax(PO)
+0.657309 0.816281 	Minmax(wv)
+0.657319 0.816357 	Minmax(rel-margins)
+0.657769 0.81686 	Maximin(PO)
+0.674903 0.00877366 	Gradual-[MDD(direct)(wv)](None, ordinal)
+0.675979 0.00195461 	Gradual-[CDTT(wv)](None, cardinal)
+0.675994 0.00208935 	Gradual-[MDD(direct)(wv)](None, cardinal)
+0.676187 0.00243299 	Gradual-[CGTT(wv)](None, cardinal)
+0.678453 0.0104832 	Gradual-[CDTT(wv)](None, ordinal)
+0.678837 0.0121264 	Gradual-[CGTT(wv)](None, ordinal)
+0.685028 0.729175 	Eliminate-[Nauru Borda]/fd
+0.694 0.396804 	Gradual-[SDom(wv)](None, cardinal)
+0.703668 0.722209 	AVGEliminate-[Nauru Borda]/fd
+0.709985 0.579561 	AVGEliminate-[Antiplurality]/fd
+0.71277 0.400395 	Gradual-[SDom(wv)](None, ordinal)
+0.735377 0.723768 	Nauru Borda
+0.910853 0.723222 	Eliminate-[Plurality]/fd
+0.99959 0.542382 	Keener(0.001, +1, norm)(wv)

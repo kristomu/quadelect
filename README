@@ -1,0 +1,6 @@
+Known bugs:
+	- Condorcet method Yee areas are curved under high sigma. They should 
+		not be -- they should be straight instead.
+
+	- Makefile will abort near the end due to some GNU utility problems.
+		The program will still have been made as qelect.

@@ -1,0 +1,8 @@
+TODO (BLUESKY?): Split into a rated-scores array that supports normalization of
+various sorts (no norm; norm between min, max; norm with std. dev, whatnot). 
+Then each of the statistical methods (cardinal, etc.) takes those as input. 
+Continuous cumulative voting is just CR with power of each ballot held constant,
+for instance.
+
+Doing so would make IRNR quite easy to do. (Well, that and handling hopefuls
+sensibly, somehow.)

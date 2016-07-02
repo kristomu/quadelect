@@ -1,0 +1,405 @@
+X-Account-Key: account11
+X-UIDL: 5110-1213688303
+X-Mozilla-Status: 0011
+X-Mozilla-Status2: 10000000
+X-Mozilla-Keys:                                                                                 
+Return-path: <election-methods-bounces@lists.electorama.com>
+Received: from terra-smin.broadpark.no ([80.202.8.13])
+ by bgo1mstore1.broadpark.no
+ (Sun Java(tm) System Messaging Server 6.3-8.03 (built Apr 24 2009; 32bit))
+ with ESMTP id <0L4500JIAEGZ2M50@bgo1mstore1.broadpark.no> for
+ km-elmet@broadpark.no; Thu, 17 Jun 2010 09:36:35 +0200 (CEST)
+Original-recipient: rfc822;km-elmet@broadpark.no
+Received: from zapata.dreamhost.com ([unknown] [208.97.161.172])
+ by terra-smin.broadpark.no
+ (Sun Java(tm) System Messaging Server 7u3-12.01 64bit (built Oct 15 2009))
+ with ESMTP id <0L4500EB6EGX6HH0@terra-smin.broadpark.no> for
+ km-elmet@broadpark.no (ORCPT km-elmet@broadpark.no); Thu,
+ 17 Jun 2010 09:36:34 +0200 (CEST)
+Received: from zapata.dreamhost.com (localhost [127.0.0.1])
+	by zapata.dreamhost.com (Postfix) with ESMTP id 745218DB00AB; Thu,
+ 17 Jun 2010 00:43:46 -0700 (PDT)
+X-Original-To: election-methods@lists.electorama.com
+Received: from homiemail-mx3.g.dreamhost.com
+ (caiajhbdcbef.dreamhost.com	[208.97.132.145])
+	by zapata.dreamhost.com (Postfix) with ESMTP id 5DB398DB009D	for
+ <election-methods@lists.electorama.com>; Thu, 17 Jun 2010 00:43:44 -0700 (PDT)
+Received: from mail-fx0-f53.google.com
+ (mail-fx0-f53.google.com	[209.85.161.53])	by homiemail-mx3.g.dreamhost.com
+ (Postfix) with ESMTP id 0295958C18C	for <election-methods@electorama.com>;
+ Thu, 17 Jun 2010 00:34:45 -0700 (PDT)
+Received: by fxm16 with SMTP id 16so4472517fxm.40	for
+ <election-methods@electorama.com>; Thu, 17 Jun 2010 00:36:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=gamma;
+	h=domainkey-signature:mime-version:received:received:in-reply-to
+	:references:date:message-id:subject:from:to:cc:content-type;
+	bh=73nG0w9/EvGcUtfxWSjJI0x9uS3GLCmLMumRGp+egcg=;
+	b=M7DGCiJ3cCwT/yKi9BaDIn7p0xAF9gMRuOoExfsoUR1NIxIumXl5KmL8tk4ePZAfHQ
+	IT6RnVF1+H3oP9rpuJCyEmzpS5UT6skSq0OyOQYNsgG103knPT3ao7SgmSJqnvHWePMV
+	9zhTb3HJUxnMjJU/WF6cazWmfD5F9F0DjGfzQ=
+DomainKey-Signature: a=rsa-sha1; c=nofws; d=gmail.com; s=gamma;
+	h=mime-version:in-reply-to:references:date:message-id:subject:from:to
+	:cc:content-type;
+	b=DaYBiMoMkQQDz99Vy+P8fQ7F8/Wq8SxaVTfrj5rIjMCWbUO7x36qLTvotmDT22oAey
+	W9HrHcwGS4sBWZVQzYXBBbbdrsPRSNSVLw4DWoy/FimnVn0ErRldX/6LSuqnxDb9cD0q
+	5JeyUMAor3s5D+BgDfNXNCdxoxOsqFn/bIHSA=
+MIME-version: 1.0
+Received: by 10.204.160.72 with SMTP id m8mr7431240bkx.58.1276760188073; Thu,
+ 17 Jun 2010 00:36:28 -0700 (PDT)
+Received: by 10.204.58.13 with HTTP; Thu, 17 Jun 2010 00:36:27 -0700 (PDT)
+In-reply-to: <AANLkTilLMf8alE11EDp5O73KA8o6sngvFvKtVGzzGQ-l@mail.gmail.com>
+References: <428870.87914.qm@web23307.mail.ird.yahoo.com>
+ <AANLkTilLMf8alE11EDp5O73KA8o6sngvFvKtVGzzGQ-l@mail.gmail.com>
+Date: Thu, 17 Jun 2010 09:36:27 +0200
+Message-id: <AANLkTiny57WAHXscspi3JNRqoeqxGFRfcV8Y_RyJH-s8@mail.gmail.com>
+From: Peter Zbornik <pzbornik@gmail.com>
+To: Kevin Venzke <stepjak@yahoo.fr>,
+ Markus Schulze <markus.schulze@alumni.tu-berlin.de>
+Cc: election-methods@electorama.com
+Subject: Re: [EM] Condorcet question - why not bullet vote
+X-BeenThere: election-methods@lists.electorama.com
+X-Mailman-Version: 2.1.12
+Precedence: list
+List-Id: Technical discussion of election methods
+	<election-methods-electorama.com>
+List-Unsubscribe:
+ <http://lists.electorama.com/options.cgi/election-methods-electorama.com>,
+	<mailto:election-methods-request@lists.electorama.com?subject=unsubscribe>
+List-Archive:
+ <http://lists.electorama.com/pipermail/election-methods-electorama.com>
+List-Post: <mailto:election-methods@lists.electorama.com>
+List-Help: <mailto:election-methods-request@lists.electorama.com?subject=help>
+List-Subscribe:
+ <http://lists.electorama.com/listinfo.cgi/election-methods-electorama.com>,
+	<mailto:election-methods-request@lists.electorama.com?subject=subscribe>
+Content-type: multipart/mixed; boundary="===============4652598522968945108=="
+Sender: election-methods-bounces@lists.electorama.com
+Errors-to: election-methods-bounces@lists.electorama.com
+
+--===============4652598522968945108==
+Content-Type: multipart/alternative; boundary=0015175cd26a793853048934e52e
+
+--0015175cd26a793853048934e52e
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+a fourth method of measuring the strength of pairwise wins in Condorcet
+would be a statistical test called Binomial test.
+See: http://faculty.chass.ncsu.edu/garson/PA765/binomial.htm
+Excel calculations at: http://udel.edu/~mcdonald/statexactbin.html
+
+Short explanation:
+Each vote for candidate A is coded as 1 and a vote for B is coded sa 0
+n is the number of voters, who are not indifferent between A and B.
+The hypothesed (H0) value of the mean is 0.5.
+We compare the proportion of votes for A against the hypothesized mean 0.5
+and calculate the probability that this prortion of votes for A is 0.5 (we
+can use single or two tail tests, it doesn't matter, as the distribution is
+symmetric).
+The lower the probability that the proportion is 0.5, the bigger the
+strength of the win for A.
+Thus the rule to eliminate the weakest undropped link in point 3 at
+http://en.wikipedia.org/wiki/Schulze_method#The_Schwartz_set_heuristic will
+amount to dropping the win, with the highest p-value (i.e. the win with the
+highest probability that, for an infinite number of voters from the same
+distribution as the current voters, the proportion of voters for candidate =
+A
+is 0.5).
+
+I would prefer this method before proportional completion (let's call it
+Schulze Condorcet (binomial test), at least as an initial hunch.
+This method would give a penalty to wins with many indifferent voters due t=
+o
+few observations, which proportional completion does not.
+
+I have no idea of what criterias
+<http://en.wikipedia.org/wiki/Schulze_method#Comparison_with_other_preferen=
+tial_single-winner_election_methods>will
+be satisfied or failed.
+
+Best regards
+Peter Zborn=C3=ADk
+
+On Thu, Jun 17, 2010 at 8:51 AM, Peter Zbornik <pzbornik@gmail.com> wrote:
+
+> Hi,
+>
+> Kevin, thanks for the comment.
+> Well, it is true, that Schulze writes in
+> http://m-schulze.webhop.net/schulze1.pdf, page 154, that "There has been
+> some debate about how to define =EF=82=90D [Schulze ranking relation] whe=
+n it is
+> presumed that on the one side each voter has a sincere linear ordering of
+> the candidates, but on the other side some voters cast only a partial
+> ordering because of strategic considerations. We got to the conclusion th=
+at
+> the strength (N[e,f],N[f,e]) of the pairwise win ef =E2=88=88 A =C3=97 A =
+should be
+> measured primarily by the absolute number of votes for the winner of this
+> pairwise defeat N[e,f] and secondarily by the absolute number of votes fo=
+r
+> the loser of this pairwise defeat N[f,e]."
+>
+> However, for Schulze STV, proportional completion is used for incomplete
+> orderings (see page 42 in http://m-schulze.webhop.net/schulze2.pdf).
+> I thought, that Schulze STV reduces to Schulze Condorcet in the case wher=
+e
+> there is one seat.
+> Now, this seems not to be the case when we have incomplete ballots (i.e. =
+we
+> allow for equal ranking of candidates), as Schulze Condorcet uses winning
+> (and losing) votes and Schulze STV uses proportional completion before
+> deciding upon winning votes.
+>
+> Maybe Markus Schulze could comment on this himself.
+> I think proportional completion could be used in Schulze Condorcet, but
+> there is obviously one big open question in this respect.
+> Does Schulze Condorcet (proportional completion) meet the same criteria a=
+s
+> Schulze (WV),
+> http://en.wikipedia.org/wiki/Schulze_method#Satisfied_and_failed_criteria=
+?
+>
+> Kevin, you seem to say that Shulze Condorcet (proportional completion) do=
+es
+> meet the same criteria as Minimax(margins), quote "If you are using
+> proportional completion (or "symmetric completion") then you're not using
+> winning votes, you're using margins".
+> Are you sure about this?
+>
+> Schulze Condorcet (proportional completion) gives different results than
+> Schulze Condorcet (margins).
+>
+> For instance: Say we have two pairwise defeats and 100 voters - A vs B.
+> First defeat A-B, 1-5. Margin gives 4 as the strength of the win.
+> Proportional completion gives: 1+94*1/6 - 5+94*5/6=3D16,67-83,33, i.e. a
+> margin of 66,67 (94 voters, each split into two with proportional weights=
+).
+> Second defeat A-B, 48-52. The margin is 4 both with proportional completi=
+on
+> and without.
+>
+> Thus, it seems that proportional completion gives different results from
+> both the winning (losing) votes approach and the margin approach for
+> truncated Condorcet ballots.
+> The natural question is:
+> What are the differences in satisfied and failed criteria (
+> http://en.wikipedia.org/wiki/Schulze_method#Satisfied_and_failed_criteria=
+)
+> between Schulze Condorcet (proportional completion) and, Schulze Condorce=
+t
+> (WV)?
+>
+> Best regards
+> Peter Zborn=C3=ADk
+>
+> On Wed, Jun 16, 2010 at 11:29 PM, Kevin Venzke <stepjak@yahoo.fr> wrote:
+>
+>> Hi Peter,
+>>
+>> --- En date de : Mer 16.6.10, Peter Zbornik <pzbornik@gmail.com> a
+>> =C3=A9crit :
+>> >Thus: "If the three C voters will truncate then they will win instead o=
+f
+>> B
+>> >in winning votes based Condorcet methods."
+>> >
+>> >This is correct, if proportional completion is not used (see page 42
+>> >in http://m-schulze.webhop.net/schulze2.pdf)
+>> >If proportional completion is used (which I would recommend) then B win=
+s.
+>>
+>> If you are using proportional completion (or "symmetric completion") the=
+n
+>> you're not using winning votes, you're using margins.
+>>
+>> Juho advocates MinMax(margins) which is why he posted this example
+>> (Schulze is usually assumed to use winning votes), and also why he didn'=
+t
+>> like it when I pointed out that clone independence and ISDA were the
+>> probable answers to your criteria question
+>>
+>> Kevin Venzke
+>>
+>>
+>>
+>>
+>> ----
+>> Election-Methods mailing list - see http://electorama.com/em for list
+>> info
+>>
+>
+>
+
+--0015175cd26a793853048934e52e
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi,<div><br></div><div>a fourth method of measuring the strength of pairwis=
+e wins in Condorcet would be a statistical test called Binomial test.</div>=
+<div>See:=C2=A0<a href=3D"http://faculty.chass.ncsu.edu/garson/PA765/binomi=
+al.htm">http://faculty.chass.ncsu.edu/garson/PA765/binomial.htm</a></div>
+<div>Excel calculations at:=C2=A0<a href=3D"http://udel.edu/~mcdonald/state=
+xactbin.html">http://udel.edu/~mcdonald/statexactbin.html</a></div><div><br=
+></div><div>Short explanation:</div><div>Each vote for candidate A is coded=
+ as 1 and a vote for B is coded sa 0</div>
+<div>n is the number of voters, who are not indifferent between A and B.</d=
+iv><div>The hypothesed (H0) value of the mean is 0.5.</div><div>We compare =
+the proportion of votes for A against the hypothesized mean 0.5 and calcula=
+te the probability that this prortion of votes for A is 0.5 (we can use sin=
+gle or two tail tests, it doesn&#39;t matter, as the distribution is symmet=
+ric).</div>
+<div>The lower the probability that the proportion is 0.5, the bigger the s=
+trength of the win for A.</div><div>Thus the rule to eliminate the weakest =
+undropped link in point 3 at=C2=A0<a href=3D"http://en.wikipedia.org/wiki/S=
+chulze_method#The_Schwartz_set_heuristic">http://en.wikipedia.org/wiki/Schu=
+lze_method#The_Schwartz_set_heuristic</a>=C2=A0will amount to dropping the =
+win, with the highest p-value (i.e. the win with the highest probability th=
+at, for an infinite number of voters from the same distribution as the curr=
+ent voters, the proportion of voters for candidate A is 0.5).=C2=A0</div>
+<div><br></div><div>I would prefer this method before proportional completi=
+on (let&#39;s call it Schulze Condorcet (binomial test), at least as an ini=
+tial hunch.</div><div>This method would give a penalty to wins with many in=
+different voters due to few observations, which proportional completion doe=
+s not.</div>
+<div><br></div><div><div>I have no idea of what=C2=A0<a href=3D"http://en.w=
+ikipedia.org/wiki/Schulze_method#Comparison_with_other_preferential_single-=
+winner_election_methods">criterias=C2=A0</a>will be satisfied or failed.</d=
+iv></div>
+<div><br></div><div>Best regards</div><div>Peter Zborn=C3=ADk</div><div><br=
+><div class=3D"gmail_quote">On Thu, Jun 17, 2010 at 8:51 AM, Peter Zbornik =
+<span dir=3D"ltr">&lt;<a href=3D"mailto:pzbornik@gmail.com">pzbornik@gmail.=
+com</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex;">Hi,<div><br></div><div>Kevin, thanks for th=
+e comment.</div><div>Well, it is true, that Schulze writes in=C2=A0<a href=
+=3D"http://m-schulze.webhop.net/schulze1.pdf" target=3D"_blank">http://m-sc=
+hulze.webhop.net/schulze1.pdf</a>, page 154, that &quot;There has been some=
+ debate about how to define =EF=82=90D [Schulze ranking relation] when it i=
+s presumed that on the one side each voter has a sincere linear ordering of=
+ the candidates, but on the other side some voters cast only a partial orde=
+ring because of strategic considerations. We got to the conclusion that the=
+ strength (N[e,f],N[f,e]) of the pairwise win ef =E2=88=88 A =C3=97 A shoul=
+d be measured primarily by the absolute number of votes for the winner of t=
+his pairwise defeat N[e,f] and secondarily by the absolute number of votes =
+for the loser of this pairwise defeat N[f,e].&quot;</div>
+
+
+<div><br></div><div>However, for Schulze STV,=C2=A0proportional completion =
+is used for incomplete orderings (see page 42=C2=A0in=C2=A0<a href=3D"http:=
+//m-schulze.webhop.net/schulze2.pdf" target=3D"_blank">http://m-schulze.web=
+hop.net/schulze2.pdf</a>).</div>
+
+
+
+<div>I thought, that Schulze STV reduces to Schulze Condorcet in the case w=
+here there is one seat.</div><div>Now, this seems not to be the case when w=
+e have incomplete ballots (i.e. we allow for equal ranking of candidates), =
+as=C2=A0Schulze Condorcet uses winning (and losing) votes and Schulze STV u=
+ses proportional completion before deciding upon winning votes.</div>
+
+
+<div><br></div>
+<div>Maybe Markus Schulze could comment on this himself.</div><div>I think =
+proportional completion could be used in Schulze Condorcet, but there is ob=
+viously one big open question in this respect.</div><div>Does Schulze Condo=
+rcet (proportional completion) meet the same criteria as Schulze (WV),=C2=
+=A0<a href=3D"http://en.wikipedia.org/wiki/Schulze_method#Satisfied_and_fai=
+led_criteria" target=3D"_blank">http://en.wikipedia.org/wiki/Schulze_method=
+#Satisfied_and_failed_criteria</a>?</div>
+
+
+
+<div><br></div><div>Kevin, you seem to say that Shulze Condorcet (proportio=
+nal completion) does meet the same criteria as Minimax(margins), quote &quo=
+t;<span style=3D"font-family:arial, sans-serif;font-size:13px;border-collap=
+se:collapse">If you are using proportional completion (or &quot;symmetric c=
+ompletion&quot;) then=C2=A0</span><span style=3D"font-family:arial, sans-se=
+rif;font-size:13px;border-collapse:collapse">you&#39;re not using winning v=
+otes, you&#39;re using margins&quot;</span>.</div>
+
+
+<div>Are you sure about this?</div><div><br></div><div>Schulze Condorcet (p=
+roportional completion) gives different results than Schulze Condorcet (mar=
+gins).</div>
+<div><br></div><div>For instance: Say we have two pairwise defeats and 100 =
+voters - A vs B.=C2=A0</div><div>First defeat A-B, 1-5. Margin gives 4 as t=
+he strength of the win.=C2=A0</div><div>Proportional completion gives: 1+94=
+*1/6 - 5+94*5/6=3D16,67-83,33, i.e. a margin of 66,67 (94 voters, each spli=
+t into two with proportional weights).</div>
+
+
+<div>Second defeat A-B, 48-52. The margin is 4 both with proportional compl=
+etion and without.</div><div><br></div><div>Thus, it seems that proportiona=
+l completion gives different results from both the winning (losing) votes a=
+pproach and the margin approach for truncated Condorcet ballots.</div>
+
+<div>The natural question is:=C2=A0</div><div>What are the differences in s=
+atisfied and failed criteria (<a href=3D"http://en.wikipedia.org/wiki/Schul=
+ze_method#Satisfied_and_failed_criteria" target=3D"_blank">http://en.wikipe=
+dia.org/wiki/Schulze_method#Satisfied_and_failed_criteria</a>) between Schu=
+lze Condorcet (proportional completion) and, Schulze Condorcet (WV)?</div>
+
+
+<div><br></div><div>Best regards</div><div>Peter Zborn=C3=ADk</div><div><di=
+v></div><div class=3D"h5">
+<div><br><div class=3D"gmail_quote">On Wed, Jun 16, 2010 at 11:29 PM, Kevin=
+ Venzke <span dir=3D"ltr">&lt;<a href=3D"mailto:stepjak@yahoo.fr" target=3D=
+"_blank">stepjak@yahoo.fr</a>&gt;</span> wrote:<br><blockquote class=3D"gma=
+il_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-lef=
+t:1ex">
+
+
+
+Hi Peter,<br>
+<div><br>
+--- En date de=C2=A0: Mer 16.6.10, Peter Zbornik &lt;<a href=3D"mailto:pzbo=
+rnik@gmail.com" target=3D"_blank">pzbornik@gmail.com</a>&gt; a =C3=A9crit=
+=C2=A0:<br>
+</div><div>&gt;Thus: &quot;If the three C voters will truncate then they wi=
+ll win instead of B<br>
+&gt;in winning votes based Condorcet methods.&quot;<br>
+&gt;<br>
+&gt;This is correct, if proportional completion is not used (see page 42<br=
+>
+&gt;in=C2=A0<a href=3D"http://m-schulze.webhop.net/schulze2.pdf" target=3D"=
+_blank">http://m-schulze.webhop.net/schulze2.pdf</a>)<br>
+&gt;If proportional completion is used (which I would recommend) then B win=
+s.<br>
+<br>
+</div>If you are using proportional completion (or &quot;symmetric completi=
+on&quot;) then<br>
+you&#39;re not using winning votes, you&#39;re using margins.<br>
+<br>
+Juho advocates MinMax(margins) which is why he posted this example<br>
+(Schulze is usually assumed to use winning votes), and also why he didn&#39=
+;t<br>
+like it when I pointed out that clone independence and ISDA were the<br>
+probable answers to your criteria question<br>
+<div><div></div><div><br>
+Kevin Venzke<br>
+<br>
+<br>
+<br>
+<br>
+----<br>
+Election-Methods mailing list - see <a href=3D"http://electorama.com/em" ta=
+rget=3D"_blank">http://electorama.com/em</a> for list info<br>
+</div></div></blockquote></div><br></div>
+</div></div></blockquote></div><br></div>
+
+--0015175cd26a793853048934e52e--
+
+--===============4652598522968945108==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+----
+Election-Methods mailing list - see http://electorama.com/em for list info
+
+--===============4652598522968945108==--
+

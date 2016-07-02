@@ -1,0 +1,24 @@
+Monotonicity results for nth order Copeland:
+
+n=2, 1 point for a tie:
+
+then if one grants less than 1.5 points for a win, it is nonmonotonic with:
+
+1: A > E > B > C > D
+1: C > A > E > B > D
+1: E > D > C > A > B
+1: B > A > D > E > C
+1: E > B > D > C > A
+1: B > C > A > D > E
+which gives: A > E > B > C > D
+
+Then lower E, and
+1: A > E > B > C > D
+1: C > A > E > B > D
+1: E > D > C > A > B
+1: B > A > D > C > E <--
+1: E > B > D > C > A
+1: B > C > A > D > E
+Reversed: E = B = A > C > D
+
+For n=3, not even 1.5 is enough.

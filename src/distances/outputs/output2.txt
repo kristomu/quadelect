@@ -1,0 +1,364 @@
+Kemeny(wv)	0.345141 0.971103 
+Ext-Minmax(wv)	0.692218 -3.38936 
+Ext-Minmin(wv)	1.05346 1.09407 
+Minmax(wv)	0.149742 -3.68217 
+Maximin(wv)	-6.45227 -9.05202 
+L-R offense/0.25(wv)	1.98651 1.6468 
+L-R defense/0.25(wv)	1.14243 0.983128 
+L-R both/0.25(wv)	1.65097 1.21918 
+L-R offense/0.5(wv)	1.98762 1.64211 
+L-R defense/0.5(wv)	1.13427 0.984222 
+L-R both/0.5(wv)	1.64946 1.21613 
+L-R offense/0.75(wv)	1.98983 1.64491 
+L-R defense/0.75(wv)	1.13385 0.974403 
+L-R both/0.75(wv)	1.65401 1.21639 
+L-R offense/1(wv)	2.01283 1.63291 
+L-R defense/1(wv)	1.13928 0.941537 
+L-R both/1(wv)	1.64329 1.2115 
+L-R offense/1.25(wv)	2.10572 1.61611 
+L-R defense/1.25(wv)	1.13349 0.865732 
+L-R both/1.25(wv)	1.67582 1.19593 
+L-R offense/1.5(wv)	2.20061 1.60031 
+L-R defense/1.5(wv)	1.14462 0.795597 
+L-R both/1.5(wv)	1.70179 1.16252 
+L-R offense/1.75(wv)	2.30735 1.58367 
+L-R defense/1.75(wv)	1.14198 0.697892 
+L-R both/1.75(wv)	1.73748 1.11972 
+L-R offense/2(wv)	2.40918 1.56651 
+L-R defense/2(wv)	1.12585 0.62491 
+L-R both/2(wv)	1.78585 1.06831 
+L-R offense/2.25(wv)	2.52949 1.56264 
+L-R defense/2.25(wv)	1.1296 0.522648 
+L-R both/2.25(wv)	1.84099 1.01846 
+Copeland	0.943343 1.98262 
+2. order Copeland/2/1	1.21261 2.02217 
+2. order Copeland	0.519318 2.95409 
+Schulze(wv)	0.230911 0.537156 
+Ranked Pairs(wv)	0.144914 0.766131 
+River(wv)	-7.28269 -0.268284 
+Dodgson-Quick(wv)	1.10779 0.996535 
+Keener(0.001, +0, raw)(wv)	-5.30565 5.17275 
+Keener(0.001, +0, norm)(wv)	1.54545 12.1197 
+Keener(0.001, +1, raw)(wv)	1.61925 2.05739 
+Keener(0.001, +1, norm)(wv)	2.31379 12.1819 
+Sinkhorn(0.001, +1)(wv)	1.6282 1.69298 
+Sinkhorn(0.001, +0)(wv)	4.2968 4.62445 
+ODM(0.001)(wv)	1.78577 1.94751 
+HITS(0.001)(wv)	2.48189 1.83597 
+ODM-arctan(0.001)(wv)	1.60514 1.28099 
+Kemeny(PO)	0.356651 0.990559 
+Ext-Minmax(PO)	0.755443 -3.3754 
+Ext-Minmin(PO)	6.96636 0.553945 
+Minmax(PO)	0.149855 -3.66779 
+Maximin(PO)	0.15655 -3.68945 
+L-R offense/0.25(PO)	2.43837 -0.661575 
+L-R defense/0.25(PO)	3.19234 -0.356609 
+L-R both/0.25(PO)	2.86008 -0.586098 
+L-R offense/0.5(PO)	2.50586 -0.581915 
+L-R defense/0.5(PO)	3.01468 -0.356931 
+L-R both/0.5(PO)	2.79739 -0.538199 
+L-R offense/0.75(PO)	2.56085 -0.521281 
+L-R defense/0.75(PO)	2.87617 -0.348812 
+L-R both/0.75(PO)	2.75396 -0.50936 
+L-R offense/1(PO)	2.66763 -0.419853 
+L-R defense/1(PO)	2.66331 -0.423187 
+L-R both/1(PO)	2.66457 -0.429838 
+L-R offense/1.25(PO)	2.83679 -0.323756 
+L-R defense/1.25(PO)	2.53139 -0.497466 
+L-R both/1.25(PO)	2.65554 -0.343548 
+L-R offense/1.5(PO)	2.89848 -0.277744 
+L-R defense/1.5(PO)	2.46107 -0.519881 
+L-R both/1.5(PO)	2.64823 -0.335744 
+L-R offense/1.75(PO)	2.98184 -0.254425 
+L-R defense/1.75(PO)	2.38781 -0.555536 
+L-R both/1.75(PO)	2.66765 -0.331669 
+L-R offense/2(PO)	3.05419 -0.199679 
+L-R defense/2(PO)	2.33244 -0.588888 
+L-R both/2(PO)	2.67345 -0.422842 
+L-R offense/2.25(PO)	3.14007 -0.182979 
+L-R defense/2.25(PO)	2.27587 -0.645747 
+L-R both/2.25(PO)	2.7399 -0.505499 
+Copeland	0.961239 1.98806 
+2. order Copeland/2/1	1.196 2.01197 
+2. order Copeland	0.513237 2.94884 
+Schulze(PO)	0.240412 0.553097 
+Ranked Pairs(PO)	0.154368 0.730472 
+River(PO)	-7.23759 -0.0667953 
+Dodgson-Quick(PO)	2.61702 -0.529795 
+Keener(0.001, +0, raw)(PO)	2.41213 -0.590551 
+Keener(0.001, +0, norm)(PO)	5.36193 -0.722304 
+Keener(0.001, +1, raw)(PO)	2.40771 -0.588455 
+Keener(0.001, +1, norm)(PO)	5.23741 -0.729846 
+Sinkhorn(0.001, +1)(PO)	2.81274 -0.500389 
+Sinkhorn(0.001, +0)(PO)	2.81442 -0.504189 
+ODM(0.001)(PO)	2.80743 -0.511842 
+HITS(0.001)(PO)	2.974 -0.298518 
+ODM-arctan(0.001)(PO)	2.6824 -0.359256 
+Kemeny(w/tv)	1.77752 2.35063 
+Ext-Minmax(w/tv)	0.71782 -3.38043 
+Ext-Minmin(w/tv)	1.31558 1.36506 
+Minmax(w/tv)	0.14716 -3.6842 
+Maximin(w/tv)	-7.49377 -8.02921 
+L-R offense/0.25(w/tv)	1.78607 1.51128 
+L-R defense/0.25(w/tv)	1.32365 1.18036 
+L-R both/0.25(w/tv)	1.65406 1.21824 
+L-R offense/0.5(w/tv)	1.7837 1.5145 
+L-R defense/0.5(w/tv)	1.32581 1.17922 
+L-R both/0.5(w/tv)	1.65307 1.22026 
+L-R offense/0.75(w/tv)	1.79279 1.51055 
+L-R defense/0.75(w/tv)	1.33669 1.17675 
+L-R both/0.75(w/tv)	1.65311 1.21804 
+L-R offense/1(w/tv)	1.821 1.49909 
+L-R defense/1(w/tv)	1.31646 1.14867 
+L-R both/1(w/tv)	1.64777 1.21313 
+L-R offense/1.25(w/tv)	1.92427 1.46701 
+L-R defense/1.25(w/tv)	1.32538 1.05532 
+L-R both/1.25(w/tv)	1.6757 1.19804 
+L-R offense/1.5(w/tv)	2.05098 1.45096 
+L-R defense/1.5(w/tv)	1.32157 0.967707 
+L-R both/1.5(w/tv)	1.69889 1.16272 
+L-R offense/1.75(w/tv)	2.17267 1.43709 
+L-R defense/1.75(w/tv)	1.31604 0.859315 
+L-R both/1.75(w/tv)	1.73824 1.11738 
+L-R offense/2(w/tv)	2.30767 1.4333 
+L-R defense/2(w/tv)	1.29783 0.753476 
+L-R both/2(w/tv)	1.78541 1.07103 
+L-R offense/2.25(w/tv)	2.44822 1.42508 
+L-R defense/2.25(w/tv)	1.26968 0.644537 
+L-R both/2.25(w/tv)	1.8408 1.01617 
+Copeland	0.936919 1.98353 
+2. order Copeland/2/1	1.21076 2.02979 
+2. order Copeland	0.501796 2.94175 
+Schulze(w/tv)	0.228614 0.553546 
+Ranked Pairs(w/tv)	0.153243 0.754919 
+River(w/tv)	-7.23204 -0.21298 
+Dodgson-Quick(w/tv)	1.30556 1.2058 
+Keener(0.001, +0, raw)(w/tv)	-3.9165 4.90255 
+Keener(0.001, +0, norm)(w/tv)	1.83906 12.2558 
+Keener(0.001, +1, raw)(w/tv)	1.64701 2.12 
+Keener(0.001, +1, norm)(w/tv)	2.36375 12.2824 
+Sinkhorn(0.001, +1)(w/tv)	1.66347 1.68689 
+Sinkhorn(0.001, +0)(w/tv)	3.85328 4.40695 
+ODM(0.001)(w/tv)	1.83074 1.97511 
+HITS(0.001)(w/tv)	2.34091 1.76446 
+ODM-arctan(0.001)(w/tv)	1.61526 1.27834 
+Kemeny(tourn-wv)	0.326066 1.83746 
+Ext-Minmax(tourn-wv)	0.741341 1.75359 
+Ext-Minmin(tourn-wv)	0.735131 1.76798 
+Minmax(tourn-wv)	-10.5566 3.48119 
+Maximin(tourn-wv)	-10.2358 5.41649 
+L-R offense/0.25(tourn-wv)	0.952412 1.98756 
+L-R defense/0.25(tourn-wv)	0.742539 1.76435 
+L-R both/0.25(tourn-wv)	1.03884 1.7787 
+L-R offense/0.5(tourn-wv)	0.947085 1.9945 
+L-R defense/0.5(tourn-wv)	0.737161 1.75145 
+L-R both/0.5(tourn-wv)	1.03291 1.77691 
+L-R offense/0.75(tourn-wv)	0.949519 1.97211 
+L-R defense/0.75(tourn-wv)	0.740535 1.76181 
+L-R both/0.75(tourn-wv)	1.02902 1.77917 
+L-R offense/1(tourn-wv)	0.943603 1.98441 
+L-R defense/1(tourn-wv)	0.7458 1.77565 
+L-R both/1(tourn-wv)	1.0315 1.78415 
+L-R offense/1.25(tourn-wv)	0.955849 1.99544 
+L-R defense/1.25(tourn-wv)	0.735797 1.74913 
+L-R both/1.25(tourn-wv)	1.02843 1.77349 
+L-R offense/1.5(tourn-wv)	0.956084 1.98434 
+L-R defense/1.5(tourn-wv)	0.741727 1.76346 
+L-R both/1.5(tourn-wv)	1.02955 1.77346 
+L-R offense/1.75(tourn-wv)	0.939133 1.97276 
+L-R defense/1.75(tourn-wv)	0.739209 1.75057 
+L-R both/1.75(tourn-wv)	1.02993 1.77843 
+L-R offense/2(tourn-wv)	0.95524 1.99003 
+L-R defense/2(tourn-wv)	0.734615 1.75008 
+L-R both/2(tourn-wv)	1.03458 1.77856 
+L-R offense/2.25(tourn-wv)	0.94574 1.97905 
+L-R defense/2.25(tourn-wv)	0.739605 1.75906 
+L-R both/2.25(tourn-wv)	1.02553 1.7737 
+Copeland	0.953354 1.98413 
+2. order Copeland/2/1	1.20605 2.01297 
+2. order Copeland	0.524362 2.95679 
+Schulze(tourn-wv)	-1.76051 1.87002 
+Ranked Pairs(tourn-wv)	-0.33457 2.42545 
+River(tourn-wv)	-4.63321 6.33319 
+Dodgson-Quick(tourn-wv)	0.730305 1.73954 
+Keener(0.001, +0, raw)(tourn-wv)	-5.39612 5.20743 
+Keener(0.001, +0, norm)(tourn-wv)	1.27887 1.91652 
+Keener(0.001, +1, raw)(tourn-wv)	1.28387 2.13449 
+Keener(0.001, +1, norm)(tourn-wv)	1.31509 1.92368 
+Sinkhorn(0.001, +1)(tourn-wv)	1.43822 1.97542 
+Sinkhorn(0.001, +0)(tourn-wv)	3.75876 5.1334 
+ODM(0.001)(tourn-wv)	1.51286 2.19864 
+HITS(0.001)(tourn-wv)	1.76724 2.18971 
+ODM-arctan(0.001)(tourn-wv)	1.41687 1.96235 
+Kemeny(fwv)	1.79019 2.34821 
+Ext-Minmax(fwv)	0.656239 -3.39284 
+Ext-Minmin(fwv)	1.03996 1.10045 
+Minmax(fwv)	0.138882 -3.66268 
+Maximin(fwv)	-6.45907 -9.03463 
+L-R offense/0.25(fwv)	1.98225 1.64885 
+L-R defense/0.25(fwv)	1.134 0.987481 
+L-R both/0.25(fwv)	1.65411 1.21617 
+L-R offense/0.5(fwv)	1.98475 1.65067 
+L-R defense/0.5(fwv)	1.1353 0.977867 
+L-R both/0.5(fwv)	1.65229 1.21735 
+L-R offense/0.75(fwv)	1.98667 1.65576 
+L-R defense/0.75(fwv)	1.14456 0.982097 
+L-R both/0.75(fwv)	1.65248 1.21295 
+L-R offense/1(fwv)	2.01977 1.62493 
+L-R defense/1(fwv)	1.14203 0.948682 
+L-R both/1(fwv)	1.64697 1.2104 
+L-R offense/1.25(fwv)	2.10439 1.61386 
+L-R defense/1.25(fwv)	1.14413 0.865076 
+L-R both/1.25(fwv)	1.67504 1.19414 
+L-R offense/1.5(fwv)	2.19407 1.59755 
+L-R defense/1.5(fwv)	1.13549 0.791897 
+L-R both/1.5(fwv)	1.69849 1.16692 
+L-R offense/1.75(fwv)	2.30268 1.57998 
+L-R defense/1.75(fwv)	1.13617 0.70856 
+L-R both/1.75(fwv)	1.74387 1.11577 
+L-R offense/2(fwv)	2.41848 1.57503 
+L-R defense/2(fwv)	1.13629 0.617732 
+L-R both/2(fwv)	1.78432 1.0707 
+L-R offense/2.25(fwv)	2.5271 1.55788 
+L-R defense/2.25(fwv)	1.11614 0.523971 
+L-R both/2.25(fwv)	1.8415 1.01977 
+Copeland	0.949007 1.99496 
+2. order Copeland/2/1	1.20813 2.01411 
+2. order Copeland	0.486968 2.92485 
+Schulze(fwv)	0.22829 0.549871 
+Ranked Pairs(fwv)	0.156436 0.773227 
+River(fwv)	-7.28094 -0.287067 
+Dodgson-Quick(fwv)	0.738863 1.74685 
+Keener(0.001, +0, raw)(fwv)	-5.38471 5.14861 
+Keener(0.001, +0, norm)(fwv)	1.63325 1.2136 
+Keener(0.001, +1, raw)(fwv)	1.80846 1.70532 
+Keener(0.001, +1, norm)(fwv)	1.63335 1.21617 
+Sinkhorn(0.001, +1)(fwv)	1.63287 1.25632 
+Sinkhorn(0.001, +0)(fwv)	4.29631 4.68418 
+ODM(0.001)(fwv)	1.78298 1.94586 
+HITS(0.001)(fwv)	2.47139 1.82453 
+ODM-arctan(0.001)(fwv)	1.57348 1.46326 
+Kemeny(rel-margins)	0.35269 0.964667 
+Ext-Minmax(rel-margins)	0.673685 -3.39025 
+Ext-Minmin(rel-margins)	1.0506 1.10042 
+Minmax(rel-margins)	0.137457 -3.66856 
+Maximin(rel-margins)	-6.44363 -9.0801 
+L-R offense/0.25(rel-margins)	2.14164 1.58505 
+L-R defense/0.25(rel-margins)	1.13358 0.785979 
+L-R both/0.25(rel-margins)	1.65257 1.13775 
+L-R offense/0.5(rel-margins)	2.87646 1.27697 
+L-R defense/0.5(rel-margins)	1.14096 0.00259843 
+L-R both/0.5(rel-margins)	2.00734 0.606842 
+L-R offense/0.75(rel-margins)	3.53439 1.01806 
+L-R defense/0.75(rel-margins)	1.10707 -0.64625 
+L-R both/0.75(rel-margins)	2.36336 0.0669899 
+L-R offense/1(rel-margins)	4.03432 0.862775 
+L-R defense/1(rel-margins)	1.01011 -1.12987 
+L-R both/1(rel-margins)	2.69813 -0.418526 
+L-R offense/1.25(rel-margins)	4.4634 0.720588 
+L-R defense/1.25(rel-margins)	1.00706 -1.54489 
+L-R both/1.25(rel-margins)	2.99683 -0.8458 
+L-R offense/1.5(rel-margins)	4.82772 0.614353 
+L-R defense/1.5(rel-margins)	0.93783 -1.84838 
+L-R both/1.5(rel-margins)	3.22859 -1.20498 
+L-R offense/1.75(rel-margins)	5.14044 0.537812 
+L-R defense/1.75(rel-margins)	0.928443 -2.11564 
+L-R both/1.75(rel-margins)	3.44747 -1.55651 
+L-R offense/2(rel-margins)	5.3564 0.48899 
+L-R defense/2(rel-margins)	0.875513 -2.32113 
+L-R both/2(rel-margins)	3.62152 -1.84498 
+L-R offense/2.25(rel-margins)	5.59153 0.571973 
+L-R defense/2.25(rel-margins)	0.893464 -2.50256 
+L-R both/2.25(rel-margins)	3.78711 -2.14637 
+Copeland	0.951518 1.97932 
+2. order Copeland/2/1	1.21322 2.02299 
+2. order Copeland	0.50433 2.94779 
+Schulze(rel-margins)	0.232473 0.545248 
+Ranked Pairs(rel-margins)	0.183545 0.740013 
+River(rel-margins)	-7.29419 -0.256207 
+Dodgson-Quick(rel-margins)	0.741174 1.75141 
+Keener(0.001, +0, raw)(rel-margins)	-5.65346 4.70057 
+Keener(0.001, +0, norm)(rel-margins)	2.61387 -0.430241 
+Keener(0.001, +1, raw)(rel-margins)	3.95914 0.827671 
+Keener(0.001, +1, norm)(rel-margins)	2.61788 -0.425332 
+Sinkhorn(0.001, +1)(rel-margins)	2.6081 -0.301529 
+Sinkhorn(0.001, +0)(rel-margins)	4.74384 4.29822 
+ODM(0.001)(rel-margins)	1.78024 1.57369 
+HITS(0.001)(rel-margins)	5.1229 0.718628 
+ODM-arctan(0.001)(rel-margins)	3.18843 0.438361 
+Kemeny(keener)	0.410885 1.1851 
+Ext-Minmax(keener)	0.777024 -3.39583 
+Ext-Minmin(keener)	6.99355 0.491473 
+Minmax(keener)	0.143906 -3.67137 
+Maximin(keener)	0.175514 -3.68439 
+L-R offense/0.25(keener)	1.83341 0.319339 
+L-R defense/0.25(keener)	2.44252 0.66244 
+L-R both/0.25(keener)	2.12529 0.481009 
+L-R offense/0.5(keener)	1.88667 0.424812 
+L-R defense/0.5(keener)	2.26157 0.652132 
+L-R both/0.5(keener)	2.06112 0.543105 
+L-R offense/0.75(keener)	1.95101 0.529299 
+L-R defense/0.75(keener)	2.11115 0.634662 
+L-R both/0.75(keener)	2.02631 0.578921 
+L-R offense/1(keener)	2.01143 0.605754 
+L-R defense/1(keener)	2.00502 0.606177 
+L-R both/1(keener)	2.00467 0.604441 
+L-R offense/1.25(keener)	2.07723 0.673884 
+L-R defense/1.25(keener)	1.9251 0.570489 
+L-R both/1.25(keener)	1.99245 0.619945 
+L-R offense/1.5(keener)	2.14537 0.728488 
+L-R defense/1.5(keener)	1.83859 0.530129 
+L-R both/1.5(keener)	1.99495 0.626015 
+L-R offense/1.75(keener)	2.23082 0.771486 
+L-R defense/1.75(keener)	1.78151 0.478984 
+L-R both/1.75(keener)	1.99632 0.620814 
+L-R offense/2(keener)	2.31349 0.802727 
+L-R defense/2(keener)	1.72788 0.415598 
+L-R both/2(keener)	2.00679 0.604254 
+L-R offense/2.25(keener)	2.39459 0.82811 
+L-R defense/2.25(keener)	1.68642 0.351736 
+L-R both/2.25(keener)	2.02915 0.589613 
+Copeland	0.949411 1.97951 
+2. order Copeland/2/1	1.20637 2.02826 
+2. order Copeland	0.512654 2.95471 
+Schulze(keener)	0.233581 0.531441 
+Ranked Pairs(keener)	0.145234 0.758832 
+River(keener)	-7.23467 -0.0340945 
+Dodgson-Quick(keener)	-14.599 4.833 
+Keener(0.001, +0, raw)(keener)	1.76338 0.384271 
+Keener(0.001, +0, norm)(keener)	1.99708 0.600351 
+Keener(0.001, +1, raw)(keener)	1.93412 0.554952 
+Keener(0.001, +1, norm)(keener)	1.99766 0.604025 
+Sinkhorn(0.001, +1)(keener)	2.01794 0.601357 
+Sinkhorn(0.001, +0)(keener)	2.1027 0.524932 
+ODM(0.001)(keener)	2.10574 0.525838 
+HITS(0.001)(keener)	2.27532 0.732593 
+ODM-arctan(0.001)(keener)	1.97675 0.644862 
+Gradual-[Smith(wv)](None, cardinal)	-1.9692 1.29053 
+Gradual-[Smith(wv)](None, ordinal)	-1.95168 1.14935 
+Gradual-[Schwartz(wv)](None, cardinal)	0.430383 0.421637 
+Gradual-[Schwartz(wv)](None, ordinal)	0.470485 0.431238 
+Gradual-[SDom(wv)](None, cardinal)	-2.22265 8.21686 
+Gradual-[SDom(wv)](None, ordinal)	-2.97546 7.97717 
+Gradual-[CDTT(wv)](None, cardinal)	-14.6007 4.82416 
+Gradual-[CDTT(wv)](None, ordinal)	-14.4892 4.80909 
+Gradual-[Landau(wv)](None, cardinal)	-0.167226 1.41902 
+Gradual-[Landau(wv)](None, ordinal)	-0.125683 1.33005 
+Gradual-[Condorcet](None, cardinal)	-5.28877 1.49443 
+Gradual-[Condorcet](None, ordinal)	-6.09376 2.20691 
+Gradual-[Copeland](None, cardinal)	1.90673 1.73918 
+Gradual-[Copeland](None, ordinal)	1.89957 1.67184 
+Gradual-[2. order Copeland/2/1](None, cardinal)	1.49542 1.92979 
+Gradual-[2. order Copeland/2/1](None, ordinal)	1.46333 1.85881 
+Gradual-[2. order Copeland](None, cardinal)	1.58063 2.68427 
+Gradual-[2. order Copeland](None, ordinal)	1.45921 2.75085 
+Random Pair	7.11477 7.89517 
+Cardinal-10(norm)	2.01575 -1.04694 
+Cardinal-10	1.97296 -0.826044 
+VMedianOS-10(norm, tiebreak)	5.31232 2.33374 
+VMedianOS-10(tiebreak)	-1.84515 -2.16225 
+VMedianOS-10(norm)	-4.96807 -1.83845 
+VMedianOS-10()	-4.81906 -2.86713 
+Mode-Ratings	4.18344 -8.11728 
+Young(wv,linear)	0.203037 -3.70761 
+Young(sym-completion,linear)	0.157052 -3.68801 
