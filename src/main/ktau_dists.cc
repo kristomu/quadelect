@@ -104,6 +104,41 @@ void ktau(const vector<ordering> & orderings,
 		}
 }
 
+// For SVD purposes
+
+void append_pairwise_list_for_results(const vector<ordering> & orderings,
+	vector<vector<bool> > & pairwise_lists, int numcands) {
+	// A pairwise list is just a flattened pairwise matrix.
+	// So pairwise_lists is a huge matrix where the rows correspond to
+	// different methods, and the columns correspond to candidate pairs
+	// for different elections. Then candidate pair (A>B) for election 1
+	// for method 1 is true if the social ordering according to method 1 
+	// ranked A ahead of B in that election.
+
+	// In the absence of ties, the Euclidean distance between two rows is
+	// then the Kendall-tau distance between the two methods along all
+	// those election methods. The benefit is that we can use dimensionality
+	// reduction approaches that usually require Euclidean distance on this
+	// giant matrix.
+
+	int num_methods = orderings.size();
+
+	vector<vector<vector<bool> > > cms (num_methods);
+
+	int counter, sec;
+
+	for (counter = 0; counter < num_methods; ++counter)
+		cms[counter] = get_impromptu_cm(orderings[counter], numcands);
+
+	for (counter = 0; counter < num_methods; ++counter) {
+		for (sec = 0; sec < cms[counter].size(); ++sec) {
+			for (int tri = 0; tri < cms[counter][sec].size(); ++tri) {
+				pairwise_lists[counter].push_back(cms[counter][sec][tri]);
+			}
+		}
+	}
+}
+
 // Alternate winner-only check: distance between two orderings is equal to the
 // symmetric difference between the two winner sets.
 
@@ -399,7 +434,9 @@ main() {
 
 	vector<ordering> outputs(condorcets.size());
 
-	double maxiters = 4000;
+	double maxiters = 1;
+
+	vector<vector<bool> > pairwise_lists(condorcets.size());
 
 	for (counter = 1; counter < maxiters; ++counter) {
 		srandom(counter);
@@ -462,8 +499,21 @@ main() {
                         }
 		}
 
-		winner_check(outputs, distances, numcands);
+		// Kendall tau or winner check or whatnot here. TODO: let the
+		// user decide.
+
+		//winner_check(outputs, distances, numcands);
+		append_pairwise_list_for_results(outputs, pairwise_lists, numcands);
 	}
+
+	cout << "Pairwise list dump." << endl;
+	for (counter = 0; counter < pairwise_lists.size(); ++counter) {
+		copy(pairwise_lists[counter].begin(), pairwise_lists[counter].end(),
+			ostream_iterator<bool>(cout, " "));
+		cout << endl;
+	}
+
+	/*
 
 	int sec;
 	for (counter = 0; counter < distances.size(); ++counter)
@@ -505,5 +555,5 @@ main() {
 		copy(coords[counter].begin(), coords[counter].end(), ostream_iterator<double>(cout, " "));
 		cout << method_stats[counter].get_mean();
 		cout << "\t" << condorcets[counter]->name() << endl;
-	}
+	}*/
 }
