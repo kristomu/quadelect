@@ -24,6 +24,9 @@
 #include "../singlewinner/positional/positional.h"
 #include "../singlewinner/positional/simple_methods.h"
 
+#include "../singlewinner/random/randball.h"
+#include "../singlewinner/random/randcand.h"
+
 //#include "../tests/tests/monotonicity.h"
 
 #include "../stats/stats.h"
@@ -104,6 +107,41 @@ void ktau(const vector<ordering> & orderings,
 		}
 }
 
+// For SVD purposes
+
+void append_pairwise_list_for_results(const vector<ordering> & orderings,
+	vector<vector<short> > & pairwise_lists, int numcands) {
+	// A pairwise list is just a flattened pairwise matrix.
+	// So pairwise_lists is a huge matrix where the rows correspond to
+	// different methods, and the columns correspond to candidate pairs
+	// for different elections. Then candidate pair (A>B) for election 1
+	// for method 1 is true if the social ordering according to method 1 
+	// ranked A ahead of B in that election.
+
+	// In the absence of ties, the Euclidean distance between two rows is
+	// then the Kendall-tau distance between the two methods along all
+	// those election methods. The benefit is that we can use dimensionality
+	// reduction approaches that usually require Euclidean distance on this
+	// giant matrix.
+
+	int num_methods = orderings.size();
+
+	vector<vector<vector<bool> > > cms (num_methods);
+
+	int counter, sec;
+
+	for (counter = 0; counter < num_methods; ++counter)
+		cms[counter] = get_impromptu_cm(orderings[counter], numcands);
+
+	for (counter = 0; counter < num_methods; ++counter) {
+		for (sec = 0; sec < cms[counter].size(); ++sec) {
+			for (int tri = 0; tri < cms[counter][sec].size(); ++tri) {
+				pairwise_lists[counter].push_back(cms[counter][sec][tri]);
+			}
+		}
+	}
+}
+
 // Alternate winner-only check: distance between two orderings is equal to the
 // symmetric difference between the two winner sets.
 
@@ -159,6 +197,7 @@ main() {
 	// Also fix memory-hogging loop of doom in positional if this is set on.
 	//impartial iic(/*true, true*/true, true);
 	//spatial_generator iic(true, true);
+
 	spatial_generator spatial(true, false);
 	impartial iic(true, false);
 
@@ -166,6 +205,7 @@ main() {
 	srand(seed);
 	srandom(seed);
 	srand48(seed);
+	rng randomizer(seed);
 
 	list<ballot_group> ballots;
 	
@@ -177,14 +217,14 @@ main() {
 	vector<pairwise_ident> types;
 	types.push_back(CM_WV);
 	//types.push_back(CM_LV);
-	//types.push_back(CM_MARGINS);
+	types.push_back(CM_MARGINS);
 	//types.push_back(CM_LMARGINS);  // may have negative values
 	types.push_back(CM_PAIRWISE_OPP);
 	//types.push_back(CM_WTV);
-	types.push_back(CM_TOURN_WV);
+	//types.push_back(CM_TOURN_WV);
 	//types.push_back(CM_TOURN_SYM); // may have negative values
-	types.push_back(CM_FRACTIONAL_WV);
-	types.push_back(CM_RELATIVE_MARGINS);
+	//types.push_back(CM_FRACTIONAL_WV);
+	//types.push_back(CM_RELATIVE_MARGINS);
 	//types.push_back(CM_KEENER_MARGINS);
 
 	int counter;
@@ -198,13 +238,26 @@ main() {
 	double power_max = 2.5;
 	double powerstep = 0.25;
 
+	// Condorcet methods:
+
+	//	Copeland
+	//	Second order Copeland 		with 1 points for win and 0 for tie
+	//	Second order Copeland 		with 2 points for win and 1 for tie
+
+	condorcets.push_back(new copeland(CM_PAIRWISE_OPP));	// WV etc doesn't matter
+	condorcets.push_back(new copeland(CM_PAIRWISE_OPP, 2, 2, 1));
+	condorcets.push_back(new copeland(CM_PAIRWISE_OPP, 2, 1, 0));
+
 	for (counter = 0; counter < types.size(); ++counter) {
-		//condorcets.push_back(new kemeny(types[counter]));
+		//	Kemeny, Ext-Minmax, Minmax, non-Condorcet Ext-Minmin
+
+		condorcets.push_back(new kemeny(types[counter]));
 		condorcets.push_back(new ext_minmax(types[counter], false));
 		condorcets.push_back(new ext_minmax(types[counter], true));
 		condorcets.push_back(new ord_minmax(types[counter]));
-		//condorcets.push_back(new maxmin(types[counter]));
-		for (double power = power_min; power < power_max; power += 
+
+		//	Least Reversal
+		/*for (double power = power_min; power < power_max; power += 
 				powerstep) {
 			condorcets.push_back(new least_rev(types[counter],
 						true, false, power));
@@ -212,24 +265,23 @@ main() {
 						false, true, power));
 			condorcets.push_back(new least_rev(types[counter],
 						true, true, power));
-		}
-		condorcets.push_back(new copeland(types[counter]));
-		condorcets.push_back(new copeland(types[counter], 2, 2, 1));
-		condorcets.push_back(new copeland(types[counter], 2, 1, 0));
+		}*/
+
+		// Schulze, Ranked Pairs, appx. Dodgson
+
 		condorcets.push_back(new schulze(types[counter]));
 		condorcets.push_back(new ranked_pairs(types[counter], false));
-		//condorcets.push_back(new ranked_pairs(types[counter], true));
 		condorcets.push_back(new dquick(types[counter]));
-		/*condorcets.push_back(new keener(types[counter], 0.001, false, 
-					false));
-		condorcets.push_back(new keener(types[counter], 0.001, false, 
-					true));*/
+		
+
+		// Keener and Sinkhorn (not necessarily Condorcet as such)
 		condorcets.push_back(new keener(types[counter], 0.001, true, 
 					false));
 		condorcets.push_back(new keener(types[counter], 0.001, true, 
 					true));
 		condorcets.push_back(new sinkhorn(types[counter], 0.001, true));
-		//condorcets.push_back(new sinkhorn(types[counter], 0.001, false));
+
+		// ODM and HITS
 		condorcets.push_back(new odm(types[counter], 0.001));
 		condorcets.push_back(new hits(types[counter], 0.001));
 		condorcets.push_back(new odm_atan(types[counter], 0.001));
@@ -246,10 +298,11 @@ main() {
 	ct.push_back(GF_GREATEST);
 	ct.push_back(GF_BOTH);*/
 
+	// Gradual Mean-Median Condorcet/Borda.
 	for (counter = 0; counter < ct.size(); ++counter) {
 		condorcets.push_back(new gradual_cond_borda(new smith_set,
 					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new smith_set,
+	/*	condorcets.push_back(new gradual_cond_borda(new smith_set,
 					false, ct[counter]));
 		condorcets.push_back(new gradual_cond_borda(new schwartz_set,
 					true, ct[counter]));
@@ -259,18 +312,6 @@ main() {
 					true, ct[counter]));
 		condorcets.push_back(new gradual_cond_borda(new sdom_set,
 					false, ct[counter]));
-		/*condorcets.push_back(new gradual_cond_borda(new cdtt_set,
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new cdtt_set,
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new cgtt_set,
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new cgtt_set,
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new mdd_set(false),
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new mdd_set(false),
-					false, ct[counter]));*/
 		condorcets.push_back(new gradual_cond_borda(new landau_set, 
 					true, ct[counter]));
 		condorcets.push_back(new gradual_cond_borda(new landau_set,
@@ -290,70 +331,93 @@ main() {
 		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
 						2, 1, 0), true, ct[counter]));
 		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
-						2, 1, 0), false, ct[counter]));
+						2, 1, 0), false, ct[counter]));*/
 	}
 
-	//condorcets.push_back(new copeland(CM_WV));
-	condorcets.push_back(new randpair(CM_WV));
+	// Non-Condorcets:
+	// Ignore the wrong name for the vector...
 
+	// Random Pair, Random Ballot, Random Candidate
+	condorcets.push_back(new randpair(CM_WV));
+	condorcets.push_back(new random_ballot());
+	condorcets.push_back(new random_candidate());
+
+	// Range and median ratings. Mode too for good measure (not really good)
 	condorcets.push_back(new cardinal_ratings(0, 10, true));
 	condorcets.push_back(new cardinal_ratings(0, 10, false));
 	condorcets.push_back(new vi_median_ratings(10, true, true));
-        condorcets.push_back(new vi_median_ratings(10, false, true));
-        //condorcets.push_back(new vi_median_ratings(10, true, false));
-	//condorcets.push_back(new vi_median_ratings(10, false, false));
-
+    condorcets.push_back(new vi_median_ratings(10, false, true));
 	condorcets.push_back(new mode_ratings());
-	/*condorcets.push_back(new young(false, true));
-	condorcets.push_back(new young(true, true));*/
-	/*condorcets.push_back(new copeland(CM_WV));
-	condorcets.push_back(new kemeny(CM_WV));
-	condorcets.push_back(new kemeny(CM_MARGINS));
-	condorcets.push_back(new schulze(CM_WV));
-	condorcets.push_back(new schulze(CM_MARGINS));*/
 
+	// Young
+	condorcets.push_back(new young(false, true));
+	condorcets.push_back(new young(true, true));
+	
 	// Some positional ones and other fun.
-	vector<election_method *> condorcetsp;
-	condorcetsp.push_back(new plurality(PT_WHOLE));
-	condorcetsp.push_back(new borda(PT_WHOLE));
-	condorcetsp.push_back(new antiplurality(PT_WHOLE));
-	condorcetsp.push_back(new for_and_against(PT_WHOLE));
-	condorcetsp.push_back(new nauru(PT_WHOLE));
-	//condorcetsp.push_back(new heismantrophy(PT_WHOLE));
-	//condorcetsp.push_back(new baseballmvp(PT_WHOLE));
-	//condorcetsp.push_back(new eurovision(PT_WHOLE));
-	//condorcetsp.push_back(new dabagh(PT_WHOLE));
-	condorcetsp.push_back(new nrem(PT_WHOLE));
-	/*condorcetsp.push_back(new worstpos(PT_WHOLE));
-	condorcetsp.push_back(new worstborda(PT_WHOLE));*/
-
-	for (counter = 0; counter < condorcetsp.size(); ++counter) {
-		condorcets.push_back(condorcetsp[counter]);
-		condorcets.push_back(new loser_elimination(
-					condorcetsp[counter], true, true));
-		condorcets.push_back(new loser_elimination(
-					condorcetsp[counter], false, true));
-	}
+	vector<election_method *> positionals;
+	positionals.push_back(new plurality(PT_WHOLE));
+	positionals.push_back(new borda(PT_WHOLE));
+	positionals.push_back(new antiplurality(PT_WHOLE));
+	positionals.push_back(new for_and_against(PT_WHOLE));
+	positionals.push_back(new nauru(PT_WHOLE));
+	positionals.push_back(new heismantrophy(PT_WHOLE));
+	positionals.push_back(new baseballmvp(PT_WHOLE));
+	positionals.push_back(new eurovision(PT_WHOLE));
+	positionals.push_back(new dabagh(PT_WHOLE));
+	positionals.push_back(new nrem(PT_WHOLE));
+	/*positionals.push_back(new worstpos(PT_WHOLE));
+	positionals.push_back(new worstborda(PT_WHOLE));*/
 
 	smith_set xa;
-	schwartz_set xb;
 	landau_set xc;
+
+	for (counter = 0; counter < positionals.size(); ++counter) {
+		// The positional method
+		condorcets.push_back(positionals[counter]);
+	}
+
+	// Carey
+	condorcets.push_back(new loser_elimination(
+		new plurality(PT_WHOLE), true, true));
+	// IRV
+	condorcets.push_back(new loser_elimination(
+		new plurality(PT_WHOLE), false, true));
+	// Nanson
+	condorcets.push_back(new loser_elimination(
+		new borda(PT_WHOLE), true, true));
+	// Baldwin
+	condorcets.push_back(new loser_elimination(
+		new borda(PT_WHOLE), false, true));
+	
+	// Smith,Carey
+	condorcets.push_back(new comma(new loser_elimination(
+		new plurality(PT_WHOLE), true, true), &xa));
+	// Smith,IRV
+	condorcets.push_back(new comma(new loser_elimination(
+		new plurality(PT_WHOLE), false, true), &xa));
+
+	schwartz_set xb;
 	condorcet_set xd;
-	sdom_set xe;
+//	sdom_set xe;
 	cdtt_set xf;
 	mdd_set xg(true);
 	mdd_set xh(false);
 	cgtt_set xi;
 
+	condorcets.push_back(&xa);
+	condorcets.push_back(&xb);
+	condorcets.push_back(&xd);
+	condorcets.push_back(&xf);
+	
 	// TODO: Really fix comma. DONE, kinda.
 	for (counter = condorcets.size()-1; counter >= 0; --counter) {
 		//condorcets.push_back(new comma(condorcets[counter], &xa));
-		condorcets.push_back(new comma(condorcets[counter], &xb));
+		//condorcets.push_back(new comma(condorcets[counter], &xb));
 		/*condorcets.push_back(new comma(condorcets[counter], &xc));
 		condorcets.push_back(new comma(condorcets[counter], &xd));*/
-		condorcets.push_back(new comma(condorcets[counter], &xe));
+		//condorcets.push_back(new comma(condorcets[counter], &xe));
 		//condorcets.push_back(new comma(condorcets[counter], &xf));
-		condorcets.push_back(new comma(condorcets[counter], &xg));
+		//condorcets.push_back(new comma(condorcets[counter], &xg));
 		/*condorcets.push_back(new comma(condorcets[counter], &xh));
 		condorcets.push_back(new comma(condorcets[counter], &xi));*/
 	}
@@ -362,6 +426,10 @@ main() {
 		method_stats.push_back(stats<float>(br_type,
 					condorcets[counter]->name(), false));
 
+	for (counter = 0; counter < condorcets.size(); ++counter) {
+		cout << condorcets[counter]->name() << endl;
+	}
+	
 	cout << "There are " << condorcets.size() << " methods." << endl;
 
 	vector<vector<double> > distances(condorcets.size(), vector<double>(
@@ -399,15 +467,17 @@ main() {
 
 	vector<ordering> outputs(condorcets.size());
 
-	double maxiters = 4000;
+	double maxiters = 4001;
 
-	for (counter = 1; counter < maxiters; ++counter) {
-		srandom(counter);
+	vector<vector<short> > pairwise_lists(condorcets.size());
+
+	for (counter = 0; counter < maxiters; ++counter) {
+		/*srandom(counter);
 		srand(counter);
-		srand48(counter);
+		srand48(counter);*/
 
 		numcands = 5;// + random() % (initial_numcands-3);
-		numvoters = 25; //10 + random() % (256-10);
+		numvoters = 20; //10 + random() % (256-10);
 		//numvoters = 5;
 
 		/*numcands = 6;
@@ -415,8 +485,8 @@ main() {
 		cout << counter << ": " << numcands << " cands, " << numvoters << " voters" << endl;
 
 		if (counter % 2 == 0)
-			ballots = iic.generate_ballots(numvoters, numcands);
-		else	ballots = spatial.generate_ballots(numvoters, numcands);
+			ballots = iic.generate_ballots(numvoters, numcands, randomizer);
+		else	ballots = spatial.generate_ballots(numvoters, numcands, randomizer);
 
 		cache.clear();
 
@@ -457,13 +527,26 @@ main() {
                         method_stats[sec].add_result(maxval, nominator/
 					denominator, minval);
                         if (counter % report_freq == 0) {
-                                cout << method_stats[sec].display_stats() 
+                                cout << method_stats[sec].display_stats(true, 0.95) 
 					<< endl;
                         }
 		}
 
-		winner_check(outputs, distances, numcands);
+		// Kendall tau or winner check or whatnot here. TODO: let the
+		// user decide.
+
+		//winner_check(outputs, distances, numcands);
+		append_pairwise_list_for_results(outputs, pairwise_lists, numcands);
 	}
+
+	cout << "Pairwise list dump." << endl;
+	for (counter = 0; counter < pairwise_lists.size(); ++counter) {
+		copy(pairwise_lists[counter].begin(), pairwise_lists[counter].end(),
+			ostream_iterator<bool>(cout, " "));
+		cout << endl;
+	}
+
+	/*
 
 	int sec;
 	for (counter = 0; counter < distances.size(); ++counter)
@@ -505,5 +588,5 @@ main() {
 		copy(coords[counter].begin(), coords[counter].end(), ostream_iterator<double>(cout, " "));
 		cout << method_stats[counter].get_mean();
 		cout << "\t" << condorcets[counter]->name() << endl;
-	}
+	}*/
 }

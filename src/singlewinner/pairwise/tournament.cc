@@ -40,8 +40,6 @@ int cond_tournament::a_beats_b(int a, int b, const condmat & to_check) const {
 		return(1); // a wins
 	}
 
-	double f = to_check.get_magnitude(a, b);
-
 	if (to_check.get_magnitude(a, b) > 0) return(1);
 	if (to_check.get_magnitude(b, a) > 0) return(-1);
 	return(0);
@@ -94,11 +92,10 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 				lasted_how_long);
 	}
 
-	int beat_stat = a_beats_b(resolv_a, resolv_b, to_check);
-
 	cout << "level " << level << ": " << "Checking who wins of " << resolv_a << " vs " << resolv_b << endl;
 
 	switch(a_beats_b(resolv_a, resolv_b, to_check)) {
+		default:
 		case 0: cout << "Tie." << endl;
 			assert (1 != 1); // dunno what to do here
 			break;
@@ -125,11 +122,11 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 	
 	vector<int> seed_order(num_candidates, -1), 
 		lasted_how_long(num_candidates, -2);
-	int counter = 0;
+	size_t counter = 0;
  	double old_cand_score = 0;
 
 	// Count the number of hopefuls
-	int num_hopefuls = 0;
+	size_t num_hopefuls = 0;
 	for (counter = 0; counter < hopefuls.size(); ++counter)
 		if (hopefuls[counter])
 			++num_hopefuls;
@@ -163,7 +160,7 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 	// simply inverting the numbers. (Note that we can't do this if we go
 	// recursive - but we'll fix that when we get to it).
 	
-	for (counter = 0; counter < num_candidates; ++counter)
+	for (counter = 0; counter < (size_t)num_candidates; ++counter)
 		if (hopefuls[counter])
 			return_order.insert(candscore(counter, 
 						-lasted_how_long[counter] + 
@@ -179,7 +176,6 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 	// order.
 	
 	double oldscore = INFINITY;
-	int old_cand = -1;
 	ordering::const_iterator pos = return_order.begin();
 	ordering combined_order;
 	int norm_score = 0;

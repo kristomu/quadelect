@@ -12,7 +12,7 @@ pair<ordering, bool> partition_set::pair_elect(const abstract_condmat & input,
 	vector<int> schedule;
 	schedule.reserve(input.get_num_candidates());
 
-	int counter;
+	size_t counter;
 	// I *really* have to do something about hopefuls, it's way too risky.
 	for (counter = 0; counter < input.get_num_candidates(); ++counter)
 		if (hopefuls[counter])

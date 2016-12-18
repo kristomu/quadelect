@@ -109,7 +109,7 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 	//			add(sec, pri, sec_count - pri_count)
 
 	vector<bool> seen(num_candidates);
-	int counter, sec_count;
+	size_t counter;
 
 	for (list<ballot_group>::const_iterator pos = scores.begin(); pos !=
 			scores.end(); ++pos) {
@@ -123,7 +123,7 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 
 		fill(seen.begin(), seen.end(), false);
 
-		int pri_count = num_candidates, sec_count = num_candidates;
+		size_t pri_count = num_candidates, sec_count = num_candidates;
 		ordering::const_iterator pri, sec;
 		double primary_old = INFINITY, secondary_old;
 

@@ -36,7 +36,7 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 
 	vector<pair<list<double>, int> > candidate_scores;
 
-	for (int counter = 0; counter < mode_maps.size(); ++counter) {
+	for (size_t counter = 0; counter < mode_maps.size(); ++counter) {
 
 		if (debug)
 			cout << "Candidate " << counter << endl;

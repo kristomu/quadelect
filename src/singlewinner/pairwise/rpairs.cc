@@ -60,7 +60,7 @@ pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat & input,
 	int numcand = input.get_num_candidates();
 	contests.reserve(numcand * (numcand - 1));
 
-	int counter, sec;
+	size_t counter, sec;
 
 	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
 		if (!hopefuls[counter]) continue;
@@ -106,7 +106,7 @@ pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat & input,
 	ordering out;
 
 	if (winner_only) {
-		for (counter = 0; counter < numcand; ++counter)
+		for (counter = 0; counter < (size_t)numcand; ++counter)
 			if (can_win[counter])
 				out.insert(candscore(counter, 1));
 			else	out.insert(candscore(counter, 0));
@@ -120,7 +120,7 @@ pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat & input,
 	vector<int> places(numcand, -1);
 	int idzero = -1;
 
-	for (counter = 0; counter < numcand && idzero == -1; ++counter) 
+	for (counter = 0; counter < (size_t)numcand && idzero == -1; ++counter) 
 		if (can_win[counter])
 			idzero = counter;
 

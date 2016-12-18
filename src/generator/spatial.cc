@@ -14,7 +14,7 @@ double spatial_generator::distance(const vector<double> & a,
 
 	assert (a.size() == b.size());
 
-	for (int counter = 0; counter < a.size(); ++counter)
+	for (size_t counter = 0; counter < a.size(); ++counter)
 		sum += (a[counter]-b[counter])*(a[counter]-b[counter]);
 
 	return(sqrt(sum));
@@ -75,7 +75,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 
 	int counter, sec;
 
-	if (fixed && numcands == fixed_cand_positions.size())
+	if (fixed && numcands == (int)fixed_cand_positions.size())
 		cand_positions = fixed_cand_positions;
 	else {
 		for (counter = 0; counter < numcands; ++counter)
@@ -170,7 +170,8 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 							max_distance-our_dist));
 		}
 
-		our_entry.complete = (our_entry.contents.size() == numcands);
+		our_entry.complete = ((int)our_entry.contents.size() == 
+			numcands);
 		our_entry.rated = true;
 
 		toRet.push_back(our_entry);
@@ -200,7 +201,7 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 	// If we have the wrong number of candidates or the wrong number of
 	// dimensions, no go.
 
-	if (cand_positions.size() != num_cands) return(false);
+	if ((int)cand_positions.size() != num_cands) return(false);
 	if (!cand_positions.empty() && cand_positions[0].size() != 
 			ceil(num_dimensions)) return(false);
 

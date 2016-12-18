@@ -64,9 +64,9 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 	output.second = false;
 
 	// Determine the number of hopefuls we have.
-	int num_hopefuls = 0, counter;
+	size_t num_hopefuls = 0, counter;
 
-	for (counter = 0; counter < num_candidates; ++counter)
+	for (counter = 0; counter < (size_t)num_candidates; ++counter)
 		if (hopefuls[counter])
 			++num_hopefuls;
 

@@ -25,7 +25,8 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 	int maxiter = 500;
 
 	double convergence = INFINITY;
-	int counter, sec, iter = 0;
+	size_t counter, sec;
+	int iter = 0;
 
 	// Like Sinkhorn and Keener, we'll be using the matrix a lot of times,
 	// so copy it over. Sic transit mathematical elegance.
@@ -37,7 +38,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		if (hopefuls[counter])
 			permitted_candidates.push_back(counter);
 
-	int num_hopefuls = permitted_candidates.size();
+	size_t num_hopefuls = permitted_candidates.size();
 	vector<double> offense(num_hopefuls, eps), defense(num_hopefuls, eps);
 	vector<double> score(num_hopefuls, INFINITY), old_score;
 

@@ -380,7 +380,7 @@ template<typename Q> list<Q> intersect_by_file(
 	ifstream infile(filename.c_str());
 
 	if (!infile) {
-		cerr << "Cannot open " << infile << " for reading!" << endl;
+		cerr << "Cannot open " << filename << " for reading!" << endl;
 		return(list<Q>(1, NULL));
 	}
 

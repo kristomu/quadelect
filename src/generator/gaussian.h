@@ -26,7 +26,8 @@ class gaussian_generator : public spatial_generator {
 		// Get preferences according to distance.
 
 	protected:
-		vector<double> rnd_vector(int size, rng & random_source) const;
+		vector<double> rnd_vector(size_t size, 
+			rng & random_source) const;
 
 	public:
 		// Do later.

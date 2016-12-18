@@ -223,7 +223,7 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	// The first int in the pair is the order of the candidate according 
 	// to the first ordering, and the second into according to the second.
 
-	int counter;
+	size_t counter;
 	bool debug = false;
 
 	map<int, string> fakecand;
@@ -362,7 +362,7 @@ ordering ordering_tools::direct_vector_to_ordering(const vector<double> & in,
 
 	ordering toRet;
 
-	for (int counter = 0; counter < min(in.size(), hopefuls.size());
+	for (size_t counter = 0; counter < min(in.size(), hopefuls.size());
 			++counter)
 		if (hopefuls[counter])
 			toRet.insert(candscore(counter, in[counter]));
@@ -375,7 +375,7 @@ ordering ordering_tools::indirect_vector_to_ordering(const vector<double> & in,
 
 	ordering toRet;
 
-	for (int counter = 0; counter < mapping.size(); ++counter)
+	for (size_t counter = 0; counter < mapping.size(); ++counter)
 		toRet.insert(candscore(mapping[counter], in[counter]));
 
 	return(toRet);

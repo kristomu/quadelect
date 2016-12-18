@@ -72,7 +72,7 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 
 	ordering out, rank_out;
 
-	int cleared = 0;
+	size_t cleared = 0;
 
 	ordering_tools otools;
 
@@ -121,7 +121,7 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 
 		if (cur_num_voters != max_num_voters)
 			cur_num_voters = min((double)max_num_voters, 
-					cur_num_voters *= max(1.01,
+					cur_num_voters * max(1.01,
 					autopilot_factor_in));
 		else
 			cur_num_voters *= max(1.01, autopilot_factor_in);
@@ -233,17 +233,17 @@ bool yee::draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 			// "home circle" around this pixel. It means we should
 			// not draw anything but that candidate's home circle
 			// at this point.
-			int outer_border_of = -1, inner_border_of = -1;
+			int inner_border_of = -1;
 			bool is_home = false;
 			int copier;
 
-			for (int cand = 0; cand < numcands && !is_home; 
+			for (unsigned int cand = 0; cand < numcands && !is_home;
 					++cand) {
 				double dist = euc_distance(2.0, adj_coords, 
 						cand_locations[cand]);
 
 				if (dist < adj_outer_radius) {
-					outer_border_of = cand;
+					//outer_border_of = cand;
 					is_home = true;
 				}
 
@@ -578,7 +578,7 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 		++cur_round;
 	} else {
 		// No, draw the next picture.
-		int method_no = cur_round - x_size;
+		size_t method_no = cur_round - x_size;
 
 		if (method_no >= e_methods.size())
 			return(""); // All done!

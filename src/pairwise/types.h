@@ -57,6 +57,8 @@ class pairwise_strategy {
 
 		virtual double transform(double favor, double oppose, 
 				double num_voters) const = 0;
+
+		virtual ~pairwise_strategy() {}
 };
 
 // ------------------------------------------------------------------------ //

@@ -61,7 +61,7 @@ grad_fracile vi_median_ratings::aggregate_ratings(
 	}
 
 	// Transport hopefuls over.
-	for (int counter = 0; counter < hopefuls.size(); ++counter)
+	for (size_t counter = 0; counter < hopefuls.size(); ++counter)
 		if (!hopefuls[counter])
 			out.exclude(counter);
 

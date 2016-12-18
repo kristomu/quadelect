@@ -77,7 +77,8 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	int * ia = new int[entries + 1];
 	int * ja = new int[entries + 1];
 	double * ar = new double[entries + 1];
-	int running_ballot_count = 1, running_count = 1, counter;
+	int running_ballot_count = 1, running_count = 1;
+	size_t counter;
 
 	vector<double> vs_others(num_candidates);
 

@@ -93,7 +93,7 @@ pair<ordering, bool> cardinal_ratings::elect_inner(
 	pair<ordering, bool> toRet;
 	toRet.second = false; // whole rank, not winner
 	
-	for (int counter = 0; counter < rating_totals.size(); ++counter)
+	for (size_t counter = 0; counter < rating_totals.size(); ++counter)
 		if (hopefuls[counter])
 			toRet.first.insert(candscore(counter, 
 						rating_totals[counter]));

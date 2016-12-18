@@ -19,7 +19,7 @@ pair<ordering, bool> random_candidate::elect_inner(
 
 	ordering toRet;
 
-	int counter;
+	size_t counter;
 
 	for (counter = 0; counter < hopefuls.size(); ++counter)
 		if (hopefuls[counter])

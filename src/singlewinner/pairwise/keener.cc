@@ -23,7 +23,7 @@ pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
 	vector<int> permitted_candidates;
 	permitted_candidates.reserve(input.get_num_candidates());
 
-	int counter;
+	size_t counter;
 
 	bool debug = false;
 
@@ -38,7 +38,7 @@ pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
 	// manner to what is usual, so that normalizing diagonals become easy
 	// if that parameter is set.
 	int x, y;
-	int num_hopefuls = permitted_candidates.size();
+	size_t num_hopefuls = permitted_candidates.size();
 	for (x = 0; x < num_hopefuls; ++x) {
 		double running_count = 0;
 		for (y = 0; y < num_hopefuls; ++y) {

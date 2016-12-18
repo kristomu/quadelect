@@ -32,7 +32,7 @@ pair<ordering, bool> least_rev::pair_elect(const abstract_condmat & input,
 	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
 		if (!hopefuls[counter]) continue;
 
-		comp_score = (0,0);
+		comp_score = 0;	// 0 + 0i
 		real_score = 0;
 
 		for (int sec = 0; sec < input.get_num_candidates(); ++sec) {
@@ -122,5 +122,7 @@ bool least_rev::set_approach(bool offense_in, bool defense_in) {
 	offense = offense_in;
 	defense = defense_in;
 	update_name();
+
+	return(true);
 }
 

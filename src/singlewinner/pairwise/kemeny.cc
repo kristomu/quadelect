@@ -326,10 +326,10 @@ pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
 
 	ordering out;
 
-	for (int counter = 0; counter < adj.size(); ++counter) {
+	for (size_t counter = 0; counter < adj.size(); ++counter) {
 		if (!hopefuls[counter]) continue;
 		int candcount = 0;
-		for (int sec = 0; sec < adj.size(); ++sec)
+		for (size_t sec = 0; sec < adj.size(); ++sec)
 			if (adj[counter][sec])
 				++candcount;
 

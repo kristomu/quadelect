@@ -77,7 +77,7 @@ pair<ordering, bool> election_method::elect_detailed(
 	
 	// A few sanity checks...
 	assert (num_candidates > 0);
-	assert (hopefuls.size() == num_candidates);
+	assert ((int)hopefuls.size() == num_candidates);
 
 	// ... a little optimization...
 	if (num_candidates <= 2)

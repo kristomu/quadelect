@@ -12,12 +12,12 @@ void hits::ir_norm(vector<double> & factors) const {
 
 	double sum = 0;
 
-	for (int counter = 0; counter < factors.size(); ++counter)
+	for (size_t counter = 0; counter < factors.size(); ++counter)
 		sum += factors[counter] * factors[counter];
 
 	sum = sqrt(sum);
 
-	for (int counter = 0; counter < factors.size(); ++counter)
+	for (size_t counter = 0; counter < factors.size(); ++counter)
 		factors[counter] /= sum;
 }
 

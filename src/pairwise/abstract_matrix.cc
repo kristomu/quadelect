@@ -14,8 +14,8 @@ double abstract_condmat::get_magnitude(int candidate, int against,
 
 	// size() is a bit expensive, thus I'm doing it this way.
 	if (candidate < against)
-		assert (candidate >= 0 && against <= hopefuls.size());
-	else	assert (against >= 0 && candidate <= hopefuls.size());
+		assert (candidate >= 0 && against <= (int)hopefuls.size());
+	else	assert (against >= 0 && candidate <= (int)hopefuls.size());
 
 	// Make sure num_voters is properly set.
 	assert (get_num_voters() != -INFINITY);

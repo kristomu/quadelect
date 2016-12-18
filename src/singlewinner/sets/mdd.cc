@@ -29,7 +29,7 @@ pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat & input,
 			else	score = 0;
 		}
 
-		toRet.insert(candscore(counter, -num_defeats[counter]));
+		toRet.insert(candscore(counter, score));
 	}
 
 	return(pair<ordering, bool>(toRet, false));

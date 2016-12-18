@@ -19,7 +19,7 @@ unsigned long long fact(int n) {
 
 #include <iostream>
 
-// Wikipedia implementation
+// Wikipedia implementation of n choose k
 long double dblchoose(int n, int k) {
 	if (k > n) return(0);
 
@@ -28,7 +28,7 @@ long double dblchoose(int n, int k) {
 
 	long double accum = 1;
 
-	for (unsigned i = 1; i <= k; ++i)
+	for (int i = 1; i <= k; ++i)
 		accum = accum * (n-k+i) / i;
 
 	return(accum);
@@ -56,7 +56,7 @@ int num(vector<bool>::iterator it, int n,int k) {
 }
 
 // Get a permutation by number
-vector<bool> perm(int permN, int n,int k) {
+vector<bool> perm(unsigned int permN, int n,int k) {
     vector<bool> res, temp;
     if (k==0) res.resize(res.size()+n, false);
     if ((n==0) || (k==0)) return(res);

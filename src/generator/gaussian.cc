@@ -17,7 +17,7 @@ pair<double, double> gaussian_generator::grnd(double sigma_in,
 	// Box-Mueller, dammit. We really should have something that requires
 	// only a single invocation of the RNG in most situations, but bah.
 	
-	double x, y, rad = 0;
+	double x = 0, y = 0, rad = 0;
 
 	while (rad > 1.0 || rad == 0) {
 		// Choose x,y on the square (-1, -1) to (+1, +1)
@@ -48,7 +48,7 @@ pair<double, double> gaussian_generator::grnd(double mean_in,
 	return(grnd(mean_in, mean_in, sigma_in, random_source));
 }
 
-vector<double> gaussian_generator::rnd_vector(int size, 
+vector<double> gaussian_generator::rnd_vector(size_t size, 
 		rng & random_source) const {
 
 	// assert size > 0 blah de blah.
@@ -57,7 +57,7 @@ vector<double> gaussian_generator::rnd_vector(int size,
 	vector<double> toRet;
 	toRet.reserve(size);
 
-	for (int counter = 0; counter < size; counter += 2) {
+	for (size_t counter = 0; counter < size; counter += 2) {
 		pair<double, double> gaussian_sample;
 		if (!mean.empty() && mean.size() >= 2)
 			gaussian_sample = grnd(mean[0], mean[1], sigma,
@@ -81,7 +81,7 @@ string gaussian_generator::name() const {
 
 	if (!mean.empty()) {
 		stub += "mu = [";
-		for (int counter = 0; counter < mean.size(); ++counter) {
+		for (size_t counter = 0; counter < mean.size(); ++counter) {
 			stub += dtos(mean[counter]);
 			if (counter != mean.size()-1)
 				stub += ", ";

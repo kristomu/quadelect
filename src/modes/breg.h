@@ -76,7 +76,7 @@ class bayesian_regret : public mode {
 
 		// Create stats for a single method given by its index
 		// in the methods array.
-		bool init_one(int idx);
+		bool init_one(size_t idx);
 		bool init(rng & randomizer); // This will also clear stats.
 
 		int get_max_rounds() const { return(maxiters); }

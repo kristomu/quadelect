@@ -25,7 +25,7 @@ void twotest_engine::set_num_candidates(int minimum, int maximum) {
 // Test-major, so we must add a new m_t_i to each vector we have.
 void twotest_engine::add_method(const election_method * method_in) {
 	methods.push_back(method_in);
-	for (int counter = 0; counter < method_pass_status.size(); ++counter)
+	for (size_t counter = 0; counter < method_pass_status.size(); ++counter)
 		method_pass_status[counter].push_back(method_test_info());
 }
 
@@ -196,7 +196,7 @@ bool twotest_engine::run_tests(int iterations, rng & random_source) {
 
 	cache_map orig_cache;
 
-	int counter, sec, tri;
+	size_t counter, sec;
 	vector<ordering> base_outcomes(methods.size());
 
 	// Generate a base ballot set.

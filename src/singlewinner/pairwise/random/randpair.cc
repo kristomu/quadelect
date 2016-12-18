@@ -18,9 +18,9 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 	// the num_handled counter is incremented. Thus the first pair is
 	// drawn randomly from [0..n], the next pair from [1..n] and so on.
 	vector<int> candidates;
-	int num_handled = 0;
+	size_t num_handled = 0;
 
-	int counter;
+	size_t counter;
 	for (counter = 0; counter < hopefuls.size(); ++counter)
 		if (hopefuls[counter])
 			candidates.push_back(counter);

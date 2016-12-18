@@ -70,6 +70,7 @@ class pure_ballot_generator {
 		}
 
 		virtual string name() const = 0;
+		virtual ~pure_ballot_generator() {}
 };
 
 

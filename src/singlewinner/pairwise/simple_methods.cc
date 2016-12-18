@@ -66,7 +66,7 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 
 	vector<pair<vector<double>, int> > scores;
 
-	int counter;
+	size_t counter;
 
 	pair<vector<double>, int> beat_data;
 	beat_data.first.resize(input.get_num_candidates());
@@ -74,7 +74,7 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
 		if (!hopefuls[counter]) continue;
 
-		for (int sec = 0; sec < input.get_num_candidates(); ++sec)
+		for (size_t sec = 0; sec < input.get_num_candidates(); ++sec)
 			if (counter != sec && hopefuls[sec])
 				beat_data.first[sec] = (input.
 						get_magnitude(sec, counter, 
@@ -106,7 +106,7 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 	sort(scores.begin(), scores.end());
 
 	if (debug) {
-		for (int counter = 0; counter < scores.size(); ++counter) {
+		for (size_t counter = 0; counter < scores.size(); ++counter) {
 			cout << "After sorting: " << scores[counter].second 
 				<< "\t";
 			copy(scores[counter].first.begin(), 
@@ -239,7 +239,7 @@ pair<ordering, bool> schulze::pair_elect(const abstract_condmat & input,
         beatpath bpath(input, CM_PAIRWISE_OPP, hopefuls);
 
         // Count defeats.
-        int i, j, p, numcand = bpath.get_num_candidates();
+        int i, j, numcand = bpath.get_num_candidates();
         vector<int> defeats(numcand, 0);
 
         for (i = 0; i < numcand; ++i)

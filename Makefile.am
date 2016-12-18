@@ -107,6 +107,6 @@ qelect_CXXFLAGS = --std=c++0x -Wall -march=native -ggdb
 # HACK HACK. Find out how to determine the name and location of glpk the "right"
 # way later. (Same with SSL, which is used for SHA.)
 
-qelect_CXXFLAGS += -lglpk -lssl
+qelect_CXXFLAGS += -lglpk -lssl -lcrypto
 
 dist_noinst_SCRIPTS = autogen.sh

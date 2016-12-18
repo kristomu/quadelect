@@ -47,8 +47,8 @@ bool mono_raise::alter_ballot(const ordering & input,
 
                 if (spos->get_candidate_num() == cand_to_change &&
                                 spos->get_score() != highest_score) {
-                        int cur_score = spos->get_score();
-                        /*double rand_displace = randomizer.s_irand_between(
+                        /*int cur_score = spos->get_score();
+                        double rand_displace = randomizer.s_irand_between(
 					cur_score, highest_score);
 			// TODO: Check if there are ties at this level. If so,
 			// +0.5 may do. Also, C > A > B to C = A > B - lowering?
@@ -102,7 +102,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 		return(false);
 	}
 
-	bool did_something = false, found = false;
+	bool found = false;
 	double rand_displace = -1;
 
 	candscore to_add(-1, -1);
@@ -127,8 +127,8 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 			to_add = candscore(spos->get_candidate_num(), 
 					rand_displace);
 			found = true;
-			if (rand_displace != cur_score)
-				did_something = true;
+			/*if (rand_displace != cur_score)
+				did_something = true;*/
 		}
 	}
 
@@ -184,7 +184,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 		return(false);
 	}
 
-	bool did_something = false, found = false;
+	bool found = false;
 	double rand_displace = -1;
 
 	candscore to_add(-1, -1);
@@ -203,8 +203,8 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 			to_add = candscore(spos->get_candidate_num(),
 					rand_displace);
 			found = true;
-			if (rand_displace != cur_score)
-				did_something = true;
+			/*if (rand_displace != cur_score)
+				did_something = true;*/
 		}
 	}
 
@@ -221,7 +221,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	}
 
 	// Add unused candidates below our candidate, in random order.
-	for (int counter = 0; counter < used.size(); ++counter)
+	for (size_t counter = 0; counter < used.size(); ++counter)
 		if (!used[counter])
 			output.insert(candscore(counter, rand_displace - 
 						(randomizer.drand() + 0.01)));

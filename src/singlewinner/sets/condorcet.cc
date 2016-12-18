@@ -45,7 +45,8 @@ pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat & input,
 	vector<bool> iter_hopefuls = hopefuls;
 	vector<bool> cws(input.get_num_candidates(), false);
 	ordering to_ret;
-	int rank = 0, counter = 0, cw;
+	int rank = 0, cw;
+	size_t counter = 0;
 
 	do {
 		cw = get_CW(input, iter_hopefuls);

@@ -56,8 +56,8 @@ vector<vector<double> > synth_coordinates::construct_distances(
 	vector<vector<double> > toRet(coords.size(), vector<double>(
 				coords.size(), 0));
 
-	for (int counter = 0; counter < coords.size(); ++counter)
-		for (int sec = 0; sec < coords.size(); ++sec)
+	for (size_t counter = 0; counter < coords.size(); ++counter)
+		for (size_t sec = 0; sec < coords.size(); ++sec)
 			toRet[counter][sec] = dist(coords[counter],
 					coords[sec], Lp);
 
@@ -73,7 +73,7 @@ void synth_coordinates::update(coord & me, coord & to_target,
 	// Get unit vector from ourselves to the target
 	// (Construct a polar form of (target - me) with magnitude 1)
 	//coord to_target(min(other.size(), me.size()));
-	int counter;
+	size_t counter;
 	for (counter = 0; counter < to_target.size(); ++counter)
 		to_target[counter] = other[counter] - me[counter];
 
@@ -100,7 +100,7 @@ void synth_coordinates::update(coord & me, coord & to_target,
 	// Add the vector towards our target with magnitude ddist to our
 	// current position.
 	
-	for (counter = 0; counter < to_target.size(); ++counter)
+	for (size_t counter = 0; counter < to_target.size(); ++counter)
 		me[counter] += to_target[counter] * (ddist/magnitude);
 }
 
@@ -111,8 +111,8 @@ double synth_coordinates::get_rmse_accuracy(const vector<coord> & coordinates,
 	double error = 0;
 	int sumcount = 0;
 
-	for (int counter = 0; counter < coordinates.size(); ++counter)
-		for (int sec = counter+1; sec < coordinates.size(); ++sec) {
+	for (size_t counter = 0; counter < coordinates.size(); ++counter)
+		for (size_t sec = counter+1; sec < coordinates.size(); ++sec) {
 			++sumcount;
 			double term = dist(coordinates[counter],
 					coordinates[sec], Lp) - 
@@ -149,10 +149,11 @@ double synth_coordinates::recover_coords(vector<coord> & coordinates,
 		random_shuffle(one.begin(), one.end());
 		random_shuffle(vs.begin(), vs.end());
 
-		for (int counter = 0; counter < coordinates.size(); ++counter) {
+		for (size_t counter = 0; counter < coordinates.size(); 
+			++counter) {
 			int point = one[counter];
 
-			for (int sec = 0; sec < coordinates.size(); ++sec) {
+			for (size_t sec = 0; sec < coordinates.size(); ++sec) {
 				int vs_point = vs[sec];
 
 				if (point == vs_point) continue;

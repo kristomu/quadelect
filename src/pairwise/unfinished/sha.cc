@@ -85,7 +85,7 @@ double sha_condmat::get_hash_value(string instr, int count) const {
 		return(INFINITY);
 	}
 
-	uint64_t value_integer;
+	uint64_t value_integer = 1;
 	
 	for (int counter = 0; counter < 8; ++counter) {
 		value_integer <<= 8;

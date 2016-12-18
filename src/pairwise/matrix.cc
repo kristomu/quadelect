@@ -29,10 +29,12 @@ double condmat::get_internal(int candidate, int against, bool raw) const {
 bool condmat::set_internal(int candidate, int against, double value) {
 	// Again, if outside of bounds, yell very loudly.
 	if (candidate < against)
-		assert (candidate >= 0 && against < contents.size());
-	else	assert (against >= 0 && candidate < contents.size());
+		assert (candidate >= 0 && against < (int)contents.size());
+	else	assert (against >= 0 && candidate < (int)contents.size());
 
 	contents[candidate][against] = value;
+
+	return(true);
 }
 
 condmat::condmat(pairwise_type type_in) : abstract_condmat(type_in) {}
@@ -82,7 +84,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 	// add weight points to all trues above all falses afterwards. We do
 	// nothing if we've seen all the candidates (i.e. ballot is complete).
 	
-	if (contents.size() != num_candidates)
+	if ((int)contents.size() != num_candidates)
 		contents = vector<vector<double> > (num_candidates,
 				vector<double> (num_candidates, 0));
 
@@ -165,12 +167,13 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 		// all those listed above all those not.
 		if (seen_candidates != num_candidates) {
 
-			for (int counter = 0; counter < seen.size(); ++counter){
+			for (size_t counter = 0; counter < seen.size(); 
+				++counter){
 				// If it's not a ranked candidate, skip
 				if (!seen[counter])
 					continue;
 
-				for (int sec = 0; sec < seen.size(); ++sec) {
+				for (size_t sec = 0; sec < seen.size(); ++sec) {
 					// If it's a ranked candidate, skip
 					if (seen[sec])
 						continue;

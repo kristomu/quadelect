@@ -24,7 +24,7 @@ ordering dirichlet::generate_ordering(int numcands, bool do_truncate,
 	else	how_far = 1;
 
 	vector<double> scores(how_far, 0);
-	int counter;
+	size_t counter;
 	double sum = 0;
 	for (counter = 0; counter < how_far; ++counter) {
 		scores[counter] = random_source.drand();
@@ -36,7 +36,7 @@ ordering dirichlet::generate_ordering(int numcands, bool do_truncate,
 	// If we aren't going to truncate, then there's no need to shuffle as
 	// the drand does that automatically.
 
-	if (how_far != numcands) {
+	if ((int)how_far != numcands) {
 		vector<int> candidates(numcands, 0);
 		iota(candidates.begin(), candidates.end(), 0);
 		random_shuffle(candidates.begin(), candidates.end(), 

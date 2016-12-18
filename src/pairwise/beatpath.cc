@@ -45,8 +45,8 @@ void beatpath::make_beatpaths(const abstract_condmat & input,
 double beatpath::get_internal(int candidate, int against, bool raw) const {
 	// Same as in pairwise_matrix.
 
-	assert (candidate >= 0 && candidate < contents.size());
-	assert (against >= 0 && against < contents.size());
+	assert (candidate >= 0 && candidate < (int)contents.size());
+	assert (against >= 0 && against < (int)contents.size());
 
 	if (raw)
 		return(contents[candidate][against]);

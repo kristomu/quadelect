@@ -33,7 +33,7 @@ string positional::show_type(const positional_type & kind_in) const {
 	switch(kind_in) {
 		case PT_WHOLE: return("ER-");
 		case PT_FRACTIONAL: return("");
-		default: return("??-");
+		default: return("\?\?-");
 	}
 };
 
@@ -47,13 +47,13 @@ ordering positional::pos_elect(const vector<vector<double> > & matrix,
 	
 	ordering social_order;
 
-	for (int cand_num = 0; cand_num < matrix.size(); ++cand_num) {
+	for (size_t cand_num = 0; cand_num < matrix.size(); ++cand_num) {
 		if (hopefuls != NULL)
 			if (!(*hopefuls)[cand_num]) continue;
 
 		double cand_score = 0;
 
-		for (int sec = 0; sec < matrix[cand_num].size(); ++sec)
+		for (size_t sec = 0; sec < matrix[cand_num].size(); ++sec)
 			cand_score += matrix[cand_num][sec] * pos_weight(
 					sec, num_hopefuls - 1);
 
@@ -97,7 +97,7 @@ pair<ordering, bool> positional::elect_inner(const list<ballot_group> & input,
 	// just get the param from there...
 	
 	int num_hopefuls = 0;
-	for (int counter = 0; counter < hopefuls.size(); ++counter)
+	for (size_t counter = 0; counter < hopefuls.size(); ++counter)
 		if (hopefuls[counter])
 			++num_hopefuls;
 

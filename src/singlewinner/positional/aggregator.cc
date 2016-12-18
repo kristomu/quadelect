@@ -56,9 +56,6 @@ void positional_aggregator::aggregate(const ballot_group & input,
 		// Now end_group is the first that's not equally ranked.
 		// Add the equal-ranked ones to the tally. This'll be 
 		// one if none were equally ranked.
-
-		int place = (num_hopefuls - 1) - cur_idx;
-
 		for (; pos != end_group; pos = next(pos, end_group, hopefuls)) {
 
 			double value = input.weight;

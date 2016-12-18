@@ -30,7 +30,7 @@ double euc_distance(double Lp, const vector<double> & a,
 
 	double sum = 0;
 
-	for (int counter = 0; counter < min(a.size(), b.size()); ++counter)
+	for (size_t counter = 0; counter < min(a.size(), b.size()); ++counter)
 		sum += fabs(pow(a[counter]-b[counter], Lp));
 
 	return (pow(sum/(double)(min(a.size(), b.size())), 1.0/Lp));

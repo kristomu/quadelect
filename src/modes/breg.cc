@@ -86,7 +86,7 @@ void bayesian_regret::clear_generators(bool do_delete) {
 
 	if (do_delete) {
 
-		for (int counter = 0; counter < generators.size(); ++counter)
+		for (size_t counter = 0; counter < generators.size(); ++counter)
 			delete generators[counter];
 	}
 
@@ -148,7 +148,7 @@ bayesian_regret::bayesian_regret(int maxiters_in, int min_cand_in,
 				generators_in, methods_in));
 }
 
-bool bayesian_regret::init_one(int idx) {
+bool bayesian_regret::init_one(size_t idx) {
 
 	if (idx < 0 || (idx <= method_stats.size() && idx >= methods.size())) 
 		return(false);

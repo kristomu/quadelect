@@ -28,7 +28,7 @@ ordering topological_set::topo_sort(const abstract_condmat & input,
 
 	list<pair<int, int> > running_list;
 
-	int counter;
+	size_t counter;
 	ordering toRet;
 
 	for (counter = 0; counter < indegree.size(); ++counter)

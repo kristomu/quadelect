@@ -39,7 +39,7 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 	factor.col = vector<double>(numcands, 1);
 	sinkhorn_factor old_factor = factor;
 
-	double maxmin = INFINITY, maxsum, minsum, sum, new_val;
+	double maxmin = INFINITY, maxsum, minsum, sum;
 	int counter, sec, iter;
 
 	// While we haven't exhausted the number of tries and we're not at the
@@ -145,7 +145,7 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 	// it to avoid slowdowns due to vtable lookups in get_magnitude. Only
 	// store the hopefuls.
 
-	int counter, sec;
+	size_t counter, sec;
 	vector<int> permitted_candidates;
 	permitted_candidates.reserve(input.get_num_candidates());
 
@@ -153,7 +153,7 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 		if (hopefuls[counter])
 			permitted_candidates.push_back(counter);
 
-	int num_hopefuls = permitted_candidates.size();
+	size_t num_hopefuls = permitted_candidates.size();
 	vector<vector<double> > A(num_hopefuls, vector<double>(
 				num_hopefuls, 0));
 
@@ -170,10 +170,7 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 	vector<vector<double> > sink_matrix(num_hopefuls, vector<double>(
 				num_hopefuls, 0));*/
 
-	double maxmin = INFINITY, maxsum, minsum, sum;
 	int maxiter = 500;
-	bool too_far = false;
-
 	sinkhorn_factor factor = get_sinkhorn_factor(maxiter, A, debug);
 
 	// Determine the scores. If any go out of bounds because of

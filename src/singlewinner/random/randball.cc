@@ -35,7 +35,8 @@ pair<ordering, bool> random_ballot::elect_inner(
 	// more rigorously by shuffling the list, but there's no need most
 	// of the time.
 
-	int retries = 3, counter;
+	int retries = 3;
+	size_t counter;
 
 	for (counter = 0; counter < retries && prelim.empty(); ++counter) {
 

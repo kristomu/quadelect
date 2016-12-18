@@ -56,9 +56,9 @@ list<ballot_group> impartial::generate_ballots_int(int num_voters, int numcands,
 			random_shuffle(equal_rank.begin(), equal_rank.end());
 		}*/
 
-		int lin_counter = 0;
+		size_t lin_counter = 0;
 
-		for (int counter = 0; counter < this_far; ++counter) {
+		for (size_t counter = 0; counter < this_far; ++counter) {
 			to_add.contents.insert(candscore(candidates[counter], 
 						lin_counter));
 			if (counter == 0 || !do_equal_rank || 

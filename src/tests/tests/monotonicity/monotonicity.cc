@@ -223,11 +223,11 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 	bool b_winner = b_place_cand->get_score() ==
 		scrub_mod.begin()->get_score();
 
-	bool a_loser = a_place_cand->get_score() ==
+	/*bool a_loser = a_place_cand->get_score() ==
 		scrub_orig.rbegin()->get_score();
 
 	bool b_loser = b_place_cand->get_score() ==
-		scrub_mod.rbegin()->get_score();
+		scrub_mod.rbegin()->get_score();*/
 
 	// If it's a tie between all candidates, then it's impossible
 	// to say whether there was a monotonicity violation. For instance,
@@ -254,8 +254,8 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 	double a_score = a_place_cand->get_score(), 
 	       b_score = b_place_cand->get_score();
 
-	bool preliminary_nonmonotonic = (raise && (a_score > b_score) ||
-			!raise && (a_score < b_score));
+	bool preliminary_nonmonotonic = (raise && (a_score > b_score)) ||
+			(!raise && (a_score < b_score));
 	bool nonmonotonic = false;
 
 	// Need to find a way of defining "raise" for a social ordering with
