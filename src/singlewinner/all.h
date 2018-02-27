@@ -4,6 +4,9 @@
 #ifndef _VOTE_SW_ALL
 #define _VOTE_SW_ALL
 
+#include "gradual_c_b.h"
+#include "young.h"
+
 #include "elimination.h"
 #include "method.h"
 
