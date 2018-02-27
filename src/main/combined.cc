@@ -220,6 +220,15 @@ list<election_method *> get_singlewinner_methods(bool truncate) {
 	toRet.push_back(new vi_median_ratings(10, true, false));
 	toRet.push_back(new vi_median_ratings(10, true, true));
 
+	// The following methods only support three candidates or less,
+	// Thus I've commmented them out for the time being.
+	// BLUESKY: Make the selected routine somehow aware of how many 
+	// candidates there are, so that it just excludes use these when
+	// working with the wrong number of candidates.
+	//toRet.push_back(new cond_brute(97603, 9)); // strategy-resistant method
+	//toRet.push_back(new cond_brute_rpn(56182650307)); // example monotone
+	//toRet.push_back(new three_experimental(TEXP_BPW)); // Stensholt method
+
 	// Then expand:
 	list<election_method *> expanded = expand_meta(toRet, pairwise_sets, 
 			false);
@@ -759,48 +768,4 @@ int main(int argc, char * * argv) {
 			cout << endl;
 		}
 	}
-
-	/*list_names(generators);
-
-	cout << "Something new!" << endl;
-
-	// Hack something resembling Yee here.
-	// For the first method (don't want to kill ourselves in one stroke)
-	// for each x,y, make a ballot set from a Gaussian centered at that 
-	// position with specified mean and sigma, and with given candidate
-	// positions.
-
-	// Then do something with libpng and colors and whatever afterwards.
-
-	list< election_method *> test; 
-	test.push_back(new vi_median_ratings(10, true, true));
-	test.push_back(new plurality(PT_WHOLE));
-	test.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
-	test.push_back(*methods.begin());
-	rng randomizer(11); // or time.
-
-	int size = 100;
-	int numcands = 4, numvoters = 1000;
-	double sigma = 0.03;
-
-	string quat = "qr";
-
-	spatial_generator uniform(true, false);
-	gaussian_generator gaussian(true, false);
-
-	yee yeetest =  setup_yee(test, numvoters, numcands, true, quat,
-			size, sigma, gaussian, uniform, randomizer);
-
-	string progress;
-	double start_time = get_abs_time();
-	while ( (progress = yeetest.do_round(true, false, randomizer)) != "") {
-		cout << progress << endl;
-		double time_per_round = (get_abs_time()-start_time)/(double)
-			yeetest.get_current_round();
-		cout << "\t [Has run for " << get_abs_time()-start_time << "s. "
-			<< "ETA: " << time_per_round * (yeetest.get_max_rounds()
-			- yeetest.get_current_round()) << "]" << endl;
-	}
-
-	return(0);*/
 }

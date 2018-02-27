@@ -61,7 +61,12 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/pairwise/unfinished/sha.cc src/random/random.cc \
 	src/singlewinner/elimination.cc src/singlewinner/gradual_c_b.cc \
 	src/singlewinner/meta/comma.cc src/singlewinner/meta/slash.cc \
-	src/singlewinner/method.cc src/singlewinner/pairwise/dodgson_approxs.cc\
+	src/singlewinner/method.cc \
+	src/singlewinner/brute_force/brute.cc \
+	src/singlewinner/brute_force/bruterpn.cc \
+	src/singlewinner/brute_force/rpn/custom_func.cc \
+	src/singlewinner/experimental/3exp.cc \
+	src/singlewinner/pairwise/dodgson_approxs.cc\
 	src/singlewinner/pairwise/keener.cc src/singlewinner/pairwise/kemeny.cc\
 	src/singlewinner/pairwise/least_rev.cc \
 	src/singlewinner/pairwise/method.cc \

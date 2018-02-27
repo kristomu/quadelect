@@ -5,9 +5,7 @@
 #define _VOTE_SW_ALL
 
 #include "elimination.h"
-#include "gradual_c_b.h"
 #include "method.h"
-#include "young.h"
 
 #include "meta/all.h"
 #include "pairwise/all.h"
@@ -15,5 +13,7 @@
 #include "random/all.h"
 #include "sets/all.h"
 #include "stats/all.h"
+#include "experimental/all.h"
+#include "brute_force/all.h"
 
 #endif
