@@ -18,7 +18,7 @@ using namespace std;
 // negated (so as to keep with the convention that higher score is better).
 
 pair<ordering, bool> ord_minmax::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	ordering toRet;
@@ -52,7 +52,7 @@ pair<ordering, bool> ord_minmax::pair_elect(const abstract_condmat & input,
 // Ext-minmax and minmin.
 
 pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	// For all candidates, generate a vector of scores against them.
@@ -136,7 +136,7 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 
 // "Maxmin"
 pair<ordering, bool> maxmin::pair_elect(const abstract_condmat & input, 
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	ordering toRet;
@@ -211,7 +211,7 @@ vector<double> copeland::get_copeland(const abstract_condmat & input,
 }
 
 pair<ordering, bool> copeland::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	ordering toRet;
@@ -233,7 +233,7 @@ pair<ordering, bool> copeland::pair_elect(const abstract_condmat & input,
 // Schulze!
 
 pair<ordering, bool> schulze::pair_elect(const abstract_condmat & input,
-                const vector<bool> & hopefuls, cache_map & cache,
+                const vector<bool> & hopefuls, cache_map * cache,
                 bool winner_only) const {
 
         beatpath bpath(input, CM_PAIRWISE_OPP, hopefuls);

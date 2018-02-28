@@ -227,7 +227,7 @@ bool twotest_engine::run_tests(int iterations, rng & random_source) {
 	// Determine the base outcomes.
 	for (sec = 0; sec < methods.size(); ++sec)
 		base_outcomes[sec] = methods[sec]->elect(base_ballots,
-				num_cands, orig_cache, winner_only);
+				num_cands, &orig_cache, winner_only);
 
 	// For all tests, check if we can make modified ballots, and if so, 
 	// test them. This is done within twotest - see the spec for the 

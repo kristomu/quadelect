@@ -130,7 +130,7 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 }
 
 pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	bool debug = false;

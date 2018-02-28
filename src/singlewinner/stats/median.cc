@@ -162,7 +162,7 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 pair<ordering, bool> median_ratings::elect_inner(
 		const list<ballot_group> & papers, 
 		const vector<bool> & hopefuls, int num_candidates,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// Get everybody's score. We don't know who's going to be the winner
 	// ahead of time (*might* be possible through sorted structs but bleh),

@@ -8,7 +8,7 @@
 #include <list>
 
 pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	bool debug = false;

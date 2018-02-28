@@ -12,7 +12,7 @@ using namespace std;
 // and the score ultimately converges.
 
 pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	bool debug = false;

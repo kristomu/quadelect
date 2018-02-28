@@ -51,7 +51,7 @@ string ranked_pairs::pw_name() const {
 }
 
 pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache, 
+		const vector<bool> & hopefuls, cache_map * cache, 
 		bool winner_only) const {
 
 	// First dump the n^2 - n different contests into a vector.

@@ -341,7 +341,7 @@ int cond_brute_rpn::check_reversal_symmetry(int num_attempts) const {
 pair<ordering, bool> cond_brute_rpn::elect_inner(
 		const list<ballot_group> & papers,
 		const vector<bool> & hopefuls,
-		int num_candidates, cache_map & cache,
+		int num_candidates, cache_map * cache,
 		bool winner_only) const {
 
 	// TODO: Use cache.

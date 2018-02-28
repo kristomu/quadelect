@@ -3,7 +3,7 @@
 using namespace std;
 
 pair<ordering, bool> partition_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	// Start with a candidate schedule that goes 0..n. This means that

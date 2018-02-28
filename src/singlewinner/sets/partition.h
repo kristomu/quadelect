@@ -25,7 +25,7 @@ class partition_set : public pairwise_method {
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
 				const vector<bool> & hopefuls, 
-				cache_map & cache, bool winner_only) const;
+				cache_map * cache, bool winner_only) const;
 
 		void set_random(bool be_random);
 

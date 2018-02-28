@@ -43,7 +43,7 @@ class odm_gen : public pairwise_method {
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
 				const vector<bool> & hopefuls,
-				cache_map & cache, bool winner_only) const;
+				cache_map * cache, bool winner_only) const;
 
 		string pw_name() const;
 

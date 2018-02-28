@@ -40,13 +40,13 @@ class positional : public election_method {
 		// Interfaces
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & input,
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & input,
 				const vector<bool> & hopefuls,
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		// Particular interface to all positional methods.

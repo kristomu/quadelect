@@ -33,7 +33,7 @@ class cond_brute : public election_method {
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & papers,
 				const vector<bool> & hopefuls,
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		string name() const {

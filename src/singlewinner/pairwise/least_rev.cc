@@ -21,7 +21,7 @@
 using namespace std;
 
 pair<ordering, bool> least_rev::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	ordering toRet;

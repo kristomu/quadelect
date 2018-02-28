@@ -62,7 +62,7 @@ int sdom_set::strongly_dominates(int y, int x, const abstract_condmat & input,
 }
 
 pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache, 
+		const vector<bool> & hopefuls, cache_map * cache, 
 		bool winner_only) const {
 
 	// Make the empty "strongly dominates" matrix.

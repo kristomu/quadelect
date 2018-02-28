@@ -15,7 +15,7 @@ using namespace std;
 // quicker one - that's why it's virtual.
 pair<ordering, bool> election_method::elect_inner(
 		const list<ballot_group> & papers, int num_candidates, 
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	vector<bool> hopefuls(num_candidates, true);
 
@@ -27,7 +27,7 @@ pair<ordering, bool> election_method::elect_inner(
 
 pair<ordering, bool> election_method::elect_detailed(
 		const list<ballot_group> & papers, int num_candidates, 
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// Do a few sanity checks.
 	assert(num_candidates > 0);
@@ -45,8 +45,8 @@ pair<ordering, bool> election_method::elect_detailed(
 	// other way becomes too slow. Let's hear it for eager evaluation!
 	pair<ordering, bool> toRet;
 
-	if (&cache != NULL) {
-		toRet = cache.get_outcome(name(), winner_only);
+	if (cache != NULL) {
+		toRet = cache->get_outcome(name(), winner_only);
 
 		// If we got something, then return it...
 		if (!toRet.first.empty())
@@ -61,9 +61,9 @@ pair<ordering, bool> election_method::elect_detailed(
 	assert (toRet.first.size() == (size_t)num_candidates);
 
 	// There were none, so set the cache...
-	if (&cache != NULL) {
+	if (cache != NULL) {
 		//cout << "Setting cache for " << name() << endl;
-		cache.set_outcome(name(), toRet);
+		cache->set_outcome(name(), toRet);
 	}
 
 	// ... and return the value.
@@ -73,7 +73,7 @@ pair<ordering, bool> election_method::elect_detailed(
 pair<ordering, bool> election_method::elect_detailed(
 		const list<ballot_group> & papers, 
 		const vector<bool> & hopefuls,
-		int num_candidates, cache_map & cache, bool winner_only) const {
+		int num_candidates, cache_map * cache, bool winner_only) const {
 	
 	// A few sanity checks...
 	assert (num_candidates > 0);
@@ -131,7 +131,7 @@ pair<ordering, bool> election_method::elect_detailed(
 
 // Public wrappers.
 ordering election_method::elect(const list<ballot_group> & papers,
-		int num_candidates, cache_map & cache,
+		int num_candidates, cache_map * cache,
 		bool winner_only) const {
 
 	return(elect_detailed(papers, num_candidates, cache, winner_only).
@@ -140,7 +140,7 @@ ordering election_method::elect(const list<ballot_group> & papers,
 
 ordering election_method::elect(const list<ballot_group> & papers, 
 		const vector<bool> & hopefuls, int num_candidates, 
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	return(elect_detailed(papers, hopefuls, num_candidates, cache,
 				winner_only).first);

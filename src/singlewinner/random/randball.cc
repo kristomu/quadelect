@@ -11,7 +11,7 @@ using namespace std;
 pair<ordering, bool> random_ballot::elect_inner(
 		const list<ballot_group> & papers, 
 		const vector<bool> & hopefuls, int num_candidates,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// We need two rounds through, first one to determine the number of
 	// voters, and then once to find which ballot to pick. After finding

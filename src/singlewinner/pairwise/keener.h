@@ -27,7 +27,7 @@ class keener : public pairwise_method {
 		keener(pairwise_type def_type_in, double tolerance_in, bool add_one_in, bool normalize_diagonal_in) : pairwise_method(def_type_in) { tolerance = tolerance_in; add_one = add_one_in; normalize_diagonal = normalize_diagonal_in; update_name(); }
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
 				const vector<bool> & hopefuls, 
-				cache_map & cache, bool winner_only) const;
+				cache_map * cache, bool winner_only) const;
 
 		string pw_name() const;
 

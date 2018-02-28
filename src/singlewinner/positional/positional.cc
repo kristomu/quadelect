@@ -74,7 +74,7 @@ ordering positional::elect(const list<ballot_group> & input,
 }
 
 pair<ordering, bool> positional::elect_inner(const list<ballot_group> & input,
-		int num_candidates, cache_map & cache, bool winner_only) const {
+		int num_candidates, cache_map * cache, bool winner_only) const {
 
 	return(pair<ordering, bool>(
 				elect(input, num_candidates, num_candidates, 
@@ -84,7 +84,7 @@ pair<ordering, bool> positional::elect_inner(const list<ballot_group> & input,
 
 pair<ordering, bool> positional::elect_inner(const list<ballot_group> & input,
 	       const vector<bool> & hopefuls, int num_candidates, 
-	       cache_map & cache, bool winner_only) const {
+	       cache_map * cache, bool winner_only) const {
 
 	// Same as above, only pos_weight must be adjusted by however many
 	// are excluded. We may have to alter the function to make that quick.

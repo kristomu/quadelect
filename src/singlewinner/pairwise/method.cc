@@ -20,7 +20,7 @@ void pairwise_method::update_name() {
 }
 
 pair<ordering, bool> pairwise_method::pair_elect(const abstract_condmat & input,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	return(pair_elect(input, vector<bool>(input.get_num_candidates(), 
 					true), cache, winner_only));
@@ -41,14 +41,14 @@ pair<ordering, bool> pairwise_method::pair_elect(const abstract_condmat & input,
 
 pair<ordering, bool> pairwise_method::elect_inner(
 		const list<ballot_group> & papers, int num_candidates,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// If the cache is non-NULL and it has a Condorcet matrix, make use of
 	// it. (TODO: Names here)
 
-	if (&cache != NULL) {
-		if (cache.has_condorcet_matrix())
-			return(pair_elect(cache.get_condorcet_cache(
+	if (cache != NULL) {
+		if (cache->has_condorcet_matrix())
+			return(pair_elect(cache->get_condorcet_cache(
 							default_type), 
 						cache, winner_only));
 
@@ -58,7 +58,7 @@ pair<ordering, bool> pairwise_method::elect_inner(
 		// cache so we can use it later.
 		
 		condmat archetype(papers, num_candidates, CM_PAIRWISE_OPP);
-		cache.set_condorcet_matrix(archetype);
+		cache->set_condorcet_matrix(archetype);
 		return(pair_elect(archetype, cache, winner_only));
 	}
 
@@ -72,7 +72,7 @@ pair<ordering, bool> pairwise_method::elect_inner(
 pair<ordering, bool> pairwise_method::elect_inner(
 		const list<ballot_group> & papers,
 		const vector<bool> & hopefuls, int num_candidates,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// DONE: Fix in matrix.cc so we can have things like Small. Very
 	// wasteful unless the matrix just looks up the hopeful list and
@@ -80,14 +80,14 @@ pair<ordering, bool> pairwise_method::elect_inner(
 	// Now we do that.
 
 	// See above for caching.
-	if (&cache != NULL) {
-		if (cache.has_condorcet_matrix())
-			return(pair_elect(cache.get_condorcet_cache(
+	if (cache != NULL) {
+		if (cache->has_condorcet_matrix())
+			return(pair_elect(cache->get_condorcet_cache(
 							default_type),
 						hopefuls, cache, winner_only));
 
 		 condmat archetype(papers, num_candidates, CM_PAIRWISE_OPP);
-		 cache.set_condorcet_matrix(archetype);
+		 cache->set_condorcet_matrix(archetype);
 		 return(pair_elect(archetype, hopefuls, cache, winner_only));
 	}
 

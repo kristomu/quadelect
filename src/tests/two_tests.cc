@@ -24,8 +24,8 @@ ordering twotest::synthesize_single_winner(const list<int> & mw_council,
 
 ternary twotest::pass(const election_method * base, 
 		const list<ballot_group> & input,
-		int num_candidates, cache_map & unmod_cache,
-		cache_map & mod_cache) {
+		int num_candidates, cache_map * unmod_cache,
+		cache_map * mod_cache) {
 
 	disproof_out.complete = false;
 	disproof_out.unmodified_ballots = input;
@@ -68,14 +68,12 @@ ternary twotest::pass(const election_method * base,
 		const list<ballot_group> & input,
 		int num_candidates) {
 
-	// Is this improper?
-	return(pass(base, input, num_candidates, 
-				*((cache_map *)NULL), *((cache_map *)NULL)));
+	return(pass(base, input, num_candidates, NULL, NULL));
 }
 
 ternary twotest::pass_specd(const election_method * base,
 		const disproof & to_test, int num_candidates,
-		cache_map & unmod_cache, cache_map & mod_cache) {
+		cache_map * unmod_cache, cache_map * mod_cache) {
 
 	disproof_out = to_test;
 	
@@ -94,8 +92,8 @@ ternary twotest::pass_specd(const election_method * base,
 }
 
 ternary twotest::pass_last(const election_method * base, int num_candidates,
-		bool unmod_already_set, cache_map & unmod_cache, 
-		cache_map & mod_cache) {
+		bool unmod_already_set, cache_map * unmod_cache, 
+		cache_map * mod_cache) {
 	// We assume the data structure (ballot and modified, and data) have
 	// been filled out.
 
@@ -152,8 +150,8 @@ ternary twotest::pass_last(const election_method * base, int num_candidates,
 
 ternary twotest::pass_last(const election_method * base, int num_candidates) {
 
-	return(pass_last(base, num_candidates, false, *(cache_map *)NULL,
-				*(cache_map *)NULL));
+	return(pass_last(base, num_candidates, false, NULL, NULL));
+	
 }
 
 // This function is for checking many functions at once against the test. It
@@ -300,10 +298,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 			// seems to be a hit that shouldn't have happened.
 			// DONE?
 			ternary result = pass_last(methods_to_test[counter],
-					num_candidates, true, 
-					*(cache_map *)NULL, 
-					//*(cache_map *)NULL);
-					mod_cache);
+					num_candidates, true, NULL, &mod_cache);
 
 			if (result != TINAPP) {
 				//cout << methods_to_test[counter]->name() << endl;

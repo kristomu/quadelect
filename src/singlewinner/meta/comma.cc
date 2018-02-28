@@ -10,7 +10,7 @@
 #include "comma.h"
 
 pair<ordering, bool> comma::elect_inner(const list<ballot_group> & papers,
-		const vector<bool> & hopefuls, int num_candidates, cache_map &
+		const vector<bool> & hopefuls, int num_candidates, cache_map *
 		cache, bool winner_only) const {
 
 	// First get the orderings for the two base methods. Note the power of

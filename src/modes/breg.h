@@ -90,7 +90,7 @@ class bayesian_regret : public mode {
 		// Hm, that will be harder than I thought... I may need
 		// hash names to do that properly.
 		string do_round(bool give_brief_status, bool reseed,
-				rng & randomizer, cache_map & cache);
+				rng & randomizer, cache_map * cache);
 
 		string do_round(bool give_brief_status, bool reseed,
 				rng & randomizer);

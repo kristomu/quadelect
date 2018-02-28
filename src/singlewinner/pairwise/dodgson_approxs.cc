@@ -5,7 +5,7 @@
 #include "dodgson_approxs.h"
 
 pair<ordering, bool> dquick::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache, 
+		const vector<bool> & hopefuls, cache_map * cache, 
 		bool winner_only) const {
 
 	ordering out;

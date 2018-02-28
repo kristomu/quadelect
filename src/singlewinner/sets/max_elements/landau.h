@@ -18,7 +18,7 @@ class landau_set : public pairwise_method, private det_sets_relation {
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
 				const vector<bool> & hopefuls,
-				cache_map & cache, bool winner_only) const {
+				cache_map * cache, bool winner_only) const {
 			return(pair<ordering,bool>(nested_sets(input,
 							hopefuls, 2), false));}
 

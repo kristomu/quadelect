@@ -16,7 +16,7 @@ class random_ballot : public election_method {
 				const list<ballot_group> & papers,
 				const vector<bool> & hopefuls,
 				int num_candidates,
-				cache_map & cache, bool winner_only) const;
+				cache_map * cache, bool winner_only) const;
 
 	public:
 

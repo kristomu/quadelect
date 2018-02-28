@@ -14,7 +14,7 @@ using namespace std;
 // for the ratings to have a proper Markovian meaning.
 
 pair<ordering, bool> keener::pair_elect(const abstract_condmat & input, 
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	// Because the iteration accesses the matrix so many times, it's

@@ -81,7 +81,7 @@ vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group> &
 pair<ordering, bool> cardinal_ratings::elect_inner(
 		const list<ballot_group> & papers, 
 		const vector<bool> & hopefuls, int num_candidates,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// No matter whether it's winner-only or not, return the full ranking
 	// (as we take only a very minor hit for doing so).

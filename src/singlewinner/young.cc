@@ -346,7 +346,7 @@ string young::determine_name() const {
 
 pair<ordering, bool> young::elect_inner(const list<ballot_group> & papers,
 		const vector<bool> & hopefuls, int num_candidates, 
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// Rather simple.
 

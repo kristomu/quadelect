@@ -69,7 +69,7 @@ class ranked_pairs : public pairwise_method {
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & iput,
 				const vector<bool> & hopefuls,
-				cache_map & cache, bool winner_only) const;
+				cache_map * cache, bool winner_only) const;
 };
 
 #endif

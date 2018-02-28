@@ -13,7 +13,7 @@ using namespace std;
 
 pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> & 
 		papers, const vector<bool> & hopefuls,
-		int num_candidates, cache_map & cache, bool winner_only) const {
+		int num_candidates, cache_map * cache, bool winner_only) const {
 
 	// Since we don't know the number of buckets we need in advance to find
 	// the mode, use a map, as it will create new buckets if we want it.

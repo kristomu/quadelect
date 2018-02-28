@@ -310,7 +310,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 }
 
 pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache, 
+		const vector<bool> & hopefuls, cache_map * cache, 
 		bool winner_only) const {
 
 	// First, get the transitive adjacency matrix for Kemeny.

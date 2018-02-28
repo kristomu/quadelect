@@ -45,7 +45,7 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 		vector<vector<vector<vector<bool > > > > & am_ac_winners,
 		int min_num_voters_in, int max_num_voters_in, 
 		bool use_autopilot_in, double autopilot_factor_in, 
-		int autopilot_history_in, cache_map & cache, 
+		int autopilot_history_in, cache_map * cache, 
 		rng & randomizer) const {
 
 	size_t num_cands = am_ac_winners[0].size(), 
@@ -83,7 +83,7 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 		ballots = ballotgen.generate_ballots(round(cur_num_voters), 
 				num_cands, randomizer);
 
-		cache.clear();
+		cache->clear();
 
 		for (method = 0; method < num_methods && cleared < num_methods;
 				++method) {
@@ -135,7 +135,7 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 		// methods. "n tries of Random Pair run through Schulze" is not
 		// the same thing as Random Pair!
 		ordering meta = schulze(CM_WV).elect(autopilot_am[method],
-				num_cands, *(cache_map *)(NULL), true);
+				num_cands, true);
 
 		// For all the winners, paint his boolean true.
 
@@ -562,7 +562,7 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 					winners_all_m_all_cand,
 					min_num_voters, max_num_voters,
 					use_autopilot, autopilot_factor,
-					autopilot_history_len, cmap, 
+					autopilot_history_len, &cmap, 
 					randomizer);
 
 			if (contrib == -1) {

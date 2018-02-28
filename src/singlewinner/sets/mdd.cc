@@ -1,7 +1,7 @@
 #include "mdd.h"
 
 pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	vector<int> num_defeats(input.get_num_candidates(), 0);

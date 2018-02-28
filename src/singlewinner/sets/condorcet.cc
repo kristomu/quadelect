@@ -34,7 +34,7 @@ int condorcet_set::get_CW(const abstract_condmat & input,
 }
 
 pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map & cache,
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	// We start with the hopefuls we have. Find the CW, insert into the

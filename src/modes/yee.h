@@ -69,7 +69,7 @@ class yee : public mode {
 				int max_num_voters_in, bool do_use_autopilot,
 				double autopilot_factor_in, 
 				int autopilot_history_in,
-				cache_map & cache, rng & randomizer) const;
+				cache_map * cache, rng & randomizer) const;
 
 		// Given complete winners arrays, draw the different pictures
 		// that visualize those arrays.

@@ -30,13 +30,11 @@ string gradual_cond_borda::determine_name() const {
 
 pair<ordering, bool> gradual_cond_borda::elect_inner(const 
 		list<ballot_group> & papers, const vector<bool> & hopefuls, 
-		int num_candidates, cache_map & cache, bool winner_only) const {
+		int num_candidates, cache_map * cache, bool winner_only) const {
 
 	cond_borda_matrix gcb(papers, num_candidates, CM_PAIRWISE_OPP, 
 			cardinal, completion);
 	condmat gcond(papers, num_candidates, CM_PAIRWISE_OPP);
-
-	cache_map * p = NULL;
 
 	bool debug = false;
 
@@ -81,7 +79,7 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 	// HACK HACK
 	// Remember, comma is suspect (no longer). 
 	// Also consider early abort, particularly if winner_only is true.
-	ordering base = base_method->pair_elect(gcb, hopefuls, *p, false).first,
+	ordering base = base_method->pair_elect(gcb, hopefuls, false).first,
 		 current;
 	bool can_advance = true;
 
@@ -89,8 +87,7 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 
 	while (can_advance && otools.has_equal_rank(base)) {
 		can_advance = gcb.update();
-		current = base_method->pair_elect(gcb, hopefuls, *p, false).first;
-		// XXX: FIX! Fixed.
+		current = base_method->pair_elect(gcb, hopefuls, false).first;
 		base = otools.ranked_tiebreak(base, current, num_candidates);
 	}
 

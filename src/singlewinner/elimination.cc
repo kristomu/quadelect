@@ -55,7 +55,7 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 
 pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 		papers, const vector<bool> & hopefuls, int num_candidates,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	list<ordering> base_method_tiebreaks;
 	vector<bool> base_hopefuls = hopefuls;

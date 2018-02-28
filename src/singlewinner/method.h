@@ -69,12 +69,12 @@ class election_method {
 		// return an empty ordering.
 		virtual pair<ordering, bool> elect_inner(
 				const list<ballot_group> & papers,
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 		virtual pair<ordering, bool> elect_inner(
 				const list<ballot_group> & papers,
 				const vector<bool> & hopefuls, 
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const = 0;
 
 	public:
@@ -83,22 +83,22 @@ class election_method {
 		// used in combination methods that have to know if what they're
 		// returning is winner_only or not.
 		pair<ordering, bool> elect_detailed(const list<ballot_group> &
-				papers, int num_candidates, cache_map & cache,
+				papers, int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		pair<ordering, bool> elect_detailed(const list<ballot_group> &
 				papers, const vector<bool> & hopefuls,
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		// Public wrappers for cache.
 		ordering elect(const list<ballot_group> & papers, 
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 		// For elimination. Make better, later.
 		ordering elect(const list<ballot_group> & papers, 
 				const vector<bool> & hopefuls, 
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		// Public wrappers for when there is no cache. These just
@@ -106,16 +106,14 @@ class election_method {
 		// NULL.
 		ordering elect(const list<ballot_group> & papers,
 				int num_candidates, bool winner_only) const {
-			return(elect(papers, num_candidates, 
-						*(cache_map *)(NULL), 
+			return(elect(papers, num_candidates, NULL, 
 						winner_only)); }
 
 		ordering elect(const list<ballot_group> & papers,
 				const vector<bool> & hopefuls,
 				int num_candidates, bool winner_only) const {
 			return(elect(papers, hopefuls, num_candidates, 
-						*(cache_map *)(NULL),
-						winner_only)); }
+						NULL, winner_only)); }
 
 		// Here goes stats stuff like "returns rated vote" (score not
 		// just rank), "returns complete ordering or just winners",

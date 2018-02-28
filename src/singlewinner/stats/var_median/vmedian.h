@@ -58,7 +58,7 @@ class vi_median_ratings : public election_method {
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & papers,
 				const vector<bool> & hopefuls,
-				int num_candidates, cache_map & cahe,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		string determine_name() const;

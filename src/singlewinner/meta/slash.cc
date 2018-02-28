@@ -12,7 +12,7 @@
 #include "slash.h"
 
 pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
-		const vector<bool> & hopefuls, int num_candidates, cache_map &
+		const vector<bool> & hopefuls, int num_candidates, cache_map *
 		cache, bool winner_only) const {
 
 	// First get the ordering for the set method, using cache. If we have
@@ -38,8 +38,7 @@ pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
 	// the issue disappears.
 
 	pair<ordering, bool> spec_result = specific_method->elect_detailed(
-			papers, specified_hopefuls, num_candidates, 
-			*((cache_map *)NULL), winner_only);
+			papers, specified_hopefuls, num_candidates, NULL, winner_only);
 
 	// The rest goes as in comma: we complete one of the ballots with the
 	// other. It doesn't matter which way we do it because, by definition,

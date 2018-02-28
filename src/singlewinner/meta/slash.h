@@ -27,7 +27,7 @@ class slash : public election_method {
 	protected:
 		pair<ordering, bool> elect_inner(const list<ballot_group> &
 				papers, const vector<bool> & hopefuls,
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		string determine_name() const;

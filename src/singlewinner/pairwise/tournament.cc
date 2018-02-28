@@ -252,7 +252,7 @@ pair<ordering, bool> cond_tournament::elect_inner(
 pair<ordering, bool> cond_tournament::elect_inner(
 		const list<ballot_group> & papers, 
 		const vector<bool> & hopefuls, int num_candidates,
-		cache_map & cache, bool winner_only) const {
+		cache_map * cache, bool winner_only) const {
 
 	// Use implied Condorcet matrix with winning-votes. It really
 	// doesn't matter whether we use WV or margins, since we only use
@@ -269,7 +269,7 @@ pair<ordering, bool> cond_tournament::elect_inner(
 
 pair<ordering, bool> cond_tournament::elect_inner(
 		const list<ballot_group> & papers, 
-		int num_candidates, cache_map & cache,
+		int num_candidates, cache_map * cache,
 		bool winner_only) const {
 
 	vector<bool> all_hopeful(num_candidates, true);

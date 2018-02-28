@@ -222,7 +222,7 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 
 pair<ordering, bool> vi_median_ratings::elect_inner(
 		const list<ballot_group> & papers,const vector<bool> & hopefuls,
-		int num_candidates, cache_map & cahe, bool winner_only) const {
+		int num_candidates, cache_map * cache, bool winner_only) const {
 
 	// First, get the ballots into a more managable format.
 	grad_fracile grad_struct = aggregate_ratings(papers, num_candidates, 

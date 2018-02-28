@@ -187,7 +187,7 @@ bool bayesian_regret::init(rng & randomizer) {
 }
 
 string bayesian_regret::do_round(bool give_brief_status, bool reseed,
-		rng & randomizer, cache_map & cache) {
+		rng & randomizer, cache_map * cache) {
 
 	if (curiter >= maxiters)
 		return(""); // All done, so signal it.
@@ -270,7 +270,7 @@ string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 		rng & randomizer) {
 	cache_map cache;
 
-	return(do_round(give_brief_status, reseed, randomizer, cache));
+	return(do_round(give_brief_status, reseed, randomizer, &cache));
 }
 
 vector<string> bayesian_regret::provide_status() const {

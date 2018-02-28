@@ -102,12 +102,12 @@ class twotest {
 		// modified ballots *will* wipe mod_cache.
 		virtual ternary pass_specd(const election_method * base,
 				const disproof & to_test, int num_candidates,
-				cache_map & unmod_cache, cache_map & mod_cache);
+				cache_map * unmod_cache, cache_map * mod_cache);
 
 		virtual ternary pass(const election_method * base,
 				const list<ballot_group> & input,
-				int num_candidates, cache_map & unmod_cache,
-				cache_map & mod_cache);
+				int num_candidates, cache_map * unmod_cache,
+				cache_map * mod_cache);
 		ternary pass(const election_method * base,
 				const list<ballot_group> & input,
 				int num_candidates);
@@ -116,7 +116,7 @@ class twotest {
 		// for the original ballots, but if it is false, we do so.
 		virtual ternary pass_last(const election_method * base,
 				int num_candidates, bool unmod_last_set,
-				cache_map & unmod_cache, cache_map & mod_cache);
+				cache_map * unmod_cache, cache_map * mod_cache);
 		ternary pass_last(const election_method * base,
 				int num_candidates);
 

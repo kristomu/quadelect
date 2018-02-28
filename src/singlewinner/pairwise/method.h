@@ -54,21 +54,32 @@ class pairwise_method : public election_method {
 		virtual pair<ordering, bool> pair_elect(
 				const abstract_condmat & input,
 				const vector<bool> & hopefuls,
-				cache_map & cache,
+				cache_map * cache,
 				bool winner_only) const = 0;
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				cache_map & cache,
+				const vector<bool> & hopefuls,
+				bool winner_only) const {
+			return(pair_elect(input, hopefuls, NULL, winner_only));
+		}
+
+		pair<ordering, bool> pair_elect(const abstract_condmat & input,
+				cache_map * cache,
 				bool winner_only) const;
+
+		pair<ordering, bool> pair_elect(const abstract_condmat & input,
+				bool winner_only) const {
+			return(pair_elect(input, NULL, winner_only));
+		}
 
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & papers,
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & papers,
 				const vector<bool> & hopefuls, 
-				int num_candidates, cache_map & cache,
+				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
 		pairwise_type get_type() const { return(default_type); }

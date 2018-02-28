@@ -43,7 +43,7 @@ class sdom_set : public pairwise_method, private det_sets_relation {
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
 				const vector<bool> & hopefuls,
-				cache_map & cache, bool winner_only) const;
+				cache_map * cache, bool winner_only) const;
 
 		sdom_set() : pairwise_method(CM_WV) { update_name(); }
 
