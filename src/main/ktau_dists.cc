@@ -60,6 +60,8 @@
 
 #include "../singlewinner/young.h"
 
+#include "../random/random.h"
+
 vector<vector<bool> > get_impromptu_cm(const ordering & a, int numcands) {
 
 	// toRet[a][b] is 1 if the voter ranked A above B, otherwise 0.
@@ -161,6 +163,7 @@ main() {
 	//spatial_generator ic(true, true);
 	spatial_generator spatial(true, false);
 	impartial ic(true, false);
+	rng randomizer(1);
 
 	int seed = 999;
 	srand(seed);
@@ -415,8 +418,9 @@ main() {
 		cout << counter << ": " << numcands << " cands, " << numvoters << " voters" << endl;
 
 		if (counter % 2 == 0)
-			ballots = ic.generate_ballots(numvoters, numcands);
-		else	ballots = spatial.generate_ballots(numvoters, numcands);
+			ballots = ic.generate_ballots(numvoters, numcands, randomizer);
+		else	ballots = spatial.generate_ballots(numvoters, numcands,
+					randomizer);
 
 		cache.clear();
 
@@ -457,8 +461,8 @@ main() {
                         method_stats[sec].add_result(maxval, nominator/
 					denominator, minval);
                         if (counter % report_freq == 0) {
-                                cout << method_stats[sec].display_stats() 
-					<< endl;
+                                cout << method_stats[sec].
+                                	display_stats(false, 0.05) << endl;
                         }
 		}
 

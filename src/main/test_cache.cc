@@ -9,25 +9,26 @@
 
 #include "../ballot_tools.h"
 #include "../ballots.h"
-#include "../tools.cc"
+#include "../tools.h"
 
-#include "../generator/ballotgen.cc"
+#include "../generator/impartial.h"
 
-#include "../singlewinner/cardinal.cc"
-#include "../singlewinner/elimination.cc"
-#include "../singlewinner/positional/positional.cc"
+#include "../singlewinner/stats/cardinal.h"
+#include "../singlewinner/elimination.h"
+#include "../singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity.cc"
+#include "../tests/tests/monotonicity/mono_raise.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte, 
 // though.
-#include "../singlewinner/pairwise/methods.cc"
+#include "../singlewinner/pairwise/simple_methods.h"
 
 main() {
 
 	cardinal_ratings cr(0, 10, true);
 	plurality plur(PT_WHOLE);
 	ext_minmax eminmax(CM_WV, false);
+	rng randomizer(1);
 
 	// Generate a random ballot set.
 	impartial ic(true, true);
@@ -37,7 +38,7 @@ main() {
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = ic.generate_ballots(4, 4);
+	list<ballot_group> ballots = ic.generate_ballots(4, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;

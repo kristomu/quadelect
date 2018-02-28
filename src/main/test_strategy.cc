@@ -10,53 +10,50 @@
 
 #include "../ballot_tools.h"
 #include "../ballots.h"
-#include "../tools.cc"
+#include "../tools.h"
 
-#include "../generator/gaussian.cc"
-#include "../generator/ballotgen.cc"
-#include "../generator/dirichlet.cc"
-#include "../generator/spatial.cc"
+#include "../generator/gaussian.h"
+#include "../generator/impartial.h"
+#include "../generator/dirichlet.h"
+#include "../generator/spatial.h"
 
-#include "../singlewinner/gradual_c_b.cc"
+#include "../singlewinner/gradual_c_b.h"
 
-#include "../singlewinner/stats/cardinal.cc"
-#include "../singlewinner/elimination.cc"
-#include "../singlewinner/positional/positional.cc"
+#include "../singlewinner/stats/cardinal.h"
+#include "../singlewinner/elimination.h"
+#include "../singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity.cc"
+#include "../tests/tests/monotonicity/mono_raise.h"
 
-#include "../stats/stats.cc"
+#include "../stats/stats.h"
 
-#include "../distances/vivaldi_test.cc"
-
-// TODO, split these. Do that after improving pairwise and implementing tte, 
-// though.
-#include "../singlewinner/pairwise/methods.cc"
-#include "../singlewinner/pairwise/keener.cc"
-#include "../singlewinner/pairwise/rpairs.cc"
-#include "../singlewinner/pairwise/kemeny.cc"
-#include "../singlewinner/pairwise/odm/odm.cc"
-#include "../singlewinner/pairwise/odm/hits.cc"
-#include "../singlewinner/pairwise/odm/odm_atan.cc"
-#include "../singlewinner/pairwise/sinkhorn.cc"
+#include "../singlewinner/pairwise/simple_methods.h"
+#include "../singlewinner/pairwise/keener.h"
+#include "../singlewinner/pairwise/rpairs.h"
+#include "../singlewinner/pairwise/kemeny.h"
+#include "../singlewinner/pairwise/odm/odm.h"
+#include "../singlewinner/pairwise/odm/hits.h"
+#include "../singlewinner/pairwise/odm/odm_atan.h"
+#include "../singlewinner/pairwise/sinkhorn.h"
 //#include "../singlewinner/pairwise/tournament.cc"
-#include "../singlewinner/pairwise/least_rev.cc"
-#include "../singlewinner/pairwise/random/randpair.cc"
-#include "../singlewinner/pairwise/dodgson_approxs.cc"
+#include "../singlewinner/pairwise/least_rev.h"
+#include "../singlewinner/pairwise/random/randpair.h"
+#include "../singlewinner/pairwise/dodgson_approxs.h"
 
-#include "../singlewinner/sets/mdd.cc"
-#include "../singlewinner/sets/condorcet.cc"
-#include "../singlewinner/sets/smith_schwartz.cc"
-#include "../singlewinner/sets/partition.cc"
-#include "../singlewinner/meta/comma.cc"
-#include "../singlewinner/meta/slash.cc"
+#include "../singlewinner/sets/mdd.h"
+#include "../singlewinner/sets/condorcet.h"
+#include "../singlewinner/sets/max_elements/all.h"
+#include "../singlewinner/sets/partition.h"
+#include "../singlewinner/meta/comma.h"
+#include "../singlewinner/meta/slash.h"
 
-#include "../singlewinner/stats/vmedian_outsource.cc"
-#include "../singlewinner/stats/variable_median.cc"
-#include "../singlewinner/stats/median.cc"
-#include "../singlewinner/stats/mode.cc"
+#include "../singlewinner/stats/var_median/vmedian.h"
+#include "../singlewinner/stats/median.h"
+#include "../singlewinner/stats/mode.h"
 
-#include "../singlewinner/young.cc"
+#include "../singlewinner/young.h"
+
+#include "../random/random.h"
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X
@@ -71,7 +68,7 @@
 // of the set wins, then the method is vulnerable. Assume the exact member is
 // found using backroom dealing or whatnot.
 
-void test_strategy(election_method * to_test) {
+void test_strategy(election_method * to_test, rng & randomizer) {
 
 	// Generate a random ballot set.
 	// First should be true: compress the ballots. Second, that's
@@ -130,7 +127,7 @@ void test_strategy(election_method * to_test) {
 	while (ranks > 1) {
 		ranks = 0;
 
-	ballots = ic.generate_ballots(numvoters, numcands);
+	ballots = ic.generate_ballots(numvoters, numcands, randomizer);
 	
 	//cache.clear();
 
@@ -212,13 +209,13 @@ void test_strategy(election_method * to_test) {
 		if (num_prefers_challenger == 0) continue;
 
 		for (int tries = 0; tries < 512 && !strategy_worked; ++tries) {
-			// Add the strategic ballot by drawing from IIC.
+			// Add the strategic ballot by drawing from IC.
 			int iterations = 1 + tries % 3, q;
 			double cumul = 0;
 			for (q = 0; q < iterations; ++q) {
 			list<ballot_group> strategy;
 			while (strategy.empty())
-				strategy = ic.generate_ballots(1, numcands);
+				strategy = ic.generate_ballots(1, numcands, randomizer);
 			if (q == iterations-1) {
 				assert (num_prefers_challenger - cumul > 0);
 				strategy.begin()->weight = num_prefers_challenger - cumul;
@@ -277,6 +274,8 @@ main() {
         double powerstep = 0.25;
 
 	int counter;
+
+	rng randomizer(1);
 
 	vector<pairwise_ident> types;
 	//types.push_back(CM_KEENER_MARGINS);
@@ -446,6 +445,6 @@ main() {
 
 	for (counter = 0; counter < condorcets.size(); ++counter) {
 		cout << counter << ": " << flush;
-		test_strategy(condorcets[counter]);
+		test_strategy(condorcets[counter], randomizer);
 	}
 }

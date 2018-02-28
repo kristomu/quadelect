@@ -12,21 +12,25 @@
 #include "../tools.cc"
 #include "../cache.h"
 
-#include "../generator/ballotgen.cc"
+#include "../generator/impartial.h"
 
-#include "../singlewinner/cardinal.cc"
-#include "../singlewinner/elimination.cc" // Should this be in meta?
-#include "../singlewinner/meta/comma.cc"
-#include "../singlewinner/sets/smith_schwartz.cc"
-#include "../singlewinner/positional/positional.cc"
+#include "../singlewinner/stats/cardinal.h"
+#include "../singlewinner/elimination.h" // Should this be in meta?
+#include "../singlewinner/meta/comma.h"
+#include "../singlewinner/sets/all.h"
+#include "../singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity.h"
+#include "../tests/tests/monotonicity/mono_raise.h"
+#include "../tests/tests/monotonicity/mono_add.h"
 
-#include "../tests/engine/twotest.cc"
+#include "../tests/engine/twotest.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte, 
 // though.
-#include "../singlewinner/pairwise/methods.cc"
+#include "../singlewinner/pairwise/simple_methods.h"
+#include "../singlewinner/pairwise/least_rev.h"
+
+#include "../random/random.h"
 
 // TODO: Check if caching works. If not, find out why not. Should be relatively
 // simple to just change mod_cache to NULL and compare times. In such a
@@ -39,8 +43,9 @@ main() {
 	plurality plur(PT_WHOLE);
 	ext_minmax eminmax(CM_MARGINS, false); // Will pass mat. We need Smith. TODO: Move that over, and comma, of course.
 	ext_minmax eminmin(CM_MARGINS, true);
-	condolr cor(CM_MARGINS);			// TODO: Absolve it of this, as the type doesn't matter. That requires a criterion compliance thing and then caching will take care of it.
+	least_rev cor(CM_MARGINS);			// TODO: Absolve it of this, as the type doesn't matter. That requires a criterion compliance thing and then caching will take care of it.
 	copeland cpl(CM_MARGINS);
+	rng randomizer(1);
 
 	// Generate a random ballot set.
 	impartial ic(true, true);
@@ -50,7 +55,7 @@ main() {
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = ic.generate_ballots(17, 4);
+	list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;
@@ -140,7 +145,7 @@ main() {
 		//tte.run_tests(2); // <-- internal?
 		// TODO, test that this returns false for IRV/mono-raise only
 		// after the violation has been found.
-		assert (tte.run_tests(20));
+		assert (tte.run_tests(20, randomizer));
 	}
 
 }

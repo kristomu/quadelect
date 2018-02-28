@@ -9,25 +9,25 @@
 
 #include "../ballot_tools.h"
 #include "../ballots.h"
-#include "../tools.cc"
+#include "../tools.h"
 
-#include "../generator/ballotgen.cc"
+#include "../generator/all.h"
 
-#include "../singlewinner/cardinal.cc"
-#include "../singlewinner/elimination.cc"
-#include "../singlewinner/positional/positional.cc"
+#include "../singlewinner/stats/cardinal.h"
+#include "../singlewinner/elimination.h"
+#include "../singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity.cc"
+#include "../tests/tests/monotonicity/mono_raise.h"
+#include "../singlewinner/pairwise/simple_methods.h"
 
-// TODO, split these. Do that after improving pairwise and implementing tte, 
-// though.
-#include "../singlewinner/pairwise/methods.cc"
+#include "../random/random.h"
 
 main() {
 
 	cardinal_ratings cr(0, 10, true);
 	plurality plur(PT_WHOLE);
 	ext_minmax eminmax(CM_MARGINS, false);
+	rng randomizer(1); // TODO: Standard constructor taking seed from time()
 
 	// Generate a random ballot set.
 	impartial ic(true, true);
@@ -37,7 +37,7 @@ main() {
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = ic.generate_ballots(17, 4);
+	list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;
@@ -65,10 +65,6 @@ main() {
 		out = eminmax.elect(ballots, 4, cache, false);
 	}*/
 
-	for (cache_map::const_iterator pos = cache.begin(); pos != cache.end();
-			++pos)
-		cout << pos->first << endl;
-
 	cout << "---" << endl;
 	ordering_tools otools;
 	cout << eminmax.name() << ": ";
@@ -83,7 +79,7 @@ main() {
 		cache.clear();
 		int numcand = 4;
 		list<ballot_group> orig = ic.generate_ballots(
-				random() % 17 + 2, numcand);
+				random() % 17 + 2, numcand, randomizer);
 
 		if (mrtest.pass(&le_plur, orig, numcand/*, cache, *(cache_map *)NULL*/) == TFALSE)
 			cout << "Found IRV failure with " << numcand << " cands, counter = " << counter << endl;

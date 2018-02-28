@@ -9,22 +9,24 @@
 
 #include "../ballot_tools.h"
 #include "../ballots.h"
-#include "../tools.cc"
+#include "../tools.h"
 
-#include "../generator/ballotgen.cc"
+#include "../generator/impartial.h"
 
-#include "../singlewinner/stats/cardinal.cc"
-#include "../singlewinner/elimination.cc"
-#include "../singlewinner/positional/positional.cc"
+#include "../singlewinner/stats/cardinal.h"
+#include "../singlewinner/elimination.h"
+#include "../singlewinner/positional/positional.h"
 
-#include "../tests/tests/monotonicity.cc"
+#include "../tests/tests/monotonicity/mono_raise.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte, 
 // though.
-#include "../singlewinner/pairwise/methods.cc"
-#include "../singlewinner/pairwise/least_rev.cc"
-#include "../singlewinner/pairwise/keener.cc"
+#include "../singlewinner/pairwise/simple_methods.h"
+#include "../singlewinner/pairwise/least_rev.h"
+#include "../singlewinner/pairwise/keener.h"
 //#include "../singlewinner/pairwise/tournament.cc"
+
+#include "../random/random.h"
 
 main() {
 
@@ -34,10 +36,8 @@ main() {
 	impartial ic(true, true);
 
 	int seed = 999;
-	srand(seed);
-	srandom(seed);
-	srand48(seed);
-
+	rng randomizer(seed);
+	
 	list<ballot_group> ballots;
 	
 	// A bunch of times, generate ballots and clear the cache. Then try
@@ -84,7 +84,7 @@ main() {
 	for (counter = 0; counter < 9001; ++counter) {
 		//cout << counter << endl;
 
-		ballots = ic.generate_ballots(100, 4);
+		ballots = ic.generate_ballots(100, 4, randomizer);
 		cache.clear();
 
 		for (int sec = 0; sec < condorcets.size(); ++sec) {
