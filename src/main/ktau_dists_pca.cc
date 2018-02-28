@@ -195,11 +195,11 @@ main() {
 	// whether truncation is permitted.
 	// TODO later: fix last-rank problem with gradual-cond-borda.
 	// Also fix memory-hogging loop of doom in positional if this is set on.
-	//impartial iic(/*true, true*/true, true);
-	//spatial_generator iic(true, true);
+	//impartial ic(/*true, true*/true, true);
+	//spatial_generator ic(true, true);
 
 	spatial_generator spatial(true, false);
-	impartial iic(true, false);
+	impartial ic(true, false);
 
 	int seed = 999;
 	srand(seed);
@@ -485,7 +485,7 @@ main() {
 		cout << counter << ": " << numcands << " cands, " << numvoters << " voters" << endl;
 
 		if (counter % 2 == 0)
-			ballots = iic.generate_ballots(numvoters, numcands, randomizer);
+			ballots = ic.generate_ballots(numvoters, numcands, randomizer);
 		else	ballots = spatial.generate_ballots(numvoters, numcands, randomizer);
 
 		cache.clear();

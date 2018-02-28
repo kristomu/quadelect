@@ -45,14 +45,14 @@ main() {
 	copeland cpl(CM_MARGINS);
 
 	// Generate a random ballot set.
-	impartial iic(true, true);
+	impartial ic(true, true);
 
 	int seed = 98;
 	srand(seed);
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = iic.generate_ballots(17, 4);
+	list<ballot_group> ballots = ic.generate_ballots(17, 4);
 
 	// Print 'em.
 	ballot_tools btools;
@@ -125,7 +125,7 @@ main() {
 	/*sets.push_back (new cdtt_set);
 	sets.push_back (new schwartz_set);*/
 
-	tte.set_generator(&iic);
+	tte.set_generator(&ic);
 	for (int sec = 0; sec < methods.size(); ++sec) {
 		for (int counter = sets.size(); counter >= 0; --counter) {
 

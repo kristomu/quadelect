@@ -31,7 +31,7 @@ main() {
 	ext_minmax eminmax(CM_WV, false);
 
 	// Generate a random ballot set.
-	impartial iic(true, true);
+	impartial ic(true, true);
 
 	int seed = 999;
 	srand(seed);
@@ -84,7 +84,7 @@ main() {
 	for (counter = 0; counter < 9001; ++counter) {
 		//cout << counter << endl;
 
-		ballots = iic.generate_ballots(100, 4);
+		ballots = ic.generate_ballots(100, 4);
 		cache.clear();
 
 		for (int sec = 0; sec < condorcets.size(); ++sec) {

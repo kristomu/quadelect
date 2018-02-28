@@ -30,14 +30,14 @@ main() {
 	ext_minmax eminmax(CM_WV, false);
 
 	// Generate a random ballot set.
-	impartial iic(true, true);
+	impartial ic(true, true);
 
 	int seed = 999;
 	srand(seed);
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = iic.generate_ballots(4, 4);
+	list<ballot_group> ballots = ic.generate_ballots(4, 4);
 
 	// Print 'em.
 	ballot_tools btools;

@@ -78,11 +78,11 @@ void test_strategy(election_method * to_test) {
 	// whether truncation is permitted.
 	// TODO later: fix last-rank problem with gradual-cond-borda.
 	// Also fix memory-hogging loop of doom in positional if this is set on.
-	//impartial iic(/*true, true*/true, true);
-	//spatial_generator iic(true, false, 4, false);
-	gaussian_generator iic(true, false, 4, false);
+	//impartial ic(/*true, true*/true, true);
+	//spatial_generator ic(true, false, 4, false);
+	gaussian_generator ic(true, false, 4, false);
 	//spatial_generator spatial(true, false);
-	impartial true_iic(true, false);
+	impartial true_ic(true, false);
 
 	list<ballot_group> ballots;
 	
@@ -130,7 +130,7 @@ void test_strategy(election_method * to_test) {
 	while (ranks > 1) {
 		ranks = 0;
 
-	ballots = iic.generate_ballots(numvoters, numcands);
+	ballots = ic.generate_ballots(numvoters, numcands);
 	
 	//cache.clear();
 
@@ -218,7 +218,7 @@ void test_strategy(election_method * to_test) {
 			for (q = 0; q < iterations; ++q) {
 			list<ballot_group> strategy;
 			while (strategy.empty())
-				strategy = iic.generate_ballots(1, numcands);
+				strategy = ic.generate_ballots(1, numcands);
 			if (q == iterations-1) {
 				assert (num_prefers_challenger - cumul > 0);
 				strategy.begin()->weight = num_prefers_challenger - cumul;

@@ -30,14 +30,14 @@ main() {
 	ext_minmax eminmax(CM_MARGINS, false);
 
 	// Generate a random ballot set.
-	impartial iic(true, true);
+	impartial ic(true, true);
 
 	int seed = 98;
 	srand(seed);
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = iic.generate_ballots(17, 4);
+	list<ballot_group> ballots = ic.generate_ballots(17, 4);
 
 	// Print 'em.
 	ballot_tools btools;
@@ -82,7 +82,7 @@ main() {
 	for (counter = 0; counter < 400000; ++counter) {
 		cache.clear();
 		int numcand = 4;
-		list<ballot_group> orig = iic.generate_ballots(
+		list<ballot_group> orig = ic.generate_ballots(
 				random() % 17 + 2, numcand);
 
 		if (mrtest.pass(&le_plur, orig, numcand/*, cache, *(cache_map *)NULL*/) == TFALSE)
