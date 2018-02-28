@@ -148,8 +148,7 @@ bool test_once(list<ballot_group> & ballots,
         // completely and consider the method invulnerable in this particular
         // case.
 
-        honest = condorcets[0]->elect(ballots, numcands, *((cache_map *)NULL),
-                                      true);
+        honest = condorcets[0]->elect(ballots, numcands, true);
 
         // Check that there isn't a tie.
         //int ranks = 0;
@@ -245,8 +244,7 @@ bool test_once(list<ballot_group> & ballots,
             // Determine the winner again! A tie counts if our man
             // is at top rank, because he wasn't, before.
             ordering strat_result = condorcets[0]->elect(
-                                        prefers_winner, numcands,
-                                        *((cache_map *)NULL), true);
+                                        prefers_winner, numcands, true);
 
             /*cout << ordering_tools().ordering_to_text(
               strat_result,

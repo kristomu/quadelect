@@ -48,7 +48,7 @@ strategy_result StrategyTest::attempt_execute_strategy() { // Mega method, fix l
         // completely and consider the method invulnerable in this particular
         // case.
 
-        honest = method->elect(ballots, numcands, *((cache_map *)NULL), true);
+        honest = method->elect(ballots, numcands, true);
 
         // Check that there isn't a tie.
         //int ranks = 0;
@@ -150,7 +150,7 @@ strategy_result StrategyTest::attempt_execute_strategy() { // Mega method, fix l
             // Determine the winner again! A tie counts if our man
             // is at top rank, because he wasn't, before.
             ordering strat_result = method->elect( prefers_winner, numcands,
-                                        *((cache_map *)NULL), true);
+                                        true);
 
             /*cout << ordering_tools().ordering_to_text(
               strat_result,
