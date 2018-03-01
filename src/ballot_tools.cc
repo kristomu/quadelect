@@ -3,6 +3,8 @@
 #include "ballots.h"
 #include "ballot_tools.h"
 
+#include <iterator>
+
 using namespace std;
 
 // Ordering sorter
@@ -463,4 +465,20 @@ vector<string> ballot_tools::ballots_to_text(const list<ballot_group> &
 		bool numeric) const {
 
 	return(ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
+}
+
+// TODO: Handle more than 26 candidates??
+void ballot_tools::print_ranked_ballots(const list<ballot_group> & 
+		rank_ballots) const {
+	
+	map<int, string> fakecand;
+
+	string f = "!";
+	for (int counter = 0; counter < 26; ++counter) {
+		f[0] = (char)('A' + counter);
+		fakecand[counter] = f;
+	}
+
+	vector<string> fv = ballots_to_text(rank_ballots, fakecand, false);
+	copy(fv.begin(), fv.end(), ostream_iterator<string>(cout, "\n"));
 }

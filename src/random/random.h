@@ -24,6 +24,7 @@ class rng {
 		uint32_t irand() { return(long_rand()); }
 		long double ldrand();
 		double drand();
+		double drand(double min, double max);
 
 		// Ranges. Note that these are all half-open, i.e. [min, max)
 		uint64_t lrand(uint64_t modulus);

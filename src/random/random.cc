@@ -63,7 +63,6 @@ long double rng::ldrand() {
 }
 
 double rng::drand() {
-
 	// Same as above, only double precision. This assumes a double with
 	// no more than 64 bits fraction.
 
@@ -83,6 +82,10 @@ double rng::drand() {
 	} while (d >= 1);
 
 	return(d);
+}
+
+double rng::drand(double min, double max) {
+	return (min + drand()*(max-min));
 }
 
 uint64_t rng::lrand(uint64_t modulus) {

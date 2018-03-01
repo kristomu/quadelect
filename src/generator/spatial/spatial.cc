@@ -1,7 +1,6 @@
-// Generic class for spatial models. It's hardwired in many ways that should be
-// made user-specifiable.
+// Generic class for spatial models. It's hardwired in many ways that should
+// be made user-specifiable.
 
-#include "ballotgen.h"
 #include "spatial.h"
 #include <iostream>
 
@@ -18,17 +17,6 @@ double spatial_generator::distance(const vector<double> & a,
 		sum += (a[counter]-b[counter])*(a[counter]-b[counter]);
 
 	return(sqrt(sum));
-}
-
-vector<double> spatial_generator::rnd_vector(int size, 
-		rng & random_source) const {
-
-	vector<double> output(size, 0);
-
-	for (int counter = 0; counter < size; ++counter)
-		output[counter] = random_source.drand();
-
-	return(output);
 }
 
 vector<double> spatial_generator::rnd_dim_vector(double dimensions,
@@ -190,8 +178,8 @@ bool spatial_generator::set_params(double num_dimensions_in,
 	num_dimensions = num_dimensions_in;
 
 	// If we've defined a mean, pad it with zeroes or cut as needed.
-	if (mean.size() != num_dimensions && !mean.empty())
-		mean.resize(num_dimensions, 0);
+	if (center.size() != num_dimensions && !center.empty())
+		center.resize(num_dimensions, 0);
 
 	return(true);
 }
@@ -237,22 +225,31 @@ vector<vector<double> > spatial_generator::get_fixed_candidate_pos() const {
 	return(fixed_cand_positions);
 }
 
-bool spatial_generator::set_mean(const vector<double> mean_in) {
-	if (!uses_mean) return(false);
+bool spatial_generator::set_center(const vector<double> center_in) {
+	if (!uses_center) return(false);
 
 	// If it's not the right number of dimensions, return false too.
-	if (mean_in.size() != ceil(num_dimensions))
+	if (center_in.size() != ceil(num_dimensions))
 		return(false);
 
 	// Otherwise, all OK. (Again, should check against min and max.)
-	mean = mean_in;
+	center = center_in;
 	return(true);
 }
 
-bool spatial_generator::set_sigma(double sigma_in) {
-	if (!uses_sigma) return(false);
-	if (sigma_in <= 0) return(false);
+bool spatial_generator::set_dispersion(const vector<double> dispersion_in) {
+	if (!uses_dispersion) return(false);
 
-	sigma = sigma_in;
+	// If it's not the right number of dimensions, return false too.
+	if (dispersion_in.size() != ceil(num_dimensions))
+		return(false);
+
+	// If not all values are positive, return false.
+	for (size_t i = 0; i < dispersion_in.size(); ++i)
+		if (dispersion_in[i] <= 0)
+			return(false);
+
+	// Otherwise, all OK. (Again, should check against min and max.)
+	dispersion = dispersion_in;
 	return(true);
 }

@@ -30,31 +30,22 @@ class gaussian_generator : public spatial_generator {
 			rng & random_source) const;
 
 	public:
-		// Do later.
-/*		gaussian_generator();
-		gaussian_generator(bool do_truncate);
-		gaussian_generator(bool do_truncate, 
-				const vector<double> & center, double sigma);
-
-		list<ballot_group> get_gaussians(const vector<vector<double> > &
-				cand_positions, int num_voters) const;*/
-
-		gaussian_generator() : spatial_generator() { uses_mean = true;
-			uses_sigma = true; sigma = 0.2; }
+		gaussian_generator() : spatial_generator() { uses_center = true;
+			uses_dispersion = true; set_dispersion(0.2); }
 		gaussian_generator(bool compress_in) : spatial_generator(
-				compress_in) { uses_mean = true; 
-			uses_sigma = true; sigma = 0.2; }
+				compress_in) { uses_center = true; 
+			uses_dispersion = true; set_dispersion(0.2); }
 		gaussian_generator(bool compress_in, bool do_truncate)
 			: spatial_generator(compress_in, do_truncate) {
-				uses_mean = true; uses_sigma = true; 
-				sigma = 0.2; }
+				uses_center = true; uses_dispersion = true; 
+				set_dispersion(0.2); }
 
 		gaussian_generator(bool compress_in, bool do_truncate,
 				double num_dimensions_in, bool warren_util_in) :
 			spatial_generator(compress_in, do_truncate,
 					num_dimensions_in, warren_util_in) {
-				uses_mean = true; uses_sigma = true; 
-				sigma = 0.2; }
+				uses_center = true; uses_dispersion = true; 
+				set_dispersion(0.2); }
 
 		string name() const;
 };

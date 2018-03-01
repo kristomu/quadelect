@@ -253,7 +253,7 @@ list<pure_ballot_generator *> get_all_generators(bool compress, bool truncate) {
 	toRet.push_back(new dirichlet(compress, truncate));
 	toRet.push_back(new gaussian_generator(compress, truncate));
 	toRet.push_back(new impartial(compress, truncate));
-	toRet.push_back(new spatial_generator(compress, truncate));
+	toRet.push_back(new uniform_generator(compress, truncate));
 
 	return(toRet);
 }
@@ -267,7 +267,7 @@ bayesian_regret setup_regret(list<election_method *> & methods,
 	// to modes.
 
 	/*list<pure_ballot_generator *> generators;
-	generators.push_back(new spatial_generator(true, false));
+	generators.push_back(new uniform_generator(true, false));
 	generators.push_back(new impartial(true, false));*/
 
 	/*int maxiters = 40000;
@@ -313,7 +313,7 @@ bayesian_regret setup_regret(list<election_method *> & methods,
 yee setup_yee(list<election_method *> & methods, int num_voters, int num_cands,
 		bool do_use_autopilot, string case_prefix, int picture_size,
 		double sigma, gaussian_generator & gaussian, 
-		spatial_generator & uniform, rng & randomizer) {
+		uniform_generator & uniform, rng & randomizer) {
 
 	yee to_output;
 
@@ -487,6 +487,7 @@ int main(int argc, char * * argv) {
 
 	string ext;
 
+	// None of these seem to work! Find out why.
 	static struct option long_options[] = {
 		// Long options (we'll do the rest after this struct).
 		// We can't use these letters: MGmgby
@@ -627,7 +628,7 @@ int main(int argc, char * * argv) {
 	list<pure_ballot_generator *> generators = get_all_generators(true, 
 			false);
 	list<pure_ballot_generator *> default_br_generators;
-	default_br_generators.push_back(new spatial_generator(true, false));
+	default_br_generators.push_back(new uniform_generator(true, false));
 
 	// These are used so it'll be possible to dealloc early if we so want.
 	// TODO later: have intersect provide two arrays: one for intersection,
@@ -694,7 +695,7 @@ int main(int argc, char * * argv) {
 
 	rng randomizer(get_abs_time()); // or 10 or somesuch. TODO: User spec.
 
-	spatial_generator uniform(true, false);
+	uniform_generator uniform(true, false);
 	gaussian_generator gaussian(true, false);
 
 	if (run_yee) {

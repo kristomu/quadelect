@@ -89,6 +89,9 @@ class ballot_tools {
 				rank_ballots, const map<int, string> & 
 				reverse_cand_lookup, bool numeric) const;
 
+		void print_ranked_ballots(const list<ballot_group> & 
+			rank_ballots) const;
+
 };
 
 #endif

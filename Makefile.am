@@ -10,8 +10,9 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 bin_PROGRAMS = qelect
 qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/distances/vivaldi_test.h src/generator/ballotgen.h \
-	src/generator/dirichlet.h src/generator/gaussian.h \
-	src/generator/impartial.h src/generator/spatial.h \
+	src/generator/dirichlet.h src/generator/spatial/gaussian.h \
+	src/generator/impartial.h src/generator/spatial/spatial.h \
+	src/generator/spatial/uniform.h \
 	src/grad_median/grad_median.h src/pairwise/abstract_matrix.h \
 	src/pairwise/beatpath.h src/pairwise/cache_matrix.h \
 	src/pairwise/grad_matrix.h src/pairwise/matrix.h src/pairwise/types.h \
@@ -52,8 +53,9 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/stats/mwstats.h src/stats/stats.h src/tools.h src/ballot_tools.cc \
 	src/ballots.cc src/cache.cc src/choose_inc.cc \
 	src/distances/vivaldi_test.cc src/generator/dirichlet.cc \
-	src/generator/gaussian.cc src/generator/impartial.cc \
-	src/generator/spatial.cc src/grad_median/grad_median.cc \
+	src/generator/spatial/gaussian.cc src/generator/impartial.cc \
+	src/generator/spatial/spatial.cc src/grad_median/grad_median.cc \
+	src/generator/spatial/uniform.cc \
 	src/main/combined.cc \
 	src/pairwise/abstract_matrix.cc src/pairwise/beatpath.cc \
 	src/pairwise/cache_matrix.cc src/pairwise/grad_matrix.cc \
@@ -105,6 +107,8 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/tests/tests/monotonicity/monotonicity.cc \
 	src/tests/tests/rev_symmetry.cc src/tests/two_tests.cc \
 	src/generator/ballotgen.cc src/stats/confidence/student.cc \
+	src/bandit/bandit.cc src/bandit/lucb.cc \
+	src/main/strat_test.cc \
 	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc 
 
 qelect_CXXFLAGS = --std=c++0x -Wall -march=native -ggdb

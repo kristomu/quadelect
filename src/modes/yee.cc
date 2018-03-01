@@ -60,7 +60,7 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	relative[0] = x / (double) xsize_in;
 	relative[1] = y / (double) ysize_in;
 
-	if (!ballotgen.set_mean(relative))
+	if (!ballotgen.set_center(relative))
 		return(-1);
 
 	double cur_num_voters = min_num_voters_in;
@@ -529,7 +529,7 @@ bool yee::init(rng & randomizer) {
 	assert(voter_pdf->fix_candidate_positions(num_candidates,
 				candidate_pdf->get_fixed_candidate_pos()));
 	// Set sigma.
-	assert(voter_pdf->set_sigma(sigma));
+	assert(voter_pdf->set_dispersion(sigma));
 
 	inited = true;
 	return(true);

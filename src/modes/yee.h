@@ -11,7 +11,7 @@
 #include "mode.h"
 #include "../ballots.h"
 #include "../singlewinner/method.h"
-#include "../generator/spatial.h"
+#include "../generator/spatial/gaussian.h"
 
 class yee : public mode {
 	

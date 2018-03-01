@@ -11,6 +11,8 @@
 
 using namespace std;
 
+// TODO: FIX!!! Needs to have multidimensional sigma or none at all!
+
 pair<double, double> gaussian_generator::grnd(double sigma_in, 
 		rng & random_source) const {
 
@@ -59,11 +61,11 @@ vector<double> gaussian_generator::rnd_vector(size_t size,
 
 	for (size_t counter = 0; counter < size; counter += 2) {
 		pair<double, double> gaussian_sample;
-		if (!mean.empty() && mean.size() >= 2)
-			gaussian_sample = grnd(mean[0], mean[1], sigma,
+		if (!center.empty() && center.size() >= 2)
+			gaussian_sample = grnd(center[0], center[1], dispersion[0],
 					random_source);
 		else
-			gaussian_sample = grnd(sigma, random_source);
+			gaussian_sample = grnd(dispersion[0], random_source);
 
 		toRet.push_back(gaussian_sample.first);
 		toRet.push_back(gaussian_sample.second);
@@ -79,18 +81,18 @@ string gaussian_generator::name() const {
 
 	string stub = "Gaussian, ";
 
-	if (!mean.empty()) {
+	if (!center.empty()) {
 		stub += "mu = [";
-		for (size_t counter = 0; counter < mean.size(); ++counter) {
-			stub += dtos(mean[counter]);
-			if (counter != mean.size()-1)
+		for (size_t counter = 0; counter < center.size(); ++counter) {
+			stub += dtos(center[counter]);
+			if (counter != center.size()-1)
 				stub += ", ";
 			else
 				stub += "], ";
 		}
 	}
 
-	stub += "sigma = " + dtos(sigma);
+	stub += "sigma = " + dtos(dispersion[0]);
 
 	return(stub);
 }
