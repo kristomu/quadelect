@@ -5,9 +5,8 @@
 #define _VOTE_GEN_ALL
 
 #include "ballotgen.h"
-#include "dirichlet.h"
-#include "gaussian.h"
 #include "impartial.h"
-#include "spatial.h"
+#include "dirichlet.h"
+#include "spatial/all.h"
 
 #endif
