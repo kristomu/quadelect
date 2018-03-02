@@ -6,6 +6,10 @@
 // The exact integer program will be given in comments within the pair_elect
 // function itself.
 
+// YOUNG, H. Peyton; LEVENGLICK, Arthur. A consistent extension of 
+// Condorcet’s election principle. SIAM Journal on applied Mathematics, 
+// 1978, 35.2: 285-300.
+
 #include "../../pairwise/matrix.h"
 #include "method.h"
 #include "kemeny.h"

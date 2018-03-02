@@ -13,6 +13,9 @@ using namespace std;
 // U_aa = num voters - sum (b != a) U_ba for all a, which is required in order
 // for the ratings to have a proper Markovian meaning.
 
+// KEENER, James P. The Perron–Frobenius theorem and the ranking of football 
+// teams. SIAM review, 1993, 35.1: 80-93.
+
 pair<ordering, bool> keener::pair_elect(const abstract_condmat & input, 
 		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {

@@ -16,6 +16,15 @@
 //  of its own since the River tree is undirected. Also, it doesn't augment as
 //  in River+.)
 
+// Ranked Pairs:
+
+// TIDEMAN, T. Nicolaus. Independence of clones as a criterion for voting 
+// rules. Social Choice and Welfare, 1987, 4.3: 185-206.
+
+// MAM:		http://alumnus.caltech.edu/~seppley/
+// River:	http://lists.electorama.com/pipermail/
+//				election-methods-electorama.com/2004-October/014018.html
+
 #ifndef _VOTE_P_RPAIRS
 #define _VOTE_P_RPAIRS
 

@@ -78,6 +78,14 @@ class ballot_group {
 		ballot_group(double weight_in, const ordering & cont, 
 				bool complete_in, bool rated_in);
 		~ballot_group(); // It's said that this'll prevent leaks
+
+		bool operator==(const ballot_group & other) const {
+			return(weight == other.weight && contents == other.contents);
+		}
+
+		bool operator!=(const ballot_group & other) const {
+			return (!(*this == other));
+		}
 };
 
 #endif

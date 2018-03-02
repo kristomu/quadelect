@@ -2,6 +2,10 @@
 // every opposition score has been halved and rounded up. Properly defined,
 // Dodgson Quick is on margins.
 
+// MCCABE-DANSTED, John C.; PRITCHARD, Geoffrey; SLINKO, Arkadii.
+// Approximability of Dodgson’s rule. Social Choice and Welfare, 2008,
+// 31.2: 311-330.
+
 #ifndef _VOTE_P_DQUICK
 #define _VOTE_P_DQUICK
 
