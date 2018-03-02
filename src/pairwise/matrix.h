@@ -83,6 +83,8 @@ class condmat : public abstract_condmat {
 		double get_num_candidates() const { return(contents.size()); }
 
 		void zeroize();
+
+		void set_type(pairwise_type type_in) {type = type_in;}
 };
 
 #endif

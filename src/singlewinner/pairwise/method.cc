@@ -59,6 +59,10 @@ pair<ordering, bool> pairwise_method::elect_inner(
 		
 		condmat archetype(papers, num_candidates, CM_PAIRWISE_OPP);
 		cache->set_condorcet_matrix(archetype);
+
+		// Set the type of the matrix back to what we specified, so
+		// that we won't be using PO even if say, wv was desired.
+		archetype.set_type(default_type);		
 		return(pair_elect(archetype, cache, winner_only));
 	}
 
