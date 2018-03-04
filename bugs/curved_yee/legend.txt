@@ -1,5 +1,0 @@
-Yee: Dodgson-Quick(wv) has code ef3e21417c. Drawing...OK.
-Yee: Random Candidate has code 8051e0b952. Drawing...OK.
-Yee: Plurality has code 4b64edf686. Drawing...OK.
-Yee: Borda has code 0af1535629. Drawing...OK.
-Yee: Antiplurality has code 27618e7156. Drawing...OK.
