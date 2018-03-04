@@ -61,9 +61,9 @@ main() {
 
 	ordering out;
 	loser_elimination le_plur(&plur, false, true);
-	out = eminmax.elect(ballots, 4, cache, false);
+	out = eminmax.elect(ballots, 4, &cache, false);
 	for (counter = 0; counter < 400000; ++counter) {
-		out = eminmax.elect(ballots, 4, cache, false);
+		out = eminmax.elect(ballots, 4, &cache, false);
 	}
 	
 	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p)

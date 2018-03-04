@@ -89,7 +89,7 @@ main() {
 
 		for (int sec = 0; sec < condorcets.size(); ++sec) {
 			//cout << condorcets[sec]->name() << endl;
-			out = condorcets[sec]->elect(ballots, 4, cache, false);
+			out = condorcets[sec]->elect(ballots, 4, &cache, false);
 		}
 	}
 	

@@ -6,6 +6,8 @@
 #include <sstream>
 #include <string>
 
+#include <stdexcept>
+
 #include "../bandit/tests/tests.h"
 #include "../tools.h"
 
@@ -81,6 +83,9 @@ class StrategyTest : public Test {
 				case STRAT_TIE:
 					return (0.001);
 					//return(0.01);
+				default:
+					throw invalid_argument(
+						"unknown strategy type");
 			}
 		}
 		std::string name() const { return ("Strategy(multiple/" +// + ballot_gen->name() + 

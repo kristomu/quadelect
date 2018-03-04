@@ -12,10 +12,10 @@
 #include "../ballots.h"
 #include "../tools.h"
 
-#include "../generator/gaussian.h"
+#include "../generator/spatial/gaussian.h"
+#include "../generator/spatial/uniform.h"
 #include "../generator/impartial.h"
 #include "../generator/dirichlet.h"
-#include "../generator/spatial.h"
 
 #include "../singlewinner/gradual_c_b.h"
 
@@ -78,7 +78,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 	//impartial ic(/*true, true*/true, true);
 	//spatial_generator ic(true, false, 4, false);
 	gaussian_generator ic(true, false, 4, false);
-	//spatial_generator spatial(true, false);
+	//uniform_generator spatial(true, false);
 	impartial true_ic(true, false);
 
 	list<ballot_group> ballots;
@@ -141,8 +141,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 	// completely and consider the method invulnerable in this particular
 	// case.
 
-	honest = condorcets[0]->elect(ballots, numcands, *((cache_map *)NULL), 
-			true);
+	honest = condorcets[0]->elect(ballots, numcands, NULL, true);
 
 	// Check that there isn't a tie.
 	//int ranks = 0;
@@ -231,8 +230,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 			// Determine the winner again! A tie counts if our man
 			// is at top rank, because he wasn't, before.
 			ordering strat_result = condorcets[0]->elect(
-					prefers_winner, numcands,
-					*((cache_map *)NULL), true);
+					prefers_winner, numcands, NULL, true);
 
 			/*cout << ordering_tools().ordering_to_text(
 			  strat_result,
