@@ -8,6 +8,8 @@
 // candidate is paired off against his opposite number and the one who beats the
 // other candidate pairwise, wins. Leftover candidates are given a bye.
 
+// [Informal bug check: somewhat odd-looking Yee results.]
+
 #ifndef _SET_PARTITION
 #define _SET_PARTITION
 

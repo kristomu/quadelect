@@ -61,7 +61,7 @@ class yee : public mode {
 
 		// Test a given pixel and update winners arrays. See the .cc
 		// for more information.
-		int check_pixel(int x, int y, int xsize, int ysize, 
+		long long check_pixel(int x, int y, int xsize, int ysize, 
 				const vector<const election_method *> & methods,
 				spatial_generator & ballotgen, 
 				vector<vector<vector<vector<bool > > > > & 

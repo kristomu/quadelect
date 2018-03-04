@@ -24,6 +24,8 @@
 // Possible thing to consider: Have the SDom matrix be like the beatpath matrix
 // and thus not inside this at all, but inside pairwise/ something.
 
+// [Informal bug check: odd-looking Yee results. May be buggy.]
+
 class sdom_set : public pairwise_method, private det_sets_relation {
 	private:
 

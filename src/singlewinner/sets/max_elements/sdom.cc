@@ -13,10 +13,13 @@ int sdom_set::strongly_dominates(int y, int x, const abstract_condmat & input,
 	double beat = input.get_magnitude(y, x, hopeful) - input.
 		get_magnitude(x, y, hopeful);
 
-	if (beat == 0)
+	/*if (beat == 0)
 		return(0);
 	if (beat < 0)
-		return(-strongly_dominates(x, y, input, hopeful));
+		return(-strongly_dominates(x, y, input, hopeful));*/
+
+	if (beat <= 0)
+		return(0);
 
 	// For each other candidate Z,
 	bool still_dominates = true;

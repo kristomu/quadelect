@@ -56,6 +56,12 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 	// Hm, perhaps this is where JGA's strategy test differs from mine. 
 	// Perhaps his sets candidates uniformly, then have a Gaussian dist.
 	// for voters, whereas mine would have a Gaussian for both...
+
+	// Optimize: could make this part of the class, and mutable.
+	// Optimize: could also make this take a list<..>& as input and then
+	// have an auxiliary generate_ballots_int create list<ballot_group>,
+	// run this on it, and return it. Probably not worth too much, given
+	// that we have to compress anyway.
 	vector<vector<double> > cand_positions;
 
 	// If they're fixed and the number of candidates are right, then
@@ -140,6 +146,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 		// Compatibility with Warren.
 		double spacing = sqrt(0.6 * num_dimensions);
 
+		// Expensive part ahead!
 		// For all candidates...
 		for (sec = 0; sec < numcands; ++sec) {
 			// Get distance to candidate.

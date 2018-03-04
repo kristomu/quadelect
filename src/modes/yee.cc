@@ -39,7 +39,7 @@
 // should diminish salt-and-pepper noise. BLUESKY: Render using PNG 
 // interpolation order to maximize effect.
 
-int yee::check_pixel(int x, int y, int xsize_in, int ysize_in, 
+long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in, 
 		const vector<const election_method *> & methods, 
 		spatial_generator & ballotgen,
 		vector<vector<vector<vector<bool > > > > & am_ac_winners,
@@ -68,7 +68,8 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	if (!use_autopilot_in)
 		cur_num_voters = max_num_voters_in;
 
-	size_t method, bottom_line = 0;
+	size_t method;
+	long long bottom_line = 0;
 
 	ordering out, rank_out;
 
@@ -80,6 +81,8 @@ int yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 			cleared < num_methods) {
 
 		// Sample the voter distribution at our pixel.
+		// Note: generate_ballots is quite expensive. Consider the value
+		// of using autopilot...
 		ballots = ballotgen.generate_ballots(round(cur_num_voters), 
 				num_cands, randomizer);
 
@@ -554,10 +557,10 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 	if (cur_round < x_size) {
 		output = "Yee: drawing x = " + itos(cur_round);
 
-		int grand_sum = 0;
+		long long grand_sum = 0;
 
 		for (int y = 0; y < y_size; ++y) {
-			int contrib = check_pixel(cur_round, y, x_size, y_size,
+			long long contrib = check_pixel(cur_round, y, x_size, y_size,
 					e_methods, *voter_pdf, 
 					winners_all_m_all_cand,
 					min_num_voters, max_num_voters,
@@ -574,7 +577,7 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 			grand_sum += contrib;
 		}
 
-		output += ", " + itos(grand_sum) + " voters in all.";
+		output += ", " + lltos(grand_sum) + " voters in all.";
 		++cur_round;
 	} else {
 		// No, draw the next picture.
