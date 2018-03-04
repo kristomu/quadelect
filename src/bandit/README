@@ -1,0 +1,20 @@
+Multi-armed bandit code for determining the minimum or maximum of "bandits"
+that return either 0 or 1 according to an unknown probability.
+
+The point is to find, among other things, the method that is most resistant
+to strategy. Each pull of the bandit corresponds to generating a random ballot
+profile and then trying to find a strategy that gives the win to someone the
+strategists prefer; and the bandit returns either susceptible or not, according
+to an unknown mean that depends on the method.
+
+I currently use LUCB1 (arXiv:1407.4443). We could potentially halve the number
+of iterations required by switching to track-and-stop as detailed in
+https://github.com/jsfunc/best-arm-identification
+https://arxiv.org/pdf/1702.00001.pdf
+http://proceedings.mlr.press/v49/garivier16a.pdf
+
+but that will be for later, if at all. 
+
+Note that the bandit model I'm using is exploration only, because we're 
+interested in finding the best performer, not to create a metamethod that
+is generally resistant to strategy.
