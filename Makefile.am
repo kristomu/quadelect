@@ -117,5 +117,3 @@ qelect_CXXFLAGS = --std=c++0x -Wall -march=native -ggdb
 # way later. (Same with SSL, which is used for SHA.)
 
 qelect_CXXFLAGS += -lglpk -lssl -lcrypto
-
-dist_noinst_SCRIPTS = autogen.sh
