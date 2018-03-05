@@ -9,6 +9,7 @@
 #include "landau.h"
 #include "schwartz.h"
 #include "sdom.h"
+#include "pdom.h"
 #include "smith.h"
 
 #endif

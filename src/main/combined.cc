@@ -68,8 +68,15 @@ list<pairwise_method *> get_pairwise_methods(
 		out.push_back(new sinkhorn(*pos, 0.01, true));
 		out.push_back(new sinkhorn(*pos, 0.01, false));
 		out.push_back(new hits(*pos, 0.001));
+		out.push_back(new odm_tanh(*pos, 0.001));
 		out.push_back(new odm_atan(*pos, 0.001));
 		out.push_back(new odm(*pos, 0.001));
+
+		// Keener
+		out.push_back(new keener(*pos, 0.001, false, false));
+		out.push_back(new keener(*pos, 0.001, false, true));
+		out.push_back(new keener(*pos, 0.001, true, false));
+		out.push_back(new keener(*pos, 0.001, true, true));
 
 		out.push_back(new ext_minmax(*pos, false));
 		out.push_back(new ext_minmax(*pos, true));
@@ -135,6 +142,7 @@ list<pairwise_method *> get_sets() {
 	out.push_back(new landau_set());
 	out.push_back(new schwartz_set());
 	out.push_back(new sdom_set());
+	out.push_back(new pdom_set());
 	out.push_back(new smith_set());
 
 	out.push_back(new copeland(CM_WV)); // Nudge nudge.

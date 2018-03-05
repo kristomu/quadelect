@@ -6,6 +6,7 @@
 
 #include "hits.h"
 #include "odm_atan.h"
+#include "odm_tanh.h"
 #include "odm_gen.h"
 #include "odm.h"
 

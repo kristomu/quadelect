@@ -75,6 +75,7 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/singlewinner/pairwise/odm/hits.cc \
 	src/singlewinner/pairwise/odm/odm.cc \
 	src/singlewinner/pairwise/odm/odm_atan.cc \
+	src/singlewinner/pairwise/odm/odm_tanh.cc \
 	src/singlewinner/pairwise/odm/odm_gen.cc \
 	src/singlewinner/pairwise/random/randpair.cc \
 	src/singlewinner/pairwise/rpairs.cc \
@@ -88,6 +89,7 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/singlewinner/random/randcand.cc src/singlewinner/sets/condorcet.cc \
 	src/singlewinner/sets/max_elements/det_sets.cc \
 	src/singlewinner/sets/max_elements/sdom.cc \
+	src/singlewinner/sets/max_elements/pdom.cc \
 	src/singlewinner/sets/max_elements/smith.cc \
 	src/singlewinner/sets/mdd.cc src/singlewinner/sets/partition.cc \
 	src/singlewinner/sets/topological.cc src/singlewinner/stats/cardinal.cc\
