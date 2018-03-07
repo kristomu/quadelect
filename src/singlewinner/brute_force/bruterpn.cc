@@ -156,8 +156,23 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
             continue;
 
         // Check that if someone ranked below A, he's not ranked above now.
-        if (original_scores[1] < original_scores[0] && modified_scores[1] >= modified_scores[0]) {
-			/*cout << "Type one error" << endl;
+
+        double margin = 1e-9;
+
+        bool zero_greater_than_one =
+            original_scores[0] - original_scores[1] > margin;
+
+        bool mod_one_greater_than_zero =
+            modified_scores[1] - modified_scores[0] >= margin;
+
+        bool zero_greater_than_two =
+            original_scores[0] - original_scores[2] > margin;
+
+        bool mod_two_greater_than_zero =
+            modified_scores[2] - modified_scores[0] >= margin;
+
+        if (zero_greater_than_one && mod_one_greater_than_zero) {
+            /*cout << "Type one error" << endl;
             cout << "Was: ";
             copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
 			cout << endl << "Scores:";
@@ -166,11 +181,11 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
             copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
             cout << endl << "scores:";
 			copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl;*/
+			cout << endl << endl;*/
             return (false);
         }
-        if (original_scores[2] < original_scores[0] && modified_scores[2] >= modified_scores[0]) {
-/*cout << "Type two error" << endl;
+        if (zero_greater_than_two && mod_two_greater_than_zero) {
+            /*cout << "Type two error" << endl;
             cout << "Was: ";  
             copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
             cout << endl << "Scores:";  
@@ -179,7 +194,7 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
             copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
             cout << endl << "scores:";  
             copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
-            cout << endl;*/
+            cout << endl << endl;*/
             return(false);
         }
     }
@@ -189,7 +204,6 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
 // Some functional programming would be pretty nice right about now.
 // I know what OOP would say, but...
 int cond_brute_rpn::check_monotonicity(int num_attempts) const {
-
     int cur_attempt = 0;    // Don't count anything but ABCA cycles as an
                             // attempt.
     int inner_num_attempts = 10; // exempli gratia

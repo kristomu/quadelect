@@ -15,7 +15,7 @@ using namespace std;
 class cond_brute_rpn : public election_method {
 	private:
 		custom_function cfunct;		// To do later: inheritance and all that jazz
-		const string ext = "-RPN";
+		const string ext = "RPN";
 
 		unsigned long long id;
 		list<double> stack;
@@ -49,9 +49,13 @@ class cond_brute_rpn : public election_method {
 		int check_liia(int num_attempts) const;
 		int check_reversal_symmetry(int num_attempts) const;
 
-		cond_brute_rpn(unsigned long long funct_code_in) { 
+		void set_funct_code(unsigned long long funct_code_in) {
 			id = funct_code_in;
 			cfunct.set_id(id);
+		}
+
+		cond_brute_rpn(unsigned long long funct_code_in) {
+			set_funct_code(funct_code_in);
 		}
 
 		string get_printable_representation() const {
