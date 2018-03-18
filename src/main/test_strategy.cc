@@ -264,27 +264,26 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 	cout << "Worked in " << worked << " out of " << f << " for " << condorcets[0]->name() << endl;
 }
 
-main() {
+int main() {
 	vector<election_method *> condorcets; // Although they aren't.
 
-        double power_min = 0.25;
-        double power_max = 2.5;
-        double powerstep = 0.25;
+	double power_min = 0.25;
+	double power_max = 2.5;
+	double powerstep = 0.25;
 
-	int counter;
+	size_t counter;
 
 	rng randomizer(1);
 
 	vector<pairwise_ident> types;
 	//types.push_back(CM_KEENER_MARGINS);
-        types.push_back(CM_WV);
-        types.push_back(CM_PAIRWISE_OPP);
-        types.push_back(CM_TOURN_WV);
-        /*types.push_back(CM_TOURN_SYM); // may have negative values*/
-        types.push_back(CM_FRACTIONAL_WV);
-        types.push_back(CM_RELATIVE_MARGINS);
+	types.push_back(CM_WV);
+	types.push_back(CM_PAIRWISE_OPP);
+	types.push_back(CM_TOURN_WV);
+	/*types.push_back(CM_TOURN_SYM); // may have negative values*/
+	types.push_back(CM_FRACTIONAL_WV);
+	types.push_back(CM_RELATIVE_MARGINS);
 	types.push_back(CM_KEENER_MARGINS);
-
 
         for (counter = 0; counter < types.size(); ++counter) {
                 condorcets.push_back(new kemeny(types[counter]));
@@ -424,7 +423,8 @@ main() {
         cgtt_set xi;
 
         // TODO: Really fix comma. DONE, kinda.
-        for (counter = condorcets.size()-1; counter >= 0; --counter) {
+        size_t num_nonmeta_methods = condorcets.size();
+        for (counter = 0; counter < num_nonmeta_methods; ++counter) {
                 condorcets.push_back(new comma(condorcets[counter], &xa));
                 condorcets.push_back(new comma(condorcets[counter], &xb));
                 condorcets.push_back(new comma(condorcets[counter], &xc));
@@ -445,4 +445,6 @@ main() {
 		cout << counter << ": " << flush;
 		test_strategy(condorcets[counter], randomizer);
 	}
+
+	return(0);
 }

@@ -286,7 +286,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
     //impartial ballot_gen(/*true, true*/true, true);
     //spatial_generator ballot_gen(true, false, 4, false);
 
-    int dimensions = 4;
+    //int dimensions = 4;
 
     //gaussian_generator ballot_gen(true, false, dimensions, false);
     //spatial_generator spatial(true, false);
@@ -371,151 +371,30 @@ void test_strategy(election_method * to_test, rng & randomizer,
     double tiefreq = (total_generation_attempts-f)/(double)f;
     tiefreq = round(tiefreq*10000)/1000.0;
 
-    //#pragma omp critical
-    {
-        cout << "Worked in " << worked << " ("<< lower_bound << ", " << upper_bound << ") out of " << f << " for " <<
-             condorcets[0]->name() << " ties: " << total_generation_attempts-f << " (" << tiefreq << ")" << endl;
-    }
-}
-
-void test_with_bandits(vector<election_method *> & to_test, 
-	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
-	pure_ballot_generator * strat_generator) {
-
-	impartial iic(true, false);
-
-	vector<Bandit> bandits;
-	vector<StrategyTest> sts;
-
-	vector<election_method *> condorcets;
-	condorcets.push_back(to_test[0]);
-
-	/*StrategyTest st(iic,  numvoters, numcands, randomizer, condorcets,
-		0);*/
-
-	int numvoters = 37; // was 29
-    int initial_numcands = 3/*4*/, numcands = initial_numcands;
-
-    int i;
-
-	for (i = 0; i < to_test.size(); ++i) {
-		condorcets[0] = to_test[i];
-		sts.push_back(StrategyTest(ballotgens, strat_generator,
-			numvoters, numcands, randomizer, condorcets, 0));
-	}
-
-	for (i = 0; i < to_test.size(); ++i) {
-		bandits.push_back(Bandit(&sts[i]));
-	}
-
-	LUCB lucb;
-
-	bool confident = false;
-
-	double num_methods = sts.size();
-    double report_significance = 0.05;
-    double zv = ppnd7(1-report_significance/num_methods);
-
-    time_t startpt = time(NULL);
-
-	for (int j = 1; j < 1000000 && !confident; ++j) {
-		// Bleh, why is min a macro?
-		int num_tries = max(100, (int)sts.size());
-		// Don't run more than 20k at a time because otherwise
-		// feedback is too slow.
-		num_tries = min(20000, num_tries);
-		double progress = lucb.find_best_bandit(bandits, num_tries, true);
-		if (progress == 1) {
-			std::cout << "Managed in fewer than " << j * num_tries << 
-				" tries." << std::endl;
-			confident = true;
-		} else {
-			if (time(NULL) - startpt < 2) {
-				continue;
-			}
-			std::cout << time(NULL) - startpt << "s." << std::endl;
-			std::cout << "After " << j * num_tries << ": " << progress << std::endl;
-			vector<pair<double, int> > so_far;
-			if (time(NULL) - startpt < 5) {
-				continue;
-			}
-			startpt = time(NULL);
-			// Warning: No guarantee that this will contain the best until
-			// the method is finished; and no guarantee that it will contain
-			// the best m even when the method is finished for m>1. (We 
-			// should really have it work for m>1 somehow.)
-			int k;
-			for (k = 0; k < bandits.size(); ++k) {
-				// TODO: Some kind of get C here...
-				so_far.push_back(pair<double, int>(bandits[k].get_mean(), k));
-			}
-			sort(so_far.begin(), so_far.end());
-			reverse(so_far.begin(), so_far.end());
-
-			int how_many = 10;
-			cout << "Interim report (by mean):" << endl;
-			for (k = 0; k < how_many; ++k) {
-				double inv_mean = 1-bandits[so_far[k].second].get_mean();
-
-				pair<double, double> c_i = confidence_interval(
-					bandits[so_far[k].second].get_num_pulls(), 
-					inv_mean, zv);
-				double lower = round(c_i.first * 1000)/1000.0;
-				double middle = round(inv_mean * 1000)/1000.0;
-				double upper = round(c_i.second * 1000)/1000.0;
-
-				cout << k+1 << ". " << bandits[so_far[k].second].name() << "(" <<
-					lower << ", " << middle << ", " << upper << ")" << endl;
-			}
-
-		}
-	}
-	
-	std::pair<int, double> results = lucb.get_best_bandit_so_far(bandits);
-
-	cout << "Best so far is " << results.first << " with CB of " << results.second << std::endl;
-	cout << "Its name is " << bandits[results.first].name() << endl;
-	cout << "It has a mean of " << bandits[results.first].get_mean() << endl;
-
+    cout << "Worked in " << worked << " ("<< lower_bound << ", " << upper_bound << ") out of " << f << " for " <<
+        condorcets[0]->name() << " ties: " << total_generation_attempts-f << " (" << tiefreq << ")" << endl;
 }
 
 int main(int argc, const char ** argv) {
     vector<election_method *> condorcets; // Although they aren't.
     vector<election_method *> condorcetsrc;
 
-    double power_min = 0.25;
-    double power_max = 2.5;
-    double powerstep = 0.5;
-
-    int counter;
+    size_t counter;
 
     vector<pairwise_ident> types;
     types.push_back(CM_WV);
 
-    int got_this_far_last_time = 0;
-    int numprocs = __NUMPROCS__;//4;
-    int thisproc = __THISPROC__; //3;
-    int incounter = 0;
-
-    //condorcetsrc.push_back(new cond_brute(7974));
- //   condorcetsrc.push_back(new fp_copeland(FPC_SV_VAR_29));
- /*   condorcetsrc.push_back(new loser_elimination(
-                             new plurality(PT_WHOLE), false, true));
-    condorcetsrc.push_back(new loser_elimination(
-                             new plurality(PT_WHOLE), true, true));*/
     condorcetsrc.push_back(new plurality(PT_WHOLE));
     condorcetsrc.push_back(new antiplurality(PT_WHOLE));
 
     cout << "Test time!" << endl;
 
-//    condorcet_set xd;
 	smith_set xd;
 
     // TODO: Really fix comma. DONE, kinda.
     for (counter = 0; counter < condorcetsrc.size(); ++counter) {
-//        condorcets.push_back(new comma(condorcetsrc[counter], &xd));
-	condorcets.push_back(new slash(condorcetsrc[counter], &xd));
-	condorcets.push_back(new comma(condorcetsrc[counter], &xd));
+    	condorcets.push_back(new slash(condorcetsrc[counter], &xd));
+    	condorcets.push_back(new comma(condorcetsrc[counter], &xd));
     }
 
     //condorcets.push_back(new ext_minmax(CM_WV, false));
@@ -535,13 +414,12 @@ int main(int argc, const char ** argv) {
     ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
     //ballotgens.push_back(new dirichlet(false));
 
-    for (int bg = 0; bg < ballotgens.size(); ++bg) {
-	cout << "Using ballot domain " << ballotgens[bg]->name() << endl;
-	for (counter = 0; counter < condorcets.size(); counter ++) {
-            	cout << "\t" << counter << ": " << flush;
-		test_strategy(condorcets[counter], randomizers[0], 
-			condorcets.size(), ballotgens[bg]);
+    for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
+        cout << "Using ballot domain " << ballotgens[bg]->name() << endl;
+    	for (counter = 0; counter < condorcets.size(); counter ++) {
+            cout << "\t" << counter << ": " << flush;
+    		test_strategy(condorcets[counter], randomizers[0], 
+    			condorcets.size(), ballotgens[bg]);
         }
     }
-
 }

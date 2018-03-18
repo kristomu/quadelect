@@ -22,7 +22,7 @@
 
 #include "../random/random.h"
 
-main() {
+int main() {
 
 	cardinal_ratings cr(0, 10, true);
 	plurality plur(PT_WHOLE);
@@ -43,7 +43,7 @@ main() {
 	ballot_tools btools;
 
 	string f = "!";
-	int counter, sec;
+	int counter;
 	map<int, string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
@@ -87,6 +87,6 @@ main() {
 		if (mrtest.pass(&plur, orig, numcand/*, cache, *(cache_map *)NULL*/) == TFALSE)
 			cout << "Found Plurality failure with " << numcand << " cands, counter = " << counter << endl;
 	}
-
+	return(0);
 }
 

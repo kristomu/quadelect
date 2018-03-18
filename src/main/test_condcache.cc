@@ -28,7 +28,7 @@
 
 #include "../random/random.h"
 
-main() {
+int main() {
 
 	ext_minmax eminmax(CM_WV, false);
 
@@ -58,7 +58,7 @@ main() {
 	types.push_back(CM_FRACTIONAL_WV);
 	types.push_back(CM_RELATIVE_MARGINS);
 
-	int counter;
+	size_t counter;
 
 	vector<election_method *> condorcets;
 
@@ -87,7 +87,7 @@ main() {
 		ballots = ic.generate_ballots(100, 4, randomizer);
 		cache.clear();
 
-		for (int sec = 0; sec < condorcets.size(); ++sec) {
+		for (size_t sec = 0; sec < condorcets.size(); ++sec) {
 			//cout << condorcets[sec]->name() << endl;
 			out = condorcets[sec]->elect(ballots, 4, &cache, false);
 		}
@@ -96,4 +96,6 @@ main() {
 	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p)
 		cout << (char)('A' + p->get_candidate_num()) << "\t";
 	cout << endl;
+
+	return(0);
 }

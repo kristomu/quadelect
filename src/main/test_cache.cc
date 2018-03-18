@@ -23,7 +23,7 @@
 // though.
 #include "../singlewinner/pairwise/simple_methods.h"
 
-main() {
+int main() {
 
 	cardinal_ratings cr(0, 10, true);
 	plurality plur(PT_WHOLE);
@@ -44,7 +44,7 @@ main() {
 	ballot_tools btools;
 
 	string f = "!";
-	int counter, sec;
+	size_t counter;
 	map<int, string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
@@ -69,4 +69,6 @@ main() {
 	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p)
 		cout << (char)('A' + p->get_candidate_num()) << "\t";
 	cout << endl;
+
+	return(0);
 }

@@ -83,8 +83,6 @@ int main() {
 	vector<vector<double> > test_vectors_ordinal = 
 		create_test_vectors(numtests_ordinal);
 
-	unsigned long long huh = 12111803; // why isn't this one recorded?
-
 	custom_function cf(8469866259);
     cond_brute_rpn cbp(8469866259);
 
@@ -99,8 +97,8 @@ int main() {
         BINARY_FUNC_PLUS, BINARY_FUNC_MINUS, BINARY_FUNC_MAX,
         BINARY_FUNC_MIN};
 
-    bool use_only_permitted_tokens = true;
-    bool require_monotone = true;
+    bool use_only_permitted_tokens = false;
+    bool require_monotone = false;
 
 	for (unsigned long long i = start_at; i >= 0; ++i) {
 		if ((i & 8388607) == 0)

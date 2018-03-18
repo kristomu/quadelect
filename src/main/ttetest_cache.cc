@@ -9,7 +9,6 @@
 
 #include "../ballot_tools.h"
 #include "../ballots.h"
-#include "../tools.cc"
 #include "../cache.h"
 
 #include "../generator/impartial.h"
@@ -37,7 +36,7 @@
 // comparison, the "disregard if we already have a disproof" thing should be
 // set to false, so that doesn't factor into runtimes.
 
-main() {
+int main() {
 
 	cardinal_ratings cr(0, 10, true);
 	plurality plur(PT_WHOLE);
@@ -61,7 +60,7 @@ main() {
 	ballot_tools btools;
 
 	string f = "!";
-	int counter, sec;
+	size_t counter;
 	map<int, string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
@@ -127,8 +126,8 @@ main() {
 	sets.push_back (new schwartz_set);
 
 	tte.set_generator(&ic);
-	for (int sec = 0; sec < methods.size(); ++sec) {
-		for (int counter = sets.size(); counter >= 0; --counter) {
+	for (size_t sec = 0; sec < methods.size(); ++sec) {
+		for (counter = 0; counter < sets.size(); ++counter) {
 
 			if (counter == sets.size())
 				tte.add_method(methods[sec]);
@@ -141,12 +140,13 @@ main() {
 	// This means that it should leave other ratings alone, only changing
 	// those that are indeed raised/swapped around.
 
-	for (int counter = 0; counter < 60000; ++counter) {
+	for (counter = 0; counter < 60000; ++counter) {
 		//tte.run_tests(2); // <-- internal?
 		// TODO, test that this returns false for IRV/mono-raise only
 		// after the violation has been found.
 		assert (tte.run_tests(20, randomizer));
 	}
 
+	return(0);
 }
 

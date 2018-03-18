@@ -15,7 +15,7 @@
 #include "../generator/ballotgen.h"
 #include "../generator/impartial.h"
 #include "../generator/dirichlet.h"
-#include "../generator/spatial.h"
+#include "../generator/spatial/all.h"
 
 #include "../singlewinner/gradual_c_b.h"
 
@@ -125,7 +125,7 @@ void winner_check(const vector<ordering> & orderings,
 
 	vector<set<int> > winners;
 	vector<int> symdif, unions;
-	int counter, sec;
+	size_t counter, sec;
 
 	for (counter = 0; counter < orderings.size(); ++counter)
 		winners.push_back(get_winners(orderings[counter]));
@@ -152,7 +152,7 @@ void winner_check(const vector<ordering> & orderings,
 		}
 }
 
-main() {
+int main() {
 
 	// Generate a random ballot set.
 	// First should be true: compress the ballots. Second, that's
@@ -161,7 +161,7 @@ main() {
 	// Also fix memory-hogging loop of doom in positional if this is set on.
 	//impartial ic(/*true, true*/true, true);
 	//spatial_generator ic(true, true);
-	spatial_generator spatial(true, false);
+	uniform_generator spatial(true, false);
 	impartial ic(true, false);
 	rng randomizer(1);
 
@@ -190,7 +190,7 @@ main() {
 	types.push_back(CM_RELATIVE_MARGINS);
 	//types.push_back(CM_KEENER_MARGINS);
 
-	int counter;
+	size_t counter;
 
 	vector<election_method *> condorcets;
 	vector<stats<float> > method_stats;
@@ -349,7 +349,8 @@ main() {
 	cgtt_set xi;
 
 	// TODO: Really fix comma. DONE, kinda.
-	for (counter = condorcets.size()-1; counter >= 0; --counter) {
+	size_t num_nonmeta_methods = condorcets.size();
+	for (counter = 0; counter < num_nonmeta_methods; ++counter) {
 		//condorcets.push_back(new comma(condorcets[counter], &xa));
 		condorcets.push_back(new comma(condorcets[counter], &xb));
 		/*condorcets.push_back(new comma(condorcets[counter], &xc));
@@ -425,7 +426,7 @@ main() {
 		cache.clear();
 
 		// Get the utility scores, maximum and minimum.
-		out = utility.elect(ballots, numcands, cache, false);
+		out = utility.elect(ballots, numcands, &cache, false);
 		double maxval = out.begin()->get_score(), minval =
 			out.rbegin()->get_score();
 
@@ -437,13 +438,13 @@ main() {
 			utilities[opos->get_candidate_num()] =
 				opos->get_score();
 
-		int sec, tri;
+		size_t sec;
 
 		for (sec = 0; sec < condorcets.size(); ++sec) {
 			/*cout << "Now testing " << condorcets[sec]->name() 
 				<< endl;*/
 			outputs[sec] = condorcets[sec]->elect(ballots, 
-					numcands, cache, false);
+					numcands, &cache, false);
 			out = outputs[sec];
 
 			// Add the utility. Since we're talking about
@@ -469,15 +470,13 @@ main() {
 		winner_check(outputs, distances, numcands);
 	}
 
-	int sec;
+	size_t sec;
 	for (counter = 0; counter < distances.size(); ++counter)
 		for (sec = 0; sec < distances.size(); ++sec)
 			distances[counter][sec] /= maxiters;
 
 	synth_coordinates test;
 	vector<coord> coords = test.generate_random_coords(distances.size(), 2);
-	double err = test.recover_coords(coords, 2, 0.0125, 1.0, 
-			0.015, 300, distances, true);
 
 	coord minimum = coords[0], maximum = coords[0];
 	for (counter = 0; counter < coords.size(); ++counter)
@@ -510,4 +509,6 @@ main() {
 		cout << method_stats[counter].get_mean();
 		cout << "\t" << condorcets[counter]->name() << endl;
 	}
+
+	return(0);
 }
