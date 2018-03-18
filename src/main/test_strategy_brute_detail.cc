@@ -20,6 +20,7 @@
 
 #include "../singlewinner/stats/cardinal.h"
 #include "../singlewinner/elimination.h"
+#include "../singlewinner/brute_force/all.h"
 #include "../singlewinner/positional/positional.h"
 #include "../singlewinner/positional/simple_methods.h"
 
@@ -43,7 +44,7 @@
 #include "../singlewinner/pairwise/random/randpair.h"
 #include "../singlewinner/pairwise/dodgson_approxs.h"
 
-#include "../singlewinner/experimental/3exp.h"
+#include "../singlewinner/experimental/all.h"
 #include "../singlewinner/brute_force/brute.h"
 #include "../singlewinner/brute_force/bruterpn.h"
 
@@ -59,9 +60,6 @@
 #include "../singlewinner/stats/mode.h"
 
 #include "../singlewinner/young.h"
-
-#include "../bandit/bandit.h"
-#include "../bandit/lucb.h"
 
 #include "strat_test.h"
 
@@ -277,7 +275,8 @@ bool test_once(list<ballot_group> & ballots,
 }
 
 void test_strategy(election_method * to_test, rng & randomizer,
-                   int num_methods, pure_ballot_generator * ballot_gen) {
+                   int num_methods, pure_ballot_generator * ballot_gen,
+                   int numvoters, int numcands) {
 
     // Generate a random ballot set.
     // First should be true: compress the ballots. Second, that's
@@ -287,7 +286,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
     //impartial ballot_gen(/*true, true*/true, true);
     //spatial_generator ballot_gen(true, false, 4, false);
 
-    int dimensions = 4;
+    //int dimensions = 4;
 
     //gaussian_generator ballot_gen(true, false, dimensions, false);
     //spatial_generator spatial(true, false);
@@ -311,10 +310,6 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
     cache_map cache;
 
-    // TODO: check if that actually works.
-    int numvoters = 37; // was 29
-    int initial_numcands = 3/*4*/, numcands = initial_numcands;
-
     map<int, string> rcl;
     for (counter = 0; counter < 26; ++counter) {
         string foo = "A";
@@ -333,24 +328,25 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	StrategyTest st(ballotgens, &iic, numvoters, numcands, randomizer, 
 		condorcets, 0);
 
-    int worked = 0, f;
-    int fmax = 50000; //100000;
+    int worked = 0, f = 1;
+    int fmax = 5000; //100000;
     int total_generation_attempts = 0;
-    for (f = 0; f < fmax; ++f) {
 
-		if ((f & 63) == 63)
-    		cerr << "." << flush;
-    	if ((f & 4095) == 4095)
-        	cerr << f/(double)fmax << flush;
+    for (f = 0; f < fmax; ++f) {
+        if (st.perform_test() == 0) {
+            ++worked;
+        }
+
+		if ((f & 63) == 63) {
+            cerr << "." << flush;
+            if ((f & 4095) == 4095)
+                cerr << f/(double)fmax << flush;
+        }
         
     	/*if (test_once(ballots, ballot_gen, numvoters, numcands, 
     		randomizer, total_generation_attempts, condorcets)) {
     		++worked;
     	}*/
-
-    	if (st.perform_test() == 0) {
-    		++worked;
-    	}
     }
 
     total_generation_attempts = st.get_total_generation_attempts();
@@ -376,133 +372,34 @@ void test_strategy(election_method * to_test, rng & randomizer,
     {
         cout << "Worked in " << worked << " ("<< lower_bound << ", " << upper_bound << ") out of " << f << " for " <<
              condorcets[0]->name() << " ties: " << total_generation_attempts-f << " (" << tiefreq << ")" << endl;
+        cout << "strat;" << ballot_gen->name() << ";" << condorcets[0]->name() 
+            << ";" << lower_bound << ";" << upper_bound << ";" << tiefreq
+            << endl;
     }
-}
-
-void test_with_bandits(vector<election_method *> & to_test, 
-	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
-	pure_ballot_generator * strat_generator) {
-
-	impartial iic(true, false);
-
-	vector<Bandit> bandits;
-	vector<StrategyTest> sts;
-
-	vector<election_method *> condorcets;
-	condorcets.push_back(to_test[0]);
-
-	/*StrategyTest st(iic,  numvoters, numcands, randomizer, condorcets,
-		0);*/
-
-	int numvoters = 37; // was 29
-    int initial_numcands = 3/*4*/, numcands = initial_numcands;
-
-    int i;
-
-	for (i = 0; i < to_test.size(); ++i) {
-		condorcets[0] = to_test[i];
-		sts.push_back(StrategyTest(ballotgens, strat_generator,
-			numvoters, numcands, randomizer, condorcets, 0));
-	}
-
-	for (i = 0; i < to_test.size(); ++i) {
-		bandits.push_back(Bandit(&sts[i]));
-	}
-
-	LUCB lucb;
-
-	bool confident = false;
-
-	double num_methods = sts.size();
-    double report_significance = 0.05;
-    double zv = ppnd7(1-report_significance/num_methods);
-
-    time_t startpt = time(NULL);
-
-	for (int j = 1; j < 1000000 && !confident; ++j) {
-		// Bleh, why is min a macro?
-		int num_tries = max(100, (int)sts.size());
-		// Don't run more than 20k at a time because otherwise
-		// feedback is too slow.
-		num_tries = min(20000, num_tries);
-		double progress = lucb.find_best_bandit(bandits, num_tries, true);
-		if (progress == 1) {
-			std::cout << "Managed in fewer than " << j * num_tries << 
-				" tries." << std::endl;
-			confident = true;
-		} else {
-			if (time(NULL) - startpt < 2) {
-				continue;
-			}
-			std::cout << time(NULL) - startpt << "s." << std::endl;
-			std::cout << "After " << j * num_tries << ": " << progress << std::endl;
-			vector<pair<double, int> > so_far;
-			if (time(NULL) - startpt < 5) {
-				continue;
-			}
-			startpt = time(NULL);
-			// Warning: No guarantee that this will contain the best until
-			// the method is finished; and no guarantee that it will contain
-			// the best m even when the method is finished for m>1. (We 
-			// should really have it work for m>1 somehow.)
-			int k;
-			for (k = 0; k < bandits.size(); ++k) {
-				// TODO: Some kind of get C here...
-				so_far.push_back(pair<double, int>(bandits[k].get_mean(), k));
-			}
-			sort(so_far.begin(), so_far.end());
-			reverse(so_far.begin(), so_far.end());
-
-			int how_many = 10;
-			cout << "Interim report (by mean):" << endl;
-			for (k = 0; k < how_many; ++k) {
-				double inv_mean = 1-bandits[so_far[k].second].get_mean();
-
-				pair<double, double> c_i = confidence_interval(
-					bandits[so_far[k].second].get_num_pulls(), 
-					inv_mean, zv);
-				double lower = round(c_i.first * 1000)/1000.0;
-				double middle = round(inv_mean * 1000)/1000.0;
-				double upper = round(c_i.second * 1000)/1000.0;
-
-				cout << k+1 << ". " << bandits[so_far[k].second].name() << "(" <<
-					lower << ", " << middle << ", " << upper << ")" << endl;
-			}
-
-		}
-	}
-	
-	std::pair<int, double> results = lucb.get_best_bandit_so_far(bandits);
-
-	cout << "Best so far is " << results.first << " with CB of " << results.second << std::endl;
-	cout << "Its name is " << bandits[results.first].name() << endl;
-	cout << "It has a mean of " << bandits[results.first].get_mean() << endl;
-
 }
 
 int main(int argc, const char ** argv) {
     vector<election_method *> condorcets; // Although they aren't.
     vector<election_method *> condorcetsrc;
 
-    double power_min = 0.25;
-    double power_max = 2.5;
-    double powerstep = 0.5;
-
-    int counter;
+    size_t counter;
 
     vector<pairwise_ident> types;
     types.push_back(CM_WV);
 
-    string name = argv[1];
-    ifstream tests_in(argv[1]);
+    if (argc < 3) {
+        cerr << "Usage: " << argv[0] << " [num voters]" 
+            << " [num candidates]" << endl;
+        return(-1);
+    }
+
+    int numvoters = atoi(argv[1]), numcands = atoi(argv[2]);
+
+    //string name = argv[1];
+    //ifstream tests_in(argv[1]);
     vector<unsigned long long> tests;
 
-    int got_this_far_last_time = 0;
-    int numprocs = __NUMPROCS__;//4;
-    int thisproc = __THISPROC__; //3;
-    int incounter = 0;
-
-    while (!tests_in.eof()) {
+    /*while (!tests_in.eof()) {
         unsigned long long tin;
         tests_in >> tin;
         if (incounter >= got_this_far_last_time &&
@@ -510,11 +407,27 @@ int main(int argc, const char ** argv) {
             condorcetsrc.push_back(new cond_brute(tin));
         }
         ++incounter;
-    }
+    }*/
 
+    // This is why you shouldn't rely entirely on IC. Antiplurality does
+    // extremely well on IC alone, for some reason. (Maybe something to
+    // keep in mind for bandits...)
+    // condorcets.push_back(new comma(new antiplurality(PT_WHOLE), new smith_set()));
+    // Sinkhorn and Keener all have around 0.85 IC susceptibility.
+    // MMPO fails to impress. 0.78 IC susceptibility
+    //condorcets.push_back(new ext_minmax(CM_PAIRWISE_OPP, false));
+    // Smith,FPP also fails to impress. 0.78 IC susceptibility
+    //condorcets.push_back(new comma(new plurality(PT_WHOLE), new smith_set()));
+    // And alas. With 4 cddts, Smith-IRV does much better than fpA-fpC.
+    condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
+    condorcetsrc.push_back(new loser_elimination(new antiplurality(PT_WHOLE), false, true));
+    condorcetsrc.push_back(new antiplurality(PT_WHOLE));
+    condorcetsrc.push_back(new fpa_experiment());
+    condorcetsrc.push_back(new minmaxy_experimental());
+    condorcetsrc.push_back(new schulze(CM_WV));
 
-    cout << "Test time!" << endl;
-    cout << "Thy name is " << name << endl;
+    //cout << "Test time!" << endl;
+    //cout << "Thy name is " << name << endl;
 
     condorcet_set xd;
 
@@ -530,17 +443,17 @@ int main(int argc, const char ** argv) {
 
     vector<pure_ballot_generator *> ballotgens;
     int dimensions = 4;
-    ballotgens.push_back(new impartial(true, false));
     // Something is wrong with this one. Check later.
     //ballotgens.push_back(new dirichlet(false));
     ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
+    ballotgens.push_back(new impartial(true, false));
 
-    for (int bg = 0; bg < ballotgens.size(); ++bg) {
+    for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
 	cout << "Using ballot domain " << ballotgens[bg]->name() << endl;
 	for (counter = 0; counter < condorcets.size(); counter ++) {
             	cout << "\t" << counter << ": " << flush;
 		test_strategy(condorcets[counter], randomizers[0], 
-			condorcets.size(), ballotgens[bg]);
+			condorcets.size(), ballotgens[bg], numvoters, numcands);
         }
     }
 

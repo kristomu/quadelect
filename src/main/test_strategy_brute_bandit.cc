@@ -276,108 +276,6 @@ bool test_once(list<ballot_group> & ballots,
     return(false);
 }
 
-void test_strategy(election_method * to_test, rng & randomizer,
-                   int num_methods, pure_ballot_generator * ballot_gen) {
-
-    // Generate a random ballot set.
-    // First should be true: compress the ballots. Second, that's
-    // whether truncation is permitted.
-    // TODO later: fix last-rank problem with gradual-cond-borda.
-    // Also fix memory-hogging loop of doom in positional if this is set on.
-    //impartial ballot_gen(/*true, true*/true, true);
-    //spatial_generator ballot_gen(true, false, 4, false);
-
-    int dimensions = 4;
-
-    //gaussian_generator ballot_gen(true, false, dimensions, false);
-    //spatial_generator spatial(true, false);
-    impartial true_iic(true, false);
-    impartial iic(true, false);
-    //impartial ballot_gen(true, false);
-
-    list<ballot_group> ballots;
-
-    // A bunch of times, generate ballots and clear the cache. Then try
-    // these ballots against numerous Condorcet methods. If we have
-    // cached the Condorcet data, that should be faster than if we haven't,
-    // but one probably needs Valgrind to see the difference.
-
-    int counter;
-
-    vector<election_method *> condorcets;
-
-    condorcets.push_back(to_test);
-    cerr << "Now trying " << to_test->name() << endl;
-
-    cache_map cache;
-
-    // TODO: check if that actually works.
-    int numvoters = 37; // was 29
-    int initial_numcands = 3/*4*/, numcands = initial_numcands;
-
-    map<int, string> rcl;
-    for (counter = 0; counter < 26; ++counter) {
-        string foo = "A";
-        foo[0] = 'A' + counter;
-        rcl[counter] = foo;
-    }
-
-    // --- //
-
-    vector<pure_ballot_generator *> ballotgens;
-    ballotgens.push_back(ballot_gen);
-    //ballotgens.push_back(&iic);
-    ///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
-   /* ballotgens.push_back(new dirichlet(true));*/
-
-	StrategyTest st(ballotgens, &iic, numvoters, numcands, randomizer, 
-		condorcets, 0);
-
-    int worked = 0, f;
-    int fmax = 50000; //100000;
-    int total_generation_attempts = 0;
-    for (f = 0; f < fmax; ++f) {
-
-		if ((f & 63) == 63)
-    		cerr << "." << flush;
-    	if ((f & 4095) == 4095)
-        	cerr << f/(double)fmax << flush;
-        
-    	/*if (test_once(ballots, ballot_gen, numvoters, numcands, 
-    		randomizer, total_generation_attempts, condorcets)) {
-    		++worked;
-    	}*/
-
-    	if (st.perform_test() == 0) {
-    		++worked;
-    	}
-    }
-
-    total_generation_attempts = st.get_total_generation_attempts();
-
-    // Do a simple proportions test
-    double prop = worked/(double)f;
-
-    double significance = 0.05;
-    double zv = ppnd7(1-significance/num_methods);
-
-    pair<double, double> c_i = confidence_interval(f, prop, zv);
-
-    double lower_bound = c_i.first;
-    double upper_bound = c_i.second;
-
-    lower_bound = round(lower_bound*10000)/10000.0;
-    upper_bound = round(upper_bound*10000)/10000.0;
-
-    double tiefreq = (total_generation_attempts-f)/(double)f;
-    tiefreq = round(tiefreq*10000)/1000.0;
-
-    //#pragma omp critical
-    {
-        cout << "Worked in " << worked << " ("<< lower_bound << ", " << upper_bound << ") out of " << f << " for " <<
-             condorcets[0]->name() << " ties: " << total_generation_attempts-f << " (" << tiefreq << ")" << endl;
-    }
-}
 
 void test_with_bandits(vector<election_method *> & to_test, 
 	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
@@ -394,10 +292,10 @@ void test_with_bandits(vector<election_method *> & to_test,
 	/*StrategyTest st(iic,  numvoters, numcands, randomizer, condorcets,
 		0);*/
 
-	int numvoters = 37; // was 29
+	int numvoters = 5000; // was 37
     int initial_numcands = 3/*4*/, numcands = initial_numcands;
 
-    int i;
+    size_t i;
 
 	for (i = 0; i < to_test.size(); ++i) {
 		condorcets[0] = to_test[i];
@@ -445,7 +343,7 @@ void test_with_bandits(vector<election_method *> & to_test,
 			// the method is finished; and no guarantee that it will contain
 			// the best m even when the method is finished for m>1. (We 
 			// should really have it work for m>1 somehow.)
-			int k;
+			size_t k;
 			for (k = 0; k < bandits.size(); ++k) {
 				// TODO: Some kind of get C here...
 				so_far.push_back(pair<double, int>(bandits[k].get_mean(), k));
@@ -453,7 +351,7 @@ void test_with_bandits(vector<election_method *> & to_test,
 			sort(so_far.begin(), so_far.end());
 			reverse(so_far.begin(), so_far.end());
 
-			int how_many = 10;
+			size_t how_many = 10;
 			cout << "Interim report (by mean):" << endl;
 			for (k = 0; k < how_many; ++k) {
 				double inv_mean = 1-bandits[so_far[k].second].get_mean();
@@ -484,30 +382,36 @@ int main(int argc, const char ** argv) {
     vector<election_method *> condorcets; // Although they aren't.
     vector<election_method *> condorcetsrc;
 
-    double power_min = 0.25;
-    double power_max = 2.5;
-    double powerstep = 0.5;
-
     int counter;
 
-    vector<pairwise_ident> types;
-    types.push_back(CM_WV);
-    types.push_back(CM_PAIRWISE_OPP);
+    //int got_this_far_last_time = 0;
 
-    int got_this_far_last_time = 0;
-    int numprocs = __NUMPROCS__;//4;
-    int thisproc = __THISPROC__; //3;
-    int incounter = 0;
-
-    int radix=5;
+/*    int radix=5;
 
     for (int j = 0; j < pow(radix, 6); ++j) {
     	cond_brute cbp(j, radix);
 
-	if (cbp.is_monotone() && cbp.passes_mat() /*&& cbp.reversal_symmetric()*/) {
-		condorcetsrc.push_back(new cond_brute(j, radix));
-		cout << "Adding " << j << endl;
-	}
+        if (cbp.is_monotone() && cbp.passes_mat() /v*&& cbp.reversal_symmetric()*v/) {
+            condorcetsrc.push_back(new cond_brute(j, radix));
+            cout << "Adding " << j << endl;
+	   }
+    }
+*/
+
+    if (argc < 2) {
+        cerr << "Usage: " << argv[0] << " [brute_rpn_number_list.txt]"
+            << endl;
+        return(-1);
+    }
+
+    string name = argv[1];
+    ifstream tests_in(argv[1]);
+    vector<unsigned long long> tests;
+
+    while (!tests_in.eof()) {
+        unsigned long long tin;
+        tests_in >> tin;
+        condorcetsrc.push_back(new cond_brute_rpn(tin));
     }
 
     condorcet_set xd;
