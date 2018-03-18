@@ -13,6 +13,7 @@
 #include "method.h"
 #include "simple_methods.h"
 #include "tournament.h"
+#include "minmaxy_exper.h"
 
 #include "odm/all.h"
 #include "random/all.h"

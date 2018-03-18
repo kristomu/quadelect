@@ -228,13 +228,15 @@ list<election_method *> get_singlewinner_methods(bool truncate) {
 	toRet.push_back(new vi_median_ratings(10, true, false));
 	toRet.push_back(new vi_median_ratings(10, true, true));
 
+	// Experimental methods.
+	toRet.push_back(new fpa_experiment());
+	toRet.push_back(new minmaxy_experimental());
+
 	// The following methods only support three candidates or less,
 	// Thus I've commmented them out for the time being.
 	// BLUESKY: Make the selected routine somehow aware of how many 
 	// candidates there are, so that it just excludes use these when
 	// working with the wrong number of candidates.
-	//toRet.push_back(new cond_brute(97603, 9)); // strategy-resistant method
-	//toRet.push_back(new cond_brute_rpn(56182650307)); // example monotone
 	//toRet.push_back(new three_experimental(TEXP_BPW)); // Stensholt method
 
 	// Then expand:
