@@ -48,10 +48,12 @@ enum custom_funct_atom {
 	VAL_IN_FPB = 7,		// BAC+BCA
 	VAL_IN_FPC = 8,		// CAB+CBA
 	VAL_IN_AbB = 9,		// ABC + ACB + CAB 0 1 4
+	VAL_IN_AbC = 36,	// ABC + ACB + BAC 0 1 2
+	VAL_IN_BbA = 37,	// BAC + BCA + CBA 2 3 5
 	VAL_IN_BbC = 10,	// BCA + BAC + ABC 2 3 0 
 	VAL_IN_CbA = 11,	// CAB + CBA + BCA 3 4 5
+	VAL_IN_CbB = 13,	// CAB + CBA + ACB 3 4 1
 	VAL_IN_ALL = 12,	// num voters
-	VAL_IN_DQ = 13,		// Droop quota (nv/4)
 	VAL_ZERO = 14,
 	VAL_ONE = 15,
 	VAL_TWO = 16,
@@ -62,6 +64,8 @@ enum custom_funct_atom {
 	UNARY_FUNC_LOG = 21,
 	UNARY_FUNC_EXP = 22,
 	UNARY_FUNC_NEG = 23,
+	UNARY_FUNC_BLANCMANGE = 38,
+	UNARY_FUNC_MINKOWSKIQ = 39,
 	BINARY_FUNC_PLUS = 24,
 	BINARY_FUNC_MINUS = 25,
 	BINARY_FUNC_MUL = 26,
@@ -76,7 +80,7 @@ enum custom_funct_atom {
 	BINARY_FUNC_AND = 33,
 	BINARY_FUNC_OR = 34,
 	TERNARY_FUNC_IF = 35, // if a then push b otherwise push c
-	TOTAL_NUM_ATOMS = 36
+	TOTAL_NUM_ATOMS = 40
 // For future: while/wend unary functions: if the last token in the wend is
 // true, start from where the while started. Kinda tricky, though, so later.
 // (Would of course have a max iter number counter)
@@ -87,6 +91,8 @@ class custom_function {
 		vector<custom_funct_atom> our_function;
 		mutable vector<double> funct_stack;
 		mutable vector<double> test_results;
+
+		const double blancmange_order = 0.67;
 
 		// All negative values are false and non-negative values are true.
 		// This lets neg work as not in a sense (except for a singular point).

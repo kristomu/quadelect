@@ -1,4 +1,5 @@
 #include "custom_func.h"
+#include "chaotic_functions.h"
 
 #include <limits>
 #include <iterator>
@@ -42,10 +43,12 @@ string custom_function::atom_to_word(const custom_funct_atom in) const {
 		case VAL_IN_FPB: return("fpB");
 		case VAL_IN_FPC: return("fpC");
 		case VAL_IN_AbB: return("A>B");
+		case VAL_IN_AbC: return("A>C");
+		case VAL_IN_BbA: return("B>A");
 		case VAL_IN_BbC: return("B>C");
 		case VAL_IN_CbA: return("C>A");
+		case VAL_IN_CbB: return("C>B");
 		case VAL_IN_ALL: return("ALL");
-		case VAL_IN_DQ: return("DQ");
 		case VAL_ZERO: return("0");
 		case VAL_ONE: return("1");
 		case VAL_TWO: return("2");
@@ -56,6 +59,8 @@ string custom_function::atom_to_word(const custom_funct_atom in) const {
 		case UNARY_FUNC_LOG: return("LOG");
 		case UNARY_FUNC_EXP: return("EXP");
 		case UNARY_FUNC_NEG: return("NEG");
+		case UNARY_FUNC_BLANCMANGE: return("BLANCMANGE");
+		case UNARY_FUNC_MINKOWSKIQ: return("MINK?");
 		case BINARY_FUNC_PLUS: return("+");
 		case BINARY_FUNC_MINUS: return("-");
 		case BINARY_FUNC_MUL: return("*");
@@ -91,10 +96,12 @@ double custom_function::evaluate(vector<double> & stack,
 		case VAL_IN_FPB: return(input_values[2] + input_values[3]);
 		case VAL_IN_FPC: return(input_values[4] + input_values[5]);
 		case VAL_IN_AbB: return(input_values[0]+input_values[1]+input_values[4]);
+		case VAL_IN_AbC: return(input_values[0]+input_values[1]+input_values[2]);
+		case VAL_IN_BbA: return(input_values[2]+input_values[3]+input_values[5]);
 		case VAL_IN_BbC: return(input_values[2]+input_values[3]+input_values[0]);
 		case VAL_IN_CbA: return(input_values[3]+input_values[4]+input_values[5]);
+		case VAL_IN_CbB: return(input_values[3]+input_values[4]+input_values[1]);
 		case VAL_IN_ALL: return(input_values[0]+input_values[1]+input_values[2]+input_values[3]+input_values[4]+input_values[5]);
-		case VAL_IN_DQ: return((input_values[0]+input_values[1]+input_values[2]+input_values[3]+input_values[4]+input_values[5])/4.0);
 		case VAL_ZERO: return(0);
 		case VAL_ONE: return(1);
 		case VAL_TWO: return(2);
@@ -107,20 +114,23 @@ double custom_function::evaluate(vector<double> & stack,
 		//throw runtime_error("stack error");
 	}
 
-	double first_arg = *(stack.rbegin());
+	double right_arg = *(stack.rbegin());
 	stack.pop_back();
 
 	switch(cur_atom) {
-		case UNARY_FUNC_INFRMAP: return (1/(1 + exp(-first_arg)));
-		case UNARY_FUNC_INFRMAPINV: return(log(-first_arg/(first_arg-1)));
-		case UNARY_FUNC_SQUARE: return(first_arg*first_arg);
-		case UNARY_FUNC_SQRT: return(sqrt(first_arg));
+		case UNARY_FUNC_INFRMAP: return (1/(1 + exp(-right_arg)));
+		case UNARY_FUNC_INFRMAPINV: return(log(-right_arg/(right_arg-1)));
+		case UNARY_FUNC_SQUARE: return(right_arg*right_arg);
+		case UNARY_FUNC_SQRT: return(sqrt(right_arg));
 		case UNARY_FUNC_LOG: 
-			if (first_arg == 0)
+			if (right_arg == 0)
 				return (-1e9);		// intend limit towards 0 so that 0 log 0 = 0, e.g
-			return(log(first_arg));
-		case UNARY_FUNC_EXP: return(exp(first_arg));
-		case UNARY_FUNC_NEG: return(-first_arg);
+			return(log(right_arg));
+		case UNARY_FUNC_EXP: return(exp(right_arg));
+		case UNARY_FUNC_NEG: return(-right_arg);
+		case UNARY_FUNC_BLANCMANGE: return(blancmange(blancmange_order,
+			right_arg));
+		case UNARY_FUNC_MINKOWSKIQ: return(minkowski_q(right_arg));
 		default: break;
 	}
 
@@ -130,28 +140,34 @@ double custom_function::evaluate(vector<double> & stack,
 		//throw runtime_error("stack error");
 	}
 
-	double sec_arg = *(stack.rbegin());
+	double middle_arg = *(stack.rbegin());
 	stack.pop_back();
 
+	// NOTE: The stack has most recently pushed arguments to the right.
+	// This means that if we want, say "fpA fpC -" to resolve to 
+	// "fpA - fpC", as is intuitive, and as dc does it, we need to do
+	// middle_arg - right_arg, not the other way around.
+
 	switch(cur_atom) {
-		case BINARY_FUNC_PLUS: return(first_arg + sec_arg);
-		case BINARY_FUNC_MINUS: return(first_arg - sec_arg);
-		case BINARY_FUNC_MUL: return(first_arg * sec_arg);
+		case BINARY_FUNC_PLUS: return(middle_arg + right_arg);
+		case BINARY_FUNC_MINUS: return(middle_arg - right_arg);
+		case BINARY_FUNC_MUL: return(middle_arg * right_arg);
 		case BINARY_FUNC_DIVIDE:
-			if (!finite(first_arg) || !finite(sec_arg)) {
+			if (!finite(middle_arg) || !finite(middle_arg)) {
 				return(numeric_limits<double>::quiet_NaN());
 			} 
-			if (sec_arg == 0) {
-				return (first_arg/(sec_arg+1e-9));
+			if (right_arg == 0) {
+				return (middle_arg/(right_arg+1e-9));
 			}
-			return(first_arg/sec_arg);
-		case BINARY_FUNC_MAX: return(max(first_arg, sec_arg));
-		case BINARY_FUNC_MIN: return(min(first_arg, sec_arg));
+			return(middle_arg/right_arg);
+		case BINARY_FUNC_MAX: return(max(middle_arg, right_arg));
+		case BINARY_FUNC_MIN: return(min(middle_arg, right_arg));
 
-		case BINARY_FUNC_LT: return(make_bool(first_arg < sec_arg));
-		case BINARY_FUNC_LEQ: return(make_bool(first_arg <= sec_arg));
-		case BINARY_FUNC_AND: return(is_true(first_arg) & is_true(sec_arg));
-		case BINARY_FUNC_OR: return(is_true(first_arg) | is_true(sec_arg));
+		case BINARY_FUNC_LT: return(make_bool(middle_arg < right_arg));
+		case BINARY_FUNC_LEQ: return(make_bool(middle_arg <= right_arg));
+		case BINARY_FUNC_EQ: return(make_bool(middle_arg == right_arg));
+		case BINARY_FUNC_AND: return(is_true(middle_arg) & is_true(right_arg));
+		case BINARY_FUNC_OR: return(is_true(middle_arg) | is_true(right_arg));
 		default: break;
 	}
 
@@ -159,15 +175,15 @@ double custom_function::evaluate(vector<double> & stack,
 		return(numeric_limits<double>::quiet_NaN());
 	}
 
-	double third_arg = *(stack.rbegin());
+	double left_arg = *(stack.rbegin());
 	stack.pop_back();
 
 	switch(cur_atom) {
 		case TERNARY_FUNC_IF: 
-			if (is_true(first_arg)) {
-				return(sec_arg);
+			if (is_true(left_arg)) {
+				return(middle_arg);
 			} else {
-				return(third_arg);
+				return(right_arg);
 			}
 			break;
 		default: break;
@@ -264,7 +280,7 @@ bool custom_function::update_suitability(const custom_function & funct_to_test,
 	if (something_differs) {
 		if (results_already_seen.find(test_results) != results_already_seen.end()) {
 			// Ew.
-			//cout << our_value << ": cardinally shadowed by " << results_already_seen.find(test_results)->second << endl;
+			// cout << our_value << ": cardinally shadowed by " << results_already_seen.find(test_results)->second << endl;
 			return(false);
 		}
 		results_already_seen[test_results] = funct_to_test.get_value();
@@ -291,7 +307,14 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 	results_cardinal.resize(num_vectors);
 	results_ordinal.reserve(num_vectors*num_vectors);
 
-	double eps = 1152921504606846976; // e.g.
+	// The point of using an epsilon is to disqualify functions that rely
+	// on double precision roundoff errors to work. However, we want to
+	// be more principled and only disqualify functions that don't meet our
+	// criteria (even if the functions that do meet our criteria may use
+	// weird ways of satisfying them), so this should be removed at some
+	// point and be replaced by checking for things like the resolvability
+	// criterion.
+	double eps = 281474976710656; // e.g.
 
 	int i, j;
 
