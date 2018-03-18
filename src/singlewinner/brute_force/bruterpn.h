@@ -28,6 +28,8 @@ class cond_brute_rpn : public election_method {
 		// criterion checkers. Need to implement criterion checkers first.
 		bool check_monotonicity_single_instance(int num_attempts,
     		const vector<double> & vote_array) const;
+		bool check_mono_add_top_single_instance(int num_attempts,
+			const vector<double> & vote_array) const;
 		bool check_liia_single_instance(
 			const vector<double> & vote_array) const;
 		bool check_revsym_single_instance(
@@ -46,6 +48,7 @@ class cond_brute_rpn : public election_method {
 		}
 
 		int check_monotonicity(int num_attempts) const;
+		int check_mono_add_top(int num_attempts) const;
 		int check_liia(int num_attempts) const;
 		int check_reversal_symmetry(int num_attempts) const;
 

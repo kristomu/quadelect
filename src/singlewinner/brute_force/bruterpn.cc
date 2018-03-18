@@ -119,9 +119,10 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
     vector<double> original_scores(3), modified_scores(3);
     get_scores(vote_array, original_scores);
 
+    modified_vote_array = vote_array;
+
     // Raise A in one of a number of ways
     for (int i = 0; i < num_attempts; ++i) {
-		modified_vote_array = vote_array;		// Oe lu skxawng
         // Possible raising:
         // BAC -> ABC
         // CAB -> ACB
@@ -197,6 +198,10 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
             cout << endl << endl;*/
             return(false);
         }
+
+        // revert changes
+        modified_vote_array[down[which]] +=1;
+        modified_vote_array[up[which]] -= 1;
     }
     return(true);
 }
@@ -230,6 +235,108 @@ int cond_brute_rpn::check_monotonicity(int num_attempts) const {
     return(failures);
 }
 
+// See above.
+bool cond_brute_rpn::check_mono_add_top_single_instance(int num_attempts,
+    const vector<double> & vote_array) const {
+
+    vector<double> modified_vote_array;
+    vector<double> original_scores(3), modified_scores(3);
+    get_scores(vote_array, original_scores);
+
+    modified_vote_array = vote_array;
+
+    // Add another A voter, either ABC or ACB.
+    for (int i = 0; i < num_attempts; ++i) {
+        // TODO: Use proper randomness.
+        int up[] =   {idx_ABC, idx_ACB};
+
+        int which = random() % 2;
+        
+        modified_vote_array[up[which]] += 1;
+
+        // Get the modified scores
+        get_scores(modified_vote_array, modified_scores);
+
+        // Check that we're still ABCA. If not, A won, so that's OK
+        if (!is_abca(modified_vote_array))
+            continue;
+
+        // Check that if someone ranked below A, he's not ranked above now.
+
+        double margin = 1e-9;
+
+        bool zero_greater_than_one =
+            original_scores[0] - original_scores[1] > margin;
+
+        bool mod_one_greater_than_zero =
+            modified_scores[1] - modified_scores[0] >= margin;
+
+        bool zero_greater_than_two =
+            original_scores[0] - original_scores[2] > margin;
+
+        bool mod_two_greater_than_zero =
+            modified_scores[2] - modified_scores[0] >= margin;
+
+        if (zero_greater_than_one && mod_one_greater_than_zero) {
+            /*cout << "Type one error" << endl;
+            cout << "Was: ";
+            copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << "Scores:";
+            copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << "Is:";
+            copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << "scores:";
+            copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << endl;*/
+            return (false);
+        }
+        if (zero_greater_than_two && mod_two_greater_than_zero) {
+            /*cout << "Type two error" << endl;
+            cout << "Was: ";  
+            copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << "Scores:";  
+            copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << "Is:";  
+            copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << "scores:";  
+            copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
+            cout << endl << endl;*/
+            return(false);
+        }
+
+        modified_vote_array[up[which]] -= 1;
+    }
+    return(true);
+}
+
+int cond_brute_rpn::check_mono_add_top(int num_attempts) const {
+    int cur_attempt = 0;    // Don't count anything but ABCA cycles as an
+                            // attempt.
+    int inner_num_attempts = 10; // exempli gratia
+
+    int failures = 0;
+
+    for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
+        ++cur_attempt) {
+
+        vector<double> vote_array(6, 0);
+
+        while (!is_abca(vote_array)) {
+            for (int counter = 0; counter < 6; ++counter) {
+                vote_array[counter] = drand48() * 37;
+            }
+        }
+
+        if (!check_mono_add_top_single_instance(inner_num_attempts, 
+            vote_array)) {
+            ++failures;
+        }
+    }
+
+    return(failures);
+}
+
+
 bool cond_brute_rpn::check_liia_single_instance(
     const vector<double> & vote_array) const {
 
@@ -239,18 +346,20 @@ bool cond_brute_rpn::check_liia_single_instance(
     // If B is first, then C must be second.
     // If C is first, then A must be second.
 
-    vector<double> original_scores(3);
-    get_scores(vote_array, original_scores);
+    vector<double> scores(3);
+    get_scores(vote_array, scores);
+
+    double margin = 1e-9;
 
     // A wins
-    if (vote_array[0] > vote_array[1] && vote_array[0] > vote_array[2])
-        return (vote_array[1] > vote_array[2]); // B must be second
+    if (scores[0] - scores[1] > margin && scores[0] - scores[2] > margin)
+        return (scores[1] > scores[2]); // B must be second
     // B wins
-    if (vote_array[1] > vote_array[0] && vote_array[1] > vote_array[2])
-        return(vote_array[2] > vote_array[0]); // C must be second.
+    if (scores[1] - scores[0] > margin && scores[1] - scores[2] > margin)
+        return(scores[2] > scores[0]); // C must be second.
     // C wins
-    if (vote_array[2] > vote_array[1] && vote_array[2] > vote_array[0])
-        return(vote_array[0] > vote_array[1]); // A must be second
+    if (scores[2] - scores[1] > margin && scores[2] - scores[0] > margin)
+        return(scores[0] > scores[1]); // A must be second
 
     return(true); // inconclusive
 }
@@ -262,10 +371,10 @@ int cond_brute_rpn::check_liia(int num_attempts) const {
 
     int failures = 0;
 
+    vector<double> vote_array(6, 0);
+
     for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
         ++cur_attempt) {
-
-        vector<double> vote_array(6, 0);
 
         while (!is_abca(vote_array)) {
             for (int counter = 0; counter < 6; ++counter) {
@@ -276,6 +385,11 @@ int cond_brute_rpn::check_liia(int num_attempts) const {
         if (!check_liia_single_instance(vote_array)) {
             /*cout << "Failure detected." << endl;
             copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
+            cout << endl;
+            vector<double> original_scores(3);
+            get_scores(vote_array, original_scores);
+            cout << "\tScores are: ";
+            copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
             cout << endl;*/
             ++failures;
         }
