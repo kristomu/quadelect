@@ -77,7 +77,7 @@ int main() {
 	map<vector<bool>, unsigned long long> already_seen_ordinal;
 
 	int numtests = 8;
-	int numtests_ordinal = 256;
+	int numtests_ordinal = 128;
 
 	vector<vector<double> > test_vectors = create_test_vectors(numtests);
 	vector<vector<double> > test_vectors_ordinal = 

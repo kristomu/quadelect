@@ -300,38 +300,39 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 	funct_to_test, const vector<vector<double> > & test_in_vectors,
 	map<vector<bool>, unsigned long long> & results_already_seen) const {
 
-	vector<double> results_cardinal;
+	vector<double> test_results;
 	vector<bool> results_ordinal;
 
-	int num_vectors = test_in_vectors.size();
-	results_cardinal.resize(num_vectors);
+	size_t num_vectors = test_in_vectors.size();
+	test_results.resize(num_vectors);
 	results_ordinal.reserve(num_vectors*num_vectors);
 
-	// The point of using an epsilon is to disqualify functions that rely
+	// The point of using tolerance is to disqualify functions that rely
 	// on double precision roundoff errors to work. However, we want to
 	// be more principled and only disqualify functions that don't meet our
 	// criteria (even if the functions that do meet our criteria may use
 	// weird ways of satisfying them), so this should be removed at some
 	// point and be replaced by checking for things like the resolvability
 	// criterion.
-	double eps = 281474976710656; // e.g.
+	double tolerance = 1e-9;
 
-	int i, j;
+	size_t i, j;
 
 	for (i = 0; i < num_vectors; ++i) {
-		results_cardinal[i] = round(
-			funct_to_test.evaluate(test_in_vectors[i], 
-			true) * eps)/eps;
-		/*cout << results_cardinal[i] << "\t";
-		copy(test_in_vectors[i].begin(), test_in_vectors[i].end(), ostream_iterator<double>(cout, " "));
-		cout << endl;*/
+		test_results[i] = funct_to_test.evaluate(test_in_vectors[i], 
+			true);
+
+		if (isnan(test_results[i])) {
+			return(false);
+		}
 	}
 
 	for (i = 0; i < num_vectors; ++i) {
 		for (j = 0; j < num_vectors; ++j) {
-			double difference = results_cardinal[i]-results_cardinal[j];
-
-			results_ordinal.push_back(difference < 0);
+			double difference = test_results[i]-test_results[j];
+	
+			results_ordinal.push_back(
+				fabs(difference) > tolerance && difference < 0);
 
 			/*if (difference<0) {
 				cout << "T";
@@ -339,7 +340,6 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 				cout << "F";
 			}*/
 		}
-		//cout << endl;
 	}
 
 	//cout << endl;
