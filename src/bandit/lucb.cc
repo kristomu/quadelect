@@ -23,11 +23,11 @@ double LUCB::C(int num_plays, const std::vector<Bandit> & bandits,
 		bandits.size()));
 }
 
-std::pair<int, double> LUCB::get_best_bandit_so_far(int num_plays,
-	const std::vector<Bandit> & bandits, int excluded_bandit_idx) const {
+std::pair<size_t, double> LUCB::get_best_bandit_so_far(int num_plays,
+	const std::vector<Bandit> & bandits, size_t excluded_bandit_idx) const {
 
 	// Select a default maxconf holder that isn't the excluded index.
-	int maxconf_holder = 0;
+	size_t maxconf_holder = 0;
 	if (excluded_bandit_idx == 0) {
 		maxconf_holder = 1;
 	}
@@ -47,7 +47,7 @@ std::pair<int, double> LUCB::get_best_bandit_so_far(int num_plays,
 		}
 	}
 
-	return(std::pair<int, double>(maxconf_holder, maxconf_score));
+	return(std::pair<size_t, double>(maxconf_holder, maxconf_score));
 }
 
 std::pair<int, double> LUCB::get_best_bandit_so_far(
@@ -64,6 +64,7 @@ std::pair<int, double> LUCB::get_best_bandit_so_far(
 // The function can be called more than once with no problem.
 // If the bandits have already been pulled, it won't pull any of them
 // in the init stage (1.), so that's okay.
+// should be called pull_best_bandit, no?
 double LUCB::find_best_bandit(std::vector<Bandit> & bandits, 
 	int maxiters, bool verbose) const {
 
@@ -79,7 +80,7 @@ double LUCB::find_best_bandit(std::vector<Bandit> & bandits,
 
 	// -- //
 
-	double confidence_gap;
+	double confidence_gap = INFINITY;
 
 	//std::cout << "1." << std::endl;
 
@@ -153,6 +154,7 @@ double LUCB::find_best_bandit(std::vector<Bandit> & bandits,
 	// Adjust the confidence gap to something that's a little more linear,
 	// then return it.
 	// It's not quite linear, but not all that bad.
+	// ??? Do I need this now?
 
 	double adj_confidence_gap = exp(-sqrt(confidence_gap - tolerance));
 	return(adj_confidence_gap);

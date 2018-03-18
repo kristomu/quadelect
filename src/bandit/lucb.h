@@ -23,9 +23,9 @@ class LUCB {
 			tolerance = 0.01; // ditto
 		}
 
-		std::pair<int, double> get_best_bandit_so_far(int num_plays,
+		std::pair<size_t, double> get_best_bandit_so_far(int num_plays,
 			const std::vector<Bandit> & bandits, 
-			int excluded_bandit_idx) const;
+			size_t excluded_bandit_idx) const;
 
 		std::pair<int, double> get_best_bandit_so_far(
 			const std::vector<Bandit> & bandits) const;

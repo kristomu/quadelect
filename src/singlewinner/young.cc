@@ -14,7 +14,7 @@
 using namespace std;
 
 pair<double, double> young::get_young_score(const list<ballot_group> & papers, 
-		int candidate, int num_candidates, int num_ballots, 
+		size_t candidate, size_t num_candidates, size_t num_ballots, 
 		const vector<bool> & hopeful, bool relaxed, 
 		bool symmetric_completion, bool debug) const {
 
@@ -108,7 +108,7 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 		// First find the current candidate.
 		for (opos = pos->contents.begin(); opos != pos->contents.end() 
 				&& ourcand == pos->contents.end(); ++opos)
-			if (opos->get_candidate_num() == candidate)
+			if ((size_t)opos->get_candidate_num() == candidate)
 				ourcand = opos;
 		
 		if (ourcand == pos->contents.end()) {
@@ -210,7 +210,7 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	// weights < 1.
 
 	for (counter = 0; counter < num_candidates - 1; ++counter) {
-		int realcand = counter;
+		size_t realcand = counter;
 		if (realcand >= candidate) ++realcand;
 
 		if (debug) {

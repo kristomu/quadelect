@@ -34,8 +34,9 @@ pair<ordering, bool> random_ballot::elect_inner(
 	// case that only few voters vote for the hopefuls. We could do it
 	// more rigorously by shuffling the list, but there's no need most
 	// of the time.
+	// We could also implement random voter hierarchy instead...
 
-	int retries = 3;
+	size_t retries = 3;
 	size_t counter;
 
 	for (counter = 0; counter < retries && prelim.empty(); ++counter) {

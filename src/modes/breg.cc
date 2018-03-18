@@ -97,7 +97,7 @@ void bayesian_regret::clear_generators(bool do_delete) {
 void bayesian_regret::clear_methods(bool do_delete) {
 
 	if (do_delete)
-		for (int counter = 0; counter < methods.size(); ++counter)
+		for (size_t counter = 0; counter < methods.size(); ++counter)
 			delete methods[counter];
 
 	methods.clear();

@@ -177,7 +177,7 @@ pair<ordering, bool> three_experimental::elect_inner(
 					// ABC: ABC 
 					// Reversal symmetric but not monotone
 					double ABC = condorcet_matrix.get_magnitude(sec, third_party) - plur_scores[sec];
-					double ACB = condorcet_matrix.get_magnitude(third_party, sec) - plur_scores[third_party];
+					//double ACB = condorcet_matrix.get_magnitude(third_party, sec) - plur_scores[third_party];
 					double CBA = condorcet_matrix.get_magnitude(sec, counter) - plur_scores[sec];
 					double BCA = condorcet_matrix.get_magnitude(third_party, counter) - plur_scores[third_party];
 

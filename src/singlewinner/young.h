@@ -53,8 +53,8 @@ class young : public election_method {
 		// programming score, or -1 if running relaxed.
 		pair<double, double> get_young_score(
 				const list<ballot_group> & papers,
-				int candidate, int num_candidates,
-				int num_ballots, const vector<bool> & hopefuls,
+				size_t candidate, size_t num_candidates,
+				size_t num_ballots, const vector<bool> & hopefuls,
 				bool relaxed, bool symmetric_completion,
 				bool debug) const;
 

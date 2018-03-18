@@ -42,7 +42,7 @@ pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
 	// Copy from the Condorcet matrix to A. We copy in the "opposite"
 	// manner to what is usual, so that normalizing diagonals become easy
 	// if that parameter is set.
-	int x, y;
+	size_t x, y;
 	size_t num_hopefuls = permitted_candidates.size();
 	for (x = 0; x < num_hopefuls; ++x) {
 		double running_count = 0;

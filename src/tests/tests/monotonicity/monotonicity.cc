@@ -256,7 +256,6 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 
 	bool preliminary_nonmonotonic = (raise && (a_score > b_score)) ||
 			(!raise && (a_score < b_score));
-	bool nonmonotonic = false;
 
 	// Need to find a way of defining "raise" for a social ordering with
 	// ties.

@@ -40,7 +40,7 @@ class StrategyTest : public Test {
 		// automatically receives a 0 every time.
 		bool too_many_ties;
 
-		int ballot_gen_idx;
+		size_t ballot_gen_idx;
 
 	public:
 

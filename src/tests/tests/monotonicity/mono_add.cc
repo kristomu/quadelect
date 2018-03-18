@@ -73,7 +73,7 @@ bool mono_add_top::add_ballots(const vector<int> & data,
         ordering o_rand;
         o_rand.insert(candscore(cand, numcands+1));
 
-	for (int counter = 0; counter < other_candidates.size(); ++counter)
+	for (size_t counter = 0; counter < other_candidates.size(); ++counter)
 		if (other_candidates[counter] != cand)
 			o_rand.insert(candscore(other_candidates[counter], 
 						counter));
