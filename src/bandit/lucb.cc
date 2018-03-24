@@ -7,8 +7,10 @@
 #include <math.h>
 
 double LUCB::C(int num_plays, int num_plays_this, int num_bandits) const {
-	// LUCB1, arXiv:1407.4443 [stat.ML] (as I couldn't get the best
-	// performing algorithm there to work.)
+	// LUCB1 as mentioned in: 
+	// "Best-arm Identification Algorithms for Multi-Armed
+	// Bandits in the Fixed Confidence Setting", Jamieson et al.
+	// (I couldn't get the best algorithm there to work.)
 
 	double deltapart = (405.5 * num_bandits * pow(num_plays,1.1))/delta;
 	double logpart = log(deltapart * log(deltapart));
@@ -65,8 +67,8 @@ std::pair<int, double> LUCB::get_best_bandit_so_far(
 // If the bandits have already been pulled, it won't pull any of them
 // in the init stage (1.), so that's okay.
 // should be called pull_best_bandit, no?
-double LUCB::find_best_bandit(std::vector<Bandit> & bandits, 
-	int maxiters, bool verbose) const {
+double LUCB::pull_bandit_arms(std::vector<Bandit> & bandits, 
+	int max_pulls, bool verbose) const {
 
 	// 1. First pull every arm that hasn't been pulled at least once.
 	// 2. Pull the best pair of bandits according to
@@ -107,8 +109,8 @@ double LUCB::find_best_bandit(std::vector<Bandit> & bandits,
 	//std::cout << "2." << std::endl;
 
 	// 2.
-	for (int i = 0; i < maxiters; ++i) {
-		std::cerr << i << "   " << maxiters << "   \r" << std::flush;
+	for (int i = 0; i < max_pulls; i += 2) {
+		std::cerr << i << "   " << max_pulls << "   \r" << std::flush;
 
 		// 2.1. Find h_t. Break ties randomly (but not evenly; 
 		//		that can be done later if required.)

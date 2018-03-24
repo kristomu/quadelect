@@ -322,8 +322,8 @@ void test_with_bandits(vector<election_method *> & to_test,
 		int num_tries = max(100, (int)sts.size());
 		// Don't run more than 20k at a time because otherwise
 		// feedback is too slow.
-		num_tries = min(20000, num_tries);
-		double progress = lucb.find_best_bandit(bandits, num_tries, true);
+		num_tries = min(40000, num_tries);
+		double progress = lucb.pull_bandit_arms(bandits, num_tries, true);
 		if (progress == 1) {
 			std::cout << "Managed in fewer than " << j * num_tries << 
 				" tries." << std::endl;

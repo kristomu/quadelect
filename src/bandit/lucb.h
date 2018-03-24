@@ -1,6 +1,9 @@
 #ifndef _BANDIT_LUCB
 #define _BANDIT_LUCB
 
+// Known snag: delta doesn't mean the same thing here as it does for
+// e.g. lil'USB.
+
 #include "bandit.h"
 #include <vector>
 
@@ -33,8 +36,8 @@ class LUCB {
 		// Returns 1 if we're confident of the result, otherwise a
 		// status number on [0,1] indicating how close we are to
 		// being confident.
-		double find_best_bandit(std::vector<Bandit> & bandits, 
-			int maxiters, bool verbose) const;
+		double pull_bandit_arms(std::vector<Bandit> & bandits,
+			int max_pulls, bool verbose) const;
 };
 
 #endif
