@@ -24,6 +24,9 @@ class Bernoulli : public Test {
 
 		double perform_test();
 		std::string name() const { return ("Bernoulli(" + dtos(p) + ")");}
+
+		double get_minimum() const { return(0); }
+		double get_maximum() const { return(1); }
 };
 
 #endif

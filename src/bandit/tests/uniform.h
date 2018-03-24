@@ -19,6 +19,9 @@ class Uniform : public Test {
 
 		double perform_test() { return(drand48()*p); }
 		std::string name() const { return ("Uniform(" + dtos(p)+")"); }
+
+		double get_minimum() const { return(0); }
+		double get_maximum() const { return(1); }
 };
 
 #endif

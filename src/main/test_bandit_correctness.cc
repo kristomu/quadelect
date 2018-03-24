@@ -1,6 +1,6 @@
 
 #include "../bandit/bandit.h"
-#include "../bandit/lucb.h"
+#include "../bandit/lilucb.h"
 
 #include "../bandit/tests/bernoulli.h"
 
@@ -23,10 +23,12 @@ int main(int argc, const char ** argv) {
 
     int maxpulls = 40000, iters_so_far = 0;
 
-    LUCB bandit_tester;
+    Lil_UCB bandit_tester;
 
-    while (bandit_tester.pull_bandit_arms(bernoullis, maxpulls, false) != 1) {
-        std::cout << "Not done yet." << std::endl;
+    double progress;
+
+    while ((progress = bandit_tester.pull_bandit_arms(bernoullis, maxpulls, false)) != 1) {
+        std::cout << "Not done yet (progress is " << progress << ")" << std::endl;
         size_t best = bandit_tester.get_best_bandit_so_far(bernoullis).first;
         std::cout << "Best so far is " << best << std::endl;
         std::cout << "Its name is " << bernoullis[best].name() << std::endl;
