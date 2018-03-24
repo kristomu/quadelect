@@ -93,6 +93,7 @@ class custom_function {
 		mutable vector<double> test_results;
 
 		const double blancmange_order = 0.67;
+		bool is_generous_to_asymptotes;
 
 		// All negative values are false and non-negative values are true.
 		// This lets neg work as not in a sense (except for a singular point).
@@ -106,10 +107,11 @@ class custom_function {
 			vector<custom_funct_atom> & output) const;
 		double evaluate(vector<double> & stack, 
 			const custom_funct_atom & cur_atom, 
-			const vector<double> & input_values) const;
+			const vector<double> & input_values,
+			bool generous_to_asymptotes) const;
 		double evaluate_function(const vector<custom_funct_atom> & function,
 			const vector<double> & input_values, 
-			bool reject_large_stack) const;
+			bool reject_large_stack, bool generous_to_asymptotes) const;
 		bool update_suitability(const custom_function & funct_to_test, 
 			const vector<vector<double> > & test_in_vectors,
 			map<vector<double>, unsigned long long> & results_already_seen) const;
@@ -122,8 +124,16 @@ class custom_function {
 
 	public:
 		void set_id(unsigned long long function_number);
-		custom_function(unsigned long long function_number);
-		custom_function();
+		void set_asymptote_generous(bool generous_in) {
+			is_generous_to_asymptotes = generous_in;
+		}
+		bool is_asymptote_generous() const { 
+			return(is_generous_to_asymptotes); }
+
+		custom_function(unsigned long long function_number, bool generous_in);
+		custom_function(bool generous_in);
+		double evaluate(const vector<double> & input_values, 
+			bool reject_large_stack, bool generous_to_asymptotes) const;
 		double evaluate(const vector<double> & input_values, 
 			bool reject_large_stack) const;
 

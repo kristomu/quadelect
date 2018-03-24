@@ -81,9 +81,16 @@ string custom_function::atom_to_word(const custom_funct_atom in) const {
 // (I used exceptions, but that was too slow.)
 // Next performance improvement would be to make the stack fixed in size
 // and just go up and down it instead of allocating list values. But eh.
+// If "generous_to_asymptotes" is on, we replace division by zero and log
+// zero with the relevant operator applied to very small values, so that
+// something that might be of use, like LOG(CBA) won't fail just because
+// CBA is 0.
+// (However, in practice, this makes very strange methods come in first
+// at the strategy evaluation.)
 double custom_function::evaluate(vector<double> & stack, 
 	const custom_funct_atom & cur_atom, 
-	const vector<double> & input_values) const {
+	const vector<double> & input_values,
+	bool generous_to_asymptotes) const {
 
 	switch(cur_atom) {
 		case VAL_IN_ABC: return(input_values[0]);
@@ -123,8 +130,13 @@ double custom_function::evaluate(vector<double> & stack,
 		case UNARY_FUNC_SQUARE: return(right_arg*right_arg);
 		case UNARY_FUNC_SQRT: return(sqrt(right_arg));
 		case UNARY_FUNC_LOG: 
-			if (right_arg == 0)
-				return (-1e9);		// intend limit towards 0 so that 0 log 0 = 0, e.g
+			if (right_arg == 0) {
+				if (generous_to_asymptotes) {
+					// intend limit towards 0 so that 0 log 0 = 0, e.g	
+					return (-1e9);		
+				}
+				return(numeric_limits<double>::quiet_NaN());
+			}
 			return(log(right_arg));
 		case UNARY_FUNC_EXP: return(exp(right_arg));
 		case UNARY_FUNC_NEG: return(-right_arg);
@@ -153,11 +165,17 @@ double custom_function::evaluate(vector<double> & stack,
 		case BINARY_FUNC_MINUS: return(middle_arg - right_arg);
 		case BINARY_FUNC_MUL: return(middle_arg * right_arg);
 		case BINARY_FUNC_DIVIDE:
+			// Perhaps we should let x/inf = 0? And inf/x = inf,
+			// except when x = 0, in which case it's undefined.
+			// inf/inf is also similarly undefined.
 			if (!finite(middle_arg) || !finite(middle_arg)) {
 				return(numeric_limits<double>::quiet_NaN());
 			} 
 			if (right_arg == 0) {
-				return (middle_arg/(right_arg+1e-9));
+				if (generous_to_asymptotes) {
+					return (middle_arg/(right_arg+1e-9));
+				}
+				return(numeric_limits<double>::quiet_NaN());
 			}
 			return(middle_arg/right_arg);
 		case BINARY_FUNC_MAX: return(max(middle_arg, right_arg));
@@ -192,7 +210,7 @@ double custom_function::evaluate(vector<double> & stack,
 	// Error, should never happen. This happens if the atom is not caught
 	// anywhere, which means I forgot to implement the code after adding
 	// one.
-	assert(1 != 1);
+	throw runtime_error("RPN token not matched anywhere!");
 
 	return(0);
 }
@@ -203,7 +221,8 @@ double custom_function::evaluate(vector<double> & stack,
 // I tried exceptions, but it's too slow. We return NaN on error.
 double custom_function::evaluate_function(
 	const vector<custom_funct_atom> & function,
-	const vector<double> & input_values, bool reject_large_stack) const {
+	const vector<double> & input_values, bool reject_large_stack,
+	bool generous_to_asymptotes) const {
 
 	double result;
 
@@ -211,7 +230,8 @@ double custom_function::evaluate_function(
 
 	for (vector<custom_funct_atom>::const_iterator pos = function.begin(); 
 		pos != function.end(); ++pos) {
-		result = evaluate(funct_stack, *pos, input_values);
+		result = evaluate(funct_stack, *pos, input_values, 
+			generous_to_asymptotes);
 		if (isnan(result)) {
 			// propagate error
 			return(numeric_limits<double>::quiet_NaN());
@@ -220,14 +240,14 @@ double custom_function::evaluate_function(
 		}
 	}
 
+	// stack is empty
 	if (funct_stack.empty()) {
-		// throw(runtime_error("stack is empty"));
 		return(numeric_limits<double>::quiet_NaN());
 	}
 
+	// multiple outputs for function
 	if (reject_large_stack && *funct_stack.begin() != *funct_stack.rbegin()) {
 		return(numeric_limits<double>::quiet_NaN());
-		//throw(runtime_error("multiple outputs for function!"));
 	}
 
 	return(*funct_stack.rbegin());
@@ -238,20 +258,32 @@ void custom_function::set_id(unsigned long long function_number) {
 	our_value = function_number;
 }
 
-custom_function::custom_function(unsigned long long function_number) {
+custom_function::custom_function(unsigned long long function_number,
+	bool generous_in) {
+
+	set_asymptote_generous(generous_in);
 	set_id(function_number);
 }
 
-custom_function::custom_function() {
+custom_function::custom_function(bool generous_in) {
+	set_asymptote_generous(generous_in);
 	set_id(0);
+}
+
+double custom_function::evaluate(const vector<double> & input_values,
+	bool reject_large_stack, bool generous_to_asymptotes) const {
+	funct_stack.clear();
+	return(evaluate_function(our_function, input_values, 
+		reject_large_stack, generous_to_asymptotes));
 }
 
 double custom_function::evaluate(const vector<double> & input_values,
 	bool reject_large_stack) const {
 	funct_stack.clear();
 	return(evaluate_function(our_function, input_values, 
-		reject_large_stack));
+		reject_large_stack, is_generous_to_asymptotes));
 }
+
 
 // Runs the function on the test vectors specified. Returns true if it
 // passes and returns different results on at least one of them, otherwise
@@ -264,9 +296,15 @@ bool custom_function::update_suitability(const custom_function & funct_to_test,
 	test_results.resize(test_in_vectors.size());
 	size_t i;
 
+	std::cout << "Cardinal suitability" << std::endl;
+
 	for (i = 0; i < test_in_vectors.size(); ++i) {
+		copy(test_in_vectors[i].begin(), test_in_vectors[i].end(),
+			ostream_iterator<double>(cout, " "));
+		cout << " => ";
 		test_results[i] = funct_to_test.evaluate(test_in_vectors[i], 
 			true);
+		cout << test_results[i] << endl;
 		if (isnan(test_results[i])) {
 			return(false); // error during evaluation
 		}
@@ -296,6 +334,7 @@ bool custom_function::update_suitability(const custom_function & funct_to_test,
 // ends up matching any of these, run it through every function inside. The LSH
 // should filter out most matches and then we only need to check a few if we do
 // have a match by hash.
+// Or we could use a Bloomier filter.
 bool custom_function::update_ordinal_suitability(const custom_function & 
 	funct_to_test, const vector<vector<double> > & test_in_vectors,
 	map<vector<bool>, unsigned long long> & results_already_seen) const {
@@ -333,12 +372,6 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 	
 			results_ordinal.push_back(
 				fabs(difference) > tolerance && difference < 0);
-
-			/*if (difference<0) {
-				cout << "T";
-			} else {
-				cout << "F";
-			}*/
 		}
 	}
 

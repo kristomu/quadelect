@@ -43,7 +43,11 @@ class cond_brute_rpn : public election_method {
 				bool winner_only) const;
 
 		string name() const {
-			return ("Brute " + ext + "(" + lltos(id) + "," + 
+			string generosity = "/NG";
+			if (cfunct.is_asymptote_generous()) {
+				generosity = "/G";
+			}
+			return ("Brute " + ext + generosity + "(" + lltos(id) + "," + 
 				get_printable_representation() + ")");
 		}
 
@@ -52,14 +56,21 @@ class cond_brute_rpn : public election_method {
 		int check_liia(int num_attempts) const;
 		int check_reversal_symmetry(int num_attempts) const;
 
-		void set_funct_code(unsigned long long funct_code_in) {
+		void set_funct_code(unsigned long long funct_code_in, 
+			bool generosity) {
+
 			id = funct_code_in;
 			cfunct.set_id(id);
+			cfunct.set_asymptote_generous(generosity);
 		}
 
-		cond_brute_rpn(unsigned long long funct_code_in) {
-			set_funct_code(funct_code_in);
+		// The default is to not be generous to asymptotes.
+		cond_brute_rpn(unsigned long long funct_code_in) : cfunct(false) {
+			set_funct_code(funct_code_in, false);
 		}
+
+		cond_brute_rpn(unsigned long long funct_code_in, bool is_generous) :
+			cfunct(funct_code_in, is_generous) {}
 
 		string get_printable_representation() const {
 			vector<string> functs = cfunct.get_atom_printout();

@@ -433,6 +433,11 @@ bool cond_brute_rpn::check_revsym_single_instance(
     return(true);
 }
 
+// TODO?? Resolvability check:
+// Generate a bunch of ballots. If we get any with a tie, then a bunch of
+// times add another ballot and see if we can break the tie. If not, the
+// method fails resolvability.
+
 // EW! Cut and paste code galore.
 // What I wouldn't have given for FP...
 // What this suggests is that everything should be extracted.
@@ -473,6 +478,8 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 		bool winner_only) const {
 
 	// TODO: Use cache.
+    // TODO: Directly check if we have a Condorcet winner. If it is,
+    //       just return whoever. Would be faster than using comma.
     assert (num_candidates == 3);
 
 	condmat condorcet_matrix = condmat(papers, num_candidates, 
@@ -646,6 +653,8 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 
                 }
 
+                // TODO: If any is NaN, somehow signal something is
+                // wrong. Throw exception?
                 out.insert(candscore(counter, score));
                 scores_by_cand[counter] = score;
 
