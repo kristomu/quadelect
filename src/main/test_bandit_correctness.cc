@@ -24,14 +24,14 @@ int main(int argc, const char ** argv) {
     int maxpulls = 40000, iters_so_far = 0;
 
     Lil_UCB bandit_tester;
+    bandit_tester.load_bandits(bernoullis);
 
     double progress;
 
-    while ((progress = bandit_tester.pull_bandit_arms(bernoullis, maxpulls, false)) != 1) {
+    while ((progress = bandit_tester.pull_bandit_arms(bernoullis, maxpulls)) != 1) {
         std::cout << "Not done yet (progress is " << progress << ")" << std::endl;
-        size_t best = bandit_tester.get_best_bandit_so_far(bernoullis).first;
-        std::cout << "Best so far is " << best << std::endl;
-        std::cout << "Its name is " << bernoullis[best].name() << std::endl;
+        const Bandit * best = bandit_tester.get_best_bandit_so_far();
+        std::cout << "Best so far is " << best->name() << std::endl;
         std::cout << "Actual maximum is " << maxmean << std::endl;
         iters_so_far += maxpulls; // or thereabouts
     }

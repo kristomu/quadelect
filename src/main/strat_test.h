@@ -93,6 +93,9 @@ class StrategyTest : public Test {
 
 		int get_total_generation_attempts() const { 
 			return(total_generation_attempts); }
+
+		double get_minimum() const { return(0); }
+		double get_maximum() const { return(1); }
 };
 
 #endif

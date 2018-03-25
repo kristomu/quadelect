@@ -61,7 +61,7 @@
 #include "../singlewinner/young.h"
 
 #include "../bandit/bandit.h"
-#include "../bandit/lucb.h"
+#include "../bandit/lilucb.h"
 
 #include "strat_test.h"
 
@@ -307,7 +307,8 @@ void test_with_bandits(vector<election_method *> & to_test,
 		bandits.push_back(Bandit(&sts[i]));
 	}
 
-	LUCB lucb;
+	Lil_UCB lil_ucb;
+    lil_ucb.load_bandits(bandits);
 
 	bool confident = false;
 
@@ -323,7 +324,7 @@ void test_with_bandits(vector<election_method *> & to_test,
 		// Don't run more than 20k at a time because otherwise
 		// feedback is too slow.
 		num_tries = min(40000, num_tries);
-		double progress = lucb.pull_bandit_arms(bandits, num_tries, true);
+		double progress = lil_ucb.pull_bandit_arms(num_tries);
 		if (progress == 1) {
 			std::cout << "Managed in fewer than " << j * num_tries << 
 				" tries." << std::endl;
@@ -370,11 +371,10 @@ void test_with_bandits(vector<election_method *> & to_test,
 		}
 	}
 	
-	std::pair<int, double> results = lucb.get_best_bandit_so_far(bandits);
+	const Bandit * results = lil_ucb.get_best_bandit_so_far();
 
-	cout << "Best so far is " << results.first << " with CB of " << results.second << std::endl;
-	cout << "Its name is " << bandits[results.first].name() << endl;
-	cout << "It has a mean of " << bandits[results.first].get_mean() << endl;
+	cout << "Best so far is " << results->name() << std::endl; //<< " with CB of " << results.second << std::endl;
+	cout << "It has a mean of " << results->get_mean() << endl;
 
 }
 

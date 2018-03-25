@@ -1,6 +1,6 @@
 
 #include "../bandit/bandit.h"
-#include "../bandit/lucb.h"
+#include "../bandit/lilucb.h"
 
 #include "../bandit/tests/bernoulli.h"
 
@@ -15,7 +15,8 @@ int main(int argc, const char ** argv) {
 
     int maxiter = 20;
 
-    LUCB bandit_tester;
+    Lil_UCB bandit_tester;
+    bandit_tester.load_bandits(bernoullis);
 
-    bandit_tester.pull_bandit_arms(bernoullis, maxiter, false);
+    bandit_tester.pull_bandit_arms(maxiter);
 }
