@@ -126,8 +126,9 @@ strategy_result StrategyTest::attempt_execute_strategy() { // Mega method, fix l
         if (num_prefers_challenger == 0) continue;
         assert (num_prefers_challenger > 0);
 
-        for (int tries = 0; tries < 512 && !strategy_worked; ++tries) {
-            // Add the strategic ballot by drawing from IIC.
+        // was 512
+        for (int tries = 0; tries < 384 && !strategy_worked; ++tries) {
+            // Add the strategic ballot by drawing from IC.
             int iterations = 1 + tries % 3, q;
             double cumul = 0;
             for (q = 0; q < iterations; ++q) {

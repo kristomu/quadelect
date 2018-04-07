@@ -323,7 +323,7 @@ void test_with_bandits(vector<election_method *> & to_test,
 		int num_tries = max(100, (int)sts.size());
 		// Don't run more than 20k at a time because otherwise
 		// feedback is too slow.
-		num_tries = min(40000, num_tries);
+		//num_tries = min(40000, num_tries);
 		double progress = lil_ucb.pull_bandit_arms(num_tries);
 		if (progress == 1) {
 			std::cout << "Managed in fewer than " << j * num_tries << 
@@ -354,15 +354,15 @@ void test_with_bandits(vector<election_method *> & to_test,
 
 			size_t how_many = 10;
 			cout << "Interim report (by mean):" << endl;
-			for (k = 0; k < how_many; ++k) {
-				double inv_mean = 1-bandits[so_far[k].second].get_mean();
+			for (k = 0; k < min(how_many, sts.size()); ++k) {
+				double mean = bandits[so_far[k].second].get_mean();
 
 				pair<double, double> c_i = confidence_interval(
 					bandits[so_far[k].second].get_num_pulls(), 
-					inv_mean, zv);
-				double lower = round(c_i.first * 1000)/1000.0;
-				double middle = round(inv_mean * 1000)/1000.0;
-				double upper = round(c_i.second * 1000)/1000.0;
+					mean, zv);
+				double lower = round((1 - c_i.second) * 1000)/1000.0;
+				double middle = round((1 - mean) * 1000)/1000.0;
+				double upper = round((1 - c_i.first) * 1000)/1000.0;
 
 				cout << k+1 << ". " << bandits[so_far[k].second].name() << "(" <<
 					lower << ", " << middle << ", " << upper << ")" << endl;

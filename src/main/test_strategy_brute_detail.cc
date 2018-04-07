@@ -429,11 +429,17 @@ int main(int argc, const char ** argv) {
     //cout << "Test time!" << endl;
     //cout << "Thy name is " << name << endl;
 
-    condorcet_set xd;
+    condorcet_set cond;
+    smith_set smith;
 
-    // TODO: Really fix comma. DONE, kinda.
-    for (counter = 0; counter < condorcetsrc.size(); ++counter) {
-        condorcets.push_back(new comma(condorcetsrc[counter], &xd));
+	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
+		if (numcands < 4) {
+			// faster
+			condorcets.push_back(new comma(condorcetsrc[counter], &cond));
+		} else {
+			// more general
+			condorcets.push_back(new comma(condorcetsrc[counter], &smith));
+		}
     }
 
     cout << "There are " << condorcets.size() << " methods." << endl;
@@ -456,5 +462,4 @@ int main(int argc, const char ** argv) {
 			condorcets.size(), ballotgens[bg], numvoters, numcands);
         }
     }
-
 }
