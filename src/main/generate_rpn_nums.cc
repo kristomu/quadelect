@@ -112,7 +112,7 @@ int main() {
         }
 
 		cf.set_id(funct_id);
-        cbp.set_funct_code(funct_id);
+        cbp.set_funct_code(funct_id, false);
 
         /*cout << "Function " << funct_id << ": ";
         vector<string> printout = cf.get_atom_printout();
