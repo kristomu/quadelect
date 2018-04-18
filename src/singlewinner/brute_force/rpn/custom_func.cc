@@ -122,6 +122,7 @@ double custom_function::evaluate(vector<double> & stack,
 	}
 
 	double right_arg = *(stack.rbegin());
+	if (isnan(right_arg)) return(right_arg); // NaN propagate automatically
 	stack.pop_back();
 
 	switch(cur_atom) {
@@ -135,7 +136,7 @@ double custom_function::evaluate(vector<double> & stack,
 					// intend limit towards 0 so that 0 log 0 = 0, e.g	
 					return (-1e9);		
 				}
-				return(numeric_limits<double>::quiet_NaN());
+				return(-INFINITY);
 			}
 			return(log(right_arg));
 		case UNARY_FUNC_EXP: return(exp(right_arg));
@@ -153,6 +154,7 @@ double custom_function::evaluate(vector<double> & stack,
 	}
 
 	double middle_arg = *(stack.rbegin());
+	if (isnan(middle_arg)) return(middle_arg); // NaN propagate automatically
 	stack.pop_back();
 
 	// NOTE: The stack has most recently pushed arguments to the right.
@@ -165,17 +167,25 @@ double custom_function::evaluate(vector<double> & stack,
 		case BINARY_FUNC_MINUS: return(middle_arg - right_arg);
 		case BINARY_FUNC_MUL: return(middle_arg * right_arg);
 		case BINARY_FUNC_DIVIDE:
+			if (!finite(middle_arg) && finite(right_arg) && right_arg != 0) {
+				return(middle_arg);
+			}
+			// lim x->inf 3/x = 0
+			if (finite(middle_arg) && !finite(right_arg)) {
+				return(0);
+			}
 			// Perhaps we should let x/inf = 0? And inf/x = inf,
 			// except when x = 0, in which case it's undefined.
 			// inf/inf is also similarly undefined.
-			if (!finite(middle_arg) || !finite(middle_arg)) {
+			if (!finite(middle_arg) && !finite(right_arg)) {
 				return(numeric_limits<double>::quiet_NaN());
 			} 
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
 					return (middle_arg/(right_arg+1e-9));
 				}
-				return(numeric_limits<double>::quiet_NaN());
+				//return(numeric_limits<double>::quiet_NaN());
+				return(INFINITY); // could also be -infty
 			}
 			return(middle_arg/right_arg);
 		case BINARY_FUNC_MAX: return(max(middle_arg, right_arg));
@@ -194,6 +204,7 @@ double custom_function::evaluate(vector<double> & stack,
 	}
 
 	double left_arg = *(stack.rbegin());
+	if (isnan(left_arg)) return(left_arg); // NaN propagate automatically
 	stack.pop_back();
 
 	switch(cur_atom) {
@@ -296,15 +307,15 @@ bool custom_function::update_suitability(const custom_function & funct_to_test,
 	test_results.resize(test_in_vectors.size());
 	size_t i;
 
-	std::cout << "Cardinal suitability" << std::endl;
+	//std::cout << "Cardinal suitability" << std::endl;
 
 	for (i = 0; i < test_in_vectors.size(); ++i) {
-		copy(test_in_vectors[i].begin(), test_in_vectors[i].end(),
+		/*copy(test_in_vectors[i].begin(), test_in_vectors[i].end(),
 			ostream_iterator<double>(cout, " "));
-		cout << " => ";
+		cout << " => ";*/
 		test_results[i] = funct_to_test.evaluate(test_in_vectors[i], 
 			true);
-		cout << test_results[i] << endl;
+		//cout << test_results[i] << endl;
 		if (isnan(test_results[i])) {
 			return(false); // error during evaluation
 		}

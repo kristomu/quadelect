@@ -1,6 +1,8 @@
 #include "chaotic_functions.h"
 #include <math.h>
 
+#include <iostream>
+
 double triangle_wave(double x) {
 	double decimal = x - floor(x);
 	if (decimal <= 0.5) {
@@ -12,7 +14,16 @@ double triangle_wave(double x) {
 // Generalized Blancmange function, see
 // https://en.wikipedia.org/w/index.php?title=Blancmange_curve&oldid=824538531
 
+// Note, x is halved to make the periodicity 2 instead of 1, for reasons
+// to do with monotonicity tests. Fix later.
 double blancmange(double w, double x) {
+
+	// Quick and dirty stuff to avoid cascading infinities.
+	// This is actually undefined in the limit of +/- infinity because
+	// the function doesn't converge.
+	if (!finite(x)) return(1);
+
+	x /= 2.0;
 
 	double y = 0;
 	double pow_of_two = 1;
@@ -27,9 +38,12 @@ double blancmange(double w, double x) {
 	return(y);
 }
 
-/* Minkowski's question-mark function */
+// Minkowski's question-mark function
 // https://en.wikipedia.org/w/index.php?title=Minkowski%27s_question-mark_function&oldid=824984747
 double minkowski_q(double x) {
+	// Quick and dirty stuff to handle infinities.
+	if (!finite(x)) return(x);
+
     long p=x; if ((double)p>x) --p; /* p=floor(x) */
     long q=1, r=p+1, s=1, m, n;
     double d=1, y=p;
