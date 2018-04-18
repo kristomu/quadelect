@@ -54,32 +54,48 @@ int main(int argc, const char ** argv) {
     cout << "Test time!" << endl;
     cout << "Thy name is " << name << endl;
 
-    #pragma omp parallel for
-    for (size_t j = 0; j < tests.size(); ++j) {
-    	cond_brute_rpn cbp(tests[j]);
+    size_t j;
+    const int stepsize = 1000;
 
-        size_t attempts_per = 200000;
-    	bool mono_ok = (cbp.check_monotonicity(attempts_per) == 0);
-    	bool revsym_ok = (cbp.check_reversal_symmetry(attempts_per) == 0);
-    	bool liia_ok = (cbp.check_liia(attempts_per) == 0);
-        bool mat_ok = (cbp.check_mono_add_top(attempts_per) == 0);
+    for (size_t i = 0; j < tests.size(); i += stepsize) {
+        #pragma omp parallel for
+        for (size_t k = 0; k < stepsize; ++k) {
+            j = i+k;
+            if (j >= tests.size()) continue;
 
-        #pragma omp critical
-        {
-    	   cout << cbp.name() << " results: ";
-    	   if (mono_ok) {
-        		cout << "M";
-    	   }
-           if (mat_ok) {
-                cout << "A";
-           }
-    	   if (revsym_ok) {
-        		cout << "R";
-    	   }
-    	   if (liia_ok) {
-        		cout << "L";
-    	   }
-            cout << endl;
+        	cond_brute_rpn cbp(tests[j]);
+
+            size_t attempts_per = 10000;
+        	bool mono_ok = (cbp.check_monotonicity(attempts_per) == 0);
+        	bool revsym_ok = (cbp.check_reversal_symmetry(attempts_per) == 0);
+        	bool liia_ok = (cbp.check_liia(attempts_per) == 0);
+            bool mat_ok = (cbp.check_mono_add_top(attempts_per) == 0);
+            bool wpd_ok = (cbp.check_weak_positional_dominance(attempts_per) == 0);
+            bool dmtbr_ok = (cbp.check_dmtbr(attempts_per) == 0);
+
+            #pragma omp critical
+            {
+        	   cout << cbp.name() << " results: ";
+        	   if (mono_ok) {
+            		cout << "M";
+        	   }
+               if (mat_ok) {
+                    cout << "A";
+               }
+        	   if (revsym_ok) {
+            		cout << "R";
+        	   }
+        	   if (liia_ok) {
+            		cout << "L";
+        	   }
+               if (wpd_ok) {
+                    cout << "P";
+               }
+               if (dmtbr_ok) {
+                    cout << "D";
+               }
+                cout << endl;
+            }
         }
     }
 

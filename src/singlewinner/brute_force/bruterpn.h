@@ -34,6 +34,10 @@ class cond_brute_rpn : public election_method {
 			const vector<double> & vote_array) const;
 		bool check_revsym_single_instance(
     		const vector<double> & vote_array) const;
+		bool check_single_weak_positionally_dominant(
+    		const vector<double> & vote_array) const;
+		bool check_dmtbr_single_instance(int num_attempts,
+			const vector<double> & vote_array) const;
 
 	public:
 		pair<ordering, bool> elect_inner(
@@ -55,6 +59,8 @@ class cond_brute_rpn : public election_method {
 		int check_mono_add_top(int num_attempts) const;
 		int check_liia(int num_attempts) const;
 		int check_reversal_symmetry(int num_attempts) const;
+		int check_weak_positional_dominance(int num_attempts) const;
+		int check_dmtbr(int num_attempts) const;
 
 		void set_funct_code(unsigned long long funct_code_in, 
 			bool generosity) {

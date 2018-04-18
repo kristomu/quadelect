@@ -41,6 +41,14 @@
 #define C_CAB vote_array[4]
 #define C_CBA vote_array[5]
 
+// Pairwise
+#define C_AbB (C_ABC + C_ACB + C_CAB)
+#define C_AbC (C_ABC + C_ACB + C_BAC)
+#define C_BbA (C_BAC + C_BCA + C_CBA)
+#define C_BbC (C_BAC + C_BCA + C_ABC)
+#define C_CbA (C_CAB + C_CBA + C_BCA)
+#define C_CbB (C_CAB + C_CBA + C_ACB)
+
 #define idx_ABC 0
 #define idx_ACB 1
 #define idx_BAC 2
@@ -49,29 +57,14 @@
 #define idx_CBA 5
 
 bool cond_brute_rpn::is_abca(const vector<double> & vote_array) const {
-    // (A>B - B>A) > 0
-    // A>B = ABC + ACB + CAB
-    // B>A = BAC + BCA + CBA
-
-    if (C_ABC + C_ACB + C_CAB - (C_BAC + C_BCA + C_CBA) <= 0)
-        return(false);
-
-    // (B>C - C>B) > 0
-    // B>C = BCA + BAC + ABC
-    // C>B = CAB + CBA + ACB
-
-    if (C_BCA + C_BAC + C_ABC - (C_CAB + C_CBA + C_ACB) <= 0)
-        return(false);
-
-    // (C>A - A>B) > 0
-    // C>A = CAB + CBA + BCA
-    // A>B = ABC + ACB + CAB
-
-    return (C_CAB + C_CBA + C_BCA - (C_ABC + C_ACB + C_CAB) > 0);
+    return (C_AbB > C_BbA && C_BbC > C_CbB && C_CbA > C_AbC);
 }
 
 bool cond_brute_rpn::get_scores(const vector<double> & vote_array,
     vector<double> & output) const {
+    
+    assert (is_abca(vote_array));
+
     try {
         double ascore = cfunct.evaluate(vote_array, false);
         //
@@ -104,6 +97,9 @@ bool cond_brute_rpn::get_scores(const vector<double> & vote_array,
         output[1] = bscore;
         output[2] = cscore;
     } catch (std::runtime_error & rerr) {
+        output[0] = 0;
+        output[1] = 0;
+        output[2] = 0;
         return(false);
     }
     return(true);
@@ -146,15 +142,17 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
             continue;
 
         // Otherwise raise.
-        modified_vote_array[down[which]] -=1;
-        modified_vote_array[up[which]] += 1;
-
-        // Get the modified scores
-        get_scores(modified_vote_array, modified_scores);
+        // TODO: Make the system handle raising by arbitrary amounts.
+        double how_much_to_transfer = 1;
+        modified_vote_array[down[which]] -= how_much_to_transfer;
+        modified_vote_array[up[which]] += how_much_to_transfer;
 
         // Check that we're still ABCA. If not, A won, so that's OK
         if (!is_abca(modified_vote_array))
             continue;
+
+        // Get the modified scores
+        get_scores(modified_vote_array, modified_scores);
 
         // Check that if someone ranked below A, he's not ranked above now.
 
@@ -215,16 +213,16 @@ int cond_brute_rpn::check_monotonicity(int num_attempts) const {
 
     int failures = 0;
 
+    vector<double> vote_array(6, 0);
+
     for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
         ++cur_attempt) {
 
-        vector<double> vote_array(6, 0);
-
-        while (!is_abca(vote_array)) {
+        do {
             for (int counter = 0; counter < 6; ++counter) {
                 vote_array[counter] = drand48() * 37;
             }
-        }
+        } while (!is_abca(vote_array));
 
         if (!check_monotonicity_single_instance(inner_num_attempts, 
             vote_array)) {
@@ -251,15 +249,15 @@ bool cond_brute_rpn::check_mono_add_top_single_instance(int num_attempts,
         int up[] =   {idx_ABC, idx_ACB};
 
         int which = random() % 2;
-        
-        modified_vote_array[up[which]] += 1;
 
-        // Get the modified scores
-        get_scores(modified_vote_array, modified_scores);
+        modified_vote_array[up[which]] += 1;
 
         // Check that we're still ABCA. If not, A won, so that's OK
         if (!is_abca(modified_vote_array))
             continue;
+
+        // Get the modified scores
+        get_scores(modified_vote_array, modified_scores);
 
         // Check that if someone ranked below A, he's not ranked above now.
 
@@ -378,7 +376,7 @@ int cond_brute_rpn::check_liia(int num_attempts) const {
 
         while (!is_abca(vote_array)) {
             for (int counter = 0; counter < 6; ++counter) {
-                vote_array[counter] = int(drand48() * 37);
+                vote_array[counter] = drand48() * 37;
             }
         }
 
@@ -412,10 +410,24 @@ bool cond_brute_rpn::check_revsym_single_instance(
     // CAB -> BAC
     // CBA -> ABC
 
-    vector<double> reversed_votes = {C_CBA, C_BCA, C_CAB, C_ACB, C_BAC, 
-        C_ABC};
+    // But we must also reverse the direction of a cycle, if any. We thus
+    // get
+
+    // ABC -> BCA
+    // ACB -> CBA
+    // BAC -> BAC
+    // BCA -> ABC
+    // CAB -> CAB
+    // CBA -> ACB
+
+    vector<double> reversed_votes = {C_BCA, C_CBA, C_BAC, C_ABC, C_CAB, 
+        C_ACB};
 
     get_scores(reversed_votes, modified_scores);
+
+    // Since we swapped C and B when we reversed the ballots, we must swap
+    // them back.
+    swap(reversed_votes[1], reversed_votes[2]);
 
     // If A > B on both, we fail. Same for every other combination.
     // Note that we let ties pass.
@@ -448,16 +460,16 @@ int cond_brute_rpn::check_reversal_symmetry(int num_attempts) const {
 
     int failures = 0;
 
+    vector<double> vote_array(6, 0);
+
     for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
         ++cur_attempt) {
 
-        vector<double> vote_array(6, 0);
-
-        while (!is_abca(vote_array)) {
+        do {
             for (int counter = 0; counter < 6; ++counter) {
                 vote_array[counter] = int(drand48() * 37);
             }
-        }
+        } while (!is_abca(vote_array));
 
         if (!check_revsym_single_instance(vote_array)) {
             /*cout << "Failure detected." << endl;
@@ -470,6 +482,191 @@ int cond_brute_rpn::check_reversal_symmetry(int num_attempts) const {
     return(failures);
 }
 
+// Check if the method respects weak positional dominance, i.e. if
+// sum i=1..k A's ith prefs >= sum i=1..k B's kth prefs for all k and the 
+// inequality is strict for at least one, then B can't win.
+bool cond_brute_rpn::check_single_weak_positionally_dominant(
+    const vector<double> & vote_array) const {
+
+    double fpA = C_ABC + C_ACB;
+    double fpB = C_BAC + C_BCA;
+
+    double spA = C_BAC + C_CAB;
+    double spB = C_ABC + C_CBA;
+
+    if (! (fpA >= fpB && fpA + spA >= fpB + spB)) return(true);
+    //if (fpA == spA && fpB == spB) return(true);
+    if (fpA == fpB) return(true);
+
+    vector<double> scores(3);
+    get_scores(vote_array, scores);
+
+    return (scores[0] > scores[1]);
+}
+
+int cond_brute_rpn::check_weak_positional_dominance(int num_attempts) const {
+    int cur_attempt = 0;    // Don't count anything but ABCA cycles as an
+                            // attempt.
+    int failures = 0;
+
+    for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
+        ++cur_attempt) {
+
+        vector<double> vote_array(6, 0);
+
+        while (!is_abca(vote_array)) {
+            for (int counter = 0; counter < 6; ++counter) {
+                vote_array[counter] = int(drand48() * 37);
+            }
+        }
+
+        if (!check_single_weak_positionally_dominant(vote_array)) {
+            /*cout << "Failure detected." << endl;
+            copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
+            cout << endl;
+            cout << "Scores:" << endl;
+            vector<double> scores(3);
+            get_scores(vote_array, scores);
+            copy(scores.begin(), scores.end(), ostream_iterator<double>(cout, " "));
+            cout << endl;*/
+            ++failures;
+        }
+    }
+
+    return(failures);
+}
+
+// Check dominant mutual burial resistance.
+bool cond_brute_rpn::check_dmtbr_single_instance(int num_attempts,
+    const vector<double> & vote_array) const {
+
+    vector<double> modified_vote_array;
+    vector<double> scores(3);
+
+    modified_vote_array = vote_array;
+
+    // If B is the CW, 
+    //      B has first preference count between [v/3+1, v/2],
+    //      burying B on some CBA ballots creates an ABCA cycle
+    //      and C then wins according to the completion rule
+    // then the method fails DMTBR.
+
+    // Every Condorcet method is DMH burial resistant, which is why we
+    // don't bother checking anything if B's first preference count is
+    // greater than v/2.
+
+    // Whoops, I could have made things easier for myself by having let
+    // A be the base candidate and B the burier.
+
+    // Nonzero amount of CBA votes?
+    if (C_CBA == 0)
+        return(true);
+
+    // fpB between v/3 and v/2?
+    double numvoters = C_ABC + C_ACB + C_BAC + C_BCA + C_CAB + C_CBA;
+    double fpB = C_BAC + C_BCA;
+    if (fpB <= numvoters/3.0 || fpB > numvoters/2.0)
+        return(true);
+
+    // Is B the CW?
+    if (!(C_BbA > C_AbB && C_BbC > C_CbB))
+        return(true);
+
+    // Bury B in some way
+    for (int i = 0; i < num_attempts; ++i) {
+        double how_many = drand48() * C_CBA;
+
+        // At least try burying on all ballots
+        if (i == 0) { 
+            how_many = C_CBA;
+        }
+
+        modified_vote_array[idx_CBA] = vote_array[idx_CBA] - how_many;
+        modified_vote_array[idx_CAB] = vote_array[idx_CAB] + how_many;
+
+        if (!is_abca(modified_vote_array))
+            continue;
+
+        get_scores(modified_vote_array, scores);
+        // If C wins, failure
+        if (scores[2] >= scores[0] && scores[2] >= scores[1])
+            return(false);
+    }
+    return(true);
+}
+
+int cond_brute_rpn::check_dmtbr(int num_attempts) const {
+    int cur_attempt = 0;    // Don't count anything but ABCA cycles as an
+                            // attempt.
+    int failures = 0;
+    int inner_tries = 20;
+
+    // First try a few revsym examples. (A) relabeled
+    // 4: b>c>a 
+    // 4: c>b>a
+    // 1: a>b>c
+    vector<double> vote_array = {1, 0, 0, 4, 0, 4};
+    if (!check_dmtbr_single_instance(inner_tries, vote_array))
+        return(1);
+
+    // (F) relabeled
+    // 4: a>b>c
+    // 1: c>b>a
+    // 4: b>c>a
+    // b is the CW, we buried b under a on cba
+    vote_array = {4, 0, 0, 4, 0, 1};
+    if (!check_dmtbr_single_instance(inner_tries, vote_array)) {
+        return(1);
+    }
+
+    for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
+        ++cur_attempt) {
+
+        do {
+            for (int counter = 0; counter < 6; ++counter) {
+                vote_array[counter] = int(drand48() * 37);
+            }
+        } while (is_abca(vote_array));
+
+        if (!check_dmtbr_single_instance(inner_tries, vote_array)) {
+            /*cout << "Failure detected." << endl;
+            copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
+            cout << endl;*/
+            ++failures;
+        }
+    }
+
+    return(failures);
+}
+
+/*
+ Unmanipulable majority:
+ If (assuming there are more than two candidates) the ballot 
+ rules don't constrain voters to expressing fewer than three 
+ preference-levels, and A wins being voted above B on more 
+ than half the ballots, then it must not be possible to make B 
+ the winner by altering any of the ballots on which B is voted 
+ above A without raising their ranking or rating of B.*
+*/
+/*bool cond_brute_rpn::check_um_single_instance(int num_attempts,
+    const vector<double> & vote_array) const {
+
+    // In our terms:
+    // If either A is the CW or we have an ABCA cycle
+    // and (A>B) > v/2
+    //  (will be the case since we have no equal-rank or trunc. here)
+    // then there's no way of making B the winner by turning BAC->BCA or 
+    // vice versa.
+}*/
+
+// Resolvability:
+// If there is no tie, return true
+// Otherwise, if we can break the tie by adding epsilon to one or more of
+// the ballots, return true
+// Otherwise, return false.
+
+// This is very easy. Generate an ABCA, check for tie, if there is a tie,
+// try to break it by adding epsilon to each ranking in turn.
 
 pair<ordering, bool> cond_brute_rpn::elect_inner(
 		const list<ballot_group> & papers,
