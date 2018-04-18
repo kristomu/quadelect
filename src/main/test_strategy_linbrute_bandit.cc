@@ -1,0 +1,246 @@
+#include <values.h>
+#include <assert.h>
+#include <errno.h>
+
+#include <iterator>
+#include <iostream>
+#include <fstream>
+#include <list>
+#include <set>
+
+#include "../ballot_tools.h"
+#include "../ballots.h"
+#include "../tools.h"
+
+#include "../singlewinner/positional/as241.h"
+
+#include "../generator/all.h"
+
+#include "../singlewinner/gradual_c_b.h"
+
+#include "../singlewinner/stats/cardinal.h"
+#include "../singlewinner/elimination.h"
+#include "../singlewinner/positional/positional.h"
+#include "../singlewinner/positional/simple_methods.h"
+
+#include "../tests/tests/monotonicity/monotonicity.h"
+
+#include "../stats/stats.h"
+
+// TODO, split these. Do that after improving pairwise and implementing tte,
+// though.
+#include "../singlewinner/pairwise/method.h"
+#include "../singlewinner/pairwise/simple_methods.h"
+#include "../singlewinner/pairwise/all.h"
+#include "../singlewinner/pairwise/rpairs.h"
+#include "../singlewinner/pairwise/kemeny.h"
+#include "../singlewinner/pairwise/odm/odm.h"
+#include "../singlewinner/pairwise/odm/hits.h"
+#include "../singlewinner/pairwise/odm/odm_atan.h"
+#include "../singlewinner/pairwise/sinkhorn.h"
+//#include "../singlewinner/pairwise/tournament.cc"
+#include "../singlewinner/pairwise/least_rev.h"
+#include "../singlewinner/pairwise/random/randpair.h"
+#include "../singlewinner/pairwise/dodgson_approxs.h"
+
+#include "../singlewinner/experimental/3exp.h"
+#include "../singlewinner/brute_force/brute.h"
+#include "../singlewinner/brute_force/bruterpn.h"
+
+#include "../singlewinner/sets/mdd.h"
+#include "../singlewinner/sets/condorcet.h"
+#include "../singlewinner/sets/max_elements/all.h"
+#include "../singlewinner/sets/partition.h"
+#include "../singlewinner/meta/comma.h"
+#include "../singlewinner/meta/slash.h"
+
+#include "../singlewinner/stats/var_median/vmedian.h"
+//#include "../singlewinner/stats/median.cc"
+#include "../singlewinner/stats/mode.h"
+
+#include "../singlewinner/young.h"
+
+#include "../bandit/bandit.h"
+#include "../bandit/lilucb.h"
+
+#include "strat_test.h"
+
+// default values for number of processors and current processor
+// use -I compiler options to get multiproc support. TODO: make this an
+// input parameter.
+
+#ifndef __NUMPROCS__
+#define __NUMPROCS__ 1
+#endif
+
+#ifndef __THISPROC__
+#define __THISPROC__ 0
+#endif
+
+// Determine the the z binomial confidence interval.
+// Agresti-Coull. http://www.graphpad.com/guides/prism/6/statistics/index.htm?how_to_compute_the_95_ci_of_a_proportion.htm
+// TODO: use as241.c to calculate the Z directly. Make class for Bonferroni
+// correction. Place everything in an object so that we don't have to bother
+// about it again. Ideally we should use something more ANOVA-like than
+// Bonferroni, but eh.
+pair<double, double> confidence_interval(int n, double p_mean, double z) {
+
+    double p_mark = (p_mean * n + 0.5 * z * z) / (n + z * z);
+
+    double W = sqrt(p_mark * (1 - p_mark) / (n + z * z));
+
+    return (pair<double, double>(p_mark - W, p_mark + W));
+}
+
+// Testing JGA's "strategic manipulation possible" concept. Perhaps it should
+// be put into ttetest instead. "A method is vulnerable to burial if, when X
+// wins, candidates who prefer other candidates to X can win by ranking X
+// last"...
+// But this isn't just burial. It's any sort of ordering. JGA uses what we may
+// call "constructive strategy", i.e. assume there's a group who all prefer
+// another candidate, Y, to X. If there is a ballot they can all vote that
+// will move the winner from X to Y, then the method is vulnerable.
+// One might also imagine setwise generalizations of this, e.g. a coalition
+// prefers any in {set} to X, and if they can all vote one way so that a member
+// of the set wins, then the method is vulnerable. Assume the exact member is
+// found using backroom dealing or whatnot.
+
+void test_with_bandits(vector<election_method *> & to_test, 
+	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
+	pure_ballot_generator * strat_generator) {
+
+	vector<Bandit> bandits;
+	vector<StrategyTest> sts;
+
+	int numvoters = 5000; // was 37
+    int initial_numcands = 3/*4*/, numcands = initial_numcands;
+
+    size_t i;
+
+	for (i = 0; i < to_test.size(); ++i) {
+		sts.push_back(StrategyTest(ballotgens, strat_generator,
+			numvoters, numcands, randomizer, to_test[i], 0));
+	}
+
+	for (i = 0; i < to_test.size(); ++i) {
+		bandits.push_back(Bandit(&sts[i]));
+	}
+
+	Lil_UCB lil_ucb;
+    lil_ucb.load_bandits(bandits);
+
+	bool confident = false;
+
+	double num_methods = sts.size();
+    double report_significance = 0.05;
+    double zv = ppnd7(1-report_significance/num_methods);
+
+    time_t startpt = time(NULL);
+
+	for (int j = 1; j < 1000000 && !confident; ++j) {
+		// Bleh, why is min a macro?
+		int num_tries = max(100, (int)sts.size());
+		// Don't run more than 20k at a time because otherwise
+		// feedback is too slow.
+		//num_tries = min(40000, num_tries);
+		double progress = lil_ucb.pull_bandit_arms(num_tries);
+		if (progress == 1) {
+			std::cout << "Managed in fewer than " << j * num_tries << 
+				" tries." << std::endl;
+			confident = true;
+		} else {
+			if (time(NULL) - startpt < 2) {
+				continue;
+			}
+			std::cout << time(NULL) - startpt << "s." << std::endl;
+			std::cout << "After " << j * num_tries << ": " << progress << std::endl;
+			vector<pair<double, int> > so_far;
+			if (time(NULL) - startpt < 5) {
+				continue;
+			}
+			startpt = time(NULL);
+			// Warning: No guarantee that this will contain the best until
+			// the method is finished; and no guarantee that it will contain
+			// the best m even when the method is finished for m>1. (We 
+			// should really have it work for m>1 somehow.)
+			size_t k;
+			for (k = 0; k < bandits.size(); ++k) {
+				// TODO: Some kind of get C here...
+				so_far.push_back(pair<double, int>(bandits[k].get_mean(), k));
+			}
+			sort(so_far.begin(), so_far.end());
+			reverse(so_far.begin(), so_far.end());
+
+			size_t how_many = 20;
+			cout << "Interim report (by mean):" << endl;
+			for (k = 0; k < min(how_many, sts.size()); ++k) {
+				double mean = bandits[so_far[k].second].get_mean();
+
+				pair<double, double> c_i = confidence_interval(
+					bandits[so_far[k].second].get_num_pulls(), 
+					mean, zv);
+				double lower = round((1 - c_i.second) * 1000)/1000.0;
+				double middle = round((1 - mean) * 1000)/1000.0;
+				double upper = round((1 - c_i.first) * 1000)/1000.0;
+
+				cout << k+1 << ". " << bandits[so_far[k].second].name() << "(" <<
+					lower << ", " << middle << ", " << upper << ")" << endl;
+			}
+
+		}
+	}
+	
+	const Bandit * results = lil_ucb.get_best_bandit_so_far();
+
+	cout << "Best so far is " << results->name() << std::endl; //<< " with CB of " << results.second << std::endl;
+	cout << "It has a mean of " << results->get_mean() << endl;
+
+}
+
+int main(int argc, const char ** argv) {
+    vector<election_method *> condorcets;
+    vector<election_method *> condorcetsrc;
+
+    int counter;
+
+    //int got_this_far_last_time = 0;
+
+    int radix=9;
+
+    for (int j = 0; j < pow(radix, 6); ++j) {
+    	cond_brute cbp(j, radix);
+
+        if (cbp.is_monotone() && cbp.passes_mat() /*&& cbp.reversal_symmetric()*/) {
+            condorcetsrc.push_back(new cond_brute(j, radix));
+            cout << "Adding " << j << endl;
+	   }
+    }
+
+    condorcet_set xd;
+
+    for (counter = condorcetsrc.size()-1; counter >= 0; --counter) {
+        condorcets.push_back(new comma(condorcetsrc[counter], &xd));
+    }
+
+    reverse(condorcets.begin(), condorcets.end());
+
+    cout << "There are " << condorcets.size() << " methods." << endl;
+
+    // Generate separate RNGs for each thread.
+    const int numthreads = 16;
+    vector<rng> randomizers;
+    for (counter = 0; counter < numthreads; ++counter) {
+        randomizers.push_back(rng(counter));
+    }
+
+    vector<pure_ballot_generator *> ballotgens;
+    int dimensions = 4;
+    ballotgens.push_back(new impartial(true, false));
+    // Something is wrong with this one. Check later.
+    //ballotgens.push_back(new dirichlet(false));
+    ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
+
+    test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0]);
+
+    return(0);
+}

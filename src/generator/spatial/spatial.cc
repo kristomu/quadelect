@@ -39,7 +39,7 @@ vector<double> spatial_generator::max_dim_vector(double dimensions) const {
 
 	// Same as above, only generate the max vector. Slow? Perhaps.
 
-	vector<double> toRet(1, ceil(dimensions));
+	vector<double> toRet(ceil(dimensions), 1);
 
 	if (floor(dimensions) != ceil(dimensions))
 		*(toRet.rbegin()) *= dimensions - floor(dimensions);
@@ -67,12 +67,12 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 	// If they're fixed and the number of candidates are right, then
 	// defer to the fixed position.
 
-	int counter, sec;
+	size_t counter, sec;
 
-	if (fixed && numcands == (int)fixed_cand_positions.size())
+	if (fixed && (size_t)numcands == fixed_cand_positions.size())
 		cand_positions = fixed_cand_positions;
 	else {
-		for (counter = 0; counter < numcands; ++counter)
+		for (counter = 0; counter < (size_t)numcands; ++counter)
 			cand_positions.push_back(rnd_dim_vector(num_dimensions,
 						random_source));
 	}
@@ -83,14 +83,14 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 
 	// TODO: Move to another function.
 
-	int eff_dimensions = ceil(num_dimensions);
+	size_t eff_dimensions = ceil(num_dimensions);
 
 	vector<double> voter_pos, max_dist(eff_dimensions, 0), 
 		distances_to_cand(numcands, 0);
 
 	vector<double> max_vector = max_dim_vector(num_dimensions);
 
-	for (counter = 0; counter < num_voters; ++counter) {
+	for (counter = 0; counter < (size_t)num_voters; ++counter) {
 		ballot_group our_entry;
 		our_entry.weight = 1;
 
@@ -100,7 +100,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 		// Dump distances to all the candidates and get the minimum
 		// distance (which may be needed for truncation).
 		double mindist = INFINITY;
-		for (sec = 0; sec < numcands; ++sec) {
+		for (sec = 0; sec < (size_t)numcands; ++sec) {
 			distances_to_cand[sec] = distance(voter_pos,
 					cand_positions[sec]);
 
@@ -123,10 +123,11 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 			// otherwise it's at the zero edge. This can be done
 			// because distance is decomposable.
 
-			for (sec = 0; sec < eff_dimensions; ++sec)
+			for (sec = 0; sec < eff_dimensions; ++sec) {
 				if (voter_pos[sec] > max_vector[sec] * 0.5)
 					max_dist[sec] = 0; // TODO, min?
 				else	max_dist[sec] = max_vector[sec];
+			}
 
 			max_distance = distance(voter_pos, max_dist);
 		}
@@ -148,7 +149,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 
 		// Expensive part ahead!
 		// For all candidates...
-		for (sec = 0; sec < numcands; ++sec) {
+		for (sec = 0; sec < (size_t)numcands; ++sec) {
 			// Get distance to candidate.
 			double our_dist = distances_to_cand[sec];
 
@@ -165,8 +166,8 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 							max_distance-our_dist));
 		}
 
-		our_entry.complete = ((int)our_entry.contents.size() == 
-			numcands);
+		our_entry.complete = (our_entry.contents.size() == 
+			(size_t)numcands);
 		our_entry.rated = true;
 
 		toRet.push_back(our_entry);

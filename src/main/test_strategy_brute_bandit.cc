@@ -63,6 +63,8 @@
 #include "../bandit/bandit.h"
 #include "../bandit/lilucb.h"
 
+#include "../bandit/tests/reverse.h"
+
 #include "strat_test.h"
 
 // default values for number of processors and current processor
@@ -279,18 +281,24 @@ bool test_once(list<ballot_group> & ballots,
 
 void test_with_bandits(vector<election_method *> & to_test, 
 	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
-	pure_ballot_generator * strat_generator) {
+	pure_ballot_generator * strat_generator, bool find_most_susceptible) {
 
-	impartial iic(true, false);
+	impartial ic(true, false);
 
 	vector<Bandit> bandits;
+
+    // sts: Tests that count how many times we find a strategy
+    // reverse_sts: Tests that count how many times we fail.
+
+    // Since bandits try to maximize the proportion (reward), using sts
+    // will find the methods that resist strategy best, while using
+    // reverse_sts will find those that are most susceptible.
+
 	vector<StrategyTest> sts;
+    vector<ReverseTest> reverse_sts;
 
 	vector<election_method *> condorcets;
 	condorcets.push_back(to_test[0]);
-
-	/*StrategyTest st(iic,  numvoters, numcands, randomizer, condorcets,
-		0);*/
 
 	int numvoters = 5000; // was 37
     int initial_numcands = 3/*4*/, numcands = initial_numcands;
@@ -298,13 +306,22 @@ void test_with_bandits(vector<election_method *> & to_test,
     size_t i;
 
 	for (i = 0; i < to_test.size(); ++i) {
-		condorcets[0] = to_test[i];
-		sts.push_back(StrategyTest(ballotgens, strat_generator,
-			numvoters, numcands, randomizer, condorcets, 0));
+        sts.push_back(StrategyTest(ballotgens, strat_generator,
+            numvoters, numcands, randomizer, to_test[i], 0));
 	}
 
+    // Needs to be done this way because inserting stuff into sts can
+    // alter pointers.
+    for (i = 0; i < sts.size(); ++i) {
+        reverse_sts.push_back(ReverseTest(&sts[i]));
+    }
+
 	for (i = 0; i < to_test.size(); ++i) {
-		bandits.push_back(Bandit(&sts[i]));
+        if (find_most_susceptible) {
+            bandits.push_back(Bandit(&reverse_sts[i]));
+        } else {
+            bandits.push_back(Bandit(&sts[i]));
+        }
 	}
 
 	Lil_UCB lil_ucb;
@@ -438,7 +455,8 @@ int main(int argc, const char ** argv) {
     //ballotgens.push_back(new dirichlet(false));
     ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
 
-    test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0]);
+    test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0], 
+        false);
 
     return(0);
 }

@@ -47,13 +47,13 @@ class StrategyTest : public Test {
 		StrategyTest(vector<pure_ballot_generator *> ballot_gens_in,
 			pure_ballot_generator * strat_generator_in,
 			int numvoters_in, int numcands_in, rng & randomizer_in, 
-			vector<election_method *> & methods, int index) {
+			election_method * method_in, int index) {
 			total_generation_attempts = 0;
 
 			assert (numvoters_in > 0);
 			assert (numcands_in > 0);
 			randomizer = &randomizer_in;
-			method = methods[index];
+			method = method_in;
 			numvoters = numvoters_in;
 			numcands = numcands_in;
 			ballot_gens = ballot_gens_in;
