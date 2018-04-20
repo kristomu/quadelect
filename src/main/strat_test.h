@@ -35,11 +35,8 @@ class StrategyTest : public Test {
 		pure_ballot_generator * strat_generator;
 
 		strategy_result attempt_execute_strategy(); // Mega method, fix later
-
-		// If it tied too many times, this gets set and the method
-		// automatically receives a 0 every time.
+		
 		bool too_many_ties;
-
 		size_t ballot_gen_idx;
 
 	public:
@@ -63,13 +60,6 @@ class StrategyTest : public Test {
 		}
 
 		double perform_test() {
-			// It's the other way around because MAB tends to maximize
-			// and we want the most strategy-resistant method.
-			// Fix later.
-			if (too_many_ties) {
-				return(0);
-			}
-
 			// We need to make a theoretically coherent system for handling
 			// ties. Ties should hurt more the more often they appear.
 			// (Also should find out how the cancellation method really
@@ -77,18 +67,16 @@ class StrategyTest : public Test {
 
 			switch(attempt_execute_strategy()) {
 				case STRAT_SUCCESS:
+				case STRAT_TIE:
 					return(0);
 				case STRAT_FAILED:
 					return(1);
-				case STRAT_TIE:
-					return (0.001);
-					//return(0.01);
 				default:
 					throw invalid_argument(
 						"unknown strategy type");
 			}
 		}
-		std::string name() const { return ("Strategy(multiple/" +// + ballot_gen->name() + 
+		std::string name() const { return ("Strategy(multiple/" +
 			method->name() + ")");}
 
 		int get_total_generation_attempts() const { 

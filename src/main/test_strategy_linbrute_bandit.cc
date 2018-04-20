@@ -61,36 +61,12 @@
 #include "../singlewinner/young.h"
 
 #include "../bandit/bandit.h"
+#include "../bandit/binomial.h"
 #include "../bandit/lilucb.h"
 
+#include "../bandit/tests/reverse.h"
+
 #include "strat_test.h"
-
-// default values for number of processors and current processor
-// use -I compiler options to get multiproc support. TODO: make this an
-// input parameter.
-
-#ifndef __NUMPROCS__
-#define __NUMPROCS__ 1
-#endif
-
-#ifndef __THISPROC__
-#define __THISPROC__ 0
-#endif
-
-// Determine the the z binomial confidence interval.
-// Agresti-Coull. http://www.graphpad.com/guides/prism/6/statistics/index.htm?how_to_compute_the_95_ci_of_a_proportion.htm
-// TODO: use as241.c to calculate the Z directly. Make class for Bonferroni
-// correction. Place everything in an object so that we don't have to bother
-// about it again. Ideally we should use something more ANOVA-like than
-// Bonferroni, but eh.
-pair<double, double> confidence_interval(int n, double p_mean, double z) {
-
-    double p_mark = (p_mean * n + 0.5 * z * z) / (n + z * z);
-
-    double W = sqrt(p_mark * (1 - p_mark) / (n + z * z));
-
-    return (pair<double, double>(p_mark - W, p_mark + W));
-}
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X
@@ -107,10 +83,19 @@ pair<double, double> confidence_interval(int n, double p_mean, double z) {
 
 void test_with_bandits(vector<election_method *> & to_test, 
 	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
-	pure_ballot_generator * strat_generator) {
+	pure_ballot_generator * strat_generator, bool find_most_susceptible) {
 
-	vector<Bandit> bandits;
+	vector<BinomialBandit> bandits;
+
+    // sts: Tests that count how many times we find a strategy
+    // reverse_sts: Tests that count how many times we fail.
+
+    // Since bandits try to maximize the proportion (reward), using sts
+    // will find the methods that resist strategy best, while using
+    // reverse_sts will find those that are most susceptible.
+
 	vector<StrategyTest> sts;
+    vector<ReverseTest> reverse_sts;
 
 	int numvoters = 5000; // was 37
     int initial_numcands = 3/*4*/, numcands = initial_numcands;
@@ -118,12 +103,22 @@ void test_with_bandits(vector<election_method *> & to_test,
     size_t i;
 
 	for (i = 0; i < to_test.size(); ++i) {
-		sts.push_back(StrategyTest(ballotgens, strat_generator,
-			numvoters, numcands, randomizer, to_test[i], 0));
+        sts.push_back(StrategyTest(ballotgens, strat_generator,
+            numvoters, numcands, randomizer, to_test[i], 0));
 	}
 
+    // Needs to be done this way because inserting stuff into sts can
+    // alter pointers.
+    for (i = 0; i < sts.size(); ++i) {
+        reverse_sts.push_back(ReverseTest(&sts[i]));
+    }
+
 	for (i = 0; i < to_test.size(); ++i) {
-		bandits.push_back(Bandit(&sts[i]));
+        if (find_most_susceptible) {
+            bandits.push_back(BinomialBandit(&reverse_sts[i]));
+        } else {
+            bandits.push_back(BinomialBandit(&sts[i]));
+        }
 	}
 
 	Lil_UCB lil_ucb;
@@ -133,9 +128,12 @@ void test_with_bandits(vector<election_method *> & to_test,
 
 	double num_methods = sts.size();
     double report_significance = 0.05;
-    double zv = ppnd7(1-report_significance/num_methods);
+    // Bonferroni correction
+    double corrected_significance = report_significance/num_methods;
+    //double zv = ppnd7(1-report_significance/num_methods);
 
     time_t startpt = time(NULL);
+    confidence_int ci;
 
 	for (int j = 1; j < 1000000 && !confident; ++j) {
 		// Bleh, why is min a macro?
@@ -171,14 +169,16 @@ void test_with_bandits(vector<election_method *> & to_test,
 			sort(so_far.begin(), so_far.end());
 			reverse(so_far.begin(), so_far.end());
 
-			size_t how_many = 20;
+			size_t how_many = 10;
 			cout << "Interim report (by mean):" << endl;
 			for (k = 0; k < min(how_many, sts.size()); ++k) {
 				double mean = bandits[so_far[k].second].get_mean();
 
-				pair<double, double> c_i = confidence_interval(
-					bandits[so_far[k].second].get_num_pulls(), 
-					mean, zv);
+                int num_pulls = bandits[so_far[k].second].get_num_pulls();
+                int num_successes = bandits[so_far[k].second].get_num_successes();
+
+				pair<double, double> c_i = ci.bin_prop_interval(
+                    corrected_significance, num_successes, num_pulls);
 				double lower = round((1 - c_i.second) * 1000)/1000.0;
 				double middle = round((1 - mean) * 1000)/1000.0;
 				double upper = round((1 - c_i.first) * 1000)/1000.0;
@@ -229,8 +229,10 @@ int main(int argc, const char ** argv) {
     // Generate separate RNGs for each thread.
     const int numthreads = 16;
     vector<rng> randomizers;
+	time_t startpt = time(NULL);    // randomize timer
+
     for (counter = 0; counter < numthreads; ++counter) {
-        randomizers.push_back(rng(counter));
+        randomizers.push_back(rng(startpt + counter));
     }
 
     vector<pure_ballot_generator *> ballotgens;
@@ -240,7 +242,8 @@ int main(int argc, const char ** argv) {
     //ballotgens.push_back(new dirichlet(false));
     ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
 
-    test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0]);
+    test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0],
+    	false);
 
     return(0);
 }

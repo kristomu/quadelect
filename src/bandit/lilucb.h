@@ -40,10 +40,10 @@ class Lil_UCB {
 				num_bandits));
 		}
 
-		queue_entry create_queue_entry(Bandit & bandit, size_t num_bandits) {
+		queue_entry create_queue_entry(Bandit * bandit, size_t num_bandits) {
 			queue_entry out;
-			out.bandit_ref = &bandit;
-			out.score = get_score(bandit, num_bandits);
+			out.bandit_ref = bandit;
+			out.score = get_score(*bandit, num_bandits);
 			return(out);
 		}
 
@@ -56,7 +56,17 @@ class Lil_UCB {
 			delta = 0.01; // Default
 		}
 
-		void load_bandits(std::vector<Bandit> & bandits);
+		void load_bandits(std::vector<Bandit *> & bandits);
+
+		// Slightly clumsy way of permitting polymorphism without limiting
+		// ourselves to vectors
+		template<typename T> void load_bandits(T & bandits) {
+			std::vector<Bandit *> translation_container;
+			for (size_t i = 0; i < bandits.size(); ++i) {
+				translation_container.push_back(&bandits[i]);
+			}
+			load_bandits(translation_container);
+		}
 
 		// Returns 1 if we're confident of the result, otherwise a
 		// status number on [0,1] indicating how close we are to

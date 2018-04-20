@@ -3,7 +3,7 @@
 #define __VOTE_STATS
 
 #include "../tools.h"
-#include "confidence/student.h"
+#include "confidence/confidence.h"
 #include <iostream>
 
 using namespace std;
@@ -89,9 +89,6 @@ template<typename T> class stats {
 		T get_variance() const { return(get_variance(normalization)); }
 		T get_median() const { return(get_median(normalization)); }
 		T get_last() const { return(get_last(normalization)); }
-
-		double get_confidence_interval(double uncertainty, 
-				t_confidence_int & confidence_checker) const;
 
 		string display_stats(bool show_median, double interval) const;
 		virtual string get_name() const { return(name); }
@@ -295,20 +292,12 @@ template <typename T> T stats<T>::get_last(stats_type norm_type) const {
 	}
 }
 
-template<typename T> double stats<T>::get_confidence_interval(
-		double uncertainty, t_confidence_int & 
-		confidence_checker) const {
-
-	return(confidence_checker.interval(get_mean(), get_variance(), 
-				num_scores, uncertainty));
-}
-
 // If show_median is true, we show the mean and median, otherwise we show the
 // mean and its confidence interval.
 template<typename T> string stats<T>::display_stats(bool show_median,
 		double interval) const {
 
-	t_confidence_int x;
+	confidence_int ci;
 
 	string stats;
 	if (show_median)
@@ -322,9 +311,11 @@ template<typename T> string stats<T>::display_stats(bool show_median,
 			uncertainty = 1 - interval;
 		else	uncertainty = interval;
 
+		double half_width = ci.t_interval_half_width(
+			uncertainty, get_mean(), get_variance(), num_scores);
+
 		stats = s_padded(dtos(get_mean(), 5), 7) + "  +/- " +
-			s_padded(dtos(get_confidence_interval(uncertainty, x),
-						5), 7);
+			s_padded(dtos(half_width, 5), 7);
 	}
 
 	return(stats + "         " + s_padded(get_name(), 50));

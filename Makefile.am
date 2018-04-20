@@ -4,9 +4,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
-#We need C++0x for unordered maps and sets (cache).
-#AM_CXXFLAGS = -std=c++0x
-
 bin_PROGRAMS = qelect
 qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/distances/vivaldi_test.h src/generator/ballotgen.h \
@@ -111,12 +108,12 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/tests/tests/monotonicity/mono_sub.cc \
 	src/tests/tests/monotonicity/monotonicity.cc \
 	src/tests/tests/rev_symmetry.cc src/tests/two_tests.cc \
-	src/generator/ballotgen.cc src/stats/confidence/student.cc \
-	src/bandit/bandit.cc src/bandit/lucb.cc \
+	src/generator/ballotgen.cc src/stats/confidence/confidence.cc \
+	src/bandit/bandit.cc src/bandit/binomial.cc src/bandit/lilucb.cc \
 	src/main/strat_test.cc \
 	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc 
 
-qelect_CXXFLAGS = --std=c++0x -Wall -march=native -ggdb
+qelect_CXXFLAGS = --std=c++0x -Wall -Werror -march=native -ggdb
 
 # HACK HACK. Find out how to determine the name and location of glpk the "right"
 # way later. (Same with SSL, which is used for SHA.)

@@ -5,7 +5,7 @@
 #include <string>
 
 class Bandit {
-	private:
+	protected:
 		double accumulated_reward;
 		int num_pulls;
 		Test * arm;
@@ -16,7 +16,7 @@ class Bandit {
 			num_pulls = 0;
 		}
 
-		double pull();
+		virtual double pull();
 		int get_num_pulls() const { return(num_pulls); }
 		double get_mean() const;
 

@@ -27,7 +27,7 @@ double Lil_UCB::C(int num_plays_this, size_t num_bandits) const {
 	return(score);
 }
 
-void Lil_UCB::load_bandits(std::vector<Bandit> & bandits) {
+void Lil_UCB::load_bandits(std::vector<Bandit *> & bandits) {
 
 	// Empty the queue of what might already be there.
 	// STL priority queues don't have a .clear() for some reason.
@@ -41,11 +41,11 @@ void Lil_UCB::load_bandits(std::vector<Bandit> & bandits) {
 	size_t bandidx;
 
 	for (bandidx = 0; bandidx < bandits.size(); ++bandidx) {
-		if(bandits[bandidx].get_num_pulls() == 0) {
-			bandits[bandidx].pull();
+		if(bandits[bandidx]->get_num_pulls() == 0) {
+			bandits[bandidx]->pull();
 			played_new_bandit = true;
 		}
-		total_num_pulls += bandits[bandidx].get_num_pulls();
+		total_num_pulls += bandits[bandidx]->get_num_pulls();
 
 		// Only show status if we've actually done some initial pulls.
 		if (played_new_bandit && (bandidx % 1000 == 0)) {
@@ -54,8 +54,8 @@ void Lil_UCB::load_bandits(std::vector<Bandit> & bandits) {
 			round(bandidx/(double)bandits.size() * 100 * 100)/100.0 << std::endl;
 		}
 
-		minimum = std::min(minimum, bandits[bandidx].get_minimum());
-		maximum = std::max(maximum, bandits[bandidx].get_maximum());
+		minimum = std::min(minimum, bandits[bandidx]->get_minimum());
+		maximum = std::max(maximum, bandits[bandidx]->get_maximum());
 	}
 
 	sigma_sq = get_sigma_sq(minimum, maximum);

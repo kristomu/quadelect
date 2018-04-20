@@ -61,38 +61,12 @@
 #include "../singlewinner/young.h"
 
 #include "../bandit/bandit.h"
+#include "../bandit/binomial.h"
 #include "../bandit/lilucb.h"
 
 #include "../bandit/tests/reverse.h"
 
 #include "strat_test.h"
-
-// default values for number of processors and current processor
-// use -I compiler options to get multiproc support. TODO: make this an
-// input parameter.
-
-#ifndef __NUMPROCS__
-#define __NUMPROCS__ 1
-#endif
-
-#ifndef __THISPROC__
-#define __THISPROC__ 0
-#endif
-
-// Determine the the z binomial confidence interval.
-// Agresti-Coull. http://www.graphpad.com/guides/prism/6/statistics/index.htm?how_to_compute_the_95_ci_of_a_proportion.htm
-// TODO: use as241.c to calculate the Z directly. Make class for Bonferroni
-// correction. Place everything in an object so that we don't have to bother
-// about it again. Ideally we should use something more ANOVA-like than
-// Bonferroni, but eh.
-pair<double, double> confidence_interval(int n, double p_mean, double z) {
-
-    double p_mark = (p_mean * n + 0.5 * z * z) / (n + z * z);
-
-    double W = sqrt(p_mark * (1 - p_mark) / (n + z * z));
-
-    return (pair<double, double>(p_mark - W, p_mark + W));
-}
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X
@@ -107,185 +81,11 @@ pair<double, double> confidence_interval(int n, double p_mean, double z) {
 // of the set wins, then the method is vulnerable. Assume the exact member is
 // found using backroom dealing or whatnot.
 
-// Lawrdy o mighty is this ugly.
-
-bool test_once(list<ballot_group> & ballots, 
-	pure_ballot_generator & ballot_gen, int numvoters, int numcands, 
-	rng & randomizer, int & total_generation_attempts,
-	vector<election_method *> & condorcets) {
-
-    int ranks = 10;
-    int ties_in_a_row = 0;
-    ordering::const_iterator pos;
-    ordering honest;
-
-    // Ties don't count because any method that's decisive will let a voter
-    // break the tie.
-    // Err, a method may not always be decisive! TODO: Fix that. A tie
-    // should count as a method with many equal-winners and be considered
-    // susceptible to strategy if someone else can be made a winner, or one
-    // of the equal-winners turned into a sole winner.
-
-    while (ranks > 1) {
-        ranks = 0;
-        ++ties_in_a_row;
-        if (ties_in_a_row > 100) {
-            cout << "Too many ties in a row. Aborting!" << endl;
-            // Should be a third option here, not true or false.
-            // TODO that.
-            return(false);
-        }
-
-        ballots = ballot_gen.generate_ballots(numvoters, numcands, randomizer);
-
-        //cache.clear();
-
-        // First, get the honest winner. If it's a tie, disregard. Otherwise,
-        // for every other candidate, find the ballots corresponding to voters
-        // who rank that candidate ahead of the winner. Then, a bunch of times,
-        // run the IIC generator with numvoters = 1 and use that ballot for the
-        // strategist coalition. (An exhaustive approach may come later.) If
-        // this makes the candidate in question win, we're done, otherwise
-        // try again until we give up and go to the next candidate, or give up
-        // completely and consider the method invulnerable in this particular
-        // case.
-
-        honest = condorcets[0]->elect(ballots, numcands, NULL, true);
-
-        // Check that there isn't a tie.
-        //int ranks = 0;
-        //ordering::const_iterator pos;
-        for (pos = honest.begin(); pos != honest.end() && pos->get_score() ==
-                honest.begin()->get_score(); ++pos)
-            ++ranks;
-
-        // This is actually how many are at first rank. Rename the vars to
-        // make that more clear.
-        total_generation_attempts += ranks;
-
-        /*cout << ordering_tools().ordering_to_text(honest, rcl,
-        		true) << endl;
-
-        cout << "Ranks: " << ranks << endl;*/
-        // TODO: Give up after n tries.
-    }
-
-    ties_in_a_row = 0;
-
-    int winner = honest.begin()->get_candidate_num();
-
-    //cout << "The winner is " << winner << endl;
-
-    bool strategy_worked = false;
-
-    for (int counter = 0; counter < numcands && !strategy_worked;
-            ++counter) {
-        if (counter == winner) continue;
-
-        //cout << "Trying to rig in favor of " << counter << endl;
-
-        list<ballot_group> prefers_winner;
-        double num_prefers_challenger = 0;
-
-        // Find those who prefer the challenger. Add those that
-        // don't into prefers_winner and add up the score of those that
-        // do.
-
-        for (list<ballot_group>::const_iterator bgpos = ballots.begin();
-                bgpos != ballots.end(); ++bgpos) {
-            int saw_winner = -1, saw_challenger = -1;
-            int rank = 0;
-
-            for (pos = bgpos->contents.begin(); pos !=
-                    bgpos->contents.end() &&
-                    (saw_winner == -1 ||
-                     saw_challenger == -1); ++pos) {
-                if (pos->get_candidate_num() == winner)
-                    saw_winner = rank;
-                if (pos->get_candidate_num() == counter)
-                    saw_challenger = rank;
-
-                ++rank;
-            }
-
-            // We consider equal-ranks to be in favor of the winner,
-            // thus we only explicitly check if the challenger was
-            // rated above the winner.
-            if (saw_challenger < saw_winner)
-                num_prefers_challenger += bgpos->weight;
-            else
-                prefers_winner.push_back(*bgpos);
-        }
-
-        /*cout << num_prefers_challenger << " prefers " << counter
-        	<< endl;*/
-
-        if (num_prefers_challenger == 0) continue;
-
-        for (int tries = 0; tries < 512 && !strategy_worked; ++tries) {
-            // Add the strategic ballot by drawing from IIC.
-            int iterations = 1 + tries % 3, q;
-            double cumul = 0;
-            for (q = 0; q < iterations; ++q) {
-                list<ballot_group> strategy;
-                while (strategy.empty())
-                    strategy = ballot_gen.generate_ballots(1, numcands,
-                                                    randomizer);
-                if (q == iterations-1) {
-                    assert (num_prefers_challenger - cumul > 0);
-                    strategy.begin()->weight = num_prefers_challenger - cumul;
-                } else {
-                    strategy.begin()->weight = randomizer.drand() * num_prefers_challenger/(double)iterations;
-                    cumul += strategy.begin()->weight;
-                }
-
-                // Add the strategic ballot.
-                prefers_winner.push_back(*strategy.begin());
-            }
-
-            // Determine the winner again! A tie counts if our man
-            // is at top rank, because he wasn't, before.
-            ordering strat_result = condorcets[0]->elect(prefers_winner, 
-                numcands, NULL, true);
-
-            /*cout << ordering_tools().ordering_to_text(
-              strat_result,
-            		rcl, true) << endl;*/
-
-            // Then remove the strategic coalition ballot so another
-            // one can be inserted later.
-            for (q = 0; q < iterations; ++q)
-                prefers_winner.pop_back();
-
-            // Check if our candidate is now at top rank.
-            for (pos = strat_result.begin(); pos !=
-                    strat_result.end() &&
-                    pos->get_score() == strat_result.
-                    begin()->get_score(); ++pos)
-                if (pos->get_candidate_num() == counter)
-                    strategy_worked = true;
-        }
-        /*if (strategy_worked)
-        	cout << "Strategy to elect " << counter << " worked!" << endl;*/
-    }
-
-    if (strategy_worked) {
-        //	cout << "Strategy worked!" << endl;
-        return(true);
-    }
-    //else	cout << "Didn't work." << endl;
-    //cout << endl << endl;
-    return(false);
-}
-
-
 void test_with_bandits(vector<election_method *> & to_test, 
 	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
 	pure_ballot_generator * strat_generator, bool find_most_susceptible) {
 
-	impartial ic(true, false);
-
-	vector<Bandit> bandits;
+	vector<BinomialBandit> bandits;
 
     // sts: Tests that count how many times we find a strategy
     // reverse_sts: Tests that count how many times we fail.
@@ -296,9 +96,6 @@ void test_with_bandits(vector<election_method *> & to_test,
 
 	vector<StrategyTest> sts;
     vector<ReverseTest> reverse_sts;
-
-	vector<election_method *> condorcets;
-	condorcets.push_back(to_test[0]);
 
 	int numvoters = 5000; // was 37
     int initial_numcands = 3/*4*/, numcands = initial_numcands;
@@ -318,9 +115,9 @@ void test_with_bandits(vector<election_method *> & to_test,
 
 	for (i = 0; i < to_test.size(); ++i) {
         if (find_most_susceptible) {
-            bandits.push_back(Bandit(&reverse_sts[i]));
+            bandits.push_back(BinomialBandit(&reverse_sts[i]));
         } else {
-            bandits.push_back(Bandit(&sts[i]));
+            bandits.push_back(BinomialBandit(&sts[i]));
         }
 	}
 
@@ -331,9 +128,12 @@ void test_with_bandits(vector<election_method *> & to_test,
 
 	double num_methods = sts.size();
     double report_significance = 0.05;
-    double zv = ppnd7(1-report_significance/num_methods);
+    // Bonferroni correction
+    double corrected_significance = report_significance/num_methods;
+    //double zv = ppnd7(1-report_significance/num_methods);
 
     time_t startpt = time(NULL);
+    confidence_int ci;
 
 	for (int j = 1; j < 1000000 && !confident; ++j) {
 		// Bleh, why is min a macro?
@@ -374,9 +174,11 @@ void test_with_bandits(vector<election_method *> & to_test,
 			for (k = 0; k < min(how_many, sts.size()); ++k) {
 				double mean = bandits[so_far[k].second].get_mean();
 
-				pair<double, double> c_i = confidence_interval(
-					bandits[so_far[k].second].get_num_pulls(), 
-					mean, zv);
+                int num_pulls = bandits[so_far[k].second].get_num_pulls();
+                int num_successes = bandits[so_far[k].second].get_num_successes();
+
+				pair<double, double> c_i = ci.bin_prop_interval(
+                    corrected_significance, num_successes, num_pulls);
 				double lower = round((1 - c_i.second) * 1000)/1000.0;
 				double middle = round((1 - mean) * 1000)/1000.0;
 				double upper = round((1 - c_i.first) * 1000)/1000.0;
@@ -402,18 +204,6 @@ int main(int argc, const char ** argv) {
     int counter;
 
     //int got_this_far_last_time = 0;
-
-/*    int radix=5;
-
-    for (int j = 0; j < pow(radix, 6); ++j) {
-    	cond_brute cbp(j, radix);
-
-        if (cbp.is_monotone() && cbp.passes_mat() /v*&& cbp.reversal_symmetric()*v/) {
-            condorcetsrc.push_back(new cond_brute(j, radix));
-            cout << "Adding " << j << endl;
-	   }
-    }
-*/
 
     if (argc < 2) {
         cerr << "Usage: " << argv[0] << " [brute_rpn_number_list.txt]"
@@ -444,8 +234,10 @@ int main(int argc, const char ** argv) {
     // Generate separate RNGs for each thread.
     const int numthreads = 16;
     vector<rng> randomizers;
+    time_t startpt = time(NULL);    // randomize timer
+
     for (counter = 0; counter < numthreads; ++counter) {
-        randomizers.push_back(rng(counter));
+        randomizers.push_back(rng(startpt + counter));
     }
 
     vector<pure_ballot_generator *> ballotgens;
