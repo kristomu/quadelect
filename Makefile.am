@@ -49,8 +49,8 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/singlewinner/stats/var_median/vmedian.h src/singlewinner/young.h \
 	src/stats/mwstats.h src/stats/stats.h src/tools.h src/ballot_tools.cc \
 	src/ballots.cc src/cache.cc src/choose_inc.cc \
-	src/distances/vivaldi_test.cc src/generator/dirichlet.cc \
-	src/generator/spatial/gaussian.cc src/generator/impartial.cc \
+	src/distances/vivaldi_test.cc \
+	src/generator/spatial/gaussian.cc src/generator/impartial_gen.cc \
 	src/generator/spatial/spatial.cc src/grad_median/grad_median.cc \
 	src/generator/spatial/uniform.cc \
 	src/main/combined.cc \
