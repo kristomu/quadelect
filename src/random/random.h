@@ -1,5 +1,5 @@
-// Custom random number generator. On an x64 architecture, it's faster than 
-// random(), and it passes Crush even when the seed is quickly altered, making 
+// Custom random number generator. On an x64 architecture, it's faster than
+// random(), and it passes Crush even when the seed is quickly altered, making
 // it useful for per-case randomization.
 
 #ifndef __KRAND
@@ -17,11 +17,17 @@ class rng {
 		uint64_t rng64(uint64_t * s);
 
 	public:
-		void s_rand(int seed_in); // Now passes Crush (not BigCrush)
-		rng(int seed_in) { s_rand(seed_in); }
-		uint64_t long_rand() { return(rng64(seed)); }
+		void s_rand(uint64_t seed_in); // Now passes Crush (not BigCrush)
+		rng(uint64_t seed_in) {
+			s_rand(seed_in);
+		}
+		uint64_t long_rand() {
+			return (rng64(seed));
+		}
 
-		uint32_t irand() { return(long_rand()); }
+		uint32_t irand() {
+			return (long_rand());
+		}
 		long double ldrand();
 		double drand();
 		double drand(double min, double max);
@@ -36,7 +42,9 @@ class rng {
 		// Used for random_shuffle etc. Assumes pointers are no longer
 		// than 64 bit. Perhaps using () is a bit of a hack, but the
 		// alternatives are worse.
-		ptrdiff_t operator()(ptrdiff_t max) { return(lrand(max)); }
+		ptrdiff_t operator()(ptrdiff_t max) {
+			return (lrand(max));
+		}
 };
 
 #endif

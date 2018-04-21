@@ -1,3 +1,5 @@
+// Now uses xorshift128+, seeded by xorshift64*.
+
 #include <stdint.h>
 #include <iostream>
 #include <cstddef>
@@ -7,42 +9,27 @@
 using namespace std;
 
 uint64_t rng::rng64(uint64_t * s) {
-        uint64_t c = 7319936632422683419ULL;
-        uint64_t x = s[1];
-
-        typedef __uint128_t u128b;
-        union u128_64
-        {
-                uint64_t seed[2];
-                u128b val;
-        };
-
-        /* Increment 128bit counter */
-        ((union u128_64 *)s)->val += c + ((u128b) c << 64);
-
-        /* Two h iterations */
-        x ^= (x >> 32);// ^ (u64b) s;
-        x *= c;
-        x ^= x >> 32;
-        x *= c;
-
-        /* Perturb result */
-        return x + s[0];
+	uint64_t s1 = s[ 0 ];
+	const uint64_t s0 = s[ 1 ];
+	s[ 0 ] = s0;
+	s1 ^= s1 << 23; // a
+	return ( s[ 1 ] = ( s1 ^ s0 ^ ( s1 >> 17 ) ^ ( s0 >> 26 ) ) ) + s0;
 }
 
-void rng::s_rand(int seed_in) {
-        seed[0] = 0;
-        seed[1] = seed_in;
+void rng::s_rand(uint64_t seed_in) {
+	seed[0] = 0;
+	//seed[1] = seed_in;
 
-        int c, d;
-        int cmax = 31;
-        for (d = 0; d < 3; ++d) {
-                for (c = 0; c < cmax; ++c)
-                        rng64(seed);
+	// We can't ordinarily seed xorshift with all zeroes, so if we're
+	// given a zero, then seed[0] gets bumped up to one.
+	if (seed_in == 0)
+		seed[0] = 1;
 
-                cmax = 31 + (rng64(seed) + seed[0]) % (63 * (d+1));
-                seed[0] += rng64(seed);
-        }
+	// Xorshift64*
+	seed_in ^= seed_in >> 12; // a
+	seed_in ^= seed_in << 25; // b
+	seed_in ^= seed_in >> 27; // c
+	seed[1] = seed_in * 2685821657736338717LL;
 }
 
 long double rng::ldrand() {
@@ -59,10 +46,11 @@ long double rng::ldrand() {
 		d = ((long_rand() * RS_SCALE) + long_rand()) * RS_SCALE;
 	} while (d >= 1);
 
-	return(d);
+	return (d);
 }
 
 double rng::drand() {
+
 	// Same as above, only double precision. This assumes a double with
 	// no more than 64 bits fraction.
 
@@ -81,7 +69,7 @@ double rng::drand() {
 		d = ((lower * RSD_SCALE) + upper)*RSD_SCALE;
 	} while (d >= 1);
 
-	return(d);
+	return (d);
 }
 
 double rng::drand(double min, double max) {
@@ -89,7 +77,7 @@ double rng::drand(double min, double max) {
 }
 
 uint64_t rng::lrand(uint64_t modulus) {
-	if (modulus == 0) return(0);
+	if (modulus == 0) return (0);
 
 	// Find up to max without succumbing to modulo bias.
 
@@ -101,49 +89,49 @@ uint64_t rng::lrand(uint64_t modulus) {
 	// Perhaps TODO: Detect if it's a power of two, which should be
 	// quicker.
 	if (remainder == 0)
-		return(long_rand() % modulus);
+		return (long_rand() % modulus);
 
 	// Otherwise, keep trying until we're inside a range that *does*.
 	uint64_t randval;
 
-	do
+	do {
 		randval = long_rand();
-	while (randval < remainder);
+	} while (randval < remainder);
 
 	// And return a modulo on that.
-	return((randval - remainder)%modulus);
+	return ((randval - remainder)%modulus);
 }
 
 uint64_t rng::lrand(uint64_t min, uint64_t max) {
-	if (max < min) return(lrand(max, min));
+	if (max < min) return (lrand(max, min));
 
-	return(min + lrand(max-min));
+	return (min + lrand(max-min));
 }
 
 uint32_t rng::irand(uint32_t modulus) {
 	// Same thing, 32 bit edition.
 
-	if (modulus == 0) return(0);
+	if (modulus == 0) return (0);
 
 	const uint32_t maxVal = ~((uint32_t)0);
 	uint32_t remainder = maxVal % modulus;
 
 	if (remainder == 0)
-		return(irand() % modulus);
+		return (irand() % modulus);
 
 	uint32_t randval;
 	do
 		randval = irand();
 	while (randval < remainder);
 
-	return((randval - remainder)%modulus);
+	return ((randval - remainder)%modulus);
 }
 
 uint32_t rng::irand(uint32_t min, uint32_t max) {
 	if (max < min)
-		return(irand(max, min));
+		return (irand(max, min));
 
-	return(min + irand(max-min));
+	return (min + irand(max-min));
 }
 
 /*main() {
