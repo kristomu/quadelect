@@ -1,0 +1,6 @@
+These are interpreters of user-provided ballots. Currently we handle the simple
+	"1: A > B = C" format.
+
+The classes return a pair of a int-to-string map (mapping candidate numbers to
+names) and a ballot group (consisting of the ballots themselves). Compression
+and other postprocessing has to be done outside the class in question.

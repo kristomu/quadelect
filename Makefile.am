@@ -10,6 +10,7 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/generator/dirichlet.h src/generator/spatial/gaussian.h \
 	src/generator/impartial.h src/generator/spatial/spatial.h \
 	src/generator/spatial/uniform.h \
+	src/interpreter/rank_order.cc \
 	src/grad_median/grad_median.h src/pairwise/abstract_matrix.h \
 	src/pairwise/beatpath.h src/pairwise/cache_matrix.h \
 	src/pairwise/grad_matrix.h src/pairwise/matrix.h src/pairwise/types.h \
@@ -111,7 +112,8 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/generator/ballotgen.cc src/stats/confidence/confidence.cc \
 	src/bandit/bandit.cc src/bandit/binomial.cc src/bandit/lilucb.cc \
 	src/main/strat_test.cc \
-	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc 
+	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc \
+	src/modes/interpret.cc
 
 qelect_CXXFLAGS = --std=c++0x -Wall -Werror -march=native -ggdb
 
