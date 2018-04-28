@@ -19,31 +19,11 @@ double spatial_generator::distance(const vector<double> & a,
 	return(sqrt(sum));
 }
 
-vector<double> spatial_generator::rnd_dim_vector(double dimensions,
-		rng & random_source) const {
-	// Partial dimensions are handled in this way:
-	// If floor(num_dimensions) == x and ceil(num_dimensions) == x+1 then
-	// allocate x+1 entries and multiply the parameters in the last 
-	// dimension by num_dimensions - floor(num_dimensions).
-
-	if (floor(dimensions) == ceil(dimensions))
-		return(rnd_vector(dimensions, random_source));
-
-	vector<double> all = rnd_vector(ceil(dimensions), random_source);
-	*(all.rbegin()) *= dimensions - floor(dimensions);
-
-	return(all);
-}
-
-vector<double> spatial_generator::max_dim_vector(double dimensions) const {
+vector<double> spatial_generator::max_dim_vector(size_t dimensions) const {
 
 	// Same as above, only generate the max vector. Slow? Perhaps.
 
 	vector<double> toRet(ceil(dimensions), 1);
-
-	if (floor(dimensions) != ceil(dimensions))
-		*(toRet.rbegin()) *= dimensions - floor(dimensions);
-
 	return(toRet);
 }
 
@@ -73,7 +53,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 		cand_positions = fixed_cand_positions;
 	else {
 		for (counter = 0; counter < (size_t)numcands; ++counter)
-			cand_positions.push_back(rnd_dim_vector(num_dimensions,
+			cand_positions.push_back(rnd_vector(num_dimensions,
 						random_source));
 	}
 
@@ -95,7 +75,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 		our_entry.weight = 1;
 
 		// Get our location.
-		voter_pos = rnd_dim_vector(num_dimensions, random_source);
+		voter_pos = rnd_vector(num_dimensions, random_source);
 
 		// Dump distances to all the candidates and get the minimum
 		// distance (which may be needed for truncation).
@@ -176,7 +156,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 	return(toRet);
 }
 
-bool spatial_generator::set_params(double num_dimensions_in, 
+bool spatial_generator::set_params(size_t num_dimensions_in, 
 		bool warren_util_in) {
 
 	if (num_dimensions_in < 1) return(false);
@@ -218,7 +198,7 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 	vector<vector<double> > cand_positions;
 
 	for (int counter = 0; counter < num_cands; ++counter)
-		cand_positions.push_back(rnd_dim_vector(num_dimensions,
+		cand_positions.push_back(rnd_vector(num_dimensions,
 					random_source));
 
 	return(fix_candidate_positions(num_cands, cand_positions));

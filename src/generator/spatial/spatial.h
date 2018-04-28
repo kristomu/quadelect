@@ -43,7 +43,7 @@ using namespace std;
 
 class spatial_generator : public pure_ballot_generator {
 	private:
-		double num_dimensions; // Number of axes
+		size_t num_dimensions; // Number of axes
 		bool warren_utility;   // Use Warren's utility model?
 
 		double distance(const vector<double> & a, 
@@ -62,9 +62,7 @@ class spatial_generator : public pure_ballot_generator {
 
 		virtual vector<double> rnd_vector(size_t size, rng &
 				random_source) const = 0;
-		virtual vector<double> rnd_dim_vector(double dimensions,
-				rng & random_source) const;
-		virtual vector<double> max_dim_vector(double dimensions) const;
+		virtual vector<double> max_dim_vector(size_t dimensions) const;
 		// TODO: "get random coordinate" which would be used for
 		// sampling the circle of truncation in a manner consistent with
 		// the points distribution.
@@ -90,16 +88,16 @@ class spatial_generator : public pure_ballot_generator {
 				uses_dispersion = false; fixed = false; }
 			
 		spatial_generator(bool compress_in, bool do_truncate,
-				double num_dimensions_in, bool warren_util_in) :
+				size_t num_dimensions_in, bool warren_util_in) :
 			pure_ballot_generator(compress_in, do_truncate) {
 				num_dimensions = 2;
 				set_params(num_dimensions_in, warren_util_in);
 				uses_center = false; uses_dispersion = false;
 				fixed = false; }
 
-		bool set_params(double num_dimensions_in, bool warren_util_in);
+		bool set_params(size_t num_dimensions_in, bool warren_util_in);
 
-		double get_num_dimensions() const { return(num_dimensions); }
+		size_t get_num_dimensions() const { return(num_dimensions); }
 		bool uses_warren_utility() const { return(warren_utility); }
 
 		// For fixing candidate positions.
