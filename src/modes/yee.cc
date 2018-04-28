@@ -77,6 +77,8 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 
 	ordering_tools otools;
 
+	double def_autopilot_factor = 1.01;
+
 	while ((int)round(cur_num_voters) <= max_num_voters_in && 
 			cleared < num_methods) {
 
@@ -124,10 +126,11 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 
 		if (cur_num_voters != max_num_voters)
 			cur_num_voters = min((double)max_num_voters, 
-					cur_num_voters * max(1.01,
+					cur_num_voters * max(def_autopilot_factor,
 					autopilot_factor_in));
 		else
-			cur_num_voters *= max(1.01, autopilot_factor_in);
+			cur_num_voters *= max(def_autopilot_factor, 
+				autopilot_factor_in);
 	}
 
 	// Now simply paint the appropriate pixels depending on who won.
