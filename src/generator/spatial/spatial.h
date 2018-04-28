@@ -38,6 +38,9 @@ using namespace std;
 // for the uniform spatial generator, it's the furthest away we may go from
 // the center on each axis.
 
+// Dispersion might need to be a covariance matrix if we want to be fully
+// general. On the other hand, I don't need that yet.
+
 class spatial_generator : public pure_ballot_generator {
 	private:
 		double num_dimensions; // Number of axes

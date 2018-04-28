@@ -63,8 +63,6 @@ class cache_map {
 inline void cache_map::set_outcome(const string & name, bool winner_only,
                 const ordering & outcome) {
 
-        //assert(!outcome.empty());
-
         if (winner_only)
                 outcomes[name].second = outcome;
         else

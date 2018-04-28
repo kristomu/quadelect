@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#define rseed_t uint64_t
+
 class rng {
 	private:
 		uint64_t seed[2];

@@ -327,7 +327,7 @@ string ordering_tools::ordering_to_text(const ordering & rank_ballot,
 		const map<int, string> & reverse_cand_lookup, 
 		bool numeric) const {
 
-        double oldscore;
+        double oldscore = -INFINITY;
         bool first = true;
 
         string out;

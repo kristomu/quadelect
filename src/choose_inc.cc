@@ -1,7 +1,10 @@
 // c antilamer
 
 #include <vector>
-using namespace std;
+#include <iostream>
+#include <stdexcept>
+
+#include "tools.h"
 
 unsigned long long fact(int n) {
     unsigned long long res=1;
@@ -9,46 +12,32 @@ unsigned long long fact(int n) {
     return res;
 }
 
-// Need to use some other method of finding C because factorials get real
-// large real quick.
-
-/*unsigned long long choose(int n,int k) {
-    if(n<k) return 0;
-    return fact(n)/(fact(k)*fact(n-k));
-}*/
-
-#include <iostream>
-
 // Wikipedia implementation of n choose k
-long double dblchoose(int n, int k) {
-	if (k > n) return(0);
+// Now uses recursive version, though perhaps somewhat overkill...
 
-	if (k > n/2)
-		k = n-k;
+unsigned int choose(unsigned int n, unsigned int k) {
+    if (k < 0 || k > n) 
+        return(0);
+    
+    if (k > n-k)
+        k = n-k;
+    
+    if (k == 0 || n <= 1)
+        return (1);
 
-	long double accum = 1;
+    long double first_half = choose(n-1, k),
+                second_half = choose(n-1, k-1);
 
-	for (int i = 1; i <= k; ++i)
-		accum = accum * (n-k+i) / i;
+    if (first_half > std::numeric_limits<int>::max() - second_half) {
+        throw std::overflow_error("dblchoose: overflow n="+itos(n) + " k=" + 
+            itos(k));
+    }
 
-	return(accum);
-}
-
-unsigned long long choose(int n, int k) {
-
-	long double accum = dblchoose(n, k);
-
-	//std::cout << " Hello: " << accum << endl;
-
-	// This signals "too many to count
-	if (accum > (unsigned long long)((long long)(-1)))
-		return(-1);
-
-	return(accum + 0.5);
+    return(first_half + second_half);
 }
 
 // Get number of a permutation starting at 'it'
-int num(vector<bool>::iterator it, int n,int k) {
+unsigned int num(std::vector<bool>::iterator it, int n,int k) {
     if(n<=0) return 0;
     if(k<=0) return 0;
     if(*it) return num(it+1, n-1, k-1);
@@ -56,8 +45,9 @@ int num(vector<bool>::iterator it, int n,int k) {
 }
 
 // Get a permutation by number
-vector<bool> perm(unsigned int permN, int n,int k) {
-    vector<bool> res, temp;
+std::vector<bool> perm(unsigned int permN, int n,int k) {
+    std::vector<bool> res, temp;
+    
     if (k==0) res.resize(res.size()+n, false);
     if ((n==0) || (k==0)) return(res);
 

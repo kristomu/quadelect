@@ -8,12 +8,16 @@
 //				 for instance, would depend on variances of the
 //				 methods themselves). Or perhaps an aux bool for
 //				 "is approximation".
-//	- int get_current_round() - Determines the current round (you can 
+//	- int get_current_round() - Determines the current round (you can
 //				    probably see where I'm going with this).
 //	- bool do_round() - does just that; runs a round. Returns false if not
 //			    inited or everything's finished.
 //	- v<string> provide_status() - Gives a set of strings that inform the
 //			user about status so far. In BR this is just the stats.
+
+// BLUESKY: Merge operator so we can split this among multiple processes. Real
+// Bluesky^n: v<string> op for dumping the data that needs to be synced - then
+// we can do client-server! (Albeit without redundancy.)
 
 #ifndef _VOTE_MODE
 #define _VOTE_MODE
@@ -34,7 +38,7 @@ class mode {
 		virtual int get_current_round() const = 0;
 
 		virtual string do_round(bool give_brief_status,
-				bool reseed, rng & randomizer) = 0;
+		    bool reseed, rng & randomizer) = 0;
 
 		virtual vector<string> provide_status() const = 0;
 };

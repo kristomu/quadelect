@@ -243,7 +243,8 @@ int main(int argc, const char ** argv) {
     vector<pure_ballot_generator *> ballotgens;
     int dimensions = 4;
     ballotgens.push_back(new impartial(true, false));
-    // Something is wrong with this one. Check later.
+    // Now works, but I'm keeping it commented out for now, for
+    // speed reasons.
     //ballotgens.push_back(new dirichlet(false));
     ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
 

@@ -7,13 +7,14 @@ profile and then trying to find a strategy that gives the win to someone the
 strategists prefer; and the bandit returns either susceptible or not, according
 to an unknown mean that depends on the method.
 
-I currently use LUCB1 (arXiv:1407.4443). We could potentially halve the number
-of iterations required by switching to track-and-stop as detailed in
+I currently use lil'UCB. Track-and-stop might still be better, see
 https://github.com/jsfunc/best-arm-identification
 https://arxiv.org/pdf/1702.00001.pdf
 http://proceedings.mlr.press/v49/garivier16a.pdf
 
-but that will be for later, if at all. 
+but I think the margin has shrunk considerably compared to when I used
+lUCB. Next thing is probably going to be Pareto frontier identification rather
+than further improvements on best-arm identification.
 
 Note that the bandit model I'm using is exploration only, because we're 
 interested in finding the best performer, not to create a metamethod that

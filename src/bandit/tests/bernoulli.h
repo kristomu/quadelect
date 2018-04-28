@@ -8,16 +8,15 @@
 
 #include "tests.h"
 #include "../../tools.h"
-
-// TODO?: Use actual OO random number generators so we can control them for
-// reproducibility.
+#include "../../random/random.h"
 
 class Bernoulli : public Test {
 	private:
 		double p;
+		rng randomizer;
 
 	public:
-		Bernoulli(double p_in) {
+		Bernoulli(double p_in, rseed_t seed) : randomizer(seed) {
 			assert (p_in >= 0 && p_in <= 1);
 			p = p_in;
 		}

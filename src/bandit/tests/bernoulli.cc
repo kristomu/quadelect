@@ -3,7 +3,7 @@
 #include "bernoulli.h"
 
 double Bernoulli::perform_test() {
-	if (drand48() < p) {
+	if (randomizer.drand() < p) {
 		return(1);
 	} else {
 		return(0);

@@ -1,8 +1,8 @@
 #include "mdd.h"
 
 pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache,
-		bool winner_only) const {
+        const vector<bool> & hopefuls, cache_map * cache,
+        bool winner_only) const {
 
 	vector<int> num_defeats(input.get_num_candidates(), 0);
 
@@ -13,8 +13,8 @@ pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat & input,
 			if (counter == sec) continue;
 
 			if (input.get_magnitude(counter, sec, hopefuls) >
-					input.get_num_voters() * 0.5)
-			++num_defeats[sec];
+			        input.get_num_voters() * 0.5)
+				++num_defeats[sec];
 		}
 
 	ordering toRet;

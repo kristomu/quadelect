@@ -2,7 +2,7 @@
 // distributions, currently t and binomial proportion confidence intervals.
 
 // Algorithms taken from
-// http://stuff.mit.edu/afs/sipb.mit.edu/project/seven/build/AFNI98/mri_stats.c,
+// https://afni.nimh.nih.gov/pub/dist/src_OBSOLETE/mri_stats.c
 // ultimately AS 63 appl. statist. (1973), vol.22, no.3, for the incomplete
 // beta function and AS 103 for the inverse.
 

@@ -19,15 +19,7 @@
 #include "../ballot_tools.h"
 #include "../random/random.h"
 
-// If we're using C++0x and it's >= gcc 4.4, then numeric is no longer in 
-// ext/ -- or rather, the ext inclusion will confuse the compiler.
-// TODO: Move this into autoconf somehow.
-#if (__GXX_EXPERIMENTAL_CXX0X__ && __GNUC__ == 4 && __GNUC_MINOR__ >= 4)
 #include <numeric>
-#else
-#include <ext/numeric>
-#endif
-
 #include <list>
 
 using namespace std;

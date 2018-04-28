@@ -115,7 +115,7 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc \
 	src/modes/interpret.cc
 
-qelect_CXXFLAGS = --std=c++0x -Wall -Werror -march=native -ggdb
+qelect_CXXFLAGS = --std=c++11 -Wall -Werror -march=native -mtune=native -ggdb
 
 # HACK HACK. Find out how to determine the name and location of glpk the "right"
 # way later. (Same with SSL, which is used for SHA.)

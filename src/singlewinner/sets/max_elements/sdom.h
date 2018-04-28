@@ -26,6 +26,8 @@
 
 // [Informal bug check: odd-looking Yee results. May be buggy.]
 
+// We need more testing here.
+
 class sdom_set : public pairwise_method, private det_sets_relation {
 	private:
 
