@@ -22,19 +22,31 @@ class positional : public election_method {
 				int num_candidates, int num_hopefuls,
 				const vector<bool> * hopefuls) const;
 
+		string show_type(const positional_type & kind_in) const;
+
+		// Perhaps this should be in positional_aggregator.
+		// It should be. Fix later.
+		double get_pos_score(const ballot_group & input,
+				int candidate_number, 
+				const vector<bool> * hopefuls,
+				int num_hopefuls) const;
+		double get_pos_score(const ballot_group & input,
+				int candidate_number, int num_candidates) const;
+
+		double get_pos_maximum(int num_candidates) const {
+			return(pos_weight(0, num_candidates-1)); }
+
+	protected:
+		positional_type kind;
+
+		virtual string pos_name() const = 0;
+
 		// For things like Plurality, this returns the position at
 		// which all further weights will be zero.
 		virtual int zero_run_beginning() const { return(-1); }
 		// 0..last_position inclusive
 		virtual double pos_weight(int position, 
 				int last_position) const = 0;
-
-		string show_type(const positional_type & kind_in) const;
-
-	protected:
-		positional_type kind;
-
-		virtual string pos_name() const = 0;
 
 	public:
 		// Interfaces
@@ -54,17 +66,6 @@ class positional : public election_method {
 				positional_matrix, int num_hopefuls,
 				//double weight_sum,
 				const vector<bool> * hopefuls) const;
-
-		double get_pos_maximum(int num_candidates) const {
-			return(pos_weight(0, num_candidates-1)); }
-
-		// Perhaps this should be in positional_aggregator.
-		double get_pos_score(const ballot_group & input,
-				int candidate_number, 
-				const vector<bool> * hopefuls,
-				int num_hopefuls) const;
-		double get_pos_score(const ballot_group & input,
-				int candidate_number, int num_candidates) const;
 
 		positional(positional_type kind_in) { kind = kind_in; }
 

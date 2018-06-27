@@ -118,8 +118,10 @@ list<positional *> get_positional_methods(bool truncate) {
 	for (list<positional_type>::const_iterator pos = types.begin(); pos !=
 			types.end(); ++pos) {
 		out.push_back(new plurality(*pos));
+		out.push_back(new ext_plurality(*pos));
 		out.push_back(new borda(*pos));
 		out.push_back(new antiplurality(*pos));
+		out.push_back(new ext_antiplurality(*pos));
 		out.push_back(new for_and_against(*pos));
 		out.push_back(new nauru(*pos));
 		out.push_back(new heismantrophy(*pos));

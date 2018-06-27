@@ -9,5 +9,7 @@
 #include "positional.h"
 #include "simple_methods.h"
 #include "types.h"
+#include "ext_plurality.h"
+#include "ext_antiplur.h"
 
 #endif
