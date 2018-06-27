@@ -11,7 +11,7 @@ class ext_antiplurality : public positional {
 		virtual double pos_weight(int position, int last_position) const {
 			// This should never be called.
 			throw std::logic_error(
-				"ext_plurality pos_weight should not be called!");
+				"ext_antiplurality pos_weight should not be called!");
 		}
 
 	public:
