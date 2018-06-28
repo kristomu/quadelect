@@ -1,5 +1,5 @@
-#ifndef _VOTE_EXP_FPA
-#define _VOTE_EXP_FPA
+#ifndef _VOTE_SV_SEC
+#define _VOTE_SV_SEC
 
 #include "../../pairwise/matrix.h"
 #include "../pairwise/method.h"
@@ -7,11 +7,13 @@
 
 #include <iterator>
 #include <iostream>
+
 #include <assert.h>
 
 using namespace std;
 
-class fpa_experiment : public election_method {
+class sv_att_second : public election_method {
+	
 	public:
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & papers,
@@ -19,9 +21,8 @@ class fpa_experiment : public election_method {
 				int num_candidates, cache_map * cache,
 				bool winner_only) const;
 
-		string name() const {
-			return ("EXP:fpA-experiment");
-		}
+		string name() const { 
+			return("EXP:SV Attempt 2"); }
 };
 
 #endif

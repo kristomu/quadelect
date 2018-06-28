@@ -54,7 +54,8 @@
 #include "../modes/interpret.h"
 
 list<pairwise_method *> get_pairwise_methods(
-		const list<pairwise_type> & types) {
+		const list<pairwise_type> & types, 
+		bool include_experimental) {
 
 	// For each type, and for each pairwise method, dump that combination
 	// to the output. Possible feature request: have the method determine
@@ -87,6 +88,18 @@ list<pairwise_method *> get_pairwise_methods(
 		out.push_back(new ext_minmax(*pos, false));
 		out.push_back(new ext_minmax(*pos, true));
 		out.push_back(new ord_minmax(*pos));
+
+		if (include_experimental) {
+			out.push_back(new tup(*pos, TUP_TUP));
+			out.push_back(new tup(*pos, TUP_SV));
+			out.push_back(new tup(*pos, TUP_MIN));
+			out.push_back(new tup(*pos, TUP_ALT_1));
+			out.push_back(new tup(*pos, TUP_ALT_2));
+			out.push_back(new tup(*pos, TUP_ALT_3));
+			out.push_back(new tup(*pos, TUP_ALT_4));
+			out.push_back(new tup(*pos, TUP_ALT_5));
+			out.push_back(new tup(*pos, TUP_ALT_6));
+		}
 	}
 	
 	// Doesn't matter what these are set to. There should be a test for that
@@ -193,12 +206,14 @@ template <typename T, typename Q> list<election_method *> expand_meta(
 }
 
 
-list<election_method *> get_singlewinner_methods(bool truncate) {
+list<election_method *> get_singlewinner_methods(bool truncate, 
+	bool include_experimental) {
 
 	list<election_method *> toRet;
 
 	list<pairwise_method *> pairwise = get_pairwise_methods(
-			pairwise_producer().provide_all_strategies());
+			pairwise_producer().provide_all_strategies(),
+			include_experimental);
 
 	copy(pairwise.begin(), pairwise.end(), back_inserter(toRet));
 
@@ -235,6 +250,15 @@ list<election_method *> get_singlewinner_methods(bool truncate) {
 	toRet.push_back(new vi_median_ratings(10, false, true));
 	toRet.push_back(new vi_median_ratings(10, true, false));
 	toRet.push_back(new vi_median_ratings(10, true, true));
+
+	if (include_experimental) {
+		for (int i = 0; i < TEXP_TOTAL; ++i) {
+			toRet.push_back(new three_experimental((texp_type)i));
+		}
+
+		toRet.push_back(new sv_att_second());
+		toRet.push_back(new fpa_experiment());
+	}
 
 	// Then expand:
 	list<election_method *> expanded = expand_meta(toRet, pairwise_sets, 
@@ -457,12 +481,14 @@ void print_usage_info(string program_name) {
 	cout << "\t-r [seed]\t Set the random number generator seed to [seed]."
 		<< endl << endl;
 	cout << "Constraint options: " << endl;
-	cout << "\t-ic [file]\tOnly use the interpreters listed in [file]."<<
-		" The\n\t\t\tprogram will abort if that implies no interpreters"
-		<<" are\n\t\t\tto be used." << endl;
+	cout << "\t-e\t\tEnable experimental methods. These are not intended for" <<
+		"\n\t\t\tordinary use!" << endl;
 	cout << "\t-g [file]\tUse the generators listed in [file]. The " <<
 		"program will\n\t\t\tabort if that implies no generators " <<
 		"are to be used." << endl;
+	cout << "\t-ic [file]\tOnly use the interpreters listed in [file]."<<
+		" The\n\t\t\tprogram will abort if that implies no interpreters"
+		<<" are\n\t\t\tto be used." << endl;
 	cout << "\t-m [file]\tOnly use the election methods listed in [file]."<<
 		" The\n\t\t\tprogram will abort if that implies no methods " <<
 		"are to be\n\t\t\tused." << endl;
@@ -529,6 +555,8 @@ int main(int argc, char * * argv) {
 	bool constrain_methods = false, constrain_generators = false,
 	     constrain_ints = false;
 
+	bool include_experimental = false;
+
 	string method_constraint_fn, generator_constraint_fn, int_constraint_fn;
 
 	string int_source_file = "interpret.txt";
@@ -542,7 +570,7 @@ int main(int argc, char * * argv) {
 
 	static struct option long_options[] = {
 		// Long options (we'll do the rest after this struct).
-		// We can't use these letters: MGmgby
+		// We can't use these letters: eMGmgby
 
 		// The first here is dummy because its option_index is 0.
 		// Thus it can't be reached and only exists so the others
@@ -567,7 +595,7 @@ int main(int argc, char * * argv) {
 
 	int c, option_index = 0, opt_flag;
 
-	while ((c = getopt_long_only(argc, argv, "byMGIim:g:r:",
+	while ((c = getopt_long_only(argc, argv, "ebyMGIim:g:r:",
 				long_options, &option_index)) != -1) {
 
 		if (option_index != 0)
@@ -641,6 +669,9 @@ int main(int argc, char * * argv) {
 						break;
 				}
 				break;
+			case 'e': // enable experimental
+				include_experimental = true;
+				break;
 			case 'y': // do Yee
 				run_yee = true;
 				++run_how_many;
@@ -697,7 +728,7 @@ int main(int argc, char * * argv) {
 	// If he made a booboo with the parameters or if he didn't specify
 	// anything to do, print usage information and get outta here.
 	if (!success || run_how_many == 0) {
-		print_usage_info("foo");
+		print_usage_info(argv[0]);
 		return(-1);
 	}
 
@@ -706,7 +737,8 @@ int main(int argc, char * * argv) {
 	// consistent with the logic of the generators instead of just being
 	// something that's slapped on.
 
-	list<election_method *> methods = get_singlewinner_methods(false);
+	list<election_method *> methods = get_singlewinner_methods(false,
+		include_experimental);
 	list<election_method *>::const_iterator pos;
 
 	list<pure_ballot_generator *> generators = get_all_generators(true, 
