@@ -1,3 +1,6 @@
+// TODO: Handle incomplete ballots by considering everybody not ranked to be
+// ranked equal last.
+
 #ifndef _VOTE_EXT_ANTIPLUR
 #define _VOTE_EXT_ANTIPLUR
 
