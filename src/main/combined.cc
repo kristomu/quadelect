@@ -241,6 +241,7 @@ list<election_method *> get_singlewinner_methods(bool truncate,
 
 	toRet.push_back(new young(true, true));
 	toRet.push_back(new young(false, true));
+	toRet.push_back(new first_pref_copeland());
 	toRet.push_back(new random_ballot());
 	toRet.push_back(new random_candidate());
 	toRet.push_back(new cardinal_ratings(0, 10, false));

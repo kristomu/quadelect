@@ -18,7 +18,7 @@ class positional : public election_method {
 		// Used for quota methods.
 		double get_weight_sum(const list<ballot_group> & input) const;
 
-		ordering elect(const list<ballot_group> & input,
+		ordering elect_to_ordering(const list<ballot_group> & input,
 				int num_candidates, int num_hopefuls,
 				const vector<bool> * hopefuls) const;
 

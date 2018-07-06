@@ -63,7 +63,7 @@ ordering positional::pos_elect(const vector<vector<double> > & matrix,
 	return(social_order);
 }
 
-ordering positional::elect(const list<ballot_group> & input, 
+ordering positional::elect_to_ordering(const list<ballot_group> & input, 
 		int num_candidates, int num_hopefuls, 
 		const vector<bool> * hopefuls) const {
 
@@ -77,7 +77,7 @@ pair<ordering, bool> positional::elect_inner(const list<ballot_group> & input,
 		int num_candidates, cache_map * cache, bool winner_only) const {
 
 	return(pair<ordering, bool>(
-				elect(input, num_candidates, num_candidates, 
+				elect_to_ordering(input, num_candidates, num_candidates, 
 					NULL),
 				false));
 }
@@ -102,7 +102,7 @@ pair<ordering, bool> positional::elect_inner(const list<ballot_group> & input,
 			++num_hopefuls;
 
 	return(pair<ordering, bool>(
-				elect(input, num_candidates, num_hopefuls, 
+				elect_to_ordering(input, num_candidates, num_hopefuls, 
 					&hopefuls),
 				false));
 };

@@ -98,6 +98,7 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/singlewinner/sets/topological.cc src/singlewinner/stats/cardinal.cc\
 	src/singlewinner/stats/mode.cc \
 	src/singlewinner/stats/var_median/vmedian.cc src/singlewinner/young.cc \
+	src/singlewinner/fpc.cc \
 	src/tools.cc src/singlewinner/positional/as241.c \
 	src/tests/disproof.h src/tests/tests/monotonicity/mono_add.h \
 	src/tests/tests/monotonicity/mono_append.h \
