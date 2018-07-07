@@ -32,14 +32,15 @@ std::pair<ordering, bool> first_pref_copeland::elect_inner(
 	}
 
 	// Then calculate the penalties. We do this in the equivalent of a radix
-	// numvoters system; i.e. if A has one first preference vote and beats B,
-	// then B's penalty contribution from A is numvoters. If A ties B, then
-	// the contribution is 1. This has the effect of incorporating the
+	// numvoters+1 system; i.e. if A has one first preference vote and beats 
+	// B, then B's penalty contribution from A is numvoters. If A ties B, 
+	// then the contribution is 1. This has the effect of incorporating the
 	// tiebreaker mentioned in fpc.h without having to deal with vectors,
 	// and with the scores (penalties negated) giving some idea as to how
 	// "close" a candidate is to another, support wise.
 
 	for (i = 0; i < (size_t)num_candidates; ++i) {
+		if (!hopefuls[i]) continue;
 		for (j = 0; j < (size_t)num_candidates; ++j) {
 			if (!hopefuls[j]) continue;
 			if (i == j) continue;
@@ -48,12 +49,14 @@ std::pair<ordering, bool> first_pref_copeland::elect_inner(
 			double IoverJ = pairwise_matrix.get_magnitude(i, j, hopefuls);
 			double JoverI = pairwise_matrix.get_magnitude(j, i, hopefuls);
 
+			double potential_penalty = plur_scores[i];
+
 			if (IoverJ > JoverI) {
-				penalties[j] += plur_scores[i] * numvoters;
+				penalties[j] += potential_penalty * (numvoters+1);
 			}
 
 			if (IoverJ == JoverI) {
-				penalties[j] += plur_scores[i];
+				penalties[j] += potential_penalty;
 			}
 		}
 	}
