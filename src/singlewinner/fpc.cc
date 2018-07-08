@@ -8,7 +8,7 @@ std::pair<ordering, bool> first_pref_copeland::elect_inner(
 		cache_map * cache, bool winner_only) const {
 
 	condmat pairwise_matrix(papers, num_candidates, CM_PAIRWISE_OPP);
-	plurality plurality_eval(PT_WHOLE);
+	plurality plurality_eval(PT_FRACTIONAL);
 
 	size_t i, j;
 	double numvoters = 0;

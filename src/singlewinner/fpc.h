@@ -6,8 +6,20 @@
 // A Condorcet Winner gets a score of zero, so the method passes
 // Condorcet.
 
-// Needs to be verified against the proper 3 candidate linbrute
-// just for testing purposes.
+// First source:
+// http://lists.electorama.com/pipermail/election-methods-electorama.com/2006-December/117180.html
+
+// Contrary to the source, first preference Copeland fails mono-raise:
+//		 8: A>B>C
+//		 2: A>C>B
+//		 9: B>C>A
+//		12: C>A>B  C wins
+//	  Raise C on the 2 A>C>B ballots:
+//		 8: A>B>C
+//		 9: B>C>A
+//		14: C>A>B  B wins
+
+
 
 #ifndef _VOTE_FPC
 #define _VOTE_FPC
