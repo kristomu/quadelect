@@ -19,7 +19,17 @@
 //		 9: B>C>A
 //		14: C>A>B  B wins
 
-
+// It also fails clone independence (vote-splitting):
+//		 6: A>B>C
+//		 3: C>A>B
+//		 4: B>C>A    A wins
+//	  Clone A into A1, A2, A3:
+//		 2: A1>A2>A3>B>C
+//		 2: A2>A3>A1>B>C
+//		 2: A3>A1>A2>B>C
+//		 3: C>A2>A3>A1>B
+//		 4: B>C>A3>A1>A2    C wins
+// Source: http://lists.electorama.com/pipermail/election-methods-electorama.com/2006-December/084474.html
 
 #ifndef _VOTE_FPC
 #define _VOTE_FPC
