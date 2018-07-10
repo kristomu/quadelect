@@ -13,27 +13,22 @@
 
 // (Definition from Electowiki)
 
-// We extend the method so that it produces a score for each candidate instead
-// of just selecting a winner. For each candidate X, we keep a count of the
-// number of voters, going down the coalition list and intersecting as before
-// unless the intersection would produce an empty set *or eliminate X*.
-// X's score is the support of the set that first led to every candidate but
-// X being eliminated.
+// We extend the method so that it produces an ordering by first checking
+// which candidates can win by usual DSC rules if we break ties on equal-
+// support coalitions in favor of that candidate. We consider all candidates
+// for which that is true to have first rank, exclude them from the initial
+// set of candidates (before any intersections are done), and repeat the
+// process to find which candidates have second rank, and so on until we've
+// determined the rank of every candidate.
 
-// For each such candidate, break ties in favor of sets that contain the
-// candidate. From the perspective of candidate X, each set of coalitions
-// of the same strength/support can be divided into two: the ones that 
-// contain X and the ones that do not. If we first go through all the ones
-// that contain X, then if there exists a way to intersect away every
-// candidate but X, then X will be left as the sole candidate once we're done.
-// Otherwise, X won't be, but as many non-X candidates as is possible will 
-// have been removed once we're done, and the method will skip all the sets
-// that do not contain X afterwards until it gets to the next same-support
-// set of coalitions (with lower support). So the order within the 
-// "contains X" half doesn't matter, and the order within the "doesn't 
-// contain X" half doesn't, either.
-// We thus get a method that is neutral without having to employ random
-// tiebreakers.
+// This is rather slow but is a more conservative approach and should work
+// to generalize DSC and provide a social ordering (albeit not a measure of
+// support for each candidate).
+
+// We strictly speaking need a proof that any candidate X that can win with
+// some tiebreaker for coalitions of the same support, can win if the 
+// tiebreaker consistently favors X, sorting coalitions containing X before 
+// coalitions not containing X, with further order arbitrary.
 
 // WOODALL, Douglas R. Monotonicity of single-seat preferential election rules.
 // Discrete Applied Mathematics, 1997, 77.1: 81-98.
@@ -48,15 +43,25 @@
 // 17: C > A > B 
 // 27: C > B > A 
 
-// Should return A = C > B with scores A: 45, B: 38, C: 45
+// Should return A = C > B
+
+// TODO: Make test vector for my EM counterexample to the obvious algorithm
+// that used to be here, with coalitions like
+
+// 100: ABC
+// 80: BC
+// 20: A
+// 19: B
+
+// which should have B win, not A.
 
 #ifndef _VOTE_DSC
 #define _VOTE_DSC
 
 #include "method.h"
 
-// Helper class. X is greater than Y if X's score is greater, or if it's
-// equal and X contains the priority candidate whereas Y does not.
+// Helper class. Coalition X is greater than Y if X's score is greater, or 
+// if it's equal and X contains the priority candidate whereas Y does not.
 
 class coalition_entry {
 	public:
@@ -86,8 +91,8 @@ class dsc : public election_method {
 		void sort_by_candidate(
 			std::vector<coalition_entry> & coalitions, 
 			int candidate) const;
-		double get_candidate_score(
-			std::vector<coalition_entry> & coalitions, 
+		bool can_candidate_win(std::vector<coalition_entry> & coalitions,
+			const std::set<int> & starting_candidate_set,
 			int candidate, int num_candidates) const;
 
 	public:

@@ -12,16 +12,13 @@ void dsc::sort_by_candidate(std::vector<coalition_entry> & coalitions,
 		std::greater<coalition_entry>());
 }
 
-double dsc::get_candidate_score(std::vector<coalition_entry> & coalitions, 
+bool dsc::can_candidate_win(std::vector<coalition_entry> & coalitions,
+		const std::set<int> & starting_candidate_set,
 		int candidate, int num_candidates) const {
 
 	sort_by_candidate(coalitions, candidate);
 
-	std::set<int> coalition_so_far;
-
-	for (int i = 0; i < num_candidates; ++i) {
-		coalition_so_far.insert(i);
-	}
+	std::set<int> coalition_so_far = starting_candidate_set;
 
 	for (std::vector<coalition_entry>::const_iterator pos = coalitions.begin();
 			pos != coalitions.end(); ++pos) {
@@ -32,23 +29,22 @@ double dsc::get_candidate_score(std::vector<coalition_entry> & coalitions,
 			pos->coalition.begin(), pos->coalition.end(),
 			std::inserter(test_intersection, test_intersection.end()));
 
-		// If it's empty or doesn't contain the candidate we're calculating
-		// the score of, skip.
-		if (test_intersection.size() == 0 || 
-				test_intersection.find(candidate) == test_intersection.end()) {
+		// If it's empty, skip.
+		if (test_intersection.size() == 0) {
 			continue;
 		}
 
-		// If there's only one candidate left, that must be the candidate
-		// we're looking for, so return the score.
+		// If there's only one candidate left, return true if that candidate
+		// is the specified candidate, false otherwise.
 		if (test_intersection.size() == 1) {
-			return(pos->score);
+			return(test_intersection.find(candidate) != 
+				test_intersection.end());
 		}
 
 		coalition_so_far = test_intersection;
 	}
 
-	return(0);
+	return(coalition_so_far.find(candidate) != coalition_so_far.end());
 }
 
 std::pair<ordering, bool> dsc::elect_inner(
@@ -122,11 +118,44 @@ std::pair<ordering, bool> dsc::elect_inner(
 
 	ordering outcome;
 
-	for (int i = 0; i < num_candidates; ++i) {
-		if (hopefuls[i]) {
-			outcome.insert(candscore(i, get_candidate_score(coalitions, 
-				i, num_candidates)));
+	// To decide the full ordering, we check what candidates can be made to
+	// win by sorting the coalitions so that coalitions with that candidate
+	// break ties between equal-support coalitions. All candidates who can
+	// are then ranked at the current rank. We then decrease the rank,
+	// eliminate the candidates we've determined the rank of from the initial
+	// set, and redo the procedure to get what candidates are at next rank,
+	// and so on.
+
+	// Unknown_candidates are the candidates we don't know the rank of yet.
+	// Revealed_candidates are the candidates we've revealed during that
+	// turn.
+	std::set<int> unknown_candidates = all_candidates,
+					revealed_candidates;
+	int rank_score = num_candidates;
+
+	std::set<int>::const_iterator pos;
+
+	while (!unknown_candidates.empty()) {
+		revealed_candidates.empty();
+		for (pos = unknown_candidates.begin(); pos != 
+				unknown_candidates.end(); ++pos) {
+
+			if (can_candidate_win(coalitions, unknown_candidates, *pos,
+					num_candidates)) {
+
+				outcome.insert(candscore(*pos, rank_score));
+				revealed_candidates.insert(*pos);
+			}
 		}
+
+		for (pos = revealed_candidates.begin(); 
+				pos != revealed_candidates.end(); ++pos) {
+			unknown_candidates.erase(*pos);
+		}
+
+		// if winner only goes here
+
+		--rank_score;
 	}
 
 	return(std::pair<ordering, bool>(outcome, false));
