@@ -677,6 +677,8 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 	// TODO: Use cache.
     // TODO: Directly check if we have a Condorcet winner. If it is,
     //       just return whoever. Would be faster than using comma.
+    // TODO: Also find a situation with a 2-candidate Smith set, and handle
+    //       it (should give the two tied first, then the third candidate).
     assert (num_candidates == 3);
 
 	condmat condorcet_matrix = condmat(papers, num_candidates, 

@@ -251,6 +251,7 @@ list<election_method *> get_singlewinner_methods(bool truncate,
 	toRet.push_back(new vi_median_ratings(10, false, true));
 	toRet.push_back(new vi_median_ratings(10, true, false));
 	toRet.push_back(new vi_median_ratings(10, true, true));
+	toRet.push_back(new dsc());
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {
