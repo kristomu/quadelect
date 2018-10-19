@@ -23,6 +23,8 @@ template<typename T> T inc(T in) {
 	return (++in);
 }
 
+int factorial(int x);
+
 // Map inversion - used when parsing ballots, because the main program couldn't
 // care less about maps from candidate names to ints, but the printout part
 // could use maps from candidate ints to names.

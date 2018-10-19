@@ -17,6 +17,12 @@ double get_abs_time() {
 	else    return (0);
 }
 
+int factorial(int x) {
+	if (x <= 0) return(1);
+	return (x * factorial(x-1));
+}
+
+
 // Distance on the Lp norm (generalized Euclidean).
 double euc_distance(double Lp, const std::vector<double> & a,
                     const std::vector<double> & b) {
