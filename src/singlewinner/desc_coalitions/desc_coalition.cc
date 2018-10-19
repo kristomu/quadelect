@@ -1,8 +1,8 @@
-#include "dsc.h"
+#include "desc_coalition.h"
 #include <vector>
 
-void dsc::sort_by_candidate(std::vector<coalition_entry> & coalitions, 
-	int candidate) const {
+void desc_coalition_method::sort_by_candidate(
+	std::vector<coalition_entry> & coalitions, int candidate) const {
 
 	for (size_t i = 0; i < coalitions.size(); ++i) {
 		coalitions[i].priority_candidate = i;
@@ -12,7 +12,8 @@ void dsc::sort_by_candidate(std::vector<coalition_entry> & coalitions,
 		std::greater<coalition_entry>());
 }
 
-bool dsc::can_candidate_win(std::vector<coalition_entry> & coalitions,
+bool desc_coalition_method::can_candidate_win(
+		std::vector<coalition_entry> & coalitions,
 		const std::set<int> & starting_candidate_set,
 		int candidate, int num_candidates) const {
 
@@ -47,7 +48,7 @@ bool dsc::can_candidate_win(std::vector<coalition_entry> & coalitions,
 	return(coalition_so_far.find(candidate) != coalition_so_far.end());
 }
 
-std::pair<ordering, bool> dsc::elect_inner(
+std::pair<ordering, bool> desc_coalition_method::elect_inner(
 		const std::list<ballot_group> & papers,
 		const std::vector<bool> & hopefuls, int num_candidates, 
 		cache_map * cache, bool winner_only) const {
@@ -55,7 +56,7 @@ std::pair<ordering, bool> dsc::elect_inner(
 	// Performance enhancement is possible: traditional DSC algorithm if 
 	// winner_only is true.
 
-	// Go through the ballot set, incrementing the coalition counts.
+	// Get the coalitions corresponding to this ballot group.
 
 	std::map<std::set<int>, double> coalition_count;
 	std::set<int> current_coalition, all_candidates;
@@ -66,55 +67,8 @@ std::pair<ordering, bool> dsc::elect_inner(
 		}
 	}
 
-	for (std::list<ballot_group>::const_iterator ballot = papers.begin();
-			ballot != papers.end(); ++ballot) {
-
-		current_coalition.clear();
-
-		ordering::const_iterator opos = ballot->contents.begin();
-
-		while (opos != ballot->contents.end()) {
-			// The invariant is that we start at something that is
-			// strictly lower ranked than every candidate closer to
-			// pos->contents.begin().
-
-			double current_score = opos->get_score();
-
-			for (; opos != ballot->contents.end() && 
-					opos->get_score() == current_score; ++opos) {
-				if (hopefuls[opos->get_candidate_num()]) {
-					current_coalition.insert(opos->get_candidate_num());
-				}
-			}
-
-			// If we're using DSC as a component of an elimination system,
-			// all candidates of a certain rank level might be eliminated.
-			// In that case, the current coalition here will be empty, and
-			// we should not add anything. E.g. the ranking is A>B=C>D and
-			// both B and C are eliminated.
-
-			if (!current_coalition.empty()) {
-				coalition_count[current_coalition] += ballot->weight;
-			}
-		}
-
-		// If the ballot is truncated, add the coalition of all candidates
-		// also.
-
-		if (current_coalition.size() != (size_t)num_candidates) {
-			coalition_count[all_candidates] += ballot->weight;
-		}
-	}
-
-	// Convert the coalition counts into an array form that we can sort by 
-	// support. The actual sorting happens inside get_candidate_score.
-
-	std::vector<coalition_entry> coalitions;
-	for (std::map<std::set<int>, double>::const_iterator 
-			pos = coalition_count.begin(); pos != coalition_count.end(); 
-			++pos) {
-		coalitions.push_back(coalition_entry(pos->second, pos->first));
-	}
+	std::vector<coalition_entry> coalitions = get_coalitions(papers, 
+		hopefuls);
 
 	ordering outcome;
 
@@ -153,10 +107,20 @@ std::pair<ordering, bool> dsc::elect_inner(
 			unknown_candidates.erase(*pos);
 		}
 
-		// if winner only goes here
-
 		--rank_score;
+
+		// If we only want the winners, we're almost done. Just add the
+		// non-winners as equal last.
+		if (winner_only) {
+
+			for (pos = unknown_candidates.begin(); pos != 
+					unknown_candidates.end(); ++pos) {
+				outcome.insert(candscore(*pos, rank_score));
+			}
+
+			return(std::pair<ordering, bool>(outcome, winner_only));
+		}
 	}
 
-	return(std::pair<ordering, bool>(outcome, false));
+	return(std::pair<ordering, bool>(outcome, winner_only));
 }

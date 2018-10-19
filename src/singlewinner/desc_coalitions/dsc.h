@@ -58,50 +58,17 @@
 #ifndef _VOTE_DSC
 #define _VOTE_DSC
 
-#include "method.h"
-
-// Helper class. Coalition X is greater than Y if X's score is greater, or 
-// if it's equal and X contains the priority candidate whereas Y does not.
-
-class coalition_entry {
-	public:
-		std::set<int> coalition;
-		double score;
-		int priority_candidate;
-
-		bool operator>(const coalition_entry & other) const {
-			if (score != other.score)
-				return (score > other.score);
-
-			return (coalition.find(priority_candidate) != coalition.end() && 
-					other.coalition.find(priority_candidate) == 
-					other.coalition.end());
-		}
-
-		coalition_entry(double score_in, const std::set<int> & coalition_in) {
-			coalition = coalition_in;
-			score = score_in;
-			priority_candidate = -1;
-		}
-};
+#include "desc_coalition.h"
 
 class dsc : public election_method {
 
-	private:
-		void sort_by_candidate(
-			std::vector<coalition_entry> & coalitions, 
-			int candidate) const;
-		bool can_candidate_win(std::vector<coalition_entry> & coalitions,
-			const std::set<int> & starting_candidate_set,
-			int candidate, int num_candidates) const;
+	protected:
+		std::vector<coalition_entry> get_coalitions(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
+			int num_candidates) const;
 
 	public:
-		std::pair<ordering, bool> elect_inner(
-				const std::list<ballot_group> & papers,
-				const std::vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
-
 		string name() const { return ("DSC"); }
 };
 
