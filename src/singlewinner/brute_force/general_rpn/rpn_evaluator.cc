@@ -679,6 +679,12 @@ std::string gen_custom_function::to_string() const {
 // This function returns false (and doesn't set anything) if evaluating the 
 // algorithm on a standard input produces NaN, which is the error signal for
 // the evaluator.
+
+// XXX: This is a point of optimization. The initial evaluation takes
+// a considerable amount of time when sifting for interesting algorithms.
+// We could perhaps make the decoder keep track of the arity of the
+// functions it encounters and return false if the stack will be empty
+// too soon or have more than one value on it once the evaluation is done.
 bool gen_custom_function::set_algorithm(algo_t algorithm_encoding) {
 
 	std::vector<atom_bundle> proposed_algorithm = decode_algorithm(
