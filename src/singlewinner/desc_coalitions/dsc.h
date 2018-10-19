@@ -60,7 +60,7 @@
 
 #include "desc_coalition.h"
 
-class dsc : public election_method {
+class dsc : public desc_coalition_method {
 
 	protected:
 		std::vector<coalition_entry> get_coalitions(

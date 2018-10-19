@@ -68,7 +68,7 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 	}
 
 	std::vector<coalition_entry> coalitions = get_coalitions(papers, 
-		hopefuls);
+		hopefuls, num_candidates);
 
 	ordering outcome;
 
