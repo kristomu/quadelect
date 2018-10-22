@@ -1,0 +1,30 @@
+Autocloneproofing:
+	Suppose election example X gives A>B>C in 3 cddts. Clone A into A1 and
+A2, suppose the result is a 4-cddt election in scenario 55 for A1, 53 for A2,
+37 for B, and 39 for for C. Let the rotated elections be called election
+55-a1, 53-a2, 37-b and 39-c respectively.
+
+	For each of these four, for each of the 200k election methods, calculate
+the score of the centered candidate (A2, A2, B, C respectively). Then we know
+that for a candidate composition to be cloneproof, the score of the unknown
+handler for scenario 55 on 55-a1 must be greater than the score of the unknown
+handler for scenario 37 on 37-b. The same must hold for 55-a1 wrt 39-c, 53-a2
+wrt 37-b, and 53-a2 wrt 39-c.
+
+	Instead of evaluating these, we can now use the already calculated
+values to find all 4-tuples of scenario handlers X,Y,Z,W so that
+	55-a1(X) > 37-b(Z), 55-a1(X) > 39-c(W)
+	53-a2(Y) > 37-b(Z), 53-a2(Y) > 39-c(W),
+where foo(A) is the score given by handler A on election foo.
+
+This is a CS problem which probably has a name. From another POV, it's
+memoization of the results.
+
+A similar trick can be employed for monotonicity. Suppose elections a, b, c, d
+are the before ones (appropriately rotated), and a', b', c', d' is after A has
+been raised. We then want a set X, Y, Z, W so that
+all of
+	a(X) - b(Y) <= a'(X) - b'(Y)
+	a(X) - c(Z) <= a'(X) - c'(Z)
+	a(X) - d(W) <= a'(X) - d'(W)
+are true.
