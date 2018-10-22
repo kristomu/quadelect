@@ -416,6 +416,14 @@ int gen_custom_function::linear_combination(const std::vector<int> & indices,
 	return(sum);
 }
 
+// XXX: We could make this quicker by offloading the linear combination
+// calculation. I.e. one function takes in an election (v<d>) and outputs
+// an expanded v<d>, then the main evaluate function accesses this
+// expanded v<d>. E.g. fpA is expanded[n!+1], then the main evaluate can
+// just access index n!+1 whenever it wants fpA. That would work as long as
+// the number of candidate functions to test is much greater than the number
+// of elections. But is it worth it? Go for the low-hanging fruit first.
+
 double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias, 
 	const std::vector<double> & input_values, int numcands) const {
 

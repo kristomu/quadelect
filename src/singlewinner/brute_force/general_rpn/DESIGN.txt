@@ -5,11 +5,11 @@ number (e.g. 4). It takes a vector of all permutations (possibly + DAC/DSC
 stuff?) as well as an algorithm number which is parsed and executed in a 
 similar way to ordinary bruteRPN.
 
-If we have more than three candidates, we may be in one of a number of different
-scenarios. These are distinguished by scenario number or Copleand matrix. For
-instance, in a four-candidate method, we might have "ABCDA cycle and D beats
-B and A beats C" or "ABCA cycle and D beats B, A beats D, C beats D". Both have
-four-candidate Smith sets but are different otherwise.
+If we have more than three candidates, we may be in one of a number of
+different scenarios. These are distinguished by scenario number or Copleand
+matrix. For instance, in a four-candidate method, we might have "ABCDA cycle
+and D beats B and A beats C" or "ABCA cycle and D beats B, A beats D, C beats
+D". Both have four-candidate Smith sets but are different otherwise.
 
 The second class takes one of the first classes, plus a Copeland matrix 
 specification. It contains some fast tests for mono-add-top etc.; these tests
@@ -24,7 +24,11 @@ classes for all of these scenarios. When run as an election method, it
 determines the Copeland matrix for the current election, relabels candidates,
 sets up the vector, hands it to the relevant first classes to get scores for    each candidate, and returns the result.
 
-All the internal logic of the third class would use vectors. Perhaps it's better
-to have four classes: one that handles a specific number of candidates and one 
-that just hands off to the appropriate number candidate third class? OTOH, if
-we have three classes, we can  almost trivially implement Smith//
+All the internal logic of the third class would use vectors. Perhaps it's
+better to have four classes: one that handles a specific number of candidates
+and one that just hands off to the appropriate number candidate third class?
+OTOH, if we have three classes, we can  almost trivially implement Smith//
+
+We should have std::vector<double> as the internal ballot format as far as we
+can, because doing arithmetic on these is easy compared to doing it on
+ballot_sets.
