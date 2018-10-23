@@ -112,7 +112,7 @@ main() {
 
 		if (ordinal_seen_before.find(ordinal_results) !=
 			ordinal_seen_before.end()) {
-			cardinal_seen_before[cardinal_results] = i;
+			//cardinal_seen_before[cardinal_results] = i;
 			continue;
 		}
 
