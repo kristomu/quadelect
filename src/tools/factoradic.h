@@ -12,18 +12,20 @@
 class factoradic {
 	public:
 		static std::string kth_permutation(int k, int n);
-		template<typename T> static uint64_t permutation_number(
-			const T & permutation, int n);
+		template<typename T, typename R> static uint64_t permutation_number(
+			const T & permutation, int n, R first_cand);
 
 		static bool test() {
 			return kth_permutation(1, 3) == "ACB" && 
 				kth_permutation(2, 3) == "BAC" &&
-				permutation_number(kth_permutation(10, 4), 4) == 10;
+				permutation_number(kth_permutation(10, 4), 4, 'A') == 10;
 		}
 };
 
-template<typename T> uint64_t factoradic::permutation_number(
-	const T & permutation, int n) {
+// first_cand is the value corresponding to the first element, e.g. 'A'
+// if permutation is a string, or 0 if it's a vector.
+template<typename T, typename R> uint64_t factoradic::permutation_number(
+	const T & permutation, int n, R first_cand) {
 
 	std::vector<int> identity_perm(n);
 	std::iota(identity_perm.begin(), identity_perm.end(), 0);
@@ -33,7 +35,7 @@ template<typename T> uint64_t factoradic::permutation_number(
 
 	for (const char x: permutation) {
 		int fac_radix = factorial(count--);
-		int element_to_find = x - 'A';
+		int element_to_find = x - first_cand;
 		size_t element_location;
 		bool found_element = false;
 
