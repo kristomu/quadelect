@@ -22,6 +22,7 @@
 //		point of scenario 10 (from A's perspective).
 
 #include "../../../../tools/tools.h"
+#include "../../../../pairwise/abstract_matrix.h"
 
 #include <set>
 #include <string>
@@ -77,6 +78,9 @@ class copeland_scenario {
 		std::vector<std::vector<bool> > short_form_to_copeland_matrix(const
 			std::vector<bool> & short_form, int numcands) const;
 
+		std::vector<std::vector<bool> > condorcet_to_copeland_matrix(const
+			abstract_condmat * condorcet_matrix) const;
+
 		std::vector<bool> int_to_vbool(int numcands) const;
 
 		// Produces a Copeland matrix where the candidates have been
@@ -121,6 +125,11 @@ class copeland_scenario {
 				copeland_matrix_to_short_form(copeland_matrix));
 			set_numcands(copeland_matrix.size());
 		}
+
+		// From a Condorcet matrix
+		template<typename T> copeland_scenario(const T & condorcet_matrix) :
+			copeland_scenario(condorcet_to_copeland_matrix(condorcet_matrix)) 
+			{}
 
 		copeland_scenario(const std::vector<bool> & short_form,
 			int numcands) {
@@ -251,6 +260,32 @@ std::vector<std::vector<bool> >
 			copeland_matrix[i][j] = short_form[scenario_ctr];
 			copeland_matrix[j][i] = !copeland_matrix[i][j];
 			++scenario_ctr;
+		}
+	}
+
+	return copeland_matrix;
+}
+
+std::vector<std::vector<bool> > 
+	copeland_scenario::condorcet_to_copeland_matrix(const 
+	abstract_condmat * condorcet_matrix) const {
+
+	size_t numcands = condorcet_matrix->get_num_candidates();
+
+	std::vector<std::vector<bool> > copeland_matrix(numcands,
+		std::vector<bool>(numcands, false));
+
+	for (int i = 0; i < numcands; ++i) {
+		for (int j = i+1; j < numcands; ++j) {
+			if (condorcet_matrix->get_magnitude(i, j) == 
+				condorcet_matrix->get_magnitude(j, i)) {
+				// Perhaps return 0-candidate scenario instead?
+				throw new std::runtime_error(
+					"Copeland_scenario: pairwise ties not supported!");
+				}
+			copeland_matrix[i][j] = (condorcet_matrix->get_magnitude(
+				i, j) > condorcet_matrix->get_magnitude(j, i));
+			copeland_matrix[j][i] = !copeland_matrix[i][j];
 		}
 	}
 

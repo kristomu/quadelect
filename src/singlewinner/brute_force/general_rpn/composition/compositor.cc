@@ -16,7 +16,8 @@
 
 // TODO: Rewrite these comments.
 
-#include "../../../../tools.h"
+#include "../../../../tools/tools.h"
+#include "../../../../tools/factoradic.h"
 #include "../../../../ballots.h"
 
 #include <set>
@@ -405,9 +406,9 @@ void inc_ballot_vector(const ballot_group & ballot_to_add,
 		throw new std::runtime_error("Trying to add truncated ballot to ballot vector!");
 	}
 
-	// permutation_to_int needs to be written.
-	permutation_count_vector[permutation_to_int(linear_ordering)] += 
-		ballot_to_add.weight;
+	// Increment the relevant index.
+	permutation_count_vector[factoradic().permutation_number(linear_ordering, 
+		numcands, 0)] += ballot_to_add.weight;
 }
 
 std::vector<double> get_ballot_vector(const list<ballot_group> & election,
@@ -418,6 +419,8 @@ std::vector<double> get_ballot_vector(const list<ballot_group> & election,
 	for (const ballot_group & ballot : election) {
 		inc_ballot_vector(ballot, ballot_vector, numcands);
 	}
+
+	return ballot_vector;
 }
 
 list<ballot_group> permute_election_candidates(
@@ -432,7 +435,7 @@ list<ballot_group> permute_election_candidates(
 	// Fortunately, that is pretty easy.
 
 	int numcands = candidate_permutation.size();
-	std::vector<int> inv_permutation;
+	std::vector<int> inv_permutation(numcands, -1);
 
 	for (int i = 0; i < numcands; ++i) {
 		inv_permutation[candidate_permutation[i]] = i;
@@ -472,6 +475,76 @@ main() {
 	for (copeland_scenario x: nonderived_full) {
 		std::cout << "Smith set 4 nonderived: " << x.to_string() << std::endl;
 	}
+
+	// Testing get_ballot_vector.
+	ballot_group abcd;
+	abcd.complete = true;
+	abcd.weight = 1;
+	abcd.contents.insert(candscore(0, 10));
+	abcd.contents.insert(candscore(1, 9));
+	abcd.contents.insert(candscore(2, 8));
+	abcd.contents.insert(candscore(3, 7));
+
+	std::list<ballot_group> abcd_election;
+	abcd_election.push_back(abcd);
+
+	std::vector<double> abcd_only = get_ballot_vector(abcd_election, 4);
+
+	std::copy(abcd_only.begin(), abcd_only.end(), 
+		std::ostream_iterator<double>(std::cout, " "));
+
+	std::cout << std::endl; // should be 1 first everything else 0
+
+	ballot_group bca;
+	bca.complete = true;
+	bca.weight = 1.9;
+	bca.contents.insert(candscore(1, 10));
+	bca.contents.insert(candscore(2, 8));
+	bca.contents.insert(candscore(0, 7));
+
+	std::list<ballot_group> bca_election;
+	bca_election.push_back(bca);
+
+	std::vector<double> bca_only = get_ballot_vector(bca_election, 3);
+
+	// Should be 0 0 1.9 0 0
+	std::copy(bca_only.begin(), bca_only.end(), 
+		std::ostream_iterator<double>(std::cout, " "));
+
+	std::cout << std::endl;
+
+	// Test permuting.
+
+	list<ballot_group> abc_election = permute_election_candidates(
+		bca_election, {1, 2, 0});
+
+	std::vector<double> abc_only = get_ballot_vector(abc_election, 3);
+
+	std::copy(abc_only.begin(), abc_only.end(), 
+		std::ostream_iterator<double>(std::cout, " "));
+
+	std::cout << std::endl; // should be 1.9 first everything else 0
+
+	// Ad hoc testing scheme. Improve later.
+
+	// 1. Generate a base election until we have something that follows
+	// the desired base scenario. (We need to do this so that B's perspective
+	// is always the same scenario, C's is and so on, so that the vector
+	// of results can be compared.)
+
+	// 2. Add an A-first ballot somewhere.
+
+	// 3. Get the election (permutation) vectors A and A'.
+
+	// 4. Permute to get B, B', C, C', D, and D'.
+
+	// 5. For each generic function:
+	//		5.1. Record its score on A, B, C, D, A', B', C', D'.
+
+	// 6. Go to 1 until we have enough data points.
+
+	// 7. Do the filtering (more stuff to come.)
+
 }
 
 
