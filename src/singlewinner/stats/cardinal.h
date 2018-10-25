@@ -2,7 +2,7 @@
 #define _VOTE_SW_CARDR
 
 #include "../method.h"
-#include "../../tools.h"
+#include "../../tools/tools.h"
 #include "../../ballots.h"
 
 using namespace std;

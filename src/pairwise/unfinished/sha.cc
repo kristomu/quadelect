@@ -27,7 +27,7 @@
 #define _VOTE_C_SHASTRAT
 
 #include "../../ballots.h"
-#include "../../tools.h"
+#include "../../tools/tools.h"
 #include "../matrix.h"
 
 #include <vector>

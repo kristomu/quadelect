@@ -11,7 +11,7 @@
 #define _BALLOT_GENERATOR
 
 #include "../method.cc"
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 #include <ext/numeric>
 #include <list>
 

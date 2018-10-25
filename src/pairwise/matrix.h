@@ -2,7 +2,7 @@
 #define _VOTE_C_MATRIX
 
 #include "../ballots.h"
-#include "../tools.h"
+#include "../tools/tools.h"
 
 #include "types.h"
 #include "abstract_matrix.h"

@@ -1,7 +1,7 @@
 #ifndef _TOOLS_FACTORADIC
 #define _TOOLS_FACTORADIC
 
-#include "../tools.h"
+#include "tools.h"
 
 #include <string>
 #include <numeric>
@@ -34,17 +34,19 @@ template<typename T> uint64_t factoradic::permutation_number(
 	for (const char x: permutation) {
 		int fac_radix = factorial(count--);
 		int element_to_find = x - 'A';
-		int element_location = -1;
+		size_t element_location;
+		bool found_element = false;
 
-		for (int j = 0; j < identity_perm.size() && element_location == -1; 
+		for (size_t j = 0; j < identity_perm.size() && !found_element; 
 			++j) {
 
 			if (identity_perm[j] == element_to_find) {
 				element_location = j;
+				found_element = true;
 			}
 		}
 
-		if (element_location == -1) {
+		if (!found_element) {
 			throw new std::runtime_error(
 				"Can't find element in permutation_number");
 		}

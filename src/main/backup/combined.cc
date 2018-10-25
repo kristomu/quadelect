@@ -16,9 +16,9 @@
 
 // General includes - tools and ballot structures.
 
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
+#include "../tools/tools.h"
 #include "../ballots.h"
-#include "../tools.h"
 
 // Generators go here.
 

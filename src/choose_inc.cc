@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "tools.h"
+#include "tools/tools.h"
 
 unsigned long long fact(int n) {
     unsigned long long res=1;

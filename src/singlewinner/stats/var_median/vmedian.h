@@ -28,7 +28,7 @@
 #include <math.h>
 
 #include "../../method.h"
-#include "../../../tools.h"
+#include "../../../tools/tools.h"
 #include "../../../ballots.h"
 
 #include "../../../grad_median/grad_median.h"

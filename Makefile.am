@@ -5,7 +5,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 bin_PROGRAMS = qelect
-qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
+qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
+	src/choose_inc.h \
 	src/distances/vivaldi_test.h src/generator/ballotgen.h \
 	src/generator/dirichlet.h src/generator/spatial/gaussian.h \
 	src/generator/impartial.h src/generator/spatial/spatial.h \
@@ -48,8 +49,8 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/singlewinner/stats/mode.h \
 	src/singlewinner/stats/var_median/comparand.h \
 	src/singlewinner/stats/var_median/vmedian.h src/singlewinner/young.h \
-	src/stats/mwstats.h src/stats/stats.h src/tools.h src/ballot_tools.cc \
-	src/tools/factoradic.cc \
+	src/stats/mwstats.h src/stats/stats.h src/tools/tools.h \
+	src/tools/ballot_tools.cc src/tools/factoradic.cc \
 	src/ballots.cc src/cache.cc src/choose_inc.cc \
 	src/distances/vivaldi_test.cc \
 	src/generator/spatial/gaussian.cc src/generator/impartial_gen.cc \
@@ -101,7 +102,7 @@ qelect_SOURCES = src/ballot_tools.h src/ballots.h src/cache.h src/choose_inc.h \
 	src/singlewinner/stats/var_median/vmedian.cc src/singlewinner/young.cc \
 	src/singlewinner/fpc.cc src/singlewinner/desc_coalitions/dsc.cc \
 	src/singlewinner/desc_coalitions/desc_coalition.cc \
-	src/tools.cc src/singlewinner/positional/as241.c \
+	src/tools/tools.cc src/singlewinner/positional/as241.c \
 	src/tests/disproof.h src/tests/tests/monotonicity/mono_add.h \
 	src/tests/tests/monotonicity/mono_append.h \
 	src/tests/tests/monotonicity/mono_raise.h \

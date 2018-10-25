@@ -10,7 +10,7 @@
 // positional matrices...
 
 #include "../ballots.h"
-#include "../tools.h"
+#include "../tools/tools.h"
 
 #include <vector>
 #include <list>

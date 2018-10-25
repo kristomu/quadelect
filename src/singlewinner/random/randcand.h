@@ -16,7 +16,7 @@
 #define _VOTE_SW_RANDCAND
 
 #include "../method.h"
-#include "../../tools.h"
+#include "../../tools/tools.h"
 #include "../../ballots.h"
 
 using namespace std;

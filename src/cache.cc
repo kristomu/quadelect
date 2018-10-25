@@ -2,7 +2,7 @@
 #include <vector>
 #include <map>
 
-#include "ballot_tools.h"
+#include "tools/ballot_tools.h"
 #include "pairwise/matrix.h"
 #include "pairwise/cache_matrix.h"
 

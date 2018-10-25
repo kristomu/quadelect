@@ -6,7 +6,7 @@
 // for instance), and it might be useful in multiwinner when we get to that.
 
 #include "../ballots.h"
-#include "../tools.h"
+#include "../tools/tools.h"
 
 #include "types.h"
 

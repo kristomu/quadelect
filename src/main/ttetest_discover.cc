@@ -7,7 +7,7 @@
 #include <list>
 #include <set>
 
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 #include "../ballots.h"
 
 #include "../generator/impartial.h"

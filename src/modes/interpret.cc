@@ -5,7 +5,7 @@
 // user desires so.
 
 #include "interpret.h"
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 
 // Functions for generating standard candidate names.
 

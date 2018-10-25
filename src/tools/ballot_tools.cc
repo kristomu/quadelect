@@ -1,6 +1,6 @@
 #include <iostream>
 #include <list>
-#include "ballots.h"
+#include "../ballots.h"
 #include "ballot_tools.h"
 
 #include <iterator>

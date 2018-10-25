@@ -8,7 +8,7 @@
 
 #include "../method.h"
 #include "../../ballots.h"
-#include "../../ballot_tools.h"
+#include "../../tools/ballot_tools.h"
 
 class comma : public election_method {
 

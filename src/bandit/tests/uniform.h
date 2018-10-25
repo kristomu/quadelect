@@ -5,7 +5,7 @@
 #include <string>
 
 #include "tests.h"
-#include "../../tools.h"
+#include "../../tools/tools.h"
 #include "../../random/random.h"
 
 class Uniform : public Test {

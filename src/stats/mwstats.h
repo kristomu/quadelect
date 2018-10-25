@@ -1,5 +1,5 @@
 // Taken from the non-cache quadelect. I'll port the rest at some later point,
-// one singlewinner works well enough.
+// once singlewinner works well enough.
 
 #ifndef __VOTE_STATS_MW
 #define __VOTE_STATS_MW

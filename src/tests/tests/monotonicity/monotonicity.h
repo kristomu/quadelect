@@ -15,16 +15,11 @@
 #ifndef _TWOTEST_MONO
 #define _TWOTEST_MONO
 
-#include "../../../ballot_tools.h"
+#include "../../../tools/ballot_tools.h"
 #include "../../../random/random.h"
 #include "../../two_tests.h"
 
-#if (__GXX_EXPERIMENTAL_CXX0X__ && __GNUC__ == 4 && __GNUC_MINOR__ >= 4)
 #include <numeric>
-#else
-#include <ext/numeric>
-#endif
-
 #include <iterator>
 #include <vector>
 

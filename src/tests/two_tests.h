@@ -42,7 +42,7 @@
 #define _VOTE_TWOTEST
 
 //#include "../multiwinner/methods.cc"
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 #include "../singlewinner/method.h"
 #include <iterator>
 #include <vector>

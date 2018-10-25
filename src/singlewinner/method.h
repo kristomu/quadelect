@@ -2,7 +2,7 @@
 #define _VOTE_SW_EMETH
 
 #include "../ballots.h"
-#include "../tools.h"
+#include "../tools/tools.h"
 #include "../cache.h"
 #include <iostream>
 #include <vector>

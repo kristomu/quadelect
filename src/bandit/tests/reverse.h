@@ -5,7 +5,7 @@
 #include <string>
 
 #include "tests.h"
-#include "../../tools.h"
+#include "../../tools/tools.h"
 
 // For finding the worst test instead of the best.
 

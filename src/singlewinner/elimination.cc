@@ -1,7 +1,7 @@
 #include "method.h"
-#include "../tools.h"
+#include "../tools/tools.h"
 #include "../ballots.h"
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 
 #include "elimination.h"
 

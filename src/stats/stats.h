@@ -2,7 +2,7 @@
 #ifndef __VOTE_STATS
 #define __VOTE_STATS
 
-#include "../tools.h"
+#include "../tools/tools.h"
 #include "confidence/confidence.h"
 #include <iostream>
 

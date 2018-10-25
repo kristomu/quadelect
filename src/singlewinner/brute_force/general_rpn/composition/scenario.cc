@@ -21,7 +21,7 @@
 //		we need to determine the score for every candidate from a starting
 //		point of scenario 10 (from A's perspective).
 
-#include "../../../../tools.h"
+#include "../../../../tools/tools.h"
 
 #include <set>
 #include <string>

@@ -5,7 +5,7 @@
 // range data.
 
 #include "vivaldi_test.cc"
-#include "../tools.cc"
+#include "../tools/tools.cc"
 #include <iterator>
 
 using namespace std;

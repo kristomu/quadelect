@@ -8,9 +8,9 @@
 #include <list>
 #include <set>
 
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 #include "../ballots.h"
-#include "../tools.h"
+#include "../tools/tools.h"
 
 #include "../generator/ballotgen.h"
 #include "../generator/impartial.h"

@@ -9,9 +9,9 @@
 #include <stdexcept>
 
 #include "../bandit/tests/tests.h"
-#include "../tools.h"
+#include "../tools/tools.h"
 
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 #include "../ballots.h"
 
 #include "../generator/ballotgen.h"

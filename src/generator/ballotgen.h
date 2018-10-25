@@ -16,7 +16,7 @@
 #define _BALLOT_GENERATOR
 
 #include "../singlewinner/method.h"
-#include "../ballot_tools.h"
+#include "../tools/ballot_tools.h"
 #include "../random/random.h"
 
 #include <numeric>

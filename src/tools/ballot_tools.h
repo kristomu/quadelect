@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <list>
-#include "ballots.h"
+#include "../ballots.h"
 #include "tools.h"
 
 using namespace std;
