@@ -40,6 +40,7 @@
 
 #include "../rpn/chaotic_functions.h"
 #include "../../../tools/tools.h"
+#include "../../../tools/factoradic.h"
 
 #include <iostream>
 
@@ -106,8 +107,6 @@ class gen_custom_function {
 
 		const double blancmange_order = 0.67;
 
-		int factorial(int x) const;
-		std::string kth_permutation(int k, int numcands) const;
 		int get_num_referential_atoms(int numcands) const;
 
 		atom_bundle get_atom_bundle(algo_t atom_encoding, int numcands) const;
@@ -160,38 +159,7 @@ class gen_custom_function {
 			gen_custom_function(number_candidates_in) {
 				force_set_algorithm(algorithm);
 		}
-
-		bool test_kth_permutation() const {
-			return kth_permutation(1, 3) == "ACB" && 
-				kth_permutation(2, 3) == "BAC";
-		}
 };
-
-int gen_custom_function::factorial(int x) const {
-	if (x <= 0) return(1);
-	return (x * factorial(x-1));
-}
-
-// Find the kth permutation of numcands candidates using factorial base
-// logic. E.g. the 0th for 3 candidates is ABC and the 5th is CBA.
-std::string gen_custom_function::kth_permutation(int k, int numcands) const {
-
-	std::vector<char> candidates(numcands);
-	std::iota(candidates.begin(), candidates.end(), 'A');
-
-	std::string output = "";
-
-	for (int radix = numcands-1; radix >= 0; --radix) {
-		// Needs to be done MSB style for some reason.
-		int digit = k / factorial(radix);
-		k -= factorial(radix) * digit;
-
-		output += candidates[digit];
-		candidates.erase(candidates.begin()+digit);
-	}
-
-	return(output);
-}
 
 int gen_custom_function::get_num_referential_atoms(
 	int numcands) const {
@@ -636,7 +604,7 @@ std::string gen_custom_function::get_atom_name(
 	}
 
 	if (cur_atom.is_direct_reference) {
-		return kth_permutation(cur_atom.idx, numcands); 
+		return factoradic().kth_permutation(cur_atom.idx, numcands); 
 	}
 
 	// Okay, it's not a reference, so find out what kind of atom it is.
