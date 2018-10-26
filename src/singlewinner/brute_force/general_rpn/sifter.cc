@@ -35,6 +35,24 @@ std::vector<std::vector<double> > get_test_vectors(int how_many,
 	return out;
 }
 
+std::vector<std::vector<double> > get_identity_vectors(int numcands,
+	bool scale_by_pos) {
+
+	std::vector<std::vector<double> > out;
+	std::vector<double> zeroes(factorial(numcands), 0), identity;
+	identity = zeroes;
+	for (int i = 0; i < factorial(numcands); ++i) {
+		if (scale_by_pos) {
+			identity[i] = i/10.0;
+		} else {
+			identity[i] = 1;
+		}
+		out.push_back(identity);
+		identity[i] = 0;
+	}
+	return out;
+}
+
 std::vector<double> evaluate_algorithm(gen_custom_function & gcf, 
 	//algo_t algorithm_number, 
 	const std::vector<std::vector<double> > & test_vectors) {
@@ -68,7 +86,7 @@ std::vector<bool> get_ordinal_test_result(const std::vector<double> &
 
 	for (double x: cardinal_results) {
 		for (double y: cardinal_results) {
-			ordinal_output.push_back(fabs(x-y) > threshold);
+			ordinal_output.push_back((x-y) > threshold);
 		}
 	}
 
@@ -82,6 +100,10 @@ std::vector<bool> get_ordinal_test_result(const std::vector<double> &
 // of the other - and then compare the ordinal test results for both 
 // (adjusting epsilon as necessary).
 
+std::string algo_str(int numcands, algo_t algorithm) {
+	return gen_custom_function(numcands, algorithm).to_string();
+}
+
 main() {
 	int numcands = 4;
 
@@ -90,8 +112,13 @@ main() {
 	std::vector<std::vector<double> > cardinal_tests = get_test_vectors(8,
 		numcands);
 
-	std::vector<std::vector<double> > ordinal_tests = get_test_vectors(32,
+	std::vector<std::vector<double> > ordinal_tests = get_test_vectors(48,
 		numcands);
+
+	std::vector<std::vector<double> > basis = get_identity_vectors(numcands,
+		true);
+
+	std::copy(basis.begin(), basis.end(), std::back_inserter(ordinal_tests));
 
 	std::map<std::vector<double>, algo_t> cardinal_seen_before;
 	std::map<std::vector<bool>, algo_t> ordinal_seen_before;
@@ -104,6 +131,9 @@ main() {
 
 		if (cardinal_seen_before.find(cardinal_results) != 
 			cardinal_seen_before.end()) {
+			//std::cout << i << "\t" << x.to_string() <<  ": failed cardinal ";
+			//std::cout << " aliased by " << algo_str(numcands, cardinal_seen_before.find(cardinal_results)->second) 
+			//std::cout << std::endl;
 			continue;
 		}
 
@@ -112,7 +142,9 @@ main() {
 
 		if (ordinal_seen_before.find(ordinal_results) !=
 			ordinal_seen_before.end()) {
-			//cardinal_seen_before[cardinal_results] = i;
+			//std::cout << i << "\t" << x.to_string() <<  ": failed ordinal ";
+			//std::cout << " aliased by " << algo_str(numcands, ordinal_seen_before.find(ordinal_results)->second) << std::endl;
+			//std::cout << std::endl;
 			continue;
 		}
 
