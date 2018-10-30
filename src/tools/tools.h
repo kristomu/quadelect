@@ -115,4 +115,9 @@ std::string strip_spaces(const std::string & in);
 std::vector<std::string> slurp_file(std::ifstream & source,
     bool print_while_slurping);
 
+// Used to read files of the type <number> (space or \t) (other stuff),
+// when we're only interested in the numbers.
+
+std::vector<std::string> get_first_token_on_lines(std::ifstream & source);
+
 #endif

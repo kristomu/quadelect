@@ -300,8 +300,9 @@ std::vector<std::string> tokenize(const std::string & input_string,
 
 	// If str.size() == 0 return str
 
-	if (str.find(comment_marker) != (uint32_t)-1)
+	if (str.find(comment_marker) != std::string::npos) {
 		str.resize(str.find(comment_marker));
+	}
 
 	size_t lastPos = str.find_first_not_of(delimiters, 0);
 	size_t pos = str.find_first_of(delimiters, lastPos); // returns -1 if none
@@ -354,4 +355,22 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 	}
 
 	return (output);
+}
+
+std::vector<std::string> get_first_token_on_lines(std::ifstream & source) {
+
+	std::string next;
+	std::vector<std::string> output;
+
+	while (!source.eof()) {
+		getline(source, next);
+		if (!source.eof()) {
+			std::vector<std::string> tokenized_line = tokenize(
+				next, "\t ", '\n', false);
+			if (tokenized_line.empty()) { continue; }
+			output.push_back(tokenized_line[0]);
+		}
+	}
+
+	return output;
 }
