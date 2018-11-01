@@ -356,21 +356,3 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 
 	return (output);
 }
-
-std::vector<std::string> get_first_token_on_lines(std::ifstream & source) {
-
-	std::string next;
-	std::vector<std::string> output;
-
-	while (!source.eof()) {
-		getline(source, next);
-		if (!source.eof()) {
-			std::vector<std::string> tokenized_line = tokenize(
-				next, "\t ", '\n', false);
-			if (tokenized_line.empty()) { continue; }
-			output.push_back(tokenized_line[0]);
-		}
-	}
-
-	return output;
-}

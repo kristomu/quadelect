@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #include <assert.h>
 #include <sstream>
+#include <fstream>
 #include <algorithm>
 #include <vector>
 #include <map>
@@ -118,6 +119,22 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 // Used to read files of the type <number> (space or \t) (other stuff),
 // when we're only interested in the numbers.
 
-std::vector<std::string> get_first_token_on_lines(std::ifstream & source);
+template <typename T> void get_first_token_on_lines(std::ifstream & source, 
+	std::vector<T> & out) {
+
+	std::string next;
+	T next_integer;
+
+	while (!source.eof()) {
+		getline(source, next);
+		if (source.eof()) { continue; }
+
+		std::vector<std::string> tokenized_line = tokenize(
+			next, "\t ", '\n', false);
+		if (tokenized_line.empty()) { continue; }
+		arch_stoi(next_integer, false, tokenized_line[0]);
+		out.push_back(next_integer);
+	}
+}
 
 #endif
