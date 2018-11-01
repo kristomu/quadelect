@@ -155,7 +155,7 @@ class gen_custom_function {
 			force_set_algorithm(0);
 		}
 
-		gen_custom_function(int number_candidates_in, int algorithm) :
+		gen_custom_function(int number_candidates_in, algo_t algorithm) :
 			gen_custom_function(number_candidates_in) {
 				force_set_algorithm(algorithm);
 		}

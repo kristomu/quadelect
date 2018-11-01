@@ -280,7 +280,7 @@ std::vector<std::vector<bool> >
 			if (condorcet_matrix->get_magnitude(i, j) == 
 				condorcet_matrix->get_magnitude(j, i)) {
 				// Perhaps return 0-candidate scenario instead?
-				throw new std::runtime_error(
+				throw std::runtime_error(
 					"Copeland_scenario: pairwise ties not supported!");
 				}
 			copeland_matrix[i][j] = (condorcet_matrix->get_magnitude(
