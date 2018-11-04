@@ -4,6 +4,7 @@
 // TODO: Rewrite these comments.
 
 #include "equivalences.cc"
+#include "eligibility.h"
 
 
 // We need a function that generates a monotonicity election pair using some
@@ -17,12 +18,28 @@
 // The we need a function that goes through all the eligible pairs and
 // combines them into eligible four-tuples.
 
-struct monotonicity_pair {
-	std::list<ballot_group> base_election;
-	std::list<ballot_group> improved_election;
-	copeland_scenario base_scenario, improved_scenario;
+// Perhaps the other way around?
+struct election_scenario_pair {
+	std::list<ballot_group> election;
+	copeland_scenario scenario;
 };
 
+struct permuted_election_vector {
+	// This variable is set if the election/scenario pair arose from
+	// permuting another election so some candidate is now the first
+	// candidate in the permuted election. In that case, this value is
+	// the index of the candidate (e.g. 1 for B); if there's no such
+	// permutation, this value is 0.
+	int permuted_to_candidate;
+
+	std::vector<double> election;
+};
+
+
+struct monotonicity_pair {
+	election_scenario_pair base_election;
+	election_scenario_pair improved_election;
+};
 
 monotonicity_pair get_monotonicity_pair(const copeland_scenario & 
 	desired_scenario, int numcands, rng & randomizer, monotonicity *
@@ -41,36 +58,40 @@ monotonicity_pair get_monotonicity_pair(const copeland_scenario &
 
 		do {
 			// Use an odd number of voters to avoid ties.
-			out.base_election = ic.generate_ballots(
+			out.base_election.election = ic.generate_ballots(
 				2 * randomizer.lrand(5, 50) + 1, numcands, randomizer);
 			condorcet_matrix.zeroize();
-			condorcet_matrix.count_ballots(out.base_election, numcands);
-			out.base_scenario = copeland_scenario(&condorcet_matrix);
-		} while (out.base_scenario != desired_scenario);
+			condorcet_matrix.count_ballots(out.base_election.election, 
+				numcands);
+			out.base_election.scenario = copeland_scenario(&condorcet_matrix);
+		} while (out.base_election.scenario != desired_scenario);
 
 		// Create data (specs) for the monotonicity test and make it prefer 
 		// candidate 0 (A).
 
 		std::vector<int> mono_data = mono_test->generate_aux_data(
-			out.base_election, numcands);
+			out.base_election.election, numcands);
 
 		mono_test->set_candidate_to_alter(mono_data, 0);
 
 		std::pair<bool, list<ballot_group> > alteration = mono_test->
-			rearrange_ballots(out.base_election, numcands, mono_data);
+			rearrange_ballots(out.base_election.election, numcands, 
+				mono_data);
 
 		// If we didn't succeed, loop back to start.
 		if (!alteration.first) {
 			continue;
 		}
 
-		out.improved_election = alteration.second;
+		out.improved_election.election = alteration.second;
 
 		// Check for ties and set the improved scenario (kinda ugly)
 		try {
 			condorcet_matrix.zeroize();
-			condorcet_matrix.count_ballots(out.improved_election, numcands);
-			out.improved_scenario = copeland_scenario(&condorcet_matrix);
+			condorcet_matrix.count_ballots(out.improved_election.election,
+				numcands);
+			out.improved_election.scenario = copeland_scenario(
+				&condorcet_matrix);
 		} catch (const std::exception & e) { 
 			continue;
 		}
@@ -82,97 +103,38 @@ monotonicity_pair get_monotonicity_pair(const copeland_scenario &
 	return out;
 }
 
+// This gets the election results rotated for every candidate. Note that
+// there may be more elements in the list than there are candidates, if
+// there's more than one rotation for a particular candidate. Thus the
+// return value makes no guarantee that the second entry is the perspective
+// from the point of view of B. 
 
-// Testing testing
-void show_transitions(const copeland_scenario & desired_scenario, int numcands,
+std::list<permuted_election_vector> get_all_permuted_elections(
+	const election_scenario_pair & cand_As_perspective,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings, rng & randomizer) {
+	candidate_remappings, int numcands) {
 
-	impartial ic(true);
-
-	mono_add_top mattest(false, false);
-
-	list<ballot_group> base_election;
-	condmat condorcet_matrix(CM_PAIRWISE_OPP);
-
-	do {
-                // Use an odd number of voters to avoid ties.
-                base_election = ic.generate_ballots(2 * randomizer.lrand(5, 50) + 1,
-                        numcands, randomizer);
-                condorcet_matrix.zeroize();
-                condorcet_matrix.count_ballots(base_election, numcands);
-        } while (copeland_scenario(&condorcet_matrix) != desired_scenario);
-
-	monotonicity * mono_test = &mattest;
-
-        std::vector<int> mono_data = mono_test->generate_aux_data(base_election,
-                numcands);
-
-        mono_data[0] = 0;
-
-        std::pair<bool, list<ballot_group> > alteration = mono_test->
-                rearrange_ballots(base_election, numcands, mono_data);
-
-        // didn't succeed in altering the ballot set in favor of A, so leave
-        if (!alteration.first) {
-                return;
-        }
-
-	try {
-	        condorcet_matrix.zeroize();
-        	condorcet_matrix.count_ballots(alteration.second, numcands);
-		std::cout << "Base for A is " << copeland_scenario(&condorcet_matrix).to_string() << std::endl;
-	} catch (const std::exception & e) { 
-		return;
-	}
-
-	std::vector<std::vector<double> > base_election_different_cands,
-                modified_election_different_cands;
-
-	std::vector<copeland_scenario> base_c, modified_c;
-
-        for (int i = 0; i < numcands; ++i) {
-                // TODO: Multiple cand permutations may exist. Handle it.
-                std::vector<int> center_on_this_cand = candidate_remappings[i].
-                        find(desired_scenario)->second.cand_permutations[0];
-
-		condorcet_matrix.zeroize();
-		condorcet_matrix.count_ballots(permute_election_candidates(
-			base_election, center_on_this_cand), numcands);
-		char cand_name = i + 'A';
-		std::string base = std::string(1, cand_name), modified = base + "'";
-
-		std::cout << base << ": " << copeland_scenario(&condorcet_matrix).to_string() << std::endl;
-		base_c.push_back(copeland_scenario(&condorcet_matrix));
-
-		condorcet_matrix.zeroize();
-		condorcet_matrix.count_ballots(permute_election_candidates(
-			alteration.second, center_on_this_cand), numcands);
-		
-		std::cout << modified << ": " << copeland_scenario(&condorcet_matrix).to_string() << std::endl;
-		modified_c.push_back(copeland_scenario(&condorcet_matrix));
-	}
+	std::list<permuted_election_vector> out;
 
 	for (int i = 0; i < numcands; ++i) {
-		// Check if we have scenario(k') = scenario(A)
-		// and scenario(k) = scenario(A')
+		// TODO: Multiple cand permutations may exist. Handle it.
+		for (const auto & cand_permutation: candidate_remappings[i].
+			find(cand_As_perspective.scenario)->second.cand_permutations) {
 
-		if (base_c[0] == modified_c[i] && base_c[i] == modified_c[0]) {
-			std::cout << "Pay attention! i = " << i << std::endl;
+			permuted_election_vector pev;
+			pev.permuted_to_candidate = i;
+			pev.election = get_ballot_vector(permute_election_candidates(
+				cand_As_perspective.election, cand_permutation), numcands);
+
+			out.push_back(pev);
 		}
 	}
 
-         /*       base_election_different_cands.push_back(
-                        get_ballot_vector(permute_election_candidates(
-                                base_election, center_on_this_cand), numcands));
-                modified_election_different_cands.push_back(
-                        get_ballot_vector(permute_election_candidates(
-                                alteration.second, center_on_this_cand), numcands));
-        }*/
-
-	std::cout << std::endl;
-
+	return out;
 }
+
+
+// Testing testing
 
 // Reconstruction of this testing system: We have a number of acceptable
 // scenarios. We want every candidate rotation to give scenarios which are
@@ -239,83 +201,50 @@ std::vector<std::vector<double> > test(
 	rng & randomizer) {
 	// Ad hoc testing scheme. Improve later.
 
-	// Generate a random ballot set.
-	impartial ic(true);
-
 	mono_add_top mattest(false, false);
 	mono_raise mrtest(false, false);
 
-	list<ballot_group> base_election;
-	condmat condorcet_matrix(CM_PAIRWISE_OPP);
-
-	// 1. Generate a base election until we have something that follows
-	// the desired base scenario. (We need to do this so that B's perspective
-	// is always the same scenario, C's is and so on, so that the vector
-	// of results can be compared.)
-
-	do {
-		// Use an odd number of voters to avoid ties.
-		base_election = ic.generate_ballots(2 * randomizer.lrand(5, 50) + 1, 
-			numcands, randomizer);
-		condorcet_matrix.zeroize();
-		condorcet_matrix.count_ballots(base_election, numcands);
-	} while (copeland_scenario(&condorcet_matrix) != desired_scenario);
-
-	// 2. Add an A-first ballot somewhere.
-
-	// VERY hacky. We make use of that data[0] specifies the candidate
-	// this is supposed to benefit, which is here always the first
-	// candidate (A).
-
-	// Check for *both* mono-raise and mono-add-top. We need to get rid
-	// of as many methods as possible.
 	monotonicity * mono_test = &mattest;
 	if (randomizer.drand() < 0.5) mono_test = &mrtest;
 
-	std::vector<int> mono_data = mono_test->generate_aux_data(base_election,
-		numcands);
+	// - Get a monotonicity pair with the test we decided to use.
 
-	mono_data[0] = 0;
+	monotonicity_pair mono_pair = get_monotonicity_pair(desired_scenario,
+		numcands, randomizer, mono_test);
+	
+	// - Get the election (permutation) vectors A, B, C, D, A', B', C', D'.
 
-	std::pair<bool, list<ballot_group> > alteration = mono_test->
-		rearrange_ballots(base_election, numcands, mono_data);
+	std::list<permuted_election_vector> permuted_base_election = 
+		get_all_permuted_elections(mono_pair.base_election,
+			candidate_remappings, numcands);
 
-	// didn't succeed in altering the ballot set in favor of A, so leave
-	if (!alteration.first) {
-		return std::vector<std::vector<double> >();
-	}
-
-	condorcet_matrix.zeroize();
-	condorcet_matrix.count_ballots(alteration.second, numcands);
-
-	// Hack for when the alteration gets us into another scenario. To do
-	// later: handle this properly, as it will strengthen the constraint.
-	try {
-		if (copeland_scenario(&condorcet_matrix) != desired_scenario) {
-			return std::vector<std::vector<double> >();	
-		}
-
-	} catch (const std::exception & e) {
-		//std::cout << e.what() << std::endl;
-		return std::vector<std::vector<double> >();	 // Pairwise tie encountered.
-	}
-
-	// 3. Get the election (permutation) vectors A, B, C, D, A', B', C', D'.
-
+	std::list<permuted_election_vector> permuted_improved_election = 
+		get_all_permuted_elections(mono_pair.improved_election,
+			candidate_remappings, numcands);
+	
 	std::vector<std::vector<double> > base_election_different_cands,
 		modified_election_different_cands;
 
 	for (int i = 0; i < numcands; ++i) {
-		// TODO: Multiple cand permutations may exist. Handle it.
-		std::vector<int> center_on_this_cand = candidate_remappings[i].
-			find(desired_scenario)->second.cand_permutations[0];
+		// Teh hax
+		// Needs a more thorough refactoring later.
+		std::vector<double> base;
+		for (const permuted_election_vector & pie: permuted_base_election) {
+			if (pie.permuted_to_candidate == i) {
+				base = pie.election;
+			}
+		}
+		base_election_different_cands.push_back(base);
 
-		base_election_different_cands.push_back(
-			get_ballot_vector(permute_election_candidates(
-				base_election, center_on_this_cand), numcands));
-		modified_election_different_cands.push_back(
-			get_ballot_vector(permute_election_candidates(
-				alteration.second, center_on_this_cand), numcands));
+		std::vector<double> imp;
+		for (const permuted_election_vector & pie: 
+			permuted_improved_election) {
+
+			if (pie.permuted_to_candidate == i) {
+				imp = pie.election;
+			}
+		}
+		modified_election_different_cands.push_back(imp);
 	}
 
 	// 4. For each generic function:
@@ -349,6 +278,119 @@ std::vector<std::vector<double> > test(
 
 	// 7. Do the filtering (more stuff to come.)
 }
+
+/*void test_against_eligibility(eligibility_tables & eligibilities,
+	const copeland_scenario & desired_scenario, int numcands,
+	const std::vector<std::map<copeland_scenario, isomorphism> > &
+	candidate_remappings, const std::vector<algo_t> & functions_to_test,
+	rng & randomizer, bool first_round) {
+
+	// Ad hoc testing scheme. Improve later.
+
+	mono_add_top mattest(false, false);
+	mono_raise mrtest(false, false);
+
+	monotonicity * mono_test = &mattest;
+	if (randomizer.drand() < 0.5) mono_test = &mrtest;
+
+	// - Get a monotonicity pair with the test we decided to use.
+
+	monotonicity_pair mono_pair = get_monotonicity_pair(desired_scenario,
+		numcands, randomizer, mono_test);
+	
+	// - Get the election (permutation) vectors A, B, C, D, A', B', C', D'.
+
+	std::list<permuted_election_vector> permuted_base_election = 
+		get_all_permuted_elections(mono_pair.base_election,
+			candidate_remappings, numcands);
+
+	std::list<permuted_election_vector> permuted_improved_election = 
+		get_all_permuted_elections(mono_pair.improved_election,
+			candidate_remappings, numcands);
+	
+	std::vector<std::vector<double> > base_election_different_cands,
+		modified_election_different_cands;
+
+	// First get results for all functions for A. (Later: should check this
+	// against every function that's in the union of eligibles_kth_column
+	// for all columns. Later later, should just memoize.)
+
+	// Let's do it the easy way for now, with all functions for all
+	// elections, and then we just mark_eligible those who are still
+	// eligible.
+
+	gen_custom_function tester(numcands);
+
+	// A
+
+	std::vector<double> results_for_a, results_for_amark;
+
+	assert(permuted_base_election.begin()->permuted_to_candidate == 0);
+	assert(permuted_improved_election.begin()->permuted_to_candidate == 0);
+
+	for (algo_t algorithm : functions_to_test) {
+		assert(tester.set_algorithm(algorithm));
+
+		results_for_a.push_back(tester.evaluate(
+			permuted_base_election.begin()->election));
+		results_for_amark.push_back(tester.evaluate(
+			permuted_improved_election.begin()->election));
+	}
+
+	// Now for every other candidate...
+	for (algo_t algorithm : functions_to_test) {
+		for (int cand = 1; cand < numcands; ++cand) {
+
+			std::vector<double> base;
+			for (const permuted_election_vector & pie: permuted_base_election) {
+				if (pie.permuted_to_candidate == i) {
+					base = pie.election;
+				}
+			}
+
+			std::vector<double> imp;
+			for (const permuted_election_vector & pie: 
+				permuted_improved_election) {
+
+				if (pie.permuted_to_candidate == i) {
+					imp = pie.election;
+				}
+			}
+
+			assert(tester.set_algorithm(algorithm));
+
+			double base_result = tester.evaluate(base),
+				imp_result = tester.evaluate(imp);
+
+			// for every other function/algorithm
+			for (size_t other_algorithm_idx = 0; 
+					other_algorithm_idx < functions_to_test.size();
+					++other_algorithm_idx) {
+
+				// score(A) - score(B)
+				double margin_before = results_for_a[other_algorithm_idx] -
+					base_result;
+				double margin_after = results_for_amark[other_algorithm_idx]
+					- imp_result;
+
+				// If it's the first round, then mark eligible every 
+				// combination with margin_before <= margin_after. Otherwise,
+				// mark as ineligible every combination with margin_before >
+				// margin_after.
+				// This needs to be handled in a different way, because we
+				// may have an inconclusive result, so whether it's the first
+				// round depends on who we're testing.
+				if (first_round && margin_before <= margin_after) {
+					// ...
+				}
+				if (!first_round && margin_before > margin_after) {
+					eligibilities.table_per_scenario_tuple[scenario_tuple].
+						mark_ineligible(functions_to_test[other_algorithm_idx],
+							algorithm);
+				}
+		}
+	}
+}*/
 
 std::vector<std::vector<std::vector<std::vector<double> > > > test_many_times(
 	int maxiter, const copeland_scenario & desired_scenario, int numcands,
@@ -620,7 +662,7 @@ int main() {
 		421, 493, 565});
 
 	std::vector<std::vector<std::vector<std::vector<double> > > > 
-		many_test_results = test_many_times(20000, example_desired, 4,
+		many_test_results = test_many_times(200, example_desired, 4,
 			bar, prospective_functions);
 
 	for (size_t method_one = 0; method_one < prospective_functions.size(); ++method_one) {

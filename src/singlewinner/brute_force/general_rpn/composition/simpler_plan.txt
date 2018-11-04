@@ -1,0 +1,35 @@
+For each scenario pair (or k-tuple), we have lists of k elements plus an 
+eligibility status. Call this the eligibility list.
+If the scenario pair is X, Y, then the element (a, b, false) means that
+(a,b) is eligible with algorithm lookup[a] for X and lookup[b] for Y, but we 
+haven't seen any strict inequalities yet.
+
+We also have a memoization array that stores int,double pairs. The int is
+an epoch counter and the double is the score.
+
+We then increment our epoch counter and go down the eligibility list for the
+relevant scenario pair. For any (a, b) we find that's eligible, we check
+memoization[X][a] and memoization[Y][b]. If either has a too low epoch counter,
+we update by computing the result; we then push the result with the proper
+epoch counter into memoization.
+	(NOTE: Update this to reflect that we need to calculate both the
+result for the election and for the prime)
+
+We then do the usual testing. If score(lookup[a], A) >= score(lookup[b], B)
+and score(lookup[a], A') < score(lookup[b], B'), then we erase the entry from
+the eligibility list. If the order is <=, >=, then we retain without doing
+anything, and if the order is <=, > or <, >=, then we set the strict bit to
+true.
+
+The initial stage is different: we add the pair unless we have >=, <. This
+means that we give the functions the benefit of the doubt: if the result is
+inconclusive (e.g. >= >= or <= <=), then we still insert the pair. We might
+want to chunk this initial phase in case there's not enough storage to keep
+in memory all the pairs that survive one test.
+
+Chunking goes like this: we pretend the lookup list for A (A' etc) is only k
+members long, and we run the initial stage with only the combinations 
+consistent with that constraint. Once the pairs have been narrowed down
+enough, we then extend the list of permitted candidates for A. The new
+elections will continue to test the already existing pairs, but also add new
+ones. (I'll only write this if storage space becomes a problem.)
