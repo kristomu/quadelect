@@ -79,6 +79,14 @@ class monotonicity : public twotest {
 		vector<int> generate_aux_data(const list<ballot_group> & input,
 				int numcands) const;
 
+		// Modify data so as to prioritize a certain candidate (usually
+		// raise him). Returns modified data.
+		vector<int> set_candidate_to_alter(vector<int> data,
+			int alter_to) const {
+			data[0] = alter_to;
+			return data;
+		}
+
 		pair<bool, list<ballot_group> > rearrange_ballots(
 				const list<ballot_group> & input,
 				int numcands,
