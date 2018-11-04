@@ -66,16 +66,16 @@ class copeland_scenario {
 	private:
 		uint64_t scenario;
 		uint64_t max_scenario;
-		int number_of_candidates;
+		size_t number_of_candidates;
 
 		// Gives the number of elements in a short form vector, given the
 		// number of candidates.
-		int num_short_form_elements(int numcands) const {
+		size_t num_short_form_elements(size_t numcands) const {
 			return numcands * (numcands-1) / 2;
 		}
 
 		std::vector<bool> integer_to_short_form(const 
-			uint64_t int_form, int numcands) const;
+			uint64_t int_form, size_t numcands) const;
 
 		uint64_t short_form_to_integer(const 
 			std::vector<bool> & short_form) const;
@@ -84,12 +84,12 @@ class copeland_scenario {
 			std::vector<std::vector<bool> > & copeland_matrix) const;
 
 		std::vector<std::vector<bool> > short_form_to_copeland_matrix(const
-			std::vector<bool> & short_form, int numcands) const;
+			std::vector<bool> & short_form, size_t numcands) const;
 
 		std::vector<std::vector<bool> > condorcet_to_copeland_matrix(const
 			abstract_condmat * condorcet_matrix) const;
 
-		std::vector<bool> int_to_vbool(int numcands) const;
+		std::vector<bool> int_to_vbool(size_t numcands) const;
 
 		// Produces a Copeland matrix where the candidates have been
 		// reordered according to the order vector. See the implementation
@@ -99,7 +99,7 @@ class copeland_scenario {
 			std::vector<int> & order) const;
 
 	public:
-		void set_numcands(int numcands) {
+		void set_numcands(size_t numcands) {
 			number_of_candidates = numcands;
 			max_scenario = (1 << num_short_form_elements(numcands)) - 1;
 			scenario &= max_scenario;
@@ -140,18 +140,23 @@ class copeland_scenario {
 			{}
 
 		copeland_scenario(const std::vector<bool> & short_form,
-			int numcands) {
+			size_t numcands) {
 
 			scenario = short_form_to_integer(short_form);
 			set_numcands(numcands);
 		}
 
-		copeland_scenario(const uint64_t scenario_in, int numcands) {
+		copeland_scenario(const uint64_t scenario_in, size_t numcands) {
 			scenario = scenario_in;
 			set_numcands(numcands);
 		}
 
-		copeland_scenario(int numcands) : copeland_scenario(0, numcands) {}
+		copeland_scenario(size_t numcands) : copeland_scenario(0, numcands) {}
+		copeland_scenario(int numcands) : copeland_scenario(0, (size_t)numcands) {
+			if (numcands < 0) {
+				throw std::runtime_error("copeland_scenario ctor with negative numcands!");
+			}
+		}
 
 		// Default to number of candidates = 1 for maps and such.
 		// Such a default is useless for any real work, so remember to

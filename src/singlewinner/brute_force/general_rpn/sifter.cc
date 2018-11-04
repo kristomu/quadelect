@@ -14,7 +14,7 @@
 
 #include <map>
 #include <unordered_map>		// Test performance? Needs hash
-#include "rpn_evaluator.cc"
+#include "rpn_evaluator.h"
 
 #include <stdlib.h>
 #include <fstream>

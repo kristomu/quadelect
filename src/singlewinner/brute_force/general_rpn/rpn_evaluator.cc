@@ -1,168 +1,7 @@
-// This class evaluates an algorithm for determing the score of a candidate
-// in an n-candidate election. The algorithm is represented as an integer,
-// which is decoded into a list of tokens (atoms) and evaluated RPN style.
+#include "rpn_evaluator.h"
 
-// What we need are
-// n! atoms for the number of voters for each permutation
-// n^2 atoms for positional matrix aliases (first place votes for A, etc)
-// n^2 atoms for pairwise matrix aliases (A>B etc)
-
-// one atom for the number of voters in total
-// 3 atoms for the constants 0, 1, 2,
-
-// Some unary functions (log, exp, etc)
-// Some binary functions (plus, minus, etc)
-
-// Since we don't know how many n! will come out to, we need the functions
-// to have the lower numbers and everything else be higher numbers. Although
-// the positional and pairwise matrix aliases are, technically speaking,
-// redundant (they're linear combinations of the n! variables), they
-// constitute subsolutions that have been useful before. For instance,
-// with four candidates, minmax can be written as A>B A>C A>D MIN MIN
-// with pairwise aliases, but needs at least 72 atoms if we only have the
-// ABCD...DCBA variables, as the pairwise variables alias to 12 of these
-// plus 12 pluses each.
-
-// We might need DAC/DSC values later, too.
-
-// We could possibly refactor this quite a bit by moving most of the 
-// evaluation logic inside each atom. But again, eh. I'll do it if it's
-// necessary.
-
-#include <math.h>
-#include <assert.h>
-
-#include <string>
-#include <vector>
-#include <numeric>
-#include <algorithm>
-#include <stdexcept>
-
-#include "../rpn/chaotic_functions.h"
-#include "../../../tools/tools.h"
-#include "../../../tools/factoradic.h"
-
-#include <iostream>
-
-enum gen_custom_funct_atom {
-	VAL_IN_ALL = 0,	// num voters
-	VAL_ZERO = 1,
-	VAL_ONE = 2,
-	VAL_TWO = 3,
-
-	UNARY_FUNC_INFRMAP = 4,	// map (-inf,+inf) to (0,1)
-	UNARY_FUNC_INFRMAPINV = 5,	// ditto the other way
-	UNARY_FUNC_SQUARE = 6,
-	UNARY_FUNC_SQRT = 7,
-	UNARY_FUNC_LOG = 8,
-	UNARY_FUNC_EXP = 9,
-	UNARY_FUNC_NEG = 10,
-	UNARY_FUNC_BLANCMANGE = 11,
-	UNARY_FUNC_MINKOWSKIQ = 12,
-
-	BINARY_FUNC_PLUS = 13,
-	BINARY_FUNC_MINUS = 14,
-	BINARY_FUNC_MUL = 15,
-	BINARY_FUNC_DIVIDE = 16,
-	BINARY_FUNC_MIN = 17,
-	BINARY_FUNC_MAX = 18,
-
-	ALL_FUNC_PLUS = 19,
-	
-	TOTAL_NUM_CONST_ATOMS = 20
-};
-
-// We unpack the integer into a list of these. An atom bundle can either
-// be a reference to a positional variable (number of voters voting x at yth
-// rank), to a pairwise variable (number of voters voting x above y), or a
-// command/constant.
-
-struct atom_bundle {
-	bool is_reference = false;
-
-	bool is_direct_reference = false;
-	int idx;
-
-	bool is_positional_reference = false;
-	int cand, place;
-
-	bool is_pairwise_reference = false;
-	int incumbent, challenger;
-
-	gen_custom_funct_atom function;
-};
-
-typedef std::vector<std::vector<std::vector<int> > > matrix_indices;
-typedef unsigned long long algo_t;
-
-class gen_custom_function {
-	private:
-		matrix_indices positional_matrix_indices;
-		matrix_indices pairwise_matrix_indices;
-
-		std::vector<atom_bundle> current_algorithm;
-		mutable std::vector<double> algorithm_stack;
-
-		int number_candidates;
-
-		const double blancmange_order = 0.67;
-
-		int get_num_referential_atoms(int numcands) const;
-
-		atom_bundle get_atom_bundle(algo_t atom_encoding, int numcands) const;
-		std::vector<atom_bundle> decode_algorithm(algo_t 
-			algorithm_encoding, int numcands) const;
-
-		bool does_a_beat_b(int a, int b, const std::vector<int> & 
-			ballot_permutation) const;
-
-		matrix_indices get_positional_matrix_indices(int numcands) const;
-		matrix_indices get_pairwise_matrix_indices(int numcands) const;
-
-		int linear_combination(const std::vector<int> & indices,
-			const std::vector<double> & weights) const;
-
-		double evaluate_ref(const atom_bundle & cur_alias, 
-			const std::vector<double> & input_values, int numcands) const;
-
-		double evaluate(std::vector<double> & stack, 
-			const atom_bundle & cur_atom, 
-			const std::vector<double> & input_values, int numcands) const;
-
-		double evaluate(const std::vector<atom_bundle> & algorithm,
-			const std::vector<double> & input_values, int numcands) const;
-
-		std::string get_atom_name(const atom_bundle & cur_atom,
-			int numcands) const;
-
-	public:
-		double evaluate(const std::vector<double> & input_values) const {
-			return evaluate(current_algorithm, input_values, 
-				number_candidates);
-		}
-
-		std::string to_string() const;
-
-		bool set_algorithm(algo_t algorithm_encoding);
-		void force_set_algorithm(algo_t algorithm_encoding);
-
-		gen_custom_function(int number_candidates_in) {
-			number_candidates = number_candidates_in;
-			positional_matrix_indices = get_positional_matrix_indices(
-				number_candidates);
-			pairwise_matrix_indices = get_pairwise_matrix_indices(
-				number_candidates);
-			force_set_algorithm(0);
-		}
-
-		gen_custom_function(int number_candidates_in, algo_t algorithm) :
-			gen_custom_function(number_candidates_in) {
-				force_set_algorithm(algorithm);
-		}
-};
-
-int gen_custom_function::get_num_referential_atoms(
-	int numcands) const {
+size_t gen_custom_function::get_num_referential_atoms(
+	size_t numcands) const {
 
 	// There are n! permutations...
 	// Then there are n^2 positional values
@@ -173,9 +12,9 @@ int gen_custom_function::get_num_referential_atoms(
 }
 
 atom_bundle gen_custom_function::get_atom_bundle(
-	algo_t atom_encoding, int numcands) const {
+	algo_t atom_encoding, size_t numcands) const {
 
-	int num_referential_atoms = get_num_referential_atoms(numcands);
+	size_t num_referential_atoms = get_num_referential_atoms(numcands);
 	atom_bundle out;
 
 	// If it's below this number, it's a reference.
@@ -183,7 +22,7 @@ atom_bundle gen_custom_function::get_atom_bundle(
 		out.is_reference = true;
 
 		// It's a direct reference
-		if (atom_encoding < factorial(numcands)) {
+		if (atom_encoding < (algo_t)factorial(numcands)) {
 			out.is_direct_reference = true;
 			out.idx = atom_encoding;
 			return(out);
@@ -232,7 +71,7 @@ atom_bundle gen_custom_function::get_atom_bundle(
 // TODO: Consider optimization.
 
 std::vector<atom_bundle> gen_custom_function::decode_algorithm(
-	algo_t algorithm_encoding, int numcands) const {
+	algo_t algorithm_encoding, size_t numcands) const {
 
 	// The decoding is a little more complex than you'd expect, because we
 	// have to allow for the first digit having value 0. To do so, we let
@@ -244,7 +83,7 @@ std::vector<atom_bundle> gen_custom_function::decode_algorithm(
 
 	// First count how many digits we have.
 
-	int radix = get_num_referential_atoms(numcands) + TOTAL_NUM_CONST_ATOMS;
+	size_t radix = get_num_referential_atoms(numcands) + TOTAL_NUM_CONST_ATOMS;
 
 	int digits = 0;
 	algo_t greatest_power = 1, divisor;
@@ -277,7 +116,7 @@ std::vector<atom_bundle> gen_custom_function::decode_algorithm(
 
 
 matrix_indices gen_custom_function::get_positional_matrix_indices(
-	int numcands) const {
+	size_t numcands) const {
 
 	// Let input[] be the input vector of counts for each permutation.
 
@@ -293,7 +132,7 @@ matrix_indices gen_custom_function::get_positional_matrix_indices(
 	// array.
 
 	matrix_indices pos_indices(numcands);
-	int cand, place, perm_count = 0;
+	size_t cand, place, perm_count = 0;
 
 	for (cand = 0; cand < numcands; ++cand) {
 		pos_indices[cand].resize(numcands);
@@ -328,7 +167,7 @@ bool gen_custom_function::does_a_beat_b(int a, int b,
 }
 
 matrix_indices gen_custom_function::get_pairwise_matrix_indices(
-	int numcands) const {
+	size_t numcands) const {
 
 	// Let input[] be the input vector of counts for each permutation.
 
@@ -339,7 +178,7 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 	// permutation and then seeing which fits.
 
 	matrix_indices pair_indices(numcands);
-	int incumbent, challenger, perm_count = 0;
+	size_t incumbent, challenger, perm_count = 0;
 
 	std::vector<int> ballot_permutation(numcands);
 	std::iota(ballot_permutation.begin(), ballot_permutation.end(), 0);
@@ -393,7 +232,7 @@ int gen_custom_function::linear_combination(const std::vector<int> & indices,
 // of elections. But is it worth it? Go for the low-hanging fruit first.
 
 double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias, 
-	const std::vector<double> & input_values, int numcands) const {
+	const std::vector<double> & input_values, size_t numcands) const {
 
 	// The first n! above this
 	// refer to the ballot data, e.g. TOTAL_NUM_CONST_ATOMS in a three-
@@ -430,7 +269,7 @@ double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias,
 
 double gen_custom_function::evaluate(std::vector<double> & stack,
 	const atom_bundle & cur_raw_atom, 
-	const std::vector<double> & input_values, int numcands) const {
+	const std::vector<double> & input_values, size_t numcands) const {
 
 	bool generous_to_asymptotes = true;
 
@@ -566,7 +405,7 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 
 double gen_custom_function::evaluate(
 	const std::vector<atom_bundle> & algorithm,
-	const std::vector<double> & input_values, int numcands) const {
+	const std::vector<double> & input_values, size_t numcands) const {
 
 	algorithm_stack.clear();
 
@@ -589,7 +428,7 @@ double gen_custom_function::evaluate(
 }
 
 std::string gen_custom_function::get_atom_name(
-	const atom_bundle & cur_atom, int numcands) const {
+	const atom_bundle & cur_atom, size_t numcands) const {
 
 	if (cur_atom.is_positional_reference) {
 		char cand_name = 'A' + cur_atom.cand;

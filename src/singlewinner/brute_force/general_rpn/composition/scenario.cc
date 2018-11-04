@@ -1,11 +1,11 @@
 #include "scenario.h"
 
 std::vector<bool> copeland_scenario::integer_to_short_form(const 
-	uint64_t int_form, int numcands) const {
+	uint64_t int_form, size_t numcands) const {
 
 	std::vector<bool> short_form;
 
-	uint64_t max_mask = 1 << num_short_form_elements(numcands) - 1;
+	uint64_t max_mask = 1 << (num_short_form_elements(numcands) - 1);
 
 	for (uint64_t mask = max_mask; mask > 0; mask >>= 1) {
 		short_form.push_back(int_form & mask);
@@ -32,14 +32,14 @@ uint64_t copeland_scenario::short_form_to_integer(const
 
 std::vector<std::vector<bool> > 
 	copeland_scenario::short_form_to_copeland_matrix(const 
-	std::vector<bool> & short_form, int numcands) const {
+	std::vector<bool> & short_form, size_t numcands) const {
 
 	std::vector<std::vector<bool> > copeland_matrix(numcands, 
 		std::vector<bool>(numcands, false));
 
-	int scenario_ctr = 0;
-	for (int i = 0; i < numcands; ++i) {
-		for (int j = i+1; j < numcands; ++j) {
+	size_t scenario_ctr = 0;
+	for (size_t i = 0; i < numcands; ++i) {
+		for (size_t j = i+1; j < numcands; ++j) {
 			copeland_matrix[i][j] = short_form[scenario_ctr];
 			copeland_matrix[j][i] = !copeland_matrix[i][j];
 			++scenario_ctr;
@@ -58,8 +58,8 @@ std::vector<std::vector<bool> >
 	std::vector<std::vector<bool> > copeland_matrix(numcands,
 		std::vector<bool>(numcands, false));
 
-	for (int i = 0; i < numcands; ++i) {
-		for (int j = i+1; j < numcands; ++j) {
+	for (size_t i = 0; i < numcands; ++i) {
+		for (size_t j = i+1; j < numcands; ++j) {
 			if (condorcet_matrix->get_magnitude(i, j) == 
 				condorcet_matrix->get_magnitude(j, i)) {
 				// Perhaps return 0-candidate scenario instead?
@@ -78,12 +78,12 @@ std::vector<std::vector<bool> >
 std::vector<bool> copeland_scenario::copeland_matrix_to_short_form(const
 	std::vector<std::vector<bool> > & copeland_matrix) const{
 	
-	int numcands = copeland_matrix.size();
+	size_t numcands = copeland_matrix.size();
 
 	std::vector<bool> short_form;
 
-	for (int i = 0; i < numcands; ++i) {
-		for (int j = i+1; j < numcands; ++j) {
+	for (size_t i = 0; i < numcands; ++i) {
+		for (size_t j = i+1; j < numcands; ++j) {
 			short_form.push_back(copeland_matrix[i][j]);
 		}
 	}
@@ -110,8 +110,8 @@ std::vector<std::vector<bool> > copeland_scenario::permute_candidates(const
 	std::vector<std::vector<bool> > out_cm(copeland_matrix.size(),
 		std::vector<bool>(copeland_matrix.size(), false));
 
-	for (int i = 0; i < copeland_matrix.size(); ++i) {
-		for (int j = 0; j < copeland_matrix.size(); ++j) {
+	for (size_t i = 0; i < copeland_matrix.size(); ++i) {
+		for (size_t j = 0; j < copeland_matrix.size(); ++j) {
 			out_cm[i][j] = copeland_matrix[order[i]][order[j]];
 		}
 	}
@@ -135,7 +135,7 @@ std::string copeland_scenario::to_string() const {
 
 // Yeah, I know, unit tests...
 
-/*main() {
+/*int main() {
 	copeland_scenario x(4);
 	if (x.test()) {
 		std::cout << "OK" << std::endl;

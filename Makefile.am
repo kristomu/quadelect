@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 bin_PROGRAMS = qelect
 qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
-	src/choose_inc.h \
+	src/choose_inc.h src/tools/tools.cc \
 	src/distances/vivaldi_test.h src/generator/ballotgen.h \
 	src/generator/dirichlet.h src/generator/spatial/gaussian.h \
 	src/generator/impartial.h src/generator/spatial/spatial.h \
@@ -49,14 +49,16 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/singlewinner/stats/mode.h \
 	src/singlewinner/stats/var_median/comparand.h \
 	src/singlewinner/stats/var_median/vmedian.h src/singlewinner/young.h \
-	src/stats/mwstats.h src/stats/stats.h src/tools/tools.h \
+	src/stats/mwstats.h src/stats/stats.h \
 	src/tools/ballot_tools.cc src/tools/factoradic.cc \
 	src/ballots.cc src/cache.cc src/choose_inc.cc \
 	src/distances/vivaldi_test.cc \
 	src/generator/spatial/gaussian.cc src/generator/impartial_gen.cc \
 	src/generator/spatial/spatial.cc src/grad_median/grad_median.cc \
 	src/generator/spatial/uniform.cc \
-	src/main/combined.cc \
+	src/singlewinner/brute_force/general_rpn/rpn_evaluator.cc \
+	src/singlewinner/brute_force/general_rpn/composition/eligibility.cc \
+	src/singlewinner/brute_force/general_rpn/composition/scenario.cc \
 	src/pairwise/abstract_matrix.cc src/pairwise/beatpath.cc \
 	src/pairwise/cache_matrix.cc src/pairwise/grad_matrix.cc \
 	src/pairwise/matrix.cc src/pairwise/types.cc \
@@ -102,7 +104,7 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/singlewinner/stats/var_median/vmedian.cc src/singlewinner/young.cc \
 	src/singlewinner/fpc.cc src/singlewinner/desc_coalitions/dsc.cc \
 	src/singlewinner/desc_coalitions/desc_coalition.cc \
-	src/tools/tools.cc src/singlewinner/positional/as241.c \
+	src/singlewinner/positional/as241.c \
 	src/tests/disproof.h src/tests/tests/monotonicity/mono_add.h \
 	src/tests/tests/monotonicity/mono_append.h \
 	src/tests/tests/monotonicity/mono_raise.h \
@@ -119,7 +121,8 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/bandit/bandit.cc src/bandit/binomial.cc src/bandit/lilucb.cc \
 	src/main/strat_test.cc \
 	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc \
-	src/modes/interpret.cc
+	src/modes/interpret.cc \
+	src/singlewinner/brute_force/general_rpn/composition/compositor.cc
 
 qelect_CXXFLAGS = --std=c++11 -Wall -Werror -march=native -mtune=native -ggdb
 

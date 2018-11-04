@@ -17,7 +17,7 @@
 #include "../../../../pairwise/matrix.h"
 #include "../../../../tests/tests/monotonicity/mono_add.h"
 #include "../../../../tests/tests/monotonicity/mono_raise.h"
-#include "../rpn_evaluator.cc"
+#include "../rpn_evaluator.h"
 
 #include <set>
 #include <string>
@@ -82,7 +82,7 @@
 // Gives every permutation where candidate cand is relabeled to the first
 // candidate.
 std::vector<std::vector<int> > all_permutations_centered_on(int cand, 
-	int numcands) {
+	size_t numcands) {
 
 	// Create the first such permutation
 	std::vector<int> perm(numcands);
@@ -111,7 +111,7 @@ struct isomorphism {
 };
 
 std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
-	int numcands) {
+	size_t numcands) {
 
 	// Note that we go through the scenarios in reverse order. The
 	// reason for doing so is historical: I considered the 3-cycle ABCA
@@ -123,8 +123,6 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 	copeland_scenario base_scenario(numcands);
 	--base_scenario;
 	copeland_scenario cur = base_scenario;
-
-	int i = 0;
 
 	isomorphism cur_reduction;
 
@@ -204,8 +202,8 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 // TODO: Refactor this as the inner loop is very much like the inner loop
 // in the function above.
 
-std::map<copeland_scenario, isomorphism> get_candidate_remapping(int numcands,
-	int current_candidate,
+std::map<copeland_scenario, isomorphism> get_candidate_remapping(
+	size_t numcands, int current_candidate,
 	const std::map<copeland_scenario, isomorphism> & derived_reductions) {
 
 	std::map<copeland_scenario, isomorphism> cand_remapping;
@@ -263,7 +261,7 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(int numcands,
 }
 
 std::vector<std::map<copeland_scenario, isomorphism> > 
-	get_candidate_remappings(int numcands,
+	get_candidate_remappings(size_t numcands,
 	const std::map<copeland_scenario, isomorphism> & derived_reductions) {
 
 	std::vector<std::map<copeland_scenario, isomorphism> > remappings;
@@ -271,7 +269,7 @@ std::vector<std::map<copeland_scenario, isomorphism> >
 	// is just the derived reduction.
 	remappings.push_back(derived_reductions);
 
-	for (int i = 1; i < numcands; ++i) {
+	for (size_t i = 1; i < numcands; ++i) {
 		remappings.push_back(get_candidate_remapping(numcands, i,
 			derived_reductions));
 	}
@@ -369,7 +367,7 @@ std::set<copeland_scenario> get_nonderived_scenarios(
 // parallel as shown in autocloneproofing.txt
 
 void inc_ballot_vector(const ballot_group & ballot_to_add, 
-	std::vector<double> & permutation_count_vector, int numcands) {
+	std::vector<double> & permutation_count_vector, size_t numcands) {
 
 	// Get the ordering.
 
@@ -403,7 +401,7 @@ void inc_ballot_vector(const ballot_group & ballot_to_add,
 }
 
 std::vector<double> get_ballot_vector(const list<ballot_group> & election,
-	int numcands) {
+	size_t numcands) {
 
 	std::vector<double> ballot_vector(factorial(numcands));
 
@@ -425,10 +423,10 @@ list<ballot_group> permute_election_candidates(
 	// is the new candidate number of the candidate that used to be x.
 	// Fortunately, that is pretty easy.
 
-	int numcands = candidate_permutation.size();
+	size_t numcands = candidate_permutation.size();
 	std::vector<int> inv_permutation(numcands, -1);
 
-	for (int i = 0; i < numcands; ++i) {
+	for (size_t i = 0; i < numcands; ++i) {
 		inv_permutation[candidate_permutation[i]] = i;
 	}
 

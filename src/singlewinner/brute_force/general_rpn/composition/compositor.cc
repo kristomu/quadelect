@@ -5,6 +5,84 @@
 
 #include "equivalences.cc"
 
+
+// We need a function that generates a monotonicity election pair using some
+// monotonicity test, with the restriction that A should be the one who
+// benefits.
+
+// Then we need a function that runs all four rotations for that election
+// on all the custom_functs that are still eligible for the scenario in
+// question, and updates the eligibility tables.
+
+// The we need a function that goes through all the eligible pairs and
+// combines them into eligible four-tuples.
+
+struct monotonicity_pair {
+	std::list<ballot_group> base_election;
+	std::list<ballot_group> improved_election;
+	copeland_scenario base_scenario, improved_scenario;
+};
+
+
+monotonicity_pair get_monotonicity_pair(const copeland_scenario & 
+	desired_scenario, int numcands, rng & randomizer, monotonicity *
+	mono_test) {
+
+	impartial ic(true);
+	monotonicity_pair out;
+
+	condmat condorcet_matrix(CM_PAIRWISE_OPP);
+
+	bool succeeded = false;
+
+	while (!succeeded) {
+
+		// Get the base election
+
+		do {
+			// Use an odd number of voters to avoid ties.
+			out.base_election = ic.generate_ballots(
+				2 * randomizer.lrand(5, 50) + 1, numcands, randomizer);
+			condorcet_matrix.zeroize();
+			condorcet_matrix.count_ballots(out.base_election, numcands);
+			out.base_scenario = copeland_scenario(&condorcet_matrix);
+		} while (out.base_scenario != desired_scenario);
+
+		// Create data (specs) for the monotonicity test and make it prefer 
+		// candidate 0 (A).
+
+		std::vector<int> mono_data = mono_test->generate_aux_data(
+			out.base_election, numcands);
+
+		mono_test->set_candidate_to_alter(mono_data, 0);
+
+		std::pair<bool, list<ballot_group> > alteration = mono_test->
+			rearrange_ballots(out.base_election, numcands, mono_data);
+
+		// If we didn't succeed, loop back to start.
+		if (!alteration.first) {
+			continue;
+		}
+
+		out.improved_election = alteration.second;
+
+		// Check for ties and set the improved scenario (kinda ugly)
+		try {
+			condorcet_matrix.zeroize();
+			condorcet_matrix.count_ballots(out.improved_election, numcands);
+			out.improved_scenario = copeland_scenario(&condorcet_matrix);
+		} catch (const std::exception & e) { 
+			continue;
+		}
+
+		// If we get here, we have an election example that we can use.
+		succeeded = true;
+	}
+
+	return out;
+}
+
+
 // Testing testing
 void show_transitions(const copeland_scenario & desired_scenario, int numcands,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
@@ -313,7 +391,7 @@ std::vector<std::vector<std::vector<std::vector<double> > > > test_many_times(
 			cout << iter/(double)maxiter << "    \r" << flush;
 		}
 
-		for (int funct_idx = 0; funct_idx < functions_to_test.size(); 
+		for (size_t funct_idx = 0; funct_idx < functions_to_test.size(); 
 			++funct_idx) {
 
 			// Before-elections from the various candidates' perspectives.
@@ -353,7 +431,7 @@ bool dominated_less(const std::vector<double> & a,
 
 	bool one_less = false;
 
-	for (int i = 0; i < std::min(a.size(), b.size()); ++i) {
+	for (size_t i = 0; i < std::min(a.size(), b.size()); ++i) {
 		if (a[i] > b[i]) { return false; }
 		one_less |= (a[i] < b[i]);
 	}
@@ -379,7 +457,7 @@ bool dominated_margin_less(const std::vector<double> & a,
 	bool one_less = false;
 	bool one_below = false;
 
-	for (int i = 0; i < std::min(a.size(), b.size()); ++i) {
+	for (size_t i = 0; i < std::min(a.size(), b.size()); ++i) {
 		if (a[i] > 0 && b[i] < 0) { return false; }
 		one_less |= (a[i] < 0) && (b[i] >= 0);
 		one_below |= a[i] < 0;
@@ -393,7 +471,7 @@ bool dominated_margin_less(const std::vector<double> & a,
 	return one_less;
 }
 
-main() {
+int main() {
 	std::map<copeland_scenario, isomorphism> foo = 
 	get_derived_scenario_reductions(4);
 
@@ -473,7 +551,7 @@ main() {
 		test(example_desired, 4, bar, {104180872604, 104180877788}, 
 			randomizer);
 
-	for (int i = 0; i < test_results_one.size(); ++i) {
+	for (size_t i = 0; i < test_results_one.size(); ++i) {
 		std::cout << "Results for method number " << i << std::endl;
 		std::copy(test_results_one[i].begin(), test_results_one[i].end(),
 			ostream_iterator<double>(cout, " "));
@@ -545,12 +623,12 @@ main() {
 		many_test_results = test_many_times(20000, example_desired, 4,
 			bar, prospective_functions);
 
-	for (int method_one = 0; method_one < prospective_functions.size(); ++method_one) {
+	for (size_t method_one = 0; method_one < prospective_functions.size(); ++method_one) {
 		// Is some kind of sorting possible here? Yeah, it is, but I can't be
 		// bothered to write the algorithm at the moment. Something like: have a
 		// list of references to the method sorted by first element, then another
 		// list sorted by second element, and so on...
-		for (int method_two = 0; method_two < prospective_functions.size(); ++method_two) {
+		for (size_t method_two = 0; method_two < prospective_functions.size(); ++method_two) {
 
 			// score(method, A) - score(method, B) 
 			//		<= score(method, A') - score(method, B')
@@ -568,7 +646,7 @@ main() {
 				std::copy(after_margin.begin(), after_margin.begin()+20,
 					ostream_iterator<double>(cout, " "));
 				std::cout << std::endl;*/
-				for (int method_three = 0; method_three < prospective_functions.size(); ++method_three) {
+				for (size_t method_three = 0; method_three < prospective_functions.size(); ++method_three) {
 					before_margin = subtract(many_test_results[method_one][0][0], many_test_results[method_three][0][2]);
 					after_margin = subtract(many_test_results[method_one][1][0], many_test_results[method_three][1][2]);					
 
@@ -579,4 +657,6 @@ main() {
 			}
 		}
 	}
+
+	return 0;
 }
