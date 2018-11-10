@@ -198,9 +198,6 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 						ballot_permutation)) {
 					pair_indices[incumbent][challenger].push_back(
 						perm_count);
-				} else {
-					pair_indices[challenger][incumbent].push_back(
-						perm_count);
 				}
 			}
 		}
@@ -211,7 +208,7 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 	return(pair_indices);
 }
 
-int gen_custom_function::linear_combination(const std::vector<int> & indices,
+double gen_custom_function::linear_combination(const std::vector<int> & indices,
 	const std::vector<double> & weights) const {
 
 	double sum = 0;
@@ -255,7 +252,7 @@ double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias,
 
 	if (cur_alias.is_pairwise_reference) {
 		return linear_combination(pairwise_matrix_indices
-			[cur_alias.challenger][cur_alias.incumbent], input_values);
+			[cur_alias.incumbent][cur_alias.challenger], input_values);
 	}
 
 	throw std::runtime_error("Evaluate_ref: atom is inconsistent!");
@@ -525,17 +522,57 @@ void gen_custom_function::force_set_algorithm(algo_t algorithm_encoding) {
 		number_candidates);
 }
 
-/*main() {
+bool gen_custom_function::test_positional_linear_combination() {
+	set_num_candidates(3);
 
-	gen_custom_function x(4);
+	// The indices are ABC ACB BAC BCA CAB CBA
+	// fpA should be T T F F F F, i.e. 0 and 1
+	// fpB should be F F T T F F, i.e. 2 and 3
+	// fpC should be F F F F T T, i.e. 4 and 5
 
-	if (x.test_kth_permutation()) {
-		std::cout << "OK " << std::endl;
-	}
+	return positional_matrix_indices[0][0] == std::vector<int>({0, 1}) &&
+		positional_matrix_indices[1][0] == std::vector<int>({2, 3}) &&
+		positional_matrix_indices[2][0] == std::vector<int>({4, 5});
+}
 
-	for (int i = 0; i < 1000000; ++i) {
-		if (x.set_algorithm(i)) {
-			std::cout << i << "\t" << x.to_string() << std::endl;
-		}
-	}
-}*/
+bool gen_custom_function::test_pairwise_linear_combination() {
+	set_num_candidates(3);
+
+	// The indices are ABC ACB BAC BCA CAB CBA
+	// A>B should be 1 1 0 0 1 0, i.e. 0 1 4
+	// A>C should be 1 1 1 0 0 0, i.e. 0 1 2
+	// B>C should be 1 0 1 1 0 0, i.e. 0 2 3
+
+	return pairwise_matrix_indices[0][1] == std::vector<int>({0, 1, 4}) &&
+		pairwise_matrix_indices[0][2] == std::vector<int>({0, 1, 2}) &&
+		pairwise_matrix_indices[1][2] == std::vector<int>({0, 2, 3});
+}
+
+bool gen_custom_function::test_pairwise_inference() {
+	set_num_candidates(4);
+
+	std::vector<double> input = {1,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,
+		2,0,0,0,0,0};
+
+	atom_bundle a_over_d;
+	a_over_d.is_reference = true;
+	a_over_d.is_pairwise_reference = true;
+	a_over_d.incumbent = 0;
+	a_over_d.challenger = 3;
+
+	return evaluate_ref(a_over_d, input, 4) == 1;
+}
+
+bool gen_custom_function::test_pairwise_doubles() {
+	set_num_candidates(3);
+
+	std::vector<double> input = {1.1,0,0,0,0,0};
+
+	atom_bundle a_over_b;
+	a_over_b.is_reference = true;
+	a_over_b.is_pairwise_reference = true;
+	a_over_b.incumbent = 0;
+	a_over_b.challenger = 1;
+
+	return evaluate_ref(a_over_b, input, 3) == 1.1;
+}

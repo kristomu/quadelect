@@ -122,7 +122,7 @@ class gen_custom_function {
 		matrix_indices get_positional_matrix_indices(size_t numcands) const;
 		matrix_indices get_pairwise_matrix_indices(size_t numcands) const;
 
-		int linear_combination(const std::vector<int> & indices,
+		double linear_combination(const std::vector<int> & indices,
 			const std::vector<double> & weights) const;
 
 		double evaluate_ref(const atom_bundle & cur_alias, 
@@ -149,19 +149,33 @@ class gen_custom_function {
 
 		bool set_algorithm(algo_t algorithm_encoding);
 		void force_set_algorithm(algo_t algorithm_encoding);
-
-		gen_custom_function(size_t number_candidates_in) {
+		void set_num_candidates(size_t number_candidates_in) {
 			number_candidates = number_candidates_in;
 			positional_matrix_indices = get_positional_matrix_indices(
 				number_candidates);
 			pairwise_matrix_indices = get_pairwise_matrix_indices(
 				number_candidates);
+		}
+
+		gen_custom_function(size_t number_candidates_in) {
+			set_num_candidates(number_candidates_in);
 			force_set_algorithm(0);
 		}
 
 		gen_custom_function(size_t number_candidates_in, algo_t algorithm) :
 			gen_custom_function(number_candidates_in) {
 				force_set_algorithm(algorithm);
+		}
+
+		bool test_positional_linear_combination();
+		bool test_pairwise_linear_combination();
+		bool test_pairwise_inference();
+		bool test_pairwise_doubles();
+		bool test() {
+			return test_positional_linear_combination() && 
+				test_pairwise_linear_combination() &&
+				test_pairwise_inference()/* &&
+				test_pairwise_doubles()*/;
 		}
 };
 
