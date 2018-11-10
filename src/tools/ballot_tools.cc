@@ -482,3 +482,15 @@ void ballot_tools::print_ranked_ballots(const list<ballot_group> &
 	vector<string> fv = ballots_to_text(rank_ballots, fakecand, false);
 	copy(fv.begin(), fv.end(), ostream_iterator<string>(cout, "\n"));
 }
+
+std::list<ballot_group> ballot_tools::rescale(
+	const list<ballot_group> & ballots, double factor) const {
+	std::list<ballot_group> out;
+
+	for (ballot_group ballot: ballots) {
+		ballot.weight *= factor;
+		out.push_back(ballot);
+	}
+
+	return out;
+}

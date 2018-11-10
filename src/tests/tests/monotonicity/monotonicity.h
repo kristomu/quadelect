@@ -88,9 +88,15 @@ class monotonicity : public twotest {
 		}
 
 		pair<bool, list<ballot_group> > rearrange_ballots(
-				const list<ballot_group> & input,
-				int numcands,
-				const vector<int> & data) const;
+			const list<ballot_group> & input,
+			int numcands, int number_to_add,
+			const vector<int> & data) const;
+
+
+		pair<bool, list<ballot_group> > rearrange_ballots(
+			const list<ballot_group> & input,
+			int numcands,
+			const vector<int> & data) const;
 
 		// Any are applicable, though ternary may reply INAPP if
 		// the data is so that no ballot is altered.

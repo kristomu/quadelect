@@ -92,6 +92,11 @@ class ballot_tools {
 		void print_ranked_ballots(const list<ballot_group> & 
 			rank_ballots) const;
 
+		// Multiply all the weights by factor. Used for covering
+		// methods more thoroughly when doing monotonicity checks etc.
+		std::list<ballot_group> rescale(const list<ballot_group> & ballots, 
+			double factor) const;
+
 };
 
 #endif

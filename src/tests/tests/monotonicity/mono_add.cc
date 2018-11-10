@@ -50,15 +50,15 @@ bool mono_add_top::add_ballots(const vector<int> & data,
 
 	// See above.
 
-        double wt;
-        if (randomizer.drand() < 0.5 && total_weight > 1)
-                wt = round(randomizer.drand() * 10);
-        else    wt = round(randomizer.drand() * total_weight);
+	double wt;
+	if (randomizer.drand() < 0.5 && total_weight > 1)
+	wt = round(randomizer.drand() * 10);
+	else	wt = round(randomizer.drand() * total_weight);
 
 	if (wt <= 0)
 		return(false);
 
-        int cand = data[0];
+	int cand = data[0];
 
 	// Generate a random ordering for the other candidates.
 	// TODO: Use a ballot generator for this, and let it be specified.
@@ -70,15 +70,16 @@ bool mono_add_top::add_ballots(const vector<int> & data,
 	// Build the actual ordering: First insert the top candidate
 	// with higher score than any can match, then fill in the rest
 	// (skipping cand itself).
-        ordering o_rand;
-        o_rand.insert(candscore(cand, numcands+1));
+	ordering o_rand;
+	o_rand.insert(candscore(cand, numcands+1));
 
-	for (size_t counter = 0; counter < other_candidates.size(); ++counter)
+	for (size_t counter = 0; counter < other_candidates.size(); ++counter) {
 		if (other_candidates[counter] != cand)
 			o_rand.insert(candscore(other_candidates[counter], 
 						counter));
+	}
 
-        input.push_back(ballot_group(round(wt), o_rand, false, false));
+	input.push_back(ballot_group(round(wt), o_rand, false, false));
 
-        return(true);
+	return(true);
 }

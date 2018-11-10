@@ -59,9 +59,13 @@ vector<int> monotonicity::generate_aux_data(const list<ballot_group> & input,
 	return(output);
 }
 
+// number_to_add < 0 means "find out on your own". It's ugly and
+// it doesn't really belong here but eh...
+
 pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 		const list<ballot_group> & input,
-		int numcands, const vector<int> & data) const {
+		int numcands, int number_to_add,
+		const vector<int> & data) const {
 
 	int seed = *(data.rbegin());
 
@@ -140,18 +144,30 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 
 	// Add ballots if it's mono-add-top etc. Or the output.first with the
 	// result of adding ballots.
-	
-	// HACK HACK. TODO, FIX.
-	int fraction = total_weight;
-	while (total_weight/(double)fraction < 1)
-		fraction = round(total_weight * randomizer.drand());
-	if (fraction == 0) ++fraction;
 
-	for (int counter = 0; counter < fraction; ++counter)
+	if (number_to_add < 0) {
+		// HACK HACK. TODO, FIX.
+		int fraction = total_weight;
+		while (total_weight/(double)fraction < 1)
+			fraction = round(total_weight * randomizer.drand());
+		if (fraction == 0) ++fraction;
+		number_to_add = fraction;
+	}
+
+	// Even more of an ugly hack. Must be fixed at some point to think
+	// about how we should do monotonicity stuff...
+	for (int counter = 0; counter < number_to_add; ++counter)
 		output.first |= add_ballots(data, randomizer, output.second,
-				total_weight/(double)fraction, numcands);
+				1, numcands);
 	
 	return(output);
+}
+
+pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
+		const list<ballot_group> & input,
+		int numcands, const vector<int> & data) const {
+
+	return rearrange_ballots(input, numcands, -1, data);
 }
 
 bool monotonicity::applicable(const ordering & check,
