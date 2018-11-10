@@ -23,36 +23,31 @@
 // s(eA, A) = s(eA', A)
 // s(eA, B) = s(eA', B)
 
-// Then we can calculate the score according to every gen_custom_function
-// applied on eA to get these functions' scores for [eA, s(eA, A)], and we
-// can similarly get the score according to every gen_custom_function
-// applied on eA with candidates rotated so what used to be B is now A,
-// to get all functions' scores for [eA, s(eA, B)]. 
-// In a completely analogous manner, we can get [eA, s(eA', A)] and 
-// [eA, s(eA', B)] for every method.
-// Then we don't have to do any more calculations: any pair of 
-// gen_custom_functions X, Y, so that its score for A on eA (determined by
-// applying gen_custom_function X) is greater than its score for B on eA
-// (determined by applying gen_custom_function Y), but where its score for
-// A on eA' is less than its score for B on eA', fails monotonicity, and
-// no four-combination with X assigned to s(eA, A) and Y assigned to s(eA, B)
-// can be valid, no matter what the other two gen_custom_functs are.
+// Applying meet-in-the-middle gets us from having to evaluate n^4 functions
+// to 4 * n^2 per election example. But n^2 can still be infeasibly large if
+// n is on the order of millions, so a better strategy is needed.
 
-// This strategy can be extended to extend three-candidate election methods
-// into four-candidate election methods (if we assume ISDA).
+// We can combine the meet-in-the-middle approach with memoization. We can
+// keep a lookup table of algorithm numbers so that lookup[0] is the first
+// algorithm number we may want to use as a part of a final election method,
+// and so on up until lookup[n-1]. For each election example (A, A', etc), we
+// can let memoization[A][k] store the result of the gen_custom_function
+// corresponding to the algorithm number in lookup[k]. Since the lookup table
+// is contiguous, this makes the memoization array O(n) instead of
+// O(max algorithm number).
 
-// What we need is a table of compatible n-tuples of gen_custom_functions,
-// initially only pairs. Each of these tables should be contained in another
-// data structure, indexed by pairs of scenarios, so that we can quickly
-// update the tables every time we run through a new monotonicity example.
-// Furthermore, the tables should also have sets of "every method still
-// present" for each column of the table, so that we know what methods to
-// test the next election methods on.
+// Since we can't afford to clean the memoization array between each election
+// example (in particular not when there are only a few methods left), the
+// memoization array should be of a pair: a term counter, and a score. If
+// the term counter is below the current term, the value is outdated and must
+// be refreshed. Otherwise it is valid and can be directly used.
 
-// Finally, updating the table entries should be easy (constant access)
-// since we're going to do it a lot, and we need a particular data structure
-// for each entry to keep track of whether they're still eligible. (More on
-// that in another file.)
+// The meet-in-the-middle strategy can be extended to extend three-candidate
+// election methods into four-candidate election methods (if we assume ISDA).
+
+// I'm going to put most of the logic into compositor.cc, and then
+// refactor back into here once I find out how the dependencies should be
+// arranged.
 
 #include "scenario.h"
 #include "../rpn_evaluator.h"
@@ -66,6 +61,7 @@ class eligibility_status {
 		// loser to a winner. The first is an AND criterion, but the latter
 		// is an OR criterion and so has to be handled like this. More info
 		// later.
+		algo_t first, second;
 		bool any_strict_inequality;
 
 		eligibility_status() { any_strict_inequality = false; }
@@ -73,25 +69,8 @@ class eligibility_status {
 
 
 class eligibility_table {
-	private:
-		std::map<algo_t, std::set<algo_t> > eligible;
-		std::vector<std::map<algo_t, int> > eligibles_kth_column;
-		std::map<std::pair<algo_t, algo_t>, eligibility_status> status;
-
 	public:
-		void mark_eligible(algo_t first, algo_t second, 
-			bool strict_inequality);
-		void mark_ineligible(algo_t first, algo_t second);
-
-		const std::map<algo_t, int> & 
-			get_eligibles_kth_column(int k) const {
-			return eligibles_kth_column[k];
-		}
-
-		// For iterating over them, to get pairs.
-		const std::map<algo_t, std::set<algo_t> > & get_eligibles() const {
-			return eligible;
-		}
+		std::list<eligibility_status> eligibles;
 };
 
 class eligibility_tables {
@@ -99,6 +78,14 @@ class eligibility_tables {
 		std::map<std::pair<copeland_scenario, copeland_scenario>,
 			eligibility_table> table_per_scenario_tuple;
 
+};
+
+class memoization_entry {
+	public:
+		int term;
+		double score; // alternately vector<double>...
+
+		memoization_entry() { term = -1; score = -1; }
 };
 
 #endif
