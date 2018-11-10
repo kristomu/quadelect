@@ -169,24 +169,24 @@ int main(int argc, const char ** argv)  {
 	// Open some files to get back up to speed
 
 	if (argc < 2) {
-        std::cerr << "Usage: " << argv[0] << " [file containing past output]" 
-        	<< std::endl;
-        return(-1);
-    }
+		std::cerr << "Usage: " << argv[0] << " [file containing past output]"
+			<< std::endl;
+		return(-1);
+	}
 
-    std::string filename = argv[1];
-    std::ifstream past_file(filename);
+	std::string filename = argv[1];
+	std::ifstream past_file(filename);
 
-    if (!past_file) {
-    	std::cerr << "Could not open " << filename << std::endl;
-    }
+	if (!past_file) {
+		std::cerr << "Could not open " << filename << std::endl;
+	}
 
-    std::vector<algo_t> prior_algorithm_numbers;
-    get_first_token_on_lines(past_file, prior_algorithm_numbers);
+	std::vector<algo_t> prior_algorithm_numbers;
+	get_first_token_on_lines(past_file, prior_algorithm_numbers);
 
-    past_file.close();
+	past_file.close();
 
-    // End of our little file diversion
+	// End of our little file diversion
 
 	gen_custom_function x(numcands);
 
@@ -205,8 +205,7 @@ int main(int argc, const char ** argv)  {
 	std::unordered_map<std::pair<uint64_t, uint64_t>, algo_t> ordinal_seen_before;
 
 	// Insert all the algorithms we've already been through...
-	algo_t last_algorithm_seen = 0, last_algorithm = 
-		*prior_algorithm_numbers.rbegin();
+	algo_t last_algorithm_seen = 0;
 	int count = 0;
 
 	for (algo_t algorithm: prior_algorithm_numbers) {
@@ -220,9 +219,6 @@ int main(int argc, const char ** argv)  {
 		// Assume it's a new algorithm - don't bother checking with
 		// ordinal_seen_before, just introduce it right away.
 
-		/*std::vector<bool> ordinal_results = get_ordinal_test_result(
-			evaluate_algorithm(x, ordinal_tests));*/
-
 		std::pair<uint64_t, uint64_t> ordinal_results_hash =
 			get_ordinal_hash_test_result(
 				evaluate_algorithm(x, ordinal_tests), hasher);
@@ -230,7 +226,7 @@ int main(int argc, const char ** argv)  {
 		ordinal_seen_before[ordinal_results_hash] = algorithm;
 
 		if ((++count & 2047) == 0) {
-			std::cerr << algorithm/(long double)last_algorithm << "    \r" << std::flush;
+			std::cerr << algorithm/(long double)last_algorithm_seen << "    \r" << std::flush;
 			count = 0;
 		}
 	}
@@ -242,7 +238,7 @@ int main(int argc, const char ** argv)  {
 	for (algo_t i = last_algorithm_seen; ; ++i) {
 		if (!x.set_algorithm(i)) continue;
 
-		std::vector<double> cardinal_results = evaluate_algorithm(x, //i,
+		std::vector<double> cardinal_results = evaluate_algorithm(x,
 			cardinal_tests);
 
 		if (cardinal_seen_before.find(cardinal_results) != 
@@ -250,9 +246,6 @@ int main(int argc, const char ** argv)  {
 			
 			continue;
 		}
-
-		/*std::vector<bool> ordinal_results = get_ordinal_test_result(
-			evaluate_algorithm(x, ordinal_tests));*/
 
 		std::pair<uint64_t, uint64_t> ordinal_results_hash =
 			get_ordinal_hash_test_result(
