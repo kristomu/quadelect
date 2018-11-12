@@ -17,7 +17,7 @@
 #include "../../../../pairwise/matrix.h"
 #include "../../../../tests/tests/monotonicity/mono_add.h"
 #include "../../../../tests/tests/monotonicity/mono_raise.h"
-#include "../rpn_evaluator.h"
+#include "../gen_custom_function.h"
 
 #include <set>
 #include <string>

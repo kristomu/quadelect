@@ -1,4 +1,4 @@
-#include "rpn_evaluator.h"
+#include "gen_custom_function.h"
 
 size_t gen_custom_function::get_num_referential_atoms(
 	size_t numcands) const {
@@ -47,8 +47,8 @@ atom_bundle gen_custom_function::get_atom_bundle(
 			out.challenger = atom_encoding % (numcands-1);
 			out.incumbent = atom_encoding / (numcands-1);
 
-			// This is a way of avoiding the diagonal. We don't want to 
-			// clutter our search space with pairwise contests of the form 
+			// This is a way of avoiding the diagonal. We don't want to
+			// clutter our search space with pairwise contests of the form
 			// A>A.
 			if (out.challenger >= out.incumbent) {
 				++out.challenger;
@@ -61,7 +61,7 @@ atom_bundle gen_custom_function::get_atom_bundle(
 		assert (1 != 1);
 	}
 
-	out.function = (gen_custom_funct_atom)(atom_encoding - 
+	out.function = (gen_custom_funct_atom)(atom_encoding -
 		num_referential_atoms);
 
 	return(out);
@@ -120,7 +120,7 @@ matrix_indices gen_custom_function::get_positional_matrix_indices(
 
 	// Let input[] be the input vector of counts for each permutation.
 
-	// sum over z: input[positional_matrix_indices[x][y][z]] 
+	// sum over z: input[positional_matrix_indices[x][y][z]]
 	// gives the number of voters who voted candidate x in yth place.
 
 	// E.g. for 3 candidates: positional_matrix_indices[0][0] for
@@ -148,13 +148,13 @@ matrix_indices gen_custom_function::get_positional_matrix_indices(
 			pos_indices[cur_candidate][place].push_back(perm_count);
 		}
 		++perm_count;
-	} while (std::next_permutation(ballot_permutation.begin(), 
+	} while (std::next_permutation(ballot_permutation.begin(),
 		ballot_permutation.end()));
 
 	return(pos_indices);
 }
 
-bool gen_custom_function::does_a_beat_b(int a, int b, 
+bool gen_custom_function::does_a_beat_b(int a, int b,
 	const std::vector<int> & ballot_permutation) const {
 
 	for (int v: ballot_permutation) {
@@ -171,7 +171,7 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 
 	// Let input[] be the input vector of counts for each permutation.
 
-	// sum over z: input[pairwise_matrix_indices[x][y][z]] 
+	// sum over z: input[pairwise_matrix_indices[x][y][z]]
 	// gives the number of voters who voted candidate x ahead of y.
 
 	// As above, we do this the brute-force way, by generating every
@@ -194,7 +194,7 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 
 				// This could be reduced to constant time by inverting the
 				// permutation, but eh, can't be bothered.
-				if (does_a_beat_b(incumbent, challenger, 
+				if (does_a_beat_b(incumbent, challenger,
 						ballot_permutation)) {
 					pair_indices[incumbent][challenger].push_back(
 						perm_count);
@@ -202,7 +202,7 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 			}
 		}
 		++perm_count;
-	} while (std::next_permutation(ballot_permutation.begin(), 
+	} while (std::next_permutation(ballot_permutation.begin(),
 		ballot_permutation.end()));
 
 	return(pair_indices);
@@ -228,7 +228,7 @@ double gen_custom_function::linear_combination(const std::vector<int> & indices,
 // the number of candidate functions to test is much greater than the number
 // of elections. But is it worth it? Go for the low-hanging fruit first.
 
-double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias, 
+double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias,
 	const std::vector<double> & input_values, size_t numcands) const {
 
 	// The first n! above this
@@ -265,7 +265,7 @@ double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias,
 // same.
 
 double gen_custom_function::evaluate(std::vector<double> & stack,
-	const atom_bundle & cur_raw_atom, 
+	const atom_bundle & cur_raw_atom,
 	const std::vector<double> & input_values, size_t numcands) const {
 
 	bool generous_to_asymptotes = true;
@@ -285,8 +285,8 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 	// Constants:
 
 	switch(cur_atom) {
-		case VAL_IN_ALL: 
-			return std::accumulate(input_values.begin(), 
+		case VAL_IN_ALL:
+			return std::accumulate(input_values.begin(),
 				input_values.end(), 0.0);
 
 		case VAL_ZERO: return(0);
@@ -322,11 +322,11 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 		case UNARY_FUNC_INFRMAPINV: return(log(-right_arg/(right_arg-1)));
 		case UNARY_FUNC_SQUARE: return(right_arg*right_arg);
 		case UNARY_FUNC_SQRT: return(sqrt(right_arg));
-		case UNARY_FUNC_LOG: 
+		case UNARY_FUNC_LOG:
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
-					// intend limit towards 0 so that 0 log 0 = 0, e.g	
-					return (-1e9);		
+					// intend limit towards 0 so that 0 log 0 = 0, e.g
+					return (-1e9);
 				}
 				return(-INFINITY);
 			}
@@ -359,7 +359,7 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 	}
 
 	// NOTE: The stack has most recently pushed arguments to the right.
-	// This means that if we want, say "fpA fpC -" to resolve to 
+	// This means that if we want, say "fpA fpC -" to resolve to
 	// "fpA - fpC", as is intuitive, and as dc does it, we need to do
 	// middle_arg - right_arg, not the other way around.
 
@@ -380,7 +380,7 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 			// inf/inf is also similarly undefined.
 			if (!finite(middle_arg) && !finite(right_arg)) {
 				return(std::numeric_limits<double>::quiet_NaN());
-			} 
+			}
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
 					return (middle_arg/(right_arg+1e-9));
@@ -407,7 +407,7 @@ double gen_custom_function::evaluate(
 	algorithm_stack.clear();
 
 	for(const atom_bundle & atom: algorithm) {
-		double output = evaluate(algorithm_stack, atom, input_values, 
+		double output = evaluate(algorithm_stack, atom, input_values,
 			numcands);
 
 		if (isnan(output)) return(output);
@@ -440,7 +440,7 @@ std::string gen_custom_function::get_atom_name(
 	}
 
 	if (cur_atom.is_direct_reference) {
-		return factoradic().kth_permutation(cur_atom.idx, numcands); 
+		return factoradic().kth_permutation(cur_atom.idx, numcands);
 	}
 
 	// Okay, it's not a reference, so find out what kind of atom it is.
@@ -488,7 +488,7 @@ std::string gen_custom_function::to_string() const {
 	return out;
 }
 
-// This function returns false (and doesn't set anything) if evaluating the 
+// This function returns false (and doesn't set anything) if evaluating the
 // algorithm on a standard input produces NaN, which is the error signal for
 // the evaluator.
 
@@ -506,7 +506,7 @@ bool gen_custom_function::set_algorithm(algo_t algorithm_encoding) {
 	// NaN.
 
 	std::vector<double> fake_input(factorial(number_candidates), 0);
-	double result = evaluate(proposed_algorithm, fake_input, 
+	double result = evaluate(proposed_algorithm, fake_input,
 		number_candidates);
 
 	if (isnan(result)) {
@@ -517,8 +517,8 @@ bool gen_custom_function::set_algorithm(algo_t algorithm_encoding) {
 	return(true);
 }
 
-void gen_custom_function::force_set_algorithm(algo_t algorithm_encoding) {	
-	current_algorithm = decode_algorithm(algorithm_encoding, 
+void gen_custom_function::force_set_algorithm(algo_t algorithm_encoding) {
+	current_algorithm = decode_algorithm(algorithm_encoding,
 		number_candidates);
 }
 

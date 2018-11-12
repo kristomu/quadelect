@@ -1,5 +1,5 @@
 // Program for testing lots of gen_custom_function algorithms and removing the
-// redundant ones (those that respond the same exact way as ones we've 
+// redundant ones (those that respond the same exact way as ones we've
 // already seen).
 
 // This is done by testing each algorithm with a number of (randomly chosen)
@@ -14,7 +14,7 @@
 
 #include <map>
 #include <unordered_map>		// Test performance? Needs hash
-#include "rpn_evaluator.h"
+#include "gen_custom_function.h"
 
 #include <stdlib.h>
 #include <fstream>
@@ -29,11 +29,11 @@ std::vector<double> get_test_vector(int numcands) {
 	return out;
 }
 
-std::vector<std::vector<double> > get_test_vectors(int how_many, 
+std::vector<std::vector<double> > get_test_vectors(int how_many,
 	int numcands) {
 
 	std::vector<std::vector<double> > out(how_many);
-	std::generate(out.begin(), out.end(), [numcands]() { 
+	std::generate(out.begin(), out.end(), [numcands]() {
 		return(get_test_vector(numcands)); });
 
 	return out;
@@ -57,8 +57,8 @@ std::vector<std::vector<double> > get_identity_vectors(int numcands,
 	return out;
 }
 
-std::vector<double> evaluate_algorithm(gen_custom_function & gcf, 
-	//algo_t algorithm_number, 
+std::vector<double> evaluate_algorithm(gen_custom_function & gcf,
+	//algo_t algorithm_number,
 	const std::vector<std::vector<double> > & test_vectors) {
 
 	// If it's not a well-formed algorithm, then abort immediately.
@@ -79,7 +79,7 @@ std::vector<double> evaluate_algorithm(gen_custom_function & gcf,
 // and mapping the permutation to an integer (which would be very large
 // anyway), I just make an n^2 boolean vector based on whether the ith
 // entry is greater than the jth for all (i,j) combinations.
-std::vector<bool> get_ordinal_test_result(const std::vector<double> & 
+std::vector<bool> get_ordinal_test_result(const std::vector<double> &
 	cardinal_results) {
 
 	std::vector<bool> ordinal_output;
@@ -121,7 +121,7 @@ namespace std
 	};
 }
 
-hash_result get_ordinal_hash_test_result(const std::vector<double> & 
+hash_result get_ordinal_hash_test_result(const std::vector<double> &
 	cardinal_results, SpookyHash & hasher) {
 
 	char ordinal_output[square(cardinal_results.size())];
@@ -153,7 +153,7 @@ hash_result get_ordinal_hash_test_result(const std::vector<double> &
 // choose multiple of them at once to handle the Smith set rotation -- is
 // the invariance to multiplying every vote value by a constant. That can
 // be tested just by creating two test sets: one that's a constant multiple
-// of the other - and then compare the ordinal test results for both 
+// of the other - and then compare the ordinal test results for both
 // (adjusting epsilon as necessary).
 
 std::string algo_str(int numcands, algo_t algorithm) {
@@ -241,9 +241,9 @@ int main(int argc, const char ** argv)  {
 		std::vector<double> cardinal_results = evaluate_algorithm(x,
 			cardinal_tests);
 
-		if (cardinal_seen_before.find(cardinal_results) != 
+		if (cardinal_seen_before.find(cardinal_results) !=
 			cardinal_seen_before.end()) {
-			
+
 			continue;
 		}
 

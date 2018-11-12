@@ -598,6 +598,7 @@ bool dominated_less(const std::vector<double> & a,
 	bool one_less = false;
 
 	for (size_t i = 0; i < std::min(a.size(), b.size()); ++i) {
+		if (isnan(a[i] || isnan(b[i]))) { return false; }
 		if (a[i] > b[i]) { return false; }
 		one_less |= (a[i] < b[i]);
 	}
@@ -624,6 +625,7 @@ bool dominated_margin_less(const std::vector<double> & a,
 	bool one_below = false;
 
 	for (size_t i = 0; i < std::min(a.size(), b.size()); ++i) {
+		if (isnan(a[i] || isnan(b[i]))) { return false; }
 		if (a[i] > 0 && b[i] < 0) { return false; }
 		one_less |= (a[i] < 0) && (b[i] >= 0);
 		one_below |= a[i] < 0;
@@ -773,7 +775,7 @@ int main(int argc, char ** argv) {
 	}*/
 
 	std::vector<std::vector<std::vector<std::vector<double> > > >
-		many_test_results = test_many_times(1000000, example_desired, 4,
+		many_test_results = test_many_times(100000, example_desired, 4,
 			bar, prospective_functions, false);
 
 	for (size_t method_one = 0; method_one < prospective_functions.size(); ++method_one) {
@@ -799,14 +801,14 @@ int main(int argc, char ** argv) {
 				std::copy(after_margin.begin(), after_margin.begin()+20,
 					ostream_iterator<double>(cout, " "));
 				std::cout << std::endl;
-				for (size_t method_three = 0; method_three < prospective_functions.size(); ++method_three) {
+				/*for (size_t method_three = 0; method_three < prospective_functions.size(); ++method_three) {
 					before_margin = subtract(many_test_results[method_one][0][0], many_test_results[method_three][0][2]);
 					after_margin = subtract(many_test_results[method_one][1][0], many_test_results[method_three][1][2]);
 
 					if (dominated_margin_less(before_margin,after_margin)) {
 						std::cout << "Three pass: " << prospective_functions[method_one] << " " << prospective_functions[method_two] << " " << prospective_functions[method_three] << std::endl;
 					}
-				}
+				}*/
 			}
 		}
 	}
