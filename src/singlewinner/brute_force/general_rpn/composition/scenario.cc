@@ -1,6 +1,8 @@
 #include "scenario.h"
+#include "../../../../pairwise/matrix.h"
+#include "../../../../pairwise/types.h"
 
-std::vector<bool> copeland_scenario::integer_to_short_form(const 
+std::vector<bool> copeland_scenario::integer_to_short_form(const
 	uint64_t int_form, size_t numcands) const {
 
 	std::vector<bool> short_form;
@@ -30,11 +32,11 @@ uint64_t copeland_scenario::short_form_to_integer(const
 }
 
 
-std::vector<std::vector<bool> > 
-	copeland_scenario::short_form_to_copeland_matrix(const 
+std::vector<std::vector<bool> >
+	copeland_scenario::short_form_to_copeland_matrix(const
 	std::vector<bool> & short_form, size_t numcands) const {
 
-	std::vector<std::vector<bool> > copeland_matrix(numcands, 
+	std::vector<std::vector<bool> > copeland_matrix(numcands,
 		std::vector<bool>(numcands, false));
 
 	size_t scenario_ctr = 0;
@@ -49,8 +51,8 @@ std::vector<std::vector<bool> >
 	return copeland_matrix;
 }
 
-std::vector<std::vector<bool> > 
-	copeland_scenario::condorcet_to_copeland_matrix(const 
+std::vector<std::vector<bool> >
+	copeland_scenario::condorcet_to_copeland_matrix(const
 	abstract_condmat * condorcet_matrix) const {
 
 	size_t numcands = condorcet_matrix->get_num_candidates();
@@ -60,7 +62,7 @@ std::vector<std::vector<bool> >
 
 	for (size_t i = 0; i < numcands; ++i) {
 		for (size_t j = i+1; j < numcands; ++j) {
-			if (condorcet_matrix->get_magnitude(i, j) == 
+			if (condorcet_matrix->get_magnitude(i, j) ==
 				condorcet_matrix->get_magnitude(j, i)) {
 				// Perhaps return 0-candidate scenario instead?
 				throw std::runtime_error(
@@ -75,9 +77,21 @@ std::vector<std::vector<bool> >
 	return copeland_matrix;
 }
 
+std::vector<std::vector<bool> >
+	copeland_scenario::election_to_copeland_matrix(const
+	std::list<ballot_group> & election, size_t numcands) const {
+
+	// TODO: Move to mutable.
+	condmat condorcet_matrix(CM_PAIRWISE_OPP);
+
+	condorcet_matrix.zeroize();
+	condorcet_matrix.count_ballots(election, numcands);
+	return condorcet_to_copeland_matrix(&condorcet_matrix);
+}
+
 std::vector<bool> copeland_scenario::copeland_matrix_to_short_form(const
 	std::vector<std::vector<bool> > & copeland_matrix) const{
-	
+
 	size_t numcands = copeland_matrix.size();
 
 	std::vector<bool> short_form;
@@ -103,7 +117,7 @@ std::vector<bool> copeland_scenario::copeland_matrix_to_short_form(const
 // third candidate (C) in the output is A (#0) in the input,
 // and fourth candidate (D) in the output is B (#1) in the input.
 
-std::vector<std::vector<bool> > copeland_scenario::permute_candidates(const 
+std::vector<std::vector<bool> > copeland_scenario::permute_candidates(const
 	std::vector<std::vector<bool> > & copeland_matrix, const
 	std::vector<int> & order) const {
 

@@ -59,7 +59,7 @@ monotonicity_pair get_monotonicity_pair(const copeland_scenario &
 	impartial ic(true);
 	monotonicity_pair out;
 
-	condmat condorcet_matrix(CM_PAIRWISE_OPP);
+	//condmat condorcet_matrix(CM_PAIRWISE_OPP);
 
 	bool succeeded = false;
 
@@ -71,10 +71,8 @@ monotonicity_pair get_monotonicity_pair(const copeland_scenario &
 			// Use an odd number of voters to avoid ties.
 			out.base_election.election = ic.generate_ballots(
 				2 * randomizer.lrand(5, 50) + 1, numcands, randomizer);
-			condorcet_matrix.zeroize();
-			condorcet_matrix.count_ballots(out.base_election.election,
-				numcands);
-			out.base_election.scenario = copeland_scenario(&condorcet_matrix);
+			out.base_election.scenario = copeland_scenario(
+				out.base_election.election, numcands);
 		} while (out.base_election.scenario != desired_scenario);
 
 		// Create data (specs) for the monotonicity test and make it prefer
@@ -102,11 +100,8 @@ monotonicity_pair get_monotonicity_pair(const copeland_scenario &
 
 		// Check for ties and set the improved scenario (kinda ugly)
 		try {
-			condorcet_matrix.zeroize();
-			condorcet_matrix.count_ballots(out.improved_election.election,
-				numcands);
 			out.improved_election.scenario = copeland_scenario(
-				&condorcet_matrix);
+				out.improved_election.election, numcands);
 		} catch (const std::exception & e) {
 			continue;
 		}

@@ -23,7 +23,7 @@
 // (We don't handle ties as they occur comparatively rarely.)
 
 // Let an election perspective be a pair consisting of an election and
-// a candidate. 
+// a candidate.
 
 // Two election perspectives have the same Copeland scenario if when the
 // corresponding elections have their candidates relabeled so that the
@@ -33,8 +33,8 @@
 // Two elections (not part of a perspective) have the same Copeland scenario
 // if the two elections are associated with the same Copeland matrix.
 
-// Formally speaking, we want to establish the equivalence classes of 
-// election perspectives under the equivalence relation "has the same 
+// Formally speaking, we want to establish the equivalence classes of
+// election perspectives under the equivalence relation "has the same
 // Copeland scenario". To do so, we have to first create a class for
 // handling Copeland scenarios, and finding such from elections. We need a
 // function to relabel candidates and get the transformed Copeland scenario
@@ -42,7 +42,7 @@
 
 // As a Copeland scenario can be represented in many ways, we also need
 // functions for translating between the representations. (Note that the
-// == and != operators do not implement the equivalence relation above, but 
+// == and != operators do not implement the equivalence relation above, but
 // directly compares scenarios.)
 
 // We have three ways of representing a given scenario:
@@ -74,10 +74,10 @@ class copeland_scenario {
 			return numcands * (numcands-1) / 2;
 		}
 
-		std::vector<bool> integer_to_short_form(const 
+		std::vector<bool> integer_to_short_form(const
 			uint64_t int_form, size_t numcands) const;
 
-		uint64_t short_form_to_integer(const 
+		uint64_t short_form_to_integer(const
 			std::vector<bool> & short_form) const;
 
 		std::vector<bool> copeland_matrix_to_short_form(const
@@ -89,12 +89,15 @@ class copeland_scenario {
 		std::vector<std::vector<bool> > condorcet_to_copeland_matrix(const
 			abstract_condmat * condorcet_matrix) const;
 
+		std::vector<std::vector<bool> > election_to_copeland_matrix(const
+			std::list<ballot_group> & election, size_t numcands) const;
+
 		std::vector<bool> int_to_vbool(size_t numcands) const;
 
 		// Produces a Copeland matrix where the candidates have been
 		// reordered according to the order vector. See the implementation
 		// for more information.
-		std::vector<std::vector<bool> > permute_candidates(const 
+		std::vector<std::vector<bool> > permute_candidates(const
 			std::vector<std::vector<bool> > & copeland_matrix, const
 			std::vector<int> & order) const;
 
@@ -118,7 +121,7 @@ class copeland_scenario {
 		}
 
 		std::vector<std::vector<bool> > get_copeland_matrix() const {
-			return short_form_to_copeland_matrix(get_short_form(), 
+			return short_form_to_copeland_matrix(get_short_form(),
 				number_of_candidates);
 		}
 
@@ -126,7 +129,7 @@ class copeland_scenario {
 
 		std::string to_string() const;
 
-		copeland_scenario(const std::vector<std::vector<bool> > & 
+		copeland_scenario(const std::vector<std::vector<bool> > &
 			copeland_matrix) {
 
 			scenario = short_form_to_integer(
@@ -136,8 +139,14 @@ class copeland_scenario {
 
 		// From a Condorcet matrix
 		template<typename T> copeland_scenario(const T & condorcet_matrix) :
-			copeland_scenario(condorcet_to_copeland_matrix(condorcet_matrix)) 
+			copeland_scenario(condorcet_to_copeland_matrix(condorcet_matrix))
 			{}
+
+		// From a ballot set (election)
+		copeland_scenario(const std::list<ballot_group> & election,
+			size_t numcands) :
+			copeland_scenario(election_to_copeland_matrix(election,
+				numcands)) {}
 
 		copeland_scenario(const std::vector<bool> & short_form,
 			size_t numcands) {
@@ -166,7 +175,7 @@ class copeland_scenario {
 		// Not exactly quick, but it gets the job done. Fix later if we
 		// need a speedup.
 		void permute_candidates(const std::vector<int> & permutation) {
-			std::vector<bool> short_form = integer_to_short_form(scenario, 
+			std::vector<bool> short_form = integer_to_short_form(scenario,
 				number_of_candidates);
 
 			std::vector<std::vector<bool> > copeland_matrix =
@@ -204,7 +213,7 @@ class copeland_scenario {
 		}
 
 		bool operator==(const copeland_scenario & other) const {
-			return scenario == other.scenario && 
+			return scenario == other.scenario &&
 				number_of_candidates == other.number_of_candidates;
 		}
 
@@ -213,8 +222,16 @@ class copeland_scenario {
 				number_of_candidates != other.number_of_candidates;
 		}
 
+		void operator=(const std::list<ballot_group> & election) {
+			std::vector<std::vector<bool> > copeland_matrix =
+				election_to_copeland_matrix(election, get_numcands());
+
+			scenario = short_form_to_integer(
+				copeland_matrix_to_short_form(copeland_matrix));
+		}
+
 		bool test() {
-			bool a = (short_form_to_integer(integer_to_short_form(59, 4)) 
+			bool a = (short_form_to_integer(integer_to_short_form(59, 4))
 				== 59);
 
 			std::vector<int> perm(number_of_candidates, 0);
