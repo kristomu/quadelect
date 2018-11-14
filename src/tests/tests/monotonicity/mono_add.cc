@@ -8,7 +8,7 @@
 
 #include "mono_add.h"
 
-// Other classes will be needed for mono-remove-bottom and "related" property, 
+// Other classes will be needed for mono-remove-bottom and "related" property,
 // Participation.
 
 ///// Mono-add-plump
@@ -21,7 +21,7 @@ bool mono_add_plump::add_ballots(const vector<int> & data,
 	// Logarithmic hack for weight. If the random choice < 0.2, then 1.
 	// Otherwise, random r = 0..9 and val = 1 - (ln(10-r)/l(10)) fraction
 	// of total.
-	
+
 	double wt;
 	if (randomizer.drand() < 0.2 && total_weight > 1)
 		wt = 1;
@@ -51,12 +51,14 @@ bool mono_add_top::add_ballots(const vector<int> & data,
 	// See above.
 
 	double wt;
-	if (randomizer.drand() < 0.5 && total_weight > 1)
-	wt = round(randomizer.drand() * 10);
-	else	wt = round(randomizer.drand() * total_weight);
+	if (randomizer.drand() < 0.5 && total_weight > 1) {
+		wt = round(randomizer.drand() * 10);
+	} else {
+		wt = std::max(1.0, round(randomizer.drand() * total_weight));
+	}
 
-	if (wt <= 0)
-		return(false);
+	// wt <= 0 shouldn't happen
+	assert (wt > 0);
 
 	int cand = data[0];
 
@@ -75,7 +77,7 @@ bool mono_add_top::add_ballots(const vector<int> & data,
 
 	for (size_t counter = 0; counter < other_candidates.size(); ++counter) {
 		if (other_candidates[counter] != cand)
-			o_rand.insert(candscore(other_candidates[counter], 
+			o_rand.insert(candscore(other_candidates[counter],
 						counter));
 	}
 

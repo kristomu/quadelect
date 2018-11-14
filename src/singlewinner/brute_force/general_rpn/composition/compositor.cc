@@ -12,6 +12,7 @@
 #include "equivalences.cc"
 #include "eligibility.h"
 
+#include <time.h>
 
 // We need a function that generates a monotonicity election pair using some
 // monotonicity test, with the restriction that A should be the one who
@@ -30,131 +31,351 @@ struct election_scenario_pair {
 	copeland_scenario scenario;
 };
 
-struct permuted_election_vector {
-	// This variable is set if the election/scenario pair arose from
-	// permuting another election so some candidate is now the first
-	// candidate in the permuted election. In that case, this value is
-	// the index of the candidate (e.g. 1 for B); if there's no such
-	// permutation, this value is 0.
-	int permuted_to_candidate;
+// Throws exception if permuting to that scenario is impossible.
+election_scenario_pair permute_to_desired(election_scenario_pair cur,
+	const copeland_scenario & desired_scenario,
+	const std::vector<std::map<copeland_scenario, isomorphism> > &
+		candidate_remappings) {
 
-	std::vector<double> election;
+	if (cur.scenario == desired_scenario) {
+		return cur;
+	}
+
+	size_t numcands = cur.scenario.get_numcands();
+
+	for (size_t i = 0; i < numcands; ++i) {
+		if (candidate_remappings[i].find(cur.scenario) ==
+			candidate_remappings[i].end()) {
+			throw std::runtime_error(
+					"permute_to_desired: could not find source scenario!");
+		}
+
+		// Auto because I can't be bothered typing the whole map deal
+		isomorphism dest_isomorphism = candidate_remappings[i].find(
+			cur.scenario)->second;
+
+		if (dest_isomorphism.to_scenario != desired_scenario) {
+			continue;
+		}
+
+		cur.election = permute_election_candidates(cur.election,
+			*dest_isomorphism.cand_permutations.begin());
+
+		cur.scenario = dest_isomorphism.to_scenario;
+
+		return cur;
+	}
+
+	throw std::runtime_error(
+		"permute_to_desired: could not remap " + cur.scenario.to_string() +
+		" to " + desired_scenario.to_string());
+}
+
+// This is a fully completed test instance. The pair (X, Y) assigned
+// to the scenarios of before_A and before_B respectively (with after_*
+// having the same scenarios as their before_* counterparts) pass if
+// score(before_A, X) - score(before_B, Y) <= 0 and
+// score(after_A, X) - score(after_B, y) >= 0. If both have the same sign,
+// we learn nothing, and if it's > and <= or >= and <, then it fails.
+
+// Note thus that "before_B" does not have to be the before_A ballot with
+// candidates relabeled so that what was B is now A. It could just as easily
+// be with C relabeled to A, or a reverse transformation (see below).
+
+struct monotonicity_test_instance {
+	election_scenario_pair before_A, before_B, after_A, after_B;
 };
 
+// This function takes in a scenario where before_A is assigned to scenario
+// sA and before_B is assigned to scenario sB, and produces a valid
+// monotonicity test instance with sA and sB flipped, so that its before_A
+// now has sB and its before_B now has sA. The purpose is to reduce the
+// problem of monotonicity testing pairs with X assigned to sA and Y assigned
+// to sB with sA < sB to the problem of testing with sA > sB.
 
-struct monotonicity_pair {
-	election_scenario_pair base_election;
-	election_scenario_pair improved_election;
-};
+// Suppose in has sA for before_A and sB for before_B. Then a method pair
+// (X, Y) passes if score(before_A, X) - score(before_B, Y) <= 0 and
+// score(after_A, X) - score(after_B, Y). Multiply this by -1 to get
+// score(before_B, Y) - score(before_A, X) >= 0 and
+// score(after_B, Y) - score(after_A, X) <= 0. In other words, to reverse
+// the order of the scenarios while keeping the pass test the same, all we
+// have to do is to turn
+//  in: after_B    after_A     before_B   before_A	to
+// out: before_A   before_B    after_A    after_B
 
-// If want_same_scenario is true, the improved election's scenario
-// will be the same as the original.
-// We need a way of specifying (to the test) the voting weight of whatever
-// is to be added, or however many votes should have A raised, etc. ...
-// because this generation is SO SLOW.
-monotonicity_pair get_monotonicity_pair(const copeland_scenario &
-	desired_scenario, int numcands, rng & randomizer, monotonicity *
-	mono_test, bool want_same_scenario) {
+monotonicity_test_instance reverse_transform(const
+	monotonicity_test_instance & in) {
 
-	impartial ic(true);
-	monotonicity_pair out;
+	monotonicity_test_instance out;
 
-	//condmat condorcet_matrix(CM_PAIRWISE_OPP);
+	out.before_A = in.after_B;
+	out.before_B = in.after_A;
+	out.after_A = in.before_B;
+	out.after_B = in.before_A;
 
-	bool succeeded = false;
+	return out;
+}
 
-	while (!succeeded) {
+// Return a list of all scenarios that can be turned into desired_scenario
+// by permuting the candidates. Since "can be turned into another scenario"
+// is an equivalence relation on scenarios, determining this is as easy as
+// determining what scenarios we can turn desired_scenario into by permuting
+// the candidates (symmetry property).
 
-		// Get the base election
+std::set<copeland_scenario> get_permitted_scenarios(
+	const copeland_scenario & desired_scenario, size_t numcands,
+	const std::vector<std::map<copeland_scenario, isomorphism> > &
+	candidate_remappings) {
 
-		do {
+	std::set<copeland_scenario> out;
+
+	for (size_t i = 0; i < numcands; ++i) {
+		if (candidate_remappings[i].find(desired_scenario) ==
+			candidate_remappings[i].end()) {
+			throw std::runtime_error(
+				"get_permitted_scenarios: could not find source scenario!");
+		}
+
+		out.insert(candidate_remappings[i].find(desired_scenario)->
+			second.to_scenario);
+	}
+
+	return out;
+
+}
+
+// BEWARE: depends on some assumptions about smith set size 4 behavior!
+// (Namely that you can go from any Smith set size 4 scenario to any other
+// by permuting the candidates.)
+// Fix later: proper solution finds equivalence classes of what scenarios
+// can be reached from others by candidate permutations.
+// If it finds anything, returns true and sets out. Otherwise returns false,
+// and the contents of out are undefined.
+
+// Permitted_scenarios: scenarios that can be turned into
+// desired_before_scenario and desired_after_scenario.
+
+// Hotspot
+bool get_test_instance(const copeland_scenario * desired_A_scenario,
+	const copeland_scenario * desired_B_scenario,
+	const std::set<copeland_scenario> & permitted_scenarios,
+	const std::vector<std::map<copeland_scenario, isomorphism> > &
+	candidate_remappings, int numcands, rng & randomizer,
+	monotonicity * mono_test, bool reverse, monotonicity_test_instance & out) {
+
+	impartial ic(false);
+
+	election_scenario_pair before, after;
+
+	int num_ballots;
+
+	// If we're reversed, we want to first generate something with
+	// desired_B_scenario for the A election (and desired_A_scenario
+	// for the B election), and then swap them around using
+	// reverse_transform. So in that case what the user specified as
+	// desired_A_transform should internally be desired_B_transform and
+	// vice versa.
+	if (reverse) {
+		std::swap(desired_A_scenario, desired_B_scenario);
+	}
+
+	// Generate an acceptable ballot.
+
+	do {
 			// Use an odd number of voters to avoid ties.
-			out.base_election.election = ic.generate_ballots(
-				2 * randomizer.lrand(5, 50) + 1, numcands, randomizer);
-			out.base_election.scenario = copeland_scenario(
-				out.base_election.election, numcands);
-		} while (out.base_election.scenario != desired_scenario);
+		num_ballots = 2 * randomizer.lrand(5, 50) + 1;
+		before.election = ic.generate_ballots(num_ballots, numcands,
+			randomizer);
+		before.scenario = copeland_scenario(before.election, numcands);
+	} while (permitted_scenarios.find(before.scenario) ==
+		permitted_scenarios.end());
 
-		// Create data (specs) for the monotonicity test and make it prefer
-		// candidate 0 (A).
+	// Permute into the A_scenario we want.
+	before = permute_to_desired(before, *desired_A_scenario,
+		candidate_remappings);
 
+	// Create data (specs) for the monotonicity test and make it prefer
+	// candidate 0 (A). We may fail to alter the ballot the way we want,
+	// so all of this is in a loop; if the before ballot is already good
+	// enough, there's no need to waste it.
+
+	bool found_improved = false;
+	for (int i = 0; i < 10 && !found_improved; ++i) {
 		std::vector<int> mono_data = mono_test->generate_aux_data(
-			out.base_election.election, numcands);
+			before.election, numcands);
 
 		// TODO: Really need to rename this function...
 		mono_data = mono_test->set_candidate_to_alter(mono_data, 0);
 
 		// Specify that we're only going to add one ballot in case of mono-
 		// add-top (this makes it easier to get to an improved ballot set
-		// that doesn't change the scenario)
+		// that doesn't change the scenario).
+		// TODO: Geometric distribution or something? Everything that gives
+		// us wider coverage is good.
+		int num_to_add = randomizer.lrand(1, 5);
 		std::pair<bool, list<ballot_group> > alteration = mono_test->
-			rearrange_ballots(out.base_election.election, numcands, 1,
+			rearrange_ballots(before.election, numcands, num_to_add,
 				mono_data);
 
-		// If we didn't succeed, loop back to start.
+		// If we didn't succeed, bail.
 		if (!alteration.first) {
 			continue;
 		}
 
-		out.improved_election.election = alteration.second;
+		after.election = alteration.second;
 
 		// Check for ties and set the improved scenario (kinda ugly)
 		try {
-			out.improved_election.scenario = copeland_scenario(
-				out.improved_election.election, numcands);
+			after.scenario = copeland_scenario(after.election, numcands);
 		} catch (const std::exception & e) {
 			continue;
 		}
 
-		if (out.improved_election.scenario != desired_scenario &&
-			want_same_scenario) {
+		// If the after scenario changed, bail.
+		if (after.scenario != *desired_A_scenario) {
 			continue;
 		}
 
-		// If we get here, we have an election example that we can use.
-		succeeded = true;
+		found_improved = true;
 	}
 
-	// Finally do some scaling.
-	double scaling_factor = 0.1 + randomizer.drand() * 0.9;
-	out.improved_election.election = ballot_tools().rescale(
-		out.improved_election.election, scaling_factor);
-	out.base_election.election = ballot_tools().rescale(
-		out.base_election.election, scaling_factor);
+	// Giving up.
+	if (!found_improved) {
+		return false;
+	}
 
-	return out;
+	// Generate before_B and after_B
+
+	out.before_A = before;
+	out.after_A = after;
+	out.before_B = permute_to_desired(out.before_A, *desired_B_scenario,
+		candidate_remappings);
+	out.after_B = permute_to_desired(out.after_A, *desired_B_scenario,
+		candidate_remappings);
+
+	if (reverse) {
+		out = reverse_transform(out);
+	}
+
+	return true;
 }
 
-// This gets the election results rotated for every candidate. Note that
-// there may be more elements in the list than there are candidates, if
-// there's more than one rotation for a particular candidate. Thus the
-// return value makes no guarantee that the second entry is the perspective
-// from the point of view of B.
+typedef float result_t;
 
-std::vector<permuted_election_vector> get_all_permuted_elections(
-	const election_scenario_pair & cand_As_perspective,
+struct test_results {
+	copeland_scenario A_scenario, B_scenario;
+	std::vector<std::vector<result_t> > A_before_results;
+	std::vector<std::vector<result_t> > A_after_results;
+	std::vector<std::vector<result_t> > B_before_results;
+	std::vector<std::vector<result_t> > B_after_results;
+};
+
+test_results test_many(int numiters,
+	const copeland_scenario & desired_A_scenario,
+	const copeland_scenario & desired_B_scenario,
+	int numcands,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings, int numcands) {
+	candidate_remappings, const std::vector<algo_t> & functions_to_test,
+	rng & randomizer) {
 
-	std::vector<permuted_election_vector> out;
+	struct timespec last_time, next_time;
 
-	for (int i = 0; i < numcands; ++i) {
-		// TODO: Multiple cand permutations may exist. Handle it.
-		for (const auto & cand_permutation: candidate_remappings[i].
-			find(cand_As_perspective.scenario)->second.cand_permutations) {
+	clock_gettime(CLOCK_MONOTONIC, &last_time);
 
-			permuted_election_vector pev;
-			pev.permuted_to_candidate = i;
-			pev.election = get_ballot_vector(permute_election_candidates(
-				cand_As_perspective.election, cand_permutation), numcands);
+	test_results results;
+	results.A_scenario = desired_A_scenario;
+	results.B_scenario = desired_B_scenario;
 
-			out.push_back(pev);
+	size_t num_functions = functions_to_test.size();
+
+	// Ew. Fix later.
+	results.A_before_results.resize(num_functions);
+	results.A_after_results.resize(num_functions);
+	results.B_before_results.resize(num_functions);
+	results.B_after_results.resize(num_functions);
+
+	std::set<copeland_scenario> permitted = get_permitted_scenarios(
+		desired_A_scenario, numcands, candidate_remappings);
+
+	monotonicity_test_instance test_instance;
+
+	mono_add_top mattest(false, false);
+	mono_raise mrtest(false, false);
+	monotonicity * mono_test;
+
+	gen_custom_function evaluator(numcands);
+
+	int time_count = 0;
+	int time_to_check = 1000;
+
+	for (int i = 0; i < numiters; ++i) {
+
+		// Do we want mono-raise or mono-add-top? Decide with a coin flip.
+		if (randomizer.drand() < 0.5) {
+			mono_test = &mrtest;
+		} else {
+			mono_test = &mattest;
+		}
+
+		// Do we want a reverse test? Decide with a coin flip!
+
+		bool reverse = randomizer.drand() < 0.5;
+
+		// Run get_instance until we get a result that fits what we want.
+		while (!get_test_instance(&desired_A_scenario, &desired_B_scenario,
+			permitted, candidate_remappings, numcands, randomizer,
+			mono_test, reverse, test_instance));
+
+		assert(test_instance.before_A.scenario == desired_A_scenario);
+		assert(test_instance.before_B.scenario == desired_B_scenario);
+
+		// Prepare ballot vectors.
+		std::vector<std::vector<double> > ballot_vectors = {
+			get_ballot_vector(test_instance.before_A.election, numcands),
+			get_ballot_vector(test_instance.before_B.election, numcands),
+			get_ballot_vector(test_instance.after_A.election, numcands),
+			get_ballot_vector(test_instance.after_B.election, numcands)
+		};
+
+		// Run test against everything.
+		for (size_t j = 0; j < num_functions; ++j) {
+
+			// First determine if we're going to print a progress indicator.
+			// Two steps to this: first a simple counter to not make checking
+			// time happen too often (and thus steal too much CPU pwoer), and
+			// then a check to see if at least a second has elapsed.
+			if (++time_count == time_to_check) {
+				clock_gettime(CLOCK_MONOTONIC, &next_time);
+
+				double elapsed = (next_time.tv_sec - last_time.tv_sec);
+				elapsed += (next_time.tv_nsec - last_time.tv_nsec) / 1e9;
+
+				if (elapsed > 1) {
+					size_t current = i * num_functions + j,
+						   maximum = numiters * num_functions;
+
+					std::cerr << (double)current/maximum << "    \r" << flush;
+					last_time = next_time;
+				}
+
+				time_count = 0;
+			}
+
+			assert(evaluator.set_algorithm(functions_to_test[j]));
+
+			results.A_before_results[j].push_back(
+				evaluator.evaluate(ballot_vectors[0]));
+			results.B_before_results[j].push_back(
+				evaluator.evaluate(ballot_vectors[1]));
+			results.A_after_results[j].push_back(
+				evaluator.evaluate(ballot_vectors[2]));
+			results.B_after_results[j].push_back(
+				evaluator.evaluate(ballot_vectors[3]));
 		}
 	}
 
-	return out;
+	return results;
 }
-
 
 // Testing testing
 
@@ -217,366 +438,10 @@ std::vector<permuted_election_vector> get_all_permuted_elections(
 // condition, the scenario is the same. TODO: Think about how to
 // incorporate that snag. Later.
 
-std::vector<std::vector<double> > test(
-	const copeland_scenario & desired_scenario, int numcands,
-	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings, const std::vector<algo_t> & functions_to_test,
-	rng & randomizer, bool verbose) {
-	// Ad hoc testing scheme. Improve later.
+std::vector<result_t> subtract(const std::vector<result_t> & a,
+	const std::vector<result_t> & b) {
 
-	mono_add_top mattest(false, false);
-	mono_raise mrtest(false, false);
-
-	monotonicity * mono_test = &mattest;
-	if (randomizer.drand() < 0.5) {
-		mono_test = &mrtest;
-		if (verbose) {std::cout << "Using mono-raise" << std::endl; }
-	} else {
-		if (verbose) {std::cout << "Using mono-add-top" << std::endl;}
-	}
-
-	// - Get a monotonicity pair with the test we decided to use.
-
-	monotonicity_pair mono_pair = get_monotonicity_pair(desired_scenario,
-		numcands, randomizer, mono_test, true);
-
-	// - Get the election (permutation) vectors A, B, C, D, A', B', C', D'.
-
-	std::vector<permuted_election_vector> permuted_base_election =
-		get_all_permuted_elections(mono_pair.base_election,
-			candidate_remappings, numcands);
-
-	std::vector<permuted_election_vector> permuted_improved_election =
-		get_all_permuted_elections(mono_pair.improved_election,
-			candidate_remappings, numcands);
-
-	if (verbose) {
-		std::cout << "Base election (scenario " <<
-			mono_pair.base_election.scenario.to_string() << "): "
-			<< std::endl;
-
-		ballot_tools().print_ranked_ballots(mono_pair.base_election.election);
-
-		std::cout << "Improved election (scenario " <<
-			mono_pair.improved_election.scenario.to_string() << "): "
-			<< std::endl;
-
-		ballot_tools().print_ranked_ballots(mono_pair.improved_election.
-			election);
-	}
-
-	std::vector<std::vector<double> > base_election_different_cands,
-		modified_election_different_cands;
-
-	for (int i = 0; i < numcands; ++i) {
-		// Teh hax
-		// Needs a more thorough refactoring later.
-		std::vector<double> base;
-		for (const permuted_election_vector & pie: permuted_base_election) {
-			if (pie.permuted_to_candidate == i) {
-				base = pie.election;
-			}
-		}
-		base_election_different_cands.push_back(base);
-
-		std::vector<double> imp;
-		for (const permuted_election_vector & pie:
-			permuted_improved_election) {
-
-			if (pie.permuted_to_candidate == i) {
-				imp = pie.election;
-			}
-		}
-		modified_election_different_cands.push_back(imp);
-	}
-
-	// 4. For each generic function:
-	//		4.1. Record its score on A, B, C, D, A', B', C', D'.
-
-	std::vector<std::vector<double> > results_all_functions;
-	std::vector<double> results_this_function;
-
-	gen_custom_function tester(numcands);
-
-	for (algo_t algorithm : functions_to_test) {
-		results_this_function.clear();
-		assert(tester.set_algorithm(algorithm));
-		if (verbose) {
-			std::cout << "DEBUG: " << tester.to_string() << std::endl;
-		}
-
-		for (int i = 0; i < numcands; ++i) {
-			results_this_function.push_back(tester.evaluate(
-				base_election_different_cands[i]));
-			if (!verbose) continue;
-
-			std::cout << "Candidate " << i << " base election: " << tester.evaluate(
-				base_election_different_cands[i]) << std::endl;
-			std::cout << "Raw data: ";
-			std::copy(base_election_different_cands[i].begin(),
-				base_election_different_cands[i].end(),
-				ostream_iterator<double>(cout, " "));
-			std::cout << std::endl;
-		}
-
-		for (int i = 0; i < numcands; ++i) {
-			results_this_function.push_back(tester.evaluate(
-				modified_election_different_cands[i]));
-			if (!verbose) continue;
-
-			std::cout << "Candidate " << i << " improved election: " << tester.evaluate(
-				modified_election_different_cands[i]) << std::endl;
-		}
-
-		results_all_functions.push_back(results_this_function);
-		if (verbose) {
-			std::cout << "Before: " << results_this_function[0] - results_this_function[1] << std::endl;
-			std::cout << "After: " << results_this_function[4] - results_this_function[5] << std::endl;
-			if (results_this_function[0] - results_this_function[1] > results_this_function[4] - results_this_function[5]) {
-				std::cout << "Ehh" << std::endl;
-			}
-		}
-	}
-
-	return results_all_functions;
-
-	// 5. Go to 1 until we have enough data points.
-
-	// 7. Do the filtering (more stuff to come.)
-}
-
-void test_against_eligibility(/*eligibility_tables & eligibilities,*/
-	const copeland_scenario & desired_scenario, int numcands,
-	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings, const std::vector<algo_t> & functions_to_test,
-	rng & randomizer, bool first_round,
-	std::vector<memoization_entry> & memoization_base,
-	std::vector<memoization_entry> & memoization_improved,
-	int & term, ofstream & eligible_file) {
-
-	// Ad hoc testing scheme. Improve later.
-
-	mono_add_top mattest(false, false);
-	mono_raise mrtest(false, false);
-
-	monotonicity * mono_test = &mattest;
-	if (randomizer.drand() < 0.5) {
-		mono_test = &mrtest;
-	}
-
-	// - Get a monotonicity pair with the test we decided to use.
-
-	monotonicity_pair mono_pair = get_monotonicity_pair(desired_scenario,
-		numcands, randomizer, mono_test, true);
-
-	// - Get the election (permutation) vectors A, B, C, D, A', B', C', D'.
-
-	std::vector<permuted_election_vector> permuted_base_election =
-		get_all_permuted_elections(mono_pair.base_election,
-			candidate_remappings, numcands);
-
-	std::vector<permuted_election_vector> permuted_improved_election =
-		get_all_permuted_elections(mono_pair.improved_election,
-			candidate_remappings, numcands);
-
-	std::vector<std::vector<double> > base_election_different_cands,
-		modified_election_different_cands;
-
-	// If we're at the first round, for every two-tuple of
-	// functions_to_test, test that tuple against the base and modified
-	// election, using memoization, and append every pair that passes the
-	// test. (We might want to batch this to use more than one test at a
-	// time if space proves prohibitive; consider that later).
-
-
-	// First get results for all functions for A. (Later: should check this
-	// against every function that's in the union of eligibles_kth_column
-	// for all columns. Later later, should just memoize.)
-
-	// Let's do it the easy way for now, with all functions for all
-	// elections, and then we just mark_eligible those who are still
-	// eligible.
-
-	gen_custom_function tester(numcands);
-
-	// A
-
-
-// TODO: simplify to only consider one candidate ?
-// Or we'll have to push it into different files.
-	for (int cand = 1; cand < /*numcands*/2; ++cand) {
-		// Now check the monotonicity criterion for A wrt candidate #cand.
-		// If before has score(A) >= score(#cand) and after has score(A)
-		// < score(#cand), that's a failure.
-
-		double a_base_score, a_improved_score;
-		double other_base_score, other_improved_score;
-
-		++term;
-
-		std::cout << "CAND " << cand << std::endl;
-
-		for (size_t idx_a = 0; idx_a < functions_to_test.size(); ++idx_a) {
-			// Is this actually needed ??? No! We're only calculating A
-			// once -- here. It is needed for idx_other, though, because
-			// we would otherwise calculate the results for idx_other each
-			// time we increment the method to test on election A, which
-			// would be bad.
-			/*if (memoization_base[idx_a].term < term) {
-				assert(tester.set_algorithm(functions_to_test[idx_a]));
-				memoization_base[idx_a].term = term;
-				memoization_base[idx_a].score = tester.evaluate(
-					permuted_base_election[0].election);
-			}
-
-			a_base_score = memoization_base[idx_a].score;*/
-
-			assert(tester.set_algorithm(functions_to_test[idx_a]));
-
-			a_base_score = tester.evaluate(
-					permuted_base_election[0].election);
-
-			a_improved_score = tester.evaluate(
-					permuted_improved_election[0].election);
-
-			// NaNs are automatic disqualifications. (e.g. square roots of
-			// negative numbers)
-			// TODO?? Have the same policy in sifter?
-			if (isnan(a_base_score) || isnan(a_improved_score))
-				continue;
-
-			//assert (a_base_score == checker);
-
-			/*if (memoization_improved[idx_a].term < term) {
-				// Possible performance enhancement in gen_custom_function:
-				// if it's already set to that algo_t, skip the radix
-				// conversion.
-				assert(tester.set_algorithm(functions_to_test[idx_a]));
-				memoization_improved[idx_a].term = term;
-				memoization_improved[idx_a].score = tester.evaluate(
-					permuted_improved_election[0].election);
-			}*/
-
-			a_improved_score = memoization_improved[idx_a].score;
-
-			for (size_t idx_other = 0; idx_other < functions_to_test.size();
-				++idx_other) {
-
-				if (memoization_base[idx_other].term < term) {
-					assert(tester.set_algorithm(functions_to_test[idx_other]));
-					memoization_base[idx_other].term = term;
-					memoization_base[idx_other].score = tester.evaluate(
-						permuted_base_election[cand].election);
-				}
-
-				other_base_score = memoization_base[idx_other].score;
-
-				// bug in gen_custom_funct??? No, just that NaN is never equal
-				// to itself.
-
-				if (memoization_improved[idx_other].term < term) {
-					assert(tester.set_algorithm(functions_to_test[idx_other]));
-					memoization_improved[idx_other].term = term;
-					memoization_improved[idx_other].score = tester.evaluate(
-						permuted_improved_election[cand].election);
-				}
-
-				other_improved_score = memoization_improved[idx_other].score;
-
-				bool ineligible = (a_base_score >= other_base_score &&
-						a_improved_score < other_improved_score) ||
-					(a_base_score > other_base_score && a_improved_score ==
-						other_improved_score);
-
-				ineligible |= (isnan(other_base_score) ||
-					isnan(other_improved_score));
-
-				if (ineligible) {
-					std::cout << "Ineligible: ";
-				} else {
-					std::cout << "Not ineligible: ";
-					eligible_file.write((char *)&idx_a, sizeof(int));
-					eligible_file.write((char *)&idx_other, sizeof(int));
-					// The byte ccorresponding to strict inequality will go
-					// here.
-					char x = 0;
-					eligible_file.write((char *)&x, 1);
-				}
-				std::cout << idx_a << ", " << idx_other << " or " <<
-					functions_to_test[idx_a] << ", " << functions_to_test[idx_other]
-					<< std::endl;
-			}
-		}
-	}
-}
-
-std::vector<std::vector<std::vector<std::vector<double> > > > test_many_times(
-	int maxiter, const copeland_scenario & desired_scenario, int numcands,
-	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings, const std::vector<algo_t> & functions_to_test,
-	bool verbose) {
-
-	int seed = 99;
-	rng randomizer(seed);
-
-	srand(seed);
-	srandom(seed);
-	srand48(seed);
-
-
-	// The return vector's format is out[i][j][k][l]:
-	//		the ith voting method's
-	//		result on the lth test
-	//		either before (j=0) or after (j=1) the improvement of
-	//			A's condition
-	//		from the perspective of the kth candidate
-
-	// score(method, A) - score(method, B)
-	//		<= score(method, A') - score(method, B')
-
-	std::vector<std::vector<std::vector<std::vector<double> > > > out(
-		functions_to_test.size(),
-		std::vector<std::vector<std::vector<double> > >(2,
-			std::vector<std::vector<double> >(numcands)));
-
-	for (int iter = 0; iter < maxiter; ++iter) {
-
-		std::vector<std::vector<double> > one_test_round =
-			test(desired_scenario, numcands, candidate_remappings,
-				functions_to_test, randomizer, verbose);
-
-		if (one_test_round.size() == 0) {
-			--iter;
-			continue;
-		} else {
-			cout << iter/(double)maxiter << "    \r" << flush;
-		}
-
-		for (size_t funct_idx = 0; funct_idx < functions_to_test.size();
-			++funct_idx) {
-
-			// Before-elections from the various candidates' perspectives.
-			for (int candidate_idx = 0; candidate_idx < numcands;
-				++candidate_idx) {
-				out[funct_idx][0][candidate_idx].push_back(
-					one_test_round[funct_idx][candidate_idx]);
-			}
-
-			for (int candidate_idx = 0; candidate_idx < numcands;
-				++candidate_idx) {
-				out[funct_idx][1][candidate_idx].push_back(
-					one_test_round[funct_idx][candidate_idx+numcands]);
-			}
-		}
-	}
-
-	return out;
-}
-
-std::vector<double> subtract(const std::vector<double> & a,
-	const std::vector<double> & b) {
-
-	std::vector<double> result;
+	std::vector<result_t> result;
 	std::transform(a.begin(), a.end(), b.begin(),
 		std::back_inserter(result), std::minus<double>());
 
@@ -599,7 +464,6 @@ bool dominated_less(const std::vector<double> & a,
 	}
 
 	return one_less;
-	//return true;
 }
 
 // Returns true if no element in a is above zero while the corresponding
@@ -613,8 +477,8 @@ bool dominated_less(const std::vector<double> & a,
 
 // Remember to do enough tests in one go that one_less will be true for
 // methods that pass the monotonicity criterion in question!
-bool dominated_margin_less(const std::vector<double> & a,
-	const std::vector<double> & b) {
+bool dominated_margin_less(const std::vector<result_t> & a,
+	const std::vector<result_t> & b) {
 
 	bool one_less = false;
 	bool one_below = false;
@@ -626,12 +490,34 @@ bool dominated_margin_less(const std::vector<double> & a,
 		one_below |= a[i] < 0;
 	}
 
+	// TODO?? Better tie criterion? Count number of zeroes?
 	if (!one_below)
 		return true; // a never won compared to b to begin with
 				// so we can't see if a benefitted from the
 				// change. Let it pass.
 
 	return one_less;
+}
+
+void print_passing_pairs(const test_results & results,
+	const std::vector<algo_t> & functions_tested) {
+
+	std::cout << "Passing pairs for (" << results.A_scenario.to_string()
+		<< ", " << results.B_scenario.to_string() << ")\n";
+
+	for (size_t i = 0; i < functions_tested.size(); ++i) {
+		for (size_t j = 0; j < functions_tested.size(); ++j) {
+			std::vector<result_t> margin_before = subtract(
+				results.A_before_results[i], results.B_before_results[j]);
+			std::vector<result_t> margin_after = subtract(
+				results.A_after_results[i], results.B_after_results[j]);
+
+			if (dominated_margin_less(margin_before, margin_after)) {
+				std::cout << "\tpass: " << functions_tested[i] << ", " <<
+					functions_tested[j] << "\n";
+			}
+		}
+	}
 }
 
 int main(int argc, char ** argv) {
@@ -677,13 +563,19 @@ int main(int argc, char ** argv) {
 	std::set<copeland_scenario> nonderived_full = get_nonderived_scenarios(4,
 		foo);
 
-	copeland_scenario example_desired;
+	std::vector<copeland_scenario> nonderived_full_v;
+	std::copy(nonderived_full.begin(), nonderived_full.end(),
+		std::back_inserter(nonderived_full_v));
+
+	copeland_scenario example_desired_A, example_desired_B;
 
 	// I don't know why references don't work here...
 	for (copeland_scenario x: nonderived_full) {
 		std::cout << "Smith set 4 nonderived: " << x.to_string() << std::endl;
-		example_desired = x;
 	}
+
+	example_desired_A = nonderived_full_v[0];
+	example_desired_B = nonderived_full_v[1];
 
 	// Testing get_ballot_vector.
 	ballot_group abcd;
@@ -742,71 +634,13 @@ int main(int argc, char ** argv) {
 	srandom(seed);
 	srand48(seed);
 
+	test_results results = test_many(420000, example_desired_A,
+		example_desired_B, numcands, bar, prospective_functions,
+		randomizer);
 
-	/*std::vector<std::vector<double> > test_results_one =
-		test(example_desired, 4, bar, {104180872604, 104180877788},
-			randomizer);
+	std::cout << std::endl;
 
-	for (size_t i = 0; i < test_results_one.size(); ++i) {
-		std::cout << "Results for method number " << i << std::endl;
-		std::copy(test_results_one[i].begin(), test_results_one[i].end(),
-			ostream_iterator<double>(cout, " "));
-		std::cout << std::endl;
-	}*/
-
-	/*std::vector<memoization_entry> memoization_base(prospective_functions.size());
-	std::vector<memoization_entry> memoization_improved = memoization_base;
-	int term = 0;
-
-	for (int i = 0; i < 1000; ++i) {
-
-	ofstream eligible_file("eligibles.dat");
-
-		test_against_eligibility(example_desired, numcands, bar,
-			prospective_functions, randomizer, true, memoization_base,
-			memoization_improved, term, eligible_file);
-
-		eligible_file.close();
-	}*/
-
-	std::vector<std::vector<std::vector<std::vector<double> > > >
-		many_test_results = test_many_times(100000, example_desired, 4,
-			bar, prospective_functions, false);
-
-	for (size_t method_one = 0; method_one < prospective_functions.size(); ++method_one) {
-		// Is some kind of sorting possible here? Yeah, it is, but I can't be
-		// bothered to write the algorithm at the moment. Something like: have a
-		// list of references to the method sorted by first element, then another
-		// list sorted by second element, and so on...
-		for (size_t method_two = 0; method_two < prospective_functions.size(); ++method_two) {
-
-			// score(method, A) - score(method, B)
-			//		<= score(method, A') - score(method, B')
-
-			std::vector<double> before_margin = subtract(many_test_results[method_one][0][0], many_test_results[method_two][0][1]);
-			std::vector<double> after_margin = subtract(many_test_results[method_one][1][0], many_test_results[method_two][1][1]);
-
-			if (dominated_margin_less(before_margin,after_margin)) {
-				std::cout << "Might be so: " << prospective_functions[method_one] << ", " << prospective_functions[method_two] << std::endl;
-				std::cout << "Margin before: ";
-				std::copy(before_margin.begin(), before_margin.begin()+20,
-					ostream_iterator<double>(cout, " "));
-				std::cout << std::endl;
-				std::cout << "Margin after: ";
-				std::copy(after_margin.begin(), after_margin.begin()+20,
-					ostream_iterator<double>(cout, " "));
-				std::cout << std::endl;
-				/*for (size_t method_three = 0; method_three < prospective_functions.size(); ++method_three) {
-					before_margin = subtract(many_test_results[method_one][0][0], many_test_results[method_three][0][2]);
-					after_margin = subtract(many_test_results[method_one][1][0], many_test_results[method_three][1][2]);
-
-					if (dominated_margin_less(before_margin,after_margin)) {
-						std::cout << "Three pass: " << prospective_functions[method_one] << " " << prospective_functions[method_two] << " " << prospective_functions[method_three] << std::endl;
-					}
-				}*/
-			}
-		}
-	}
+	print_passing_pairs(results, prospective_functions);
 
 	return 0;
 }
