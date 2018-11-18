@@ -490,7 +490,8 @@ std::string gen_custom_function::to_string() const {
 
 // This function returns false (and doesn't set anything) if evaluating the
 // algorithm on a standard input produces NaN, which is the error signal for
-// the evaluator.
+// the evaluator. Note that it returns true if such an algorithm has been
+// force set in the past and the call tries to set the same algorithm.
 
 // XXX: This is a point of optimization. The initial evaluation takes
 // a considerable amount of time when sifting for interesting algorithms.
@@ -498,6 +499,11 @@ std::string gen_custom_function::to_string() const {
 // functions it encounters and return false if the stack will be empty
 // too soon or have more than one value on it once the evaluation is done.
 bool gen_custom_function::set_algorithm(algo_t algorithm_encoding) {
+
+	// If it's the same one that we already have, do nothing.
+	if (current_algorithm_num == algorithm_encoding) {
+		return true;
+	}
 
 	std::vector<atom_bundle> proposed_algorithm = decode_algorithm(
 		algorithm_encoding, number_candidates);
@@ -514,12 +520,14 @@ bool gen_custom_function::set_algorithm(algo_t algorithm_encoding) {
 	}
 
 	current_algorithm = proposed_algorithm;
+	current_algorithm_num = algorithm_encoding;
 	return(true);
 }
 
 void gen_custom_function::force_set_algorithm(algo_t algorithm_encoding) {
 	current_algorithm = decode_algorithm(algorithm_encoding,
 		number_candidates);
+	current_algorithm_num = algorithm_encoding;
 }
 
 bool gen_custom_function::test_positional_linear_combination() {

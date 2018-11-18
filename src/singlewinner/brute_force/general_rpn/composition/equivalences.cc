@@ -30,12 +30,13 @@
 #include <iterator>
 
 #include "scenario.h"
+#include "equivalences.h"
 
-// We want to construct an election method by composing different 
+// We want to construct an election method by composing different
 // gen_custom_functions, one for each Copeland scenario. We have to take
-// two things into account: 
-// First, a gen_custom_function only provides the score of the first 
-// candidate (A) as a function of the ballot data. So to find the score of 
+// two things into account:
+// First, a gen_custom_function only provides the score of the first
+// candidate (A) as a function of the ballot data. So to find the score of
 // other candidates, we need to relabel the candidates so that the candidate
 // we're interested in becomes the first candidate.
 // Second, some Copeland scenario,candidate pairs are equivalent to each
@@ -81,7 +82,7 @@
 
 // Gives every permutation where candidate cand is relabeled to the first
 // candidate.
-std::vector<std::vector<int> > all_permutations_centered_on(int cand, 
+std::vector<std::vector<int> > all_permutations_centered_on(int cand,
 	size_t numcands) {
 
 	// Create the first such permutation
@@ -100,15 +101,6 @@ std::vector<std::vector<int> > all_permutations_centered_on(int cand,
 
 	return perms;
 }
-
-// After permuting according to cand_permutation, we end up in
-// to_scenario.
-
-struct isomorphism {
-	std::vector<std::vector<int> > cand_permutations;
-	copeland_scenario to_scenario;
-	bool derived;
-};
 
 std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 	size_t numcands) {
@@ -136,7 +128,7 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 		cur_reduction.cand_permutations.clear();
 
 		// For every way of permuting the candidates
-		for (const std::vector<int> & permutation: 
+		for (const std::vector<int> & permutation:
 			all_permutations_centered_on(0, numcands)) {
 
 			// Create permuted scenario
@@ -154,7 +146,7 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 
 			// Ensure my transitivity hunch is correct. (Also works as a
 			// bug check.)
-			assert (!has_populated_isomorphism || 
+			assert (!has_populated_isomorphism ||
 				reductions.find(permuted)->second.to_scenario ==
 				cur_reduction.to_scenario);
 
@@ -189,7 +181,7 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 	} while (--cur != base_scenario);
 
 	return reductions;
-	
+
 }
 
 // Determine how to use nonderived scenarios to get the score for any
@@ -213,7 +205,7 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(
 
 	isomorphism cur_reduction;
 
-	// We can increment here because the order we go through scenarios 
+	// We can increment here because the order we go through scenarios
 	// doesn't matter.
 
 	do {
@@ -221,7 +213,7 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(
 
 		bool has_populated_isomorphism = false;
 
-		for (const std::vector<int> & permutation: 
+		for (const std::vector<int> & permutation:
 			all_permutations_centered_on(current_candidate, numcands)) {
 
 			// Create permuted scenario
@@ -230,12 +222,12 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(
 
 			// Check if we've seen a nonderived that matches it. If not,
 			// skip.
-			if (derived_reductions.find(permuted) == derived_reductions.end() 
+			if (derived_reductions.find(permuted) == derived_reductions.end()
 				|| derived_reductions.find(permuted)->second.derived) {
 				continue;
 			}
 
-			assert (!has_populated_isomorphism || 
+			assert (!has_populated_isomorphism ||
 				derived_reductions.find(permuted)->second.to_scenario ==
 				cur_reduction.to_scenario);
 
@@ -245,7 +237,7 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(
 			cur_reduction.cand_permutations.push_back(permutation);
 			cur_reduction.derived = true; // Not relevant
 
-			std::cout << cur.to_string() << " with cand " << current_candidate 
+			std::cout << cur.to_string() << " with cand " << current_candidate
 				<< " maps to " << "\t";
 			std::copy(permutation.begin(), permutation.end(),
 				std::ostream_iterator<int>(std::cout, " "));
@@ -260,7 +252,7 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(
 	return cand_remapping;
 }
 
-std::vector<std::map<copeland_scenario, isomorphism> > 
+std::vector<std::map<copeland_scenario, isomorphism> >
 	get_candidate_remappings(size_t numcands,
 	const std::map<copeland_scenario, isomorphism> & derived_reductions) {
 
@@ -277,87 +269,12 @@ std::vector<std::map<copeland_scenario, isomorphism> >
 	return remappings;
 }
 
-///////////////////////////////////////////////////////////////
-
-// Smith set stuff
-// We want this for incrementally building our method if we want
-// something that passes ISDA. We first find 3-candidate scenarios with
-// full Smith sets, set up appropriate functions for them (in practice
-// there's only one, ABCA); then we find 4-candidate scenarios with full
-// Smith sets and do the same, and so on. If we have ISDA, 4-candidate
-// scenarios with 3-candidate Smith sets don't matter, as they just reduce
-// to 3-candidate elections.
-
-std::vector<bool> smith_set(const std::vector<std::vector<bool> > & 
-	copeland_matrix) {
-
-	std::vector<std::vector<bool> > haspath = copeland_matrix;
-
-	int i, j, k, N = haspath.size();
-
-	for (k = 0; k < N; ++k) {
-		for (i = 0; i < N; ++i) {
-			if (k != i) {
-				for (j = 0; j < N; ++j) {
-					if (k != j && i != j) {
-						if (haspath[i][k] && haspath[k][j])
-							haspath[i][j] = true;
-					}
-				}
-			}
-		}
-	}
-
-	std::vector<bool> in_smith(N, true);
-
-	for (i = 0; i < N; ++i) {
-		for (j = 0; j < N; ++j) {
-			if (haspath[j][i] && !haspath[i][j]) {
-				in_smith[i] = false;
-			}
-		}
-	}
-	return(in_smith);
-}
-
-int smith_set_size(const copeland_scenario & scenario) {
-	std::vector<bool> smith = smith_set(scenario.get_copeland_matrix());
-
-	int count = 0;
-
-	for (bool x: smith) {
-		if (x) {
-			++count;
-		}
-	}
-
-	return count;
-}
-
-std::set<copeland_scenario> get_nonderived_scenarios(
-	int desired_smith_set_size,
-	const std::map<copeland_scenario, isomorphism> & derived_reductions) {
-
-	std::set<copeland_scenario> out;
-
-	for (const auto & kv: derived_reductions) {
-		if (kv.second.derived) continue;
-
-		if (smith_set_size(kv.first) == desired_smith_set_size) {
-			out.insert(kv.first);
-		}
-	}
-
-	return out;
-}
-
-
 // What's next?
 // ballot_group --> factorial format vector
 // list<ballot_group> --> factorial format vector
 // list<ballot_group> --> list<ballot_group> permuting candidate names
 
-// We may need the inverse of kth_permutation for this. 
+// We may need the inverse of kth_permutation for this.
 
 // Those give us a way of generating a random election and getting the
 // vote vectors for all candidates (this will necessarily be a part of
@@ -366,7 +283,7 @@ std::set<copeland_scenario> get_nonderived_scenarios(
 // After this, we can then construct monotonicity pairs and winnow in
 // parallel as shown in autocloneproofing.txt
 
-void inc_ballot_vector(const ballot_group & ballot_to_add, 
+void inc_ballot_vector(const ballot_group & ballot_to_add,
 	std::vector<double> & permutation_count_vector, size_t numcands) {
 
 	// Get the ordering.
@@ -396,7 +313,7 @@ void inc_ballot_vector(const ballot_group & ballot_to_add,
 	}
 
 	// Increment the relevant index.
-	permutation_count_vector[factoradic().permutation_number(linear_ordering, 
+	permutation_count_vector[factoradic().permutation_number(linear_ordering,
 		numcands, 0)] += ballot_to_add.weight;
 }
 
@@ -412,9 +329,10 @@ std::vector<double> get_ballot_vector(const list<ballot_group> & election,
 	return ballot_vector;
 }
 
-list<ballot_group> permute_election_candidates(
+std::list<ballot_group> relabel_election_candidates(
 	const list<ballot_group> & election_in,
-	const std::vector<int> & candidate_permutation) {
+	const std::vector<int> & candidate_relabeling,
+	bool disallow_elimination) {
 
 	// order = {3, 2, 0, 1} means
 	// what will be the first candidate (A) in the output is D (#3) in the input
@@ -423,11 +341,11 @@ list<ballot_group> permute_election_candidates(
 	// is the new candidate number of the candidate that used to be x.
 	// Fortunately, that is pretty easy.
 
-	size_t numcands = candidate_permutation.size();
-	std::vector<int> inv_permutation(numcands, -1);
+	size_t numcands = candidate_relabeling.size();
+	std::vector<int> inv_relabeling(numcands, -1);
 
 	for (size_t i = 0; i < numcands; ++i) {
-		inv_permutation[candidate_permutation[i]] = i;
+		inv_relabeling[candidate_relabeling[i]] = i;
 	}
 
 	list<ballot_group> election_out;
@@ -438,8 +356,18 @@ list<ballot_group> permute_election_candidates(
 		ballot_out.contents.clear();
 
 		for (candscore cur_cand_vote: ballot_in.contents) {
+			// Is it an eliminated candidate? If so, don't add to the
+			// target.
+			if (inv_relabeling[cur_cand_vote.get_candidate_num()] == -1) {
+				if (disallow_elimination) {
+					throw std::runtime_error(
+						"Trying to eliminate when that's disallowed");
+				}
+				continue;
+			}
+
 			ballot_out.contents.insert(
-				candscore(inv_permutation[cur_cand_vote.get_candidate_num()],
+				candscore(inv_relabeling[cur_cand_vote.get_candidate_num()],
 					cur_cand_vote.get_score()));
 		}
 
@@ -449,3 +377,13 @@ list<ballot_group> permute_election_candidates(
 	return election_out;
 
 }
+
+// A pure permutation is bijective, so no elimination allowed.
+std::list<ballot_group> permute_election_candidates(
+	const list<ballot_group> & election_in,
+	const std::vector<int> & candidate_permutation) {
+
+	return relabel_election_candidates(election_in, candidate_permutation,
+		true);
+}
+

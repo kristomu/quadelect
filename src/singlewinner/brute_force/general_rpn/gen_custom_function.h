@@ -28,7 +28,7 @@
 
 // We might need DAC/DSC values later, too.
 
-// We could possibly refactor this quite a bit by moving most of the 
+// We could possibly refactor this quite a bit by moving most of the
 // evaluation logic inside each atom. But again, eh. I'll do it if it's
 // necessary.
 
@@ -71,7 +71,7 @@ enum gen_custom_funct_atom {
 	BINARY_FUNC_MAX = 18,
 
 	ALL_FUNC_PLUS = 19,
-	
+
 	TOTAL_NUM_CONST_ATOMS = 20
 };
 
@@ -104,6 +104,7 @@ class gen_custom_function {
 		matrix_indices pairwise_matrix_indices;
 
 		std::vector<atom_bundle> current_algorithm;
+		algo_t current_algorithm_num; // For caching purposes
 		mutable std::vector<double> algorithm_stack;
 
 		size_t number_candidates;
@@ -113,10 +114,10 @@ class gen_custom_function {
 		size_t get_num_referential_atoms(size_t numcands) const;
 
 		atom_bundle get_atom_bundle(algo_t atom_encoding, size_t numcands) const;
-		std::vector<atom_bundle> decode_algorithm(algo_t 
+		std::vector<atom_bundle> decode_algorithm(algo_t
 			algorithm_encoding, size_t numcands) const;
 
-		bool does_a_beat_b(int a, int b, const std::vector<int> & 
+		bool does_a_beat_b(int a, int b, const std::vector<int> &
 			ballot_permutation) const;
 
 		matrix_indices get_positional_matrix_indices(size_t numcands) const;
@@ -125,12 +126,12 @@ class gen_custom_function {
 		double linear_combination(const std::vector<int> & indices,
 			const std::vector<double> & weights) const;
 
-		double evaluate_ref(const atom_bundle & cur_alias, 
-			const std::vector<double> & input_values, 
+		double evaluate_ref(const atom_bundle & cur_alias,
+			const std::vector<double> & input_values,
 			size_t numcands) const;
 
-		double evaluate(std::vector<double> & stack, 
-			const atom_bundle & cur_atom, 
+		double evaluate(std::vector<double> & stack,
+			const atom_bundle & cur_atom,
 			const std::vector<double> & input_values, size_t numcands) const;
 
 		double evaluate(const std::vector<atom_bundle> & algorithm,
@@ -141,7 +142,7 @@ class gen_custom_function {
 
 	public:
 		double evaluate(const std::vector<double> & input_values) const {
-			return evaluate(current_algorithm, input_values, 
+			return evaluate(current_algorithm, input_values,
 				number_candidates);
 		}
 
@@ -172,7 +173,7 @@ class gen_custom_function {
 		bool test_pairwise_inference();
 		bool test_pairwise_doubles();
 		bool test() {
-			return test_positional_linear_combination() && 
+			return test_positional_linear_combination() &&
 				test_pairwise_linear_combination() &&
 				test_pairwise_inference()/* &&
 				test_pairwise_doubles()*/;

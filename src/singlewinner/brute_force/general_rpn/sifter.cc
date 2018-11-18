@@ -88,8 +88,8 @@ std::vector<bool> get_ordinal_test_result(const std::vector<double> &
 	// to be equal.
 	double threshold = 1e-9;
 
-	for (int x = 0; x < cardinal_results.size(); ++x) {
-		for (int y = 0; y < cardinal_results.size(); ++y) {
+	for (size_t x = 0; x < cardinal_results.size(); ++x) {
+		for (size_t y = 0; y < cardinal_results.size(); ++y) {
 			if (x == y) continue;
 
 			ordinal_output.push_back((cardinal_results[x]-cardinal_results[y])
@@ -132,8 +132,8 @@ hash_result get_ordinal_hash_test_result(const std::vector<double> &
 
 	int ctr = 0;
 
-	for (int x = 0; x < cardinal_results.size(); ++x) {
-		for (int y = 0; y < cardinal_results.size(); ++y) {
+	for (size_t x = 0; x < cardinal_results.size(); ++x) {
+		for (size_t y = 0; y < cardinal_results.size(); ++y) {
 			if ((cardinal_results[x]-cardinal_results[y]) > threshold) {
 				ordinal_output[ctr++] = '0';
 			} else {

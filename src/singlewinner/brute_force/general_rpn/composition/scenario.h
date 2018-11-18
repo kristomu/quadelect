@@ -13,6 +13,10 @@
 #include <iostream>
 #include <iterator>
 
+// TODO? "invalid scenario" marker for when we try to increment past max
+// or decrement past zero? Would make it easy to do for loops instead of
+// the do/while hack we currently have.
+
 // This class represents a concrete Copeland scenario. The election method
 // types we want to construct have different behavior for each Copeland
 // scenario.
@@ -61,6 +65,8 @@
 
 // (I think the increment/decrement thing will have to be handled in
 // compositor.)
+
+// TODO: to_string --> std::string cast
 
 class copeland_scenario {
 	private:
@@ -125,7 +131,7 @@ class copeland_scenario {
 				number_of_candidates);
 		}
 
-		int get_numcands() const { return number_of_candidates; }
+		size_t get_numcands() const { return number_of_candidates; }
 
 		std::string to_string() const;
 
