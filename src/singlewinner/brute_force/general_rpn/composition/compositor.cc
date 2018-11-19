@@ -40,13 +40,17 @@
 struct election_scenario_pair {
 	std::list<ballot_group> election;
 	copeland_scenario scenario;
+	int from_perspective_of;
 };
 
 // Throws exception if permuting to that scenario is impossible.
+// If consider_A is false, we only look at permutations that map some
+// other candidate to A (this is useful for monotonicity).
+
 // TODO: Investigate why we can't remap derived scenarios to nonderived
 // ones.
 election_scenario_pair permute_to_desired(election_scenario_pair cur,
-	const copeland_scenario & desired_scenario,
+	const copeland_scenario & desired_scenario, bool consider_A,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
 		candidate_remappings) {
 
@@ -57,13 +61,14 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 	size_t numcands = cur.scenario.get_numcands();
 
 	for (size_t i = 0; i < numcands; ++i) {
+		if (i == 0 && !consider_A) { continue; }
+
 		if (candidate_remappings[i].find(cur.scenario) ==
 			candidate_remappings[i].end()) {
 			throw std::runtime_error(
 					"permute_to_desired: could not find source scenario!");
 		}
 
-		// Auto because I can't be bothered typing the whole map deal
 		isomorphism dest_isomorphism = candidate_remappings[i].find(
 			cur.scenario)->second;
 
@@ -75,6 +80,7 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 			*dest_isomorphism.cand_permutations.begin());
 
 		cur.scenario = dest_isomorphism.to_scenario;
+		cur.from_perspective_of = i;
 
 		return cur;
 	}
@@ -82,6 +88,74 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 	throw std::runtime_error(
 		"permute_to_desired: could not remap " + cur.scenario.to_string() +
 		" to " + desired_scenario.to_string());
+}
+
+// NOTE: The function below only works if cur.from_perspective_of is 0
+// because otherwise the election_scenario_pair is the result of some
+// permutation, and you should call this with whatever was the source of that
+// permutation instead. This function will raise an exception if
+// cur.from_perspective differs from zero.
+
+election_scenario_pair permute_to_desired(election_scenario_pair cur,
+	int desired_candidate,
+	const std::vector<std::map<copeland_scenario, isomorphism> > &
+		candidate_remappings) {
+
+	if (desired_candidate == 0)
+		return cur;
+
+	if (cur.from_perspective_of != 0) {
+		throw std::runtime_error(
+			"permute_to_desired: nested remapping not allowed");
+	}
+
+	if (candidate_remappings[desired_candidate].find(cur.scenario) ==
+		candidate_remappings[desired_candidate].end()) {
+
+		throw std::runtime_error(
+			"permute_to_desired: could not find source scenario!");
+	}
+
+	isomorphism dest_isomorphism = candidate_remappings[desired_candidate].
+		find(cur.scenario)->second;
+
+	cur.election = permute_election_candidates(cur.election,
+		*dest_isomorphism.cand_permutations.begin());
+
+	cur.scenario = dest_isomorphism.to_scenario;
+	cur.from_perspective_of = desired_candidate;
+
+	return cur;
+}
+
+// This is somewhat ugly and repeated code. Fix later.
+// To handle reversed situations properly (see below for what that is),
+// we need to know the proper scenarios for A, A', B, and B'.
+copeland_scenario get_B_prime_scenario(
+	const copeland_scenario & A_scenario,
+	const copeland_scenario & B_scenario,
+	const copeland_scenario & A_prime_scenario,
+	const std::vector<std::map<copeland_scenario, isomorphism> > &
+		candidate_remappings) {
+
+	// Make a phantom election_scenario_pair corresponding to A.
+	election_scenario_pair A;
+	A.scenario = A_scenario;
+	A.from_perspective_of = 0;
+
+	// This gives us the candidate that corresponds to the B scenario.
+	election_scenario_pair B = permute_to_desired(A, B_scenario,
+		false, candidate_remappings);
+
+	// Now permute A' to the same candidate...
+	election_scenario_pair A_prime = A;
+	A_prime.scenario = A_prime_scenario;
+
+	election_scenario_pair B_prime = permute_to_desired(A_prime,
+		B.from_perspective_of, candidate_remappings);
+
+	// and get the corresponding scenario.
+	return B_prime.scenario;
 }
 
 // This is a fully completed test instance. The pair (X, Y) assigned
@@ -156,7 +230,6 @@ std::set<copeland_scenario> get_permitted_scenarios(
 	return out;
 }
 
-
 // BEWARE: depends on some assumptions about smith set size 4 behavior!
 // (Namely that you can go from any Smith set size 4 scenario to any other
 // by permuting the candidates.)
@@ -177,14 +250,10 @@ std::set<copeland_scenario> get_permitted_scenarios(
 // slow. We could hack it by looking up the required set in the map only
 // once (before the do), though.
 
-// TODO: desired_Aprime_scenario. Also need to make sure B is the same
-// candidate in both cases.
-
 // Hotspot
 bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	const copeland_scenario * desired_B_scenario,
 	const copeland_scenario * desired_Aprime_scenario,
-	const copeland_scenario * desired_Bprime_scenario,
 	const std::set<copeland_scenario> & permitted_scenarios,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
 	candidate_remappings, int numcands, rng & randomizer,
@@ -196,15 +265,22 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 
 	int num_ballots;
 
+	// Get the B prime scenario.
+	copeland_scenario B_prime = get_B_prime_scenario(
+		*desired_A_scenario, *desired_B_scenario, *desired_Aprime_scenario,
+		candidate_remappings);
+
+	const copeland_scenario * desired_Bprime_scenario = &B_prime;
+
 	// If we're reversed, we want to first generate something with
-	// desired_B_scenario for the A election (and desired_A_scenario
+	// desired_Bprime_scenario for the A election (and desired_Aprime_scenario
 	// for the B election), and then swap them around using
 	// reverse_transform. So in that case what the user specified as
-	// desired_A_transform should internally be desired_B_transform and
+	// desired_A_transform should internally be desired_Bprime_transform and
 	// vice versa.
 	if (reverse) {
-		std::swap(desired_A_scenario, desired_B_scenario);
-		std::swap(desired_Aprime_scenario, desired_Bprime_scenario);
+		std::swap(desired_A_scenario, desired_Bprime_scenario);
+		std::swap(desired_B_scenario, desired_Aprime_scenario);
 	}
 
 	// Generate an acceptable ballot.
@@ -219,8 +295,12 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 		permitted_scenarios.end());
 
 	// Permute into the A_scenario we want.
-	before = permute_to_desired(before, *desired_A_scenario,
+	before = permute_to_desired(before, *desired_A_scenario, true,
 		candidate_remappings);
+	// Whatever the permutation is, what we end up with is A's perspective
+	// (by definition, because it has desired_A_scenario as scenario). So
+	// make that clear.
+	before.from_perspective_of = 0;
 
 	// Create data (specs) for the monotonicity test and make it prefer
 	// candidate 0 (A). We may fail to alter the ballot the way we want,
@@ -251,6 +331,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 		}
 
 		after.election = alteration.second;
+		after.from_perspective_of = 0;
 
 		// Check for ties and set the improved scenario (kinda ugly)
 		try {
@@ -277,9 +358,26 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	out.before_A = before;
 	out.after_A = after;
 	out.before_B = permute_to_desired(out.before_A, *desired_B_scenario,
-		candidate_remappings);
-	out.after_B = permute_to_desired(out.after_A, *desired_Bprime_scenario,
-		candidate_remappings);
+		false, candidate_remappings);
+
+	// We need to do it this way to preserve the candidate number. Using
+	// the other permute_to_desire may fail to do so, e.g. suppose after_A
+	// is a three-candidate three-cycle. Then every other candidate's
+	// perspective is also a three-cycle, but only one of those perspectives
+	// is what we want to have the same perspective as in after_A.
+	out.after_B = permute_to_desired(out.after_A,
+		out.before_B.from_perspective_of, candidate_remappings);
+
+	// Make sure we have the proper scenarios and perspectives.
+	assert(out.before_A.scenario == *desired_A_scenario);
+	assert(out.before_B.scenario == *desired_B_scenario);
+	assert(out.after_A.scenario == *desired_Aprime_scenario);
+	assert(out.after_B.scenario == *desired_Bprime_scenario);
+
+	assert(out.before_A.from_perspective_of ==
+		out.after_A.from_perspective_of);
+	assert(out.after_B.from_perspective_of ==
+		out.before_B.from_perspective_of);
 
 	if (reverse) {
 		out = reverse_transform(out);
@@ -353,7 +451,7 @@ test_results test_many(int numiters,
 
 		// Run get_instance until we get a result that fits what we want.
 		while (!get_test_instance(&desired_A_scenario, &desired_B_scenario,
-			&desired_A_scenario, &desired_B_scenario, permitted,
+			&desired_A_scenario, permitted,
 			candidate_remappings, numcands, randomizer, mono_test, reverse,
 			test_instance));
 
@@ -721,8 +819,9 @@ int main(int argc, char ** argv) {
 			&nonderived_full_v[2], &nonderived_full_v[1], permitted, cand_remaps,
 			4, randomizer, &mat, false, f))*/
 		if (get_test_instance(&nonderived_full_v[0], &nonderived_full_v[1],
-			&three_cand_smith_one, &three_cand_smith_two, permitted, cand_remaps,
-			4, randomizer, &mat, false, f))	{
+			&three_cand_smith_one, permitted, cand_remaps, 4, randomizer,
+			&mat, false, f)) {
+
 			std::cout << "Did succeed.\n";
 			std::cout << "A:\n";
 			ballot_tools().print_ranked_ballots(f.before_A.election);
