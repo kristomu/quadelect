@@ -68,12 +68,12 @@ size_t smith_set_size(const copeland_scenario & scenario) {
 
 std::set<copeland_scenario> get_nonderived_scenarios(
 	size_t desired_smith_set_size,
-	const std::map<copeland_scenario, isomorphism> & derived_reductions) {
+	const fixed_cand_equivalences & equivalences) {
 
 	std::set<copeland_scenario> out;
 
-	for (const auto & kv: derived_reductions) {
-		if (kv.second.derived) continue;
+	for (const auto & kv: equivalences.get_noncanonical_scenarios()) {
+		if (!kv.second.canonical) continue;
 
 		if (smith_set_size(kv.first) == desired_smith_set_size) {
 			out.insert(kv.first);
@@ -220,3 +220,47 @@ std::set<copeland_scenario> get_permissible_ISDA_reductions(
 	return out;
 
 }
+
+// General setup idea
+// get_test_instance gets a request with A, B, as 4 cddt, and A' as 3 cddt.
+// The function should first determine what corresponding 4 cddt scenario to
+// require, then go through the usual get_test_instance logic to get the
+// desired 4-candidate scenarios.
+// In the 4-candidate scenario for A', candidate 0 must be in the Smith set,
+// and in the 4-candidate scenario for B', the candidate marked as used in B
+// must be in the Smith set. (But compositor.cc should handle that.)
+
+// Since compositor already handles so much, I think the best way of doing
+// ISDA would be to have a wrapper around get_test_instance, and this
+// wrapper function gets called whenever not all of the desired scenarios
+// have the same numcands.
+
+// It replaces the lower candidate scenarios with the higher candidate
+// scenarios that reduce to them under ISDA, then calls get_test_instance
+// as usual, and then reduces back to the lower scenarios under ISDA. This
+// entails elimination and permutation. We already have one function for
+// this: the one that permutes candidates, but we also need a compose
+// permutations function to handle e.g. multiple cand-4 Smith-set 3 scenarios
+// all reducing to ABCA as the canonical cyle.
+
+// Reversal should happen outside of the wrapper, so we have...
+
+// reversal -> check for different candidates, etc -> ISDA if reqd ->
+// core
+
+// Do we even need permutation composition?
+
+// We should also simplify compositor: for A, when we're randomly generating
+// a candidate, we're interested in anything that can be turned into the A
+// scenario by permuting candidates (since it doesn't matter to us who A is;
+// at least not for the generators we're considering). For B, we want a
+// specific scenario. For A', we must have the same ordering as in A,
+// since the monotonicity mutation only allows us to raise/add A, not to
+// relabel anything. B' is derived from A' with the same candidate focus
+// requirement as A->B, i.e if B is candidate 2 before, it must be candidate
+// 2 after as well.
+// So really, the only latitude we have is in A; but it would be nice to
+// automate this. First step should be thus to do some refactoring and
+// encapsulation of the data structures used by compositor.
+// scenario_reductions, cand_remaps, generalization of nonderived_full
+// for all number of candidates < maxnumcands (4 in our case).

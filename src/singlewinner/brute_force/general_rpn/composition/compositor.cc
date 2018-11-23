@@ -211,20 +211,22 @@ monotonicity_test_instance reverse_transform(const
 
 std::set<copeland_scenario> get_permitted_scenarios(
 	const copeland_scenario & desired_scenario, size_t numcands,
-	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings) {
+	const fixed_cand_equivalences & equivalences) {
 
 	std::set<copeland_scenario> out;
 
 	for (size_t i = 0; i < numcands; ++i) {
-		if (candidate_remappings[i].find(desired_scenario) ==
+		out.insert(equivalences.get_candidate_remapping(
+			desired_scenario, i).to_scenario);
+		/*if (candidate_remappings[i].find(desired_scenario) ==
 			candidate_remappings[i].end()) {
 			throw std::runtime_error(
 				"get_permitted_scenarios: could not find source scenario!");
 		}
 
 		out.insert(candidate_remappings[i].find(desired_scenario)->
-			second.to_scenario);
+			second.to_scenario);*/
+
 	}
 
 	return out;
@@ -250,14 +252,18 @@ std::set<copeland_scenario> get_permitted_scenarios(
 // slow. We could hack it by looking up the required set in the map only
 // once (before the do), though.
 
+// An idea: Instead of changing the elections, only keep the permutation,
+// and combine different permutations.
+// That could work better when we start to introduce ISDA.
+
 // Hotspot
 bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	const copeland_scenario * desired_B_scenario,
 	const copeland_scenario * desired_Aprime_scenario,
 	const std::set<copeland_scenario> & permitted_scenarios,
-	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings, int numcands, rng & randomizer,
-	monotonicity * mono_test, bool reverse, monotonicity_test_instance & out) {
+	const fixed_cand_equivalences & equivalences, int numcands,
+	rng & randomizer, monotonicity * mono_test, bool reverse,
+	monotonicity_test_instance & out) {
 
 	impartial ic(false);
 
@@ -268,7 +274,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	// Get the B prime scenario.
 	copeland_scenario B_prime = get_B_prime_scenario(
 		*desired_A_scenario, *desired_B_scenario, *desired_Aprime_scenario,
-		candidate_remappings);
+		equivalences.get_cand_remaps());
 
 	const copeland_scenario * desired_Bprime_scenario = &B_prime;
 
@@ -296,7 +302,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 
 	// Permute into the A_scenario we want.
 	before = permute_to_desired(before, *desired_A_scenario, true,
-		candidate_remappings);
+		equivalences.get_cand_remaps());
 	// Whatever the permutation is, what we end up with is A's perspective
 	// (by definition, because it has desired_A_scenario as scenario). So
 	// make that clear.
@@ -358,7 +364,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	out.before_A = before;
 	out.after_A = after;
 	out.before_B = permute_to_desired(out.before_A, *desired_B_scenario,
-		false, candidate_remappings);
+		false, equivalences.get_cand_remaps());
 
 	// We need to do it this way to preserve the candidate number. Using
 	// the other permute_to_desire may fail to do so, e.g. suppose after_A
@@ -366,7 +372,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	// perspective is also a three-cycle, but only one of those perspectives
 	// is what we want to have the same perspective as in after_A.
 	out.after_B = permute_to_desired(out.after_A,
-		out.before_B.from_perspective_of, candidate_remappings);
+		out.before_B.from_perspective_of, equivalences.get_cand_remaps());
 
 	// Make sure we have the proper scenarios and perspectives.
 	assert(out.before_A.scenario == *desired_A_scenario);
@@ -401,10 +407,8 @@ struct
 test_results test_many(int numiters,
 	const copeland_scenario & desired_A_scenario,
 	const copeland_scenario & desired_B_scenario,
-	int numcands,
-	const std::vector<std::map<copeland_scenario, isomorphism> > &
-	candidate_remappings, const std::vector<algo_t> & functions_to_test,
-	rng & randomizer) {
+	int numcands, const fixed_cand_equivalences & equivalences,
+	const std::vector<algo_t> & functions_to_test, rng & randomizer) {
 
 	struct timespec last_time, next_time;
 
@@ -423,7 +427,7 @@ test_results test_many(int numiters,
 	results.B_after_results.resize(num_functions);
 
 	std::set<copeland_scenario> permitted = get_permitted_scenarios(
-		desired_A_scenario, numcands, candidate_remappings);
+		desired_A_scenario, numcands, equivalences);
 
 	monotonicity_test_instance test_instance;
 
@@ -452,7 +456,7 @@ test_results test_many(int numiters,
 		// Run get_instance until we get a result that fits what we want.
 		while (!get_test_instance(&desired_A_scenario, &desired_B_scenario,
 			&desired_A_scenario, permitted,
-			candidate_remappings, numcands, randomizer, mono_test, reverse,
+			equivalences, numcands, randomizer, mono_test, reverse,
 			test_instance));
 
 		assert(test_instance.before_A.scenario == desired_A_scenario);
@@ -717,17 +721,17 @@ int main(int argc, char ** argv) {
 
 	sifter_file.close();
 
+	fixed_cand_equivalences four_equivalences(4);
 
 
-
-	std::map<copeland_scenario, isomorphism> scenario_reductions =
+/*	std::map<copeland_scenario, isomorphism> scenario_reductions =
 		get_derived_scenario_reductions(numcands);
 
 	std::vector<std::map<copeland_scenario, isomorphism> > cand_remaps =
-		get_candidate_remappings(numcands, scenario_reductions);
+		get_candidate_remappings(numcands, scenario_reductions);*/
 
 	std::set<copeland_scenario> nonderived_full = get_nonderived_scenarios(4,
-		scenario_reductions);
+		four_equivalences);
 
 	std::vector<copeland_scenario> nonderived_full_v;
 	std::copy(nonderived_full.begin(), nonderived_full.end(),
@@ -802,7 +806,7 @@ int main(int argc, char ** argv) {
 	// Test monotonicity generation with 3-scenario tests. Very rough
 	// so far: need actual ISDA logic later.
 	std::set<copeland_scenario> permitted = get_permitted_scenarios(
-		nonderived_full_v[0], 4, cand_remaps);
+		nonderived_full_v[0], numcands, four_equivalences);
 
 	monotonicity_test_instance f;
 
@@ -819,8 +823,8 @@ int main(int argc, char ** argv) {
 			&nonderived_full_v[2], &nonderived_full_v[1], permitted, cand_remaps,
 			4, randomizer, &mat, false, f))*/
 		if (get_test_instance(&nonderived_full_v[0], &nonderived_full_v[1],
-			&three_cand_smith_one, permitted, cand_remaps, 4, randomizer,
-			&mat, false, f)) {
+			&three_cand_smith_one, permitted, four_equivalences, 4,
+			randomizer,&mat, false, f)) {
 
 			std::cout << "Did succeed.\n";
 			std::cout << "A:\n";
@@ -843,7 +847,7 @@ int main(int argc, char ** argv) {
 		for (int scen_b = scen_a + 1; scen_b < 4; ++scen_b) {
 			results_all[scen_a][scen_b] = test_many(32767,
 				nonderived_full_v[scen_a], nonderived_full_v[scen_b],
-				numcands, cand_remaps, prospective_functions,randomizer);
+				numcands, four_equivalences, prospective_functions,randomizer);
 
 			std::cout << std::endl;
 

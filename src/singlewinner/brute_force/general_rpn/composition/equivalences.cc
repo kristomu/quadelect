@@ -8,6 +8,7 @@
 // Also some actual composition testing.
 
 // TODO: Rewrite these comments. Also clean up the headers.
+// The comments are even more in need of a rewrite now...
 
 #include "../../../../tools/tools.h"
 #include "../../../../tools/factoradic.h"
@@ -19,9 +20,6 @@
 #include "../../../../tests/tests/monotonicity/mono_raise.h"
 #include "../gen_custom_function.h"
 
-#include <set>
-#include <string>
-#include <vector>
 #include <numeric>
 #include <algorithm>
 #include <stdexcept>
@@ -82,8 +80,9 @@
 
 // Gives every permutation where candidate cand is relabeled to the first
 // candidate.
-std::vector<std::vector<int> > all_permutations_centered_on(int cand,
-	size_t numcands) {
+std::vector<std::vector<int> >
+	fixed_cand_equivalences::all_permutations_centered_on(int cand,
+	size_t numcands) const {
 
 	// Create the first such permutation
 	std::vector<int> perm(numcands);
@@ -102,8 +101,9 @@ std::vector<std::vector<int> > all_permutations_centered_on(int cand,
 	return perms;
 }
 
-std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
-	size_t numcands) {
+std::map<copeland_scenario, isomorphism>
+	fixed_cand_equivalences::get_noncanonical_scenario_reductions(
+	size_t numcands, bool verbose) const {
 
 	// Note that we go through the scenarios in reverse order. The
 	// reason for doing so is historical: I considered the 3-cycle ABCA
@@ -123,7 +123,7 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 
 	// For every possible scenario
 	do {
-		bool derived = false, has_populated_isomorphism = false;
+		bool canonical = true, has_populated_isomorphism = false;
 
 		cur_reduction.cand_permutations.clear();
 
@@ -138,7 +138,7 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 			// Check if we've seen a nonderived that matches it. If not,
 			// skip.
 			if (reductions.find(permuted) == reductions.end() ||
-				reductions.find(permuted)->second.derived) {
+				!reductions.find(permuted)->second.canonical) {
 				continue;
 			}
 
@@ -151,31 +151,39 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 				cur_reduction.to_scenario);
 
 			// Add the current permutation to the list of such.
-			derived = true;
+			canonical = false;
 			has_populated_isomorphism = true;
 			cur_reduction.to_scenario = permuted;
 			cur_reduction.cand_permutations.push_back(permutation);
-			cur_reduction.derived = true;
+			cur_reduction.canonical = false;
 
-			std::cout << cur.to_string() << " is derived" << "\t";
-			std::copy(permutation.begin(), permutation.end(),
-				std::ostream_iterator<int>(std::cout, " "));
-			std::cout << "\t" << permuted.to_string() << std::endl;
+			// This should be dumped into its own function
+
+			if (verbose) {
+
+				std::cout << cur.to_string() << " is derived" << "\t";
+				std::copy(permutation.begin(), permutation.end(),
+					std::ostream_iterator<int>(std::cout, " "));
+				std::cout << "\t" << permuted.to_string() << std::endl;
+			}
 		}
 
 		/*std::cout << " Out of permutation loop " << std::endl;*/
 
-		// If it's derived, add the reduction to the list.
-		if (derived) {
-			reductions[cur] = cur_reduction;
-		} else {
-			// If it's non-derived, mark it as such by making it isomorphic
-			// only to itself.
+		// If it's canonical, mark it as such by making it isomorphic
+		// only to itself.
+		if (canonical) {
 			cur_reduction.to_scenario = cur;
 			cur_reduction.cand_permutations.push_back(identity_permutation);
-			cur_reduction.derived = false;
+			cur_reduction.canonical = true;
 			reductions[cur] = cur_reduction;
-			std::cout << cur.to_string() << " is nonderived" << std::endl;
+			if (verbose) {
+				std::cout << cur.to_string() << " is nonderived" <<
+					std::endl;
+			}
+		} else {
+			// Otherwise, add the reduction to the list.
+			reductions[cur] = cur_reduction;
 		}
 
 	} while (--cur != base_scenario);
@@ -194,9 +202,11 @@ std::map<copeland_scenario, isomorphism> get_derived_scenario_reductions(
 // TODO: Refactor this as the inner loop is very much like the inner loop
 // in the function above.
 
-std::map<copeland_scenario, isomorphism> get_candidate_remapping(
+std::map<copeland_scenario, isomorphism>
+	fixed_cand_equivalences::get_one_candidate_remapping(
 	size_t numcands, int current_candidate,
-	const std::map<copeland_scenario, isomorphism> & derived_reductions) {
+	const std::map<copeland_scenario, isomorphism> &
+	noncanonical_reductions) const {
 
 	std::map<copeland_scenario, isomorphism> cand_remapping;
 
@@ -220,28 +230,29 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(
 			copeland_scenario permuted = cur;
 			permuted.permute_candidates(permutation);
 
-			// Check if we've seen a nonderived that matches it. If not,
+			// Check if we've seen a canonical that matches it. If not,
 			// skip.
-			if (derived_reductions.find(permuted) == derived_reductions.end()
-				|| derived_reductions.find(permuted)->second.derived) {
+			if (noncanonical_reductions.find(permuted) ==
+				noncanonical_reductions.end()
+				|| !noncanonical_reductions.find(permuted)->second.canonical) {
 				continue;
 			}
 
 			assert (!has_populated_isomorphism ||
-				derived_reductions.find(permuted)->second.to_scenario ==
+				noncanonical_reductions.find(permuted)->second.to_scenario ==
 				cur_reduction.to_scenario);
 
 			// Add the current permutation to the list of such.
 			has_populated_isomorphism = true;
 			cur_reduction.to_scenario = permuted;
 			cur_reduction.cand_permutations.push_back(permutation);
-			cur_reduction.derived = true; // Not relevant
+			cur_reduction.canonical = false; // Not relevant
 
-			std::cout << cur.to_string() << " with cand " << current_candidate
+			/*std::cout << cur.to_string() << " with cand " << current_candidate
 				<< " maps to " << "\t";
 			std::copy(permutation.begin(), permutation.end(),
 				std::ostream_iterator<int>(std::cout, " "));
-			std::cout << "\t" << permuted.to_string() << std::endl;
+			std::cout << "\t" << permuted.to_string() << std::endl;*/
 		}
 
 		assert(has_populated_isomorphism);
@@ -253,17 +264,18 @@ std::map<copeland_scenario, isomorphism> get_candidate_remapping(
 }
 
 std::vector<std::map<copeland_scenario, isomorphism> >
-	get_candidate_remappings(size_t numcands,
-	const std::map<copeland_scenario, isomorphism> & derived_reductions) {
+	fixed_cand_equivalences::get_all_candidate_remappings(size_t numcands,
+	const std::map<copeland_scenario, isomorphism> &
+	noncanonical_reductions) const {
 
 	std::vector<std::map<copeland_scenario, isomorphism> > remappings;
-	// The candidate remapping for candidate 0 onto nonderived scenarios
-	// is just the derived reduction.
-	remappings.push_back(derived_reductions);
+	// The candidate remapping for candidate 0 onto canonical scenarios
+	// is just the noncanonical reduction.
+	remappings.push_back(noncanonical_reductions);
 
 	for (size_t i = 1; i < numcands; ++i) {
-		remappings.push_back(get_candidate_remapping(numcands, i,
-			derived_reductions));
+		remappings.push_back(get_one_candidate_remapping(numcands, i,
+			noncanonical_reductions));
 	}
 
 	return remappings;
