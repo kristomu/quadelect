@@ -113,31 +113,34 @@ reduction get_ISDA_reduction(const copeland_scenario & in) {
 	}
 
 	// 2. Get the relabeling (not quite a permutation).
-	size_t i, j, out_cand_count = 0;
-	for (i = 0; i < copeland_matrix.size(); ++i)	{
+	size_t i, j;
+	for (i = 0; i < copeland_matrix.size(); ++i) {
 		if (!smith_cands[i]) continue;
-		out.cand_relabeling.push_back(out_cand_count++);
+		out.cand_relabeling.push_back(i);
 	}
 
 	// 2. Create a new Copeland matrix of size equal to the Smith set,
 	// and copy over from the Copeland matrix, ignoring rows and columns
 	// corresponding to the Smith losers.
 
+	std::vector<int> smith_cand_idx;
+	for (i = 0; i < in.get_numcands(); ++i) {
+		if (smith_cands[i]) { smith_cand_idx.push_back(i); }
+	}
+
 	std::vector<std::vector<bool> > new_copeland_matrix;
 
-	for (i = 0; i < copeland_matrix.size(); ++i) {
-		if (!smith_cands[i]) continue;
-
+	for (i = 0; i < smith_cand_idx.size(); ++i) {
 		std::vector<bool> new_row;
 
-		for (j = 0; j < copeland_matrix.size(); ++j) {
-			if (!smith_cands[j]) continue;
-			new_row.push_back(copeland_matrix[i][j]);
+		for (j = 0; j < smith_cand_idx.size(); ++j) {
+			new_row.push_back(copeland_matrix[smith_cand_idx[i]]
+				[smith_cand_idx[j]]);
 		}
 		new_copeland_matrix.push_back(new_row);
 	}
 
-	out.to_scenario = copeland_scenario(copeland_matrix);
+	out.to_scenario = copeland_scenario(new_copeland_matrix);
 
 	return out;
 }
@@ -180,6 +183,8 @@ reduction get_ISDA_reduction(const copeland_scenario & in) {
 // This returns the scenarios that reduce, by ISDA, to scenarios of
 // fewer candidates, but more than one candidate, and optionally only
 // those where A is not eliminated.
+// (XXX: We shouldn't need this option. Organize my thoughts to show why,
+// and then rewrite appropriately.)
 
 // The reason we don't want one-candidate reductions is that these have
 // the single winner be the winner by Condorcet, and so are uninteresting
