@@ -281,6 +281,26 @@ std::vector<std::map<copeland_scenario, isomorphism> >
 	return remappings;
 }
 
+std::map<copeland_scenario, std::set<copeland_scenario> >
+	fixed_cand_equivalences::get_scenario_equivalences(const
+	std::vector<std::map<copeland_scenario, isomorphism> > &
+	candidate_remappings_in) const {
+
+	// Just go through candidate_remappings_in for all candidates.
+	// equivalences[scenario] = union over all candidates c:
+	// candidate_remappings_in[c][scenario].to_scenario.
+
+	std::map<copeland_scenario, std::set<copeland_scenario> > out;
+
+	for (const auto & remappings_for_one_cand : candidate_remappings_in) {
+		for (const auto & key_val : remappings_for_one_cand) {
+			out[key_val.first].insert(key_val.second.to_scenario);
+		}
+	}
+
+	return out;
+}
+
 // What's next?
 // ballot_group --> factorial format vector
 // list<ballot_group> --> factorial format vector
@@ -340,6 +360,22 @@ std::vector<double> get_ballot_vector(const list<ballot_group> & election,
 
 	return ballot_vector;
 }
+
+// election scenario pair. I need to refactor these things to put the
+// different stuff in different classes.
+
+struct election_scenario_pair {
+	std::list<ballot_group> election;
+	copeland_scenario scenario;
+	int from_perspective_of;
+};
+
+std::vector<double> get_ballot_vector(const election_scenario_pair & esp) {
+
+	return get_ballot_vector(esp.election, esp.scenario.get_numcands());
+}
+
+
 
 std::list<ballot_group> relabel_election_candidates(
 	const list<ballot_group> & election_in,

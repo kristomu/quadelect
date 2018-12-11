@@ -43,9 +43,9 @@ class fixed_cand_equivalences {
 
 		// This map gives the equivalence relation between scenarios under
 		// no constraint, i.e. we don't care about how the candidates are
-		// relabeled. The vector is a list of which scenarios can be reached
+		// relabeled. The set contains the scenarios that can be reached
 		// by permuting the candidates in an election with the input scenario.
-		std::map<copeland_scenario, std::vector<copeland_scenario> >
+		std::map<copeland_scenario, std::set<copeland_scenario> >
 			scenario_equivalences;
 
 		size_t num_candidates;
@@ -68,6 +68,11 @@ class fixed_cand_equivalences {
 			const std::map<copeland_scenario, isomorphism> &
 			derived_reductions) const;
 
+		std::map<copeland_scenario, std::set<copeland_scenario> >
+			get_scenario_equivalences(const
+			std::vector<std::map<copeland_scenario, isomorphism> > &
+			candidate_remappings_in) const;
+
 		void initialize(size_t numcands) {
 			noncanonical_scenario_reductions =
 				get_noncanonical_scenario_reductions(num_candidates,
@@ -76,7 +81,9 @@ class fixed_cand_equivalences {
 			candidate_remappings = get_all_candidate_remappings(
 				num_candidates, noncanonical_scenario_reductions);
 
-			// scenario_equivalences
+			scenario_equivalences = get_scenario_equivalences(
+				candidate_remappings);
+
 		}
 
 	public:
@@ -97,16 +104,32 @@ class fixed_cand_equivalences {
 		}
 
 		isomorphism get_candidate_remapping(
-			const copeland_scenario & desired_scenario,
+			const copeland_scenario & source_scenario,
 			size_t candidate_to_become_A) const {
 
-			// TODO: Determine if trying to access data from an end() iterator
-			// automatically gives an exception, or undefined behavior.
-			// It does not give exception. TODO: Throw one if ctbA is out
-			// of bounds or desired scenario couldn't be found.
+			if (candidate_remappings[candidate_to_become_A].find(
+				source_scenario) == candidate_remappings[
+				candidate_to_become_A].end()) {
+			throw std::runtime_error(
+				"get_candidate_remapping: could not find source scenario!");
+			}
 
 			return candidate_remappings[candidate_to_become_A].
-				find(desired_scenario)->second;
+				find(source_scenario)->second;
+		}
+
+		// Can we transform a into b by relabeling the candidates?
+		// (Equivalence relation, except it will always return false
+		// if one or both of the scenarios are of the wrong number of
+		// candidates.)
+		bool is_transformable_into(const copeland_scenario & a,
+			const copeland_scenario & b) const {
+
+			if (scenario_equivalences.find(a) ==
+				scenario_equivalences.end()) { return false; }
+
+			return scenario_equivalences.find(a)->second.find(b) !=
+				scenario_equivalences.find(a)->second.end();
 		}
 
 		// To remove later: need to figure out how iterators work first.
