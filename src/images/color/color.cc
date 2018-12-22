@@ -250,6 +250,8 @@ vector<double> color_conv::convert(const vector<double> & in,
 		default:
 			assert (1 != 1);
 	}
+
+	throw new std::runtime_error("color_conv: Reached unreachable code.");
 }
 
 /*
