@@ -53,20 +53,29 @@ TODO: Implement this. */
 // If consider_A is false, we only look at permutations that map some
 // other candidate to A (this is useful for monotonicity).
 
+// If desired_candidate is -1, then it will try to find something from
+// the perspective of any candidate; otherwise, it will only consider
+// that particular candidate.
+
 // TODO: Investigate why we can't remap derived scenarios to canonical
 // ones.
+
 election_scenario_pair permute_to_desired(election_scenario_pair cur,
-	const copeland_scenario & desired_scenario, bool consider_A,
+	const copeland_scenario & desired_scenario, int desired_candidate,
+	bool consider_A,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
 		candidate_remappings) {
 
-	if (cur.scenario == desired_scenario) {
+	if (cur.scenario == desired_scenario && desired_candidate == 0) {
 		return cur;
 	}
 
 	size_t numcands = cur.scenario.get_numcands();
 
 	for (size_t i = 0; i < numcands; ++i) {
+		if (desired_candidate != -1 && i != (size_t)desired_candidate) { 
+			continue; 
+		}
 		if (i == 0 && !consider_A) { continue; }
 
 		if (candidate_remappings[i].find(cur.scenario) ==
@@ -87,6 +96,8 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 
 		cur.scenario = dest_isomorphism.to_scenario;
 		cur.from_perspective_of = i;
+
+		assert (cur.from_perspective_of == desired_candidate || desired_candidate == -1);
 
 		return cur;
 	}
@@ -205,7 +216,7 @@ election_scenario_pair apply_canonical_ISDA(
 // we need to know the proper scenarios for A, A', B, and B'.
 copeland_scenario get_B_prime_scenario(
 	const copeland_scenario & A_scenario,
-	const copeland_scenario & B_scenario,
+	const copeland_scenario & B_scenario, int B_candidate,
 	const copeland_scenario & A_prime_scenario,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
 		candidate_remappings) {
@@ -216,8 +227,8 @@ copeland_scenario get_B_prime_scenario(
 	A.from_perspective_of = 0;
 
 	// This gives us the candidate that corresponds to the B scenario.
-	election_scenario_pair B = permute_to_desired(A, B_scenario,
-		false, candidate_remappings);
+	election_scenario_pair B = permute_to_desired(A, B_scenario, 
+		B_candidate, false, candidate_remappings);
 
 	// Now permute A' to the same candidate...
 	election_scenario_pair A_prime = A;
@@ -292,7 +303,8 @@ monotonicity_test_instance reverse_transform(const
 
 // Hotspot.
 bool get_test_instance(const copeland_scenario * desired_A_scenario,
-	const copeland_scenario * desired_B_scenario,
+	const copeland_scenario * desired_B_scenario, 
+	int desired_B_candidate, 
 	const copeland_scenario * desired_Aprime_scenario,
 	const fixed_cand_equivalences & equivalences,
 	const std::map<int, fixed_cand_equivalences> & other_equivalences,
@@ -314,8 +326,8 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 
 	// Get the B prime scenario.
 	copeland_scenario B_prime = get_B_prime_scenario(
-		*desired_A_scenario, *desired_B_scenario, *desired_Aprime_scenario,
-		equivalences.get_cand_remaps());
+		*desired_A_scenario, *desired_B_scenario, desired_B_candidate, 
+		*desired_Aprime_scenario, equivalences.get_cand_remaps());
 
 	const copeland_scenario * desired_Bprime_scenario = &B_prime;
 
@@ -352,7 +364,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 		*desired_A_scenario));
 
 	// Permute into the A_scenario we want.
-	before = permute_to_desired(before, *desired_A_scenario, true,
+	before = permute_to_desired(before, *desired_A_scenario, -1, true,
 		equivalences.get_cand_remaps());
 	// Whatever the permutation is, what we end up with is A's perspective
 	// (by definition, because it has desired_A_scenario as scenario). So
@@ -377,7 +389,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 		// that doesn't change the scenario).
 		// TODO: Geometric distribution or something? Everything that gives
 		// us wider coverage is good.
-		int num_to_add = randomizer.lrand(1, num_ballots);
+		int num_to_add = randomizer.lrand(2, num_ballots);
 		std::pair<bool, list<ballot_group> > alteration = mono_test->
 			rearrange_ballots(before.election, numcands, num_to_add,
 				mono_data);
@@ -415,7 +427,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	out.before_A = before;
 	out.after_A = after;
 	out.before_B = permute_to_desired(out.before_A, *desired_B_scenario,
-		false, equivalences.get_cand_remaps());
+		desired_B_candidate, false, equivalences.get_cand_remaps());
 
 	// We need to do it this way to preserve the candidate number. Using
 	// the other permute_to_desire may fail to do so, e.g. suppose after_A
@@ -430,6 +442,8 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	assert(out.before_B.scenario == *desired_B_scenario);
 	assert(out.after_A.scenario == *desired_Aprime_scenario);
 	assert(out.after_B.scenario == *desired_Bprime_scenario);
+
+	assert(out.before_B.from_perspective_of == desired_B_candidate);
 
 	assert(out.before_A.from_perspective_of ==
 		out.after_A.from_perspective_of);
@@ -464,6 +478,7 @@ struct test_results {
 test_results test_many(int numiters,
 	const copeland_scenario & desired_A_scenario,
 	const copeland_scenario & desired_B_scenario,
+	int desired_B_candidate,
 	const copeland_scenario & desired_Aprime_scenario,
 	int numcands, const fixed_cand_equivalences & equivalences,
 	const std::map<int, fixed_cand_equivalences> & other_equivalences,
@@ -478,7 +493,8 @@ test_results test_many(int numiters,
 	// Aprime, as it's just a candidate rotation.
 	// HACK! Fix later!
 	std::vector<size_t> numcands_per_election = {
-		4, 4, 3, 3
+		//4, 4, 3, 3
+		3, 3, 4, 4
 		/*desired_A_scenario.get_numcands(),
 		desired_B_scenario.get_numcands(),
 		desired_Aprime_scenario.get_numcands(),
@@ -500,8 +516,8 @@ test_results test_many(int numiters,
 	results.B_scenario = desired_B_scenario;
 	results.Aprime_scenario = desired_Aprime_scenario;
 	results.Bprime_scenario = get_B_prime_scenario(
-		desired_A_scenario, desired_B_scenario, desired_Aprime_scenario,
-		equivalences.get_cand_remaps());
+		desired_A_scenario, desired_B_scenario, desired_B_candidate,
+		desired_Aprime_scenario, equivalences.get_cand_remaps());
 
 	//size_t num_functions = functions_to_test.size(), i;
 
@@ -567,14 +583,14 @@ test_results test_many(int numiters,
 
 		// Run get_instance until we get a result that fits what we want.
 		while (!get_test_instance(&desired_A_scenario, &desired_B_scenario,
-			&desired_Aprime_scenario, equivalences, other_equivalences,
-			numcands, randomizer, mono_test, false,/*reverse,*/ true,
-			test_instance));
+			desired_B_candidate, &desired_Aprime_scenario, equivalences, 
+			other_equivalences, numcands, randomizer, mono_test, false,
+			/*reverse,*/ true, test_instance));
 
 		//std::cout << "DONE" << std::endl;
 
-		assert(test_instance.before_A.scenario == desired_A_scenario);
-		assert(test_instance.before_B.scenario == desired_B_scenario);
+		/*assert(test_instance.before_A.scenario == desired_A_scenario);
+		assert(test_instance.before_B.scenario == desired_B_scenario);*/
 		//assert(test_instance.after_A.scenario == desired_Aprime_scenario);
 
 		// Prepare ballot vectors.
@@ -898,6 +914,11 @@ void print_passing_mixed_tuples(const test_results & results,
 		for (size_t Bidx = 0; Bidx < functions_tested_per_candnum[
 			cands_per_election_type[1]].size(); ++Bidx) {
 
+			if (results.A_scenario == results.B_scenario &&
+					Bidx != Aidx) {
+					continue;
+				}
+
 			std::vector<result_t> margin_before = subtract(
 					results.A_before_results[Aidx],
 					results.B_before_results[Bidx]);
@@ -1097,7 +1118,7 @@ int main(int argc, char ** argv) {
 
 	std::cout << "Before get_instance" << std::endl;
 
-	for (int i = 0; i < 200; ++i){
+	for (int i = 0; i < 0; ++i){
 
 		copeland_scenario three_cand_smith_one(54, 4);
 		// Can't be 5,4 because A is not in the Smith set in that scenario
@@ -1106,8 +1127,8 @@ int main(int argc, char ** argv) {
 		// Smith set and the Smith set has size 3.
 
 		if (get_test_instance(&canonical_full_v[2], &canonical_full_v[0],
-			&three_cand_smith_one, four_equivalences, other_equivs, 4,
-			randomizer,&mr, false, true, f)) {
+			1, &three_cand_smith_one, four_equivalences, other_equivs, 4,
+			randomizer,&mat, false, true, f)) {
 
 			std::cout << "Did succeed.\n";
 			std::cout << "A:\n";
@@ -1136,13 +1157,15 @@ int main(int argc, char ** argv) {
 		}
 	}*/
 
-	test_results testing = test_many(32767,
-		canonical_full_v[1], canonical_full_v[3],
-		copeland_scenario(54, 4),
+	test_results testing = test_many(3276,//7,
+		/*canonical_full_v[1], canonical_full_v[3],
+		copeland_scenario(54, 4),*/
+		copeland_scenario(54, 4), copeland_scenario(54, 4), 1,
+		canonical_full_v[2],
 		numcands, four_equivalences, other_equivs,
 		prospective_functions,randomizer);
 
-	std::vector<size_t> test_numcands = {4, 4, 3, 3};
+	std::vector<size_t> test_numcands = {3, 3, 4, 4};
 
 	print_passing_mixed_tuples(testing, prospective_functions,
 		test_numcands);
