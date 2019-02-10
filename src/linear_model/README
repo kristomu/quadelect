@@ -1,0 +1,11 @@
+This directory contains code for constructing convex polytopes that model
+constrained elections (e.g. pairs where the second election is the result of
+raising some candidate in the first election). They are used for more quickly
+generating monotonicity and cloning tests than standard rejection sampling
+can accomplish.
+
+Some of the code here is a copy of my convex_magic repo. We'll see if they'll
+go out of sync or I can keep mind enough to copy all changes back as they
+happen (except for those changes that have been made to adapt the code to
+quadelect in general, such as using quadelect's RNG instead of the standard
+C++ RNG).

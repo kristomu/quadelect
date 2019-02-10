@@ -9,8 +9,6 @@
 #include <iostream>
 #include <cstddef>
 
-using namespace std;
-
 #define rseed_t uint64_t
 
 class rng {
