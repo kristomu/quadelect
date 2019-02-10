@@ -116,12 +116,26 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/tests/tests/monotonicity/mono_sub.cc \
 	src/tests/tests/monotonicity/monotonicity.cc \
 	src/tests/tests/rev_symmetry.cc src/tests/two_tests.cc \
+	src/linear_model/lin_relation/lin_relation.cc \
+	src/linear_model/lin_relation/constraint_set.cc \
+	src/linear_model/polytope/equality_polytope.cc \
+	src/linear_model/polytope/polytope.cc \
+	src/linear_model/polytope/properties/bounding_box.cc \
+	src/linear_model/polytope/properties/center.cc \
+	src/linear_model/polytope/properties/distance.cc \
+	src/linear_model/constraints/constraint_tools.cc \
+	src/linear_model/constraints/constraint_polytope.cc \
+	src/linear_model/constraints/numvoters.cc \
+	src/linear_model/constraints/pairwise.cc \
+	src/linear_model/constraints/relative_criterion.cc \
+	src/linear_model/constraints/relative_criteria/clones.cc \
+	src/linear_model/constraints/relative_criteria/mono-raise.cc \
 	src/generator/ballotgen.cc src/stats/confidence/confidence.cc \
 	src/bandit/bandit.cc src/bandit/binomial.cc src/bandit/lilucb.cc \
 	src/main/strat_test.cc \
 	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc \
 	src/modes/interpret.cc \
-	src/singlewinner/brute_force/general_rpn/composition/compositor.cc
+	src/singlewinner/brute_force/general_rpn/composition/polytope_compositor.cc
 
 qelect_CXXFLAGS = --std=c++11 -Wall -Werror -march=native -mtune=native -ggdb
 
