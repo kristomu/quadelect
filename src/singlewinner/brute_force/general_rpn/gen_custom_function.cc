@@ -525,6 +525,10 @@ bool gen_custom_function::set_algorithm(algo_t algorithm_encoding) {
 }
 
 void gen_custom_function::force_set_algorithm(algo_t algorithm_encoding) {
+	if (current_algorithm_num == algorithm_encoding) {
+		return;
+	}
+
 	current_algorithm = decode_algorithm(algorithm_encoding,
 		number_candidates);
 	current_algorithm_num = algorithm_encoding;

@@ -159,6 +159,12 @@ class gen_custom_function {
 		}
 
 		gen_custom_function(size_t number_candidates_in) {
+			// Since force_set_algorithm checks if the algorithm to set is the
+			// one we already have, valgrind will report a conditional jump
+			// on uninitialized values if we don't set current_algorithm_num
+			// to some value (not zero) before forcing algorithm zero.
+			current_algorithm_num = 1;
+
 			set_num_candidates(number_candidates_in);
 			force_set_algorithm(0);
 		}
