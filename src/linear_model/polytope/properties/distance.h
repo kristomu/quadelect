@@ -50,7 +50,7 @@ class polytope_distance {
 		double get_l2_diameter_lb(const polytope & poly_in,
 			const Eigen::VectorXd & M_vec) const;
 
-		// Using bounding boxes to infer M.
+		// Using bounding boxes to infer M and for lower bounds.
 
 		double get_l1_diameter(const polytope & poly_in) const;
 		double get_l2_diameter_lb(const polytope & poly_in) const;

@@ -191,10 +191,17 @@ double polytope_distance::get_l1_diameter(
 	// which has the solution X = 2 * min_axis_length. That's why the
 	// factor of 2 appears below.
 
+	// We also use the bounding box to construct a lower bound on
+	// the maximum diameter. If this lower bound is better than the
+	// lower bound we get from the MIP system (in case it's been set to
+	// run the LP relaxation only), we use that instead.
+
 	Eigen::VectorXd M_vec = 2 * polytope_bounding_box().get_axis_lengths(
 		poly_in);
 
-	return get_l1_diameter(poly_in, M_vec);
+	double box_estimate = M_vec.maxCoeff();
+
+	return std::max(get_l1_diameter(poly_in, M_vec), box_estimate);
 }
 
 double polytope_distance::get_l2_diameter_lb(
@@ -203,7 +210,9 @@ double polytope_distance::get_l2_diameter_lb(
 	Eigen::VectorXd M_vec = 2 * polytope_bounding_box().get_axis_lengths(
 		poly_in);
 
-	return get_l2_diameter_lb(poly_in, M_vec);
+	double box_estimate = M_vec.maxCoeff();
+
+	return std::max(get_l2_diameter_lb(poly_in, M_vec), box_estimate);
 }
 
 #ifdef TEST_DIST

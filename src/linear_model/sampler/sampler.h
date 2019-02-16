@@ -36,7 +36,7 @@ template<typename T> class billiard_sampler {
 		T polytope_to_sample;
 		bool output_extended_points;
 		double diameter;
-		ray current_ray;
+		ray current_sampler_ray;
 		rng randomizer;
 
 		Eigen::VectorXd random_unit_vector(int dimension);
@@ -62,18 +62,27 @@ template<typename T> class billiard_sampler {
 			diameter = polytope_distance(quick_diameter_bounds).
 				get_l2_diameter_lb(polytope_to_sample);
 
+			if (diameter == 0) {
+				throw std::logic_error("billiard_sampler: LP diameter "
+					"approximation is 0!");
+			}
+
 			// Set the starting position to the Chebyshev center
-			current_ray.orig = polytope_center().get_center(
+			current_sampler_ray.orig = polytope_center().get_center(
 				polytope_to_sample);
 
 		}
 
-		ray billiard_walk(const Eigen::VectorXd & initial_point,
+		// Preserving means that it doesn't update the initial point of
+		// the sampling: repeated calls will always return the same value.
+		ray billiard_walk_preserving(const Eigen::VectorXd & initial_point,
 			double tau_distance, int max_reflections, int max_retries);
 
 	public:
 		// Defaults as in the paper, and with max_retries = 100.
 		Eigen::VectorXd billiard_walk();
+
+		void set_rng_seed(uint64_t seed) { randomizer.s_rand(seed); }
 
 		// Output_full_points: if true, this returns the full points of a
 		// polytope (e.g. x instead of z for equality_polytope) even though
@@ -97,9 +106,9 @@ template<typename T> class billiard_sampler {
 		Eigen::VectorXd get_current_point() const {
 			if (output_extended_points) {
 				return polytope_to_sample.get_full_coordinates(
-					current_ray.orig);
+					current_sampler_ray.orig);
 			} else {
-				return current_ray.orig;
+				return current_sampler_ray.orig;
 			}
 		}
 };
@@ -257,7 +266,7 @@ template<typename T> bool billiard_sampler<T>::billiard_walk_internal(const poly
 	return false;
 }
 
-template<typename T> ray billiard_sampler<T>::billiard_walk(
+template<typename T> ray billiard_sampler<T>::billiard_walk_preserving(
 	const Eigen::VectorXd & initial_point, double tau_distance,
 	int max_reflections, int max_retries) {
 
@@ -269,7 +278,7 @@ template<typename T> ray billiard_sampler<T>::billiard_walk(
 	for (int i = 0; i < max_retries; ++i) {
 		candidate.dir = random_unit_vector(dimension);
 
-		double max_distance = -tau_distance * log(drand48());
+		double max_distance = -tau_distance * log(randomizer.drand());
 
 		if (billiard_walk_internal(polytope_to_sample, candidate,
 			max_distance, max_reflections)) {
@@ -284,13 +293,13 @@ template<typename T> ray billiard_sampler<T>::billiard_walk(
 
 template<typename T> Eigen::VectorXd billiard_sampler<T>::billiard_walk() {
 
-	current_ray = billiard_walk(current_ray.orig, diameter,
-		10 * polytope_to_sample.get_dimension(), 100);
+	current_sampler_ray = billiard_walk_preserving(current_sampler_ray.orig,
+		diameter, 10 * polytope_to_sample.get_dimension(), 100);
 
 	if (output_extended_points) {
 		return polytope_to_sample.get_full_coordinates(
-			current_ray.orig);
+			current_sampler_ray.orig);
 	} else {
-		return current_ray.orig;
+		return current_sampler_ray.orig;
 	}
 }
