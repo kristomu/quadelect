@@ -16,9 +16,10 @@ uint64_t rng::rng64(uint64_t * s) {
 	return ( s[ 1 ] = ( s1 ^ s0 ^ ( s1 >> 17 ) ^ ( s0 >> 26 ) ) ) + s0;
 }
 
+// Clock one iteration of xorshift64* to improve Crush results with
+// rapidly changing seeds.
 void rng::s_rand(uint64_t seed_in) {
 	seed[0] = 0;
-	//seed[1] = seed_in;
 
 	// We can't ordinarily seed xorshift with all zeroes, so if we're
 	// given a zero, then seed[0] gets bumped up to one.
@@ -86,8 +87,6 @@ uint64_t rng::lrand(uint64_t modulus) {
 	uint64_t remainder = maxVal % modulus;
 
 	// If the modulus evenly divides maxVal, then we're done.
-	// Perhaps TODO: Detect if it's a power of two, which should be
-	// quicker.
 	if (remainder == 0)
 		return (long_rand() % modulus);
 
