@@ -1,8 +1,11 @@
 #pragma once
 
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
+
+#include "scenario.h"
 
 // After permuting according to cand_permutation, we end up in
 // to_scenario.
@@ -143,4 +146,13 @@ class fixed_cand_equivalences {
 			get_cand_remaps() const {
 				return candidate_remappings;
 			}
+};
+
+// election scenario pair. I need to refactor these things to put the
+// different stuff in different classes.
+
+struct election_scenario_pair {
+	std::list<ballot_group> election;
+	copeland_scenario scenario;
+	int from_perspective_of;
 };
