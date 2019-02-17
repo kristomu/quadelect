@@ -27,8 +27,12 @@ void rng::s_rand(uint64_t seed_in) {
 	// We can't ordinarily seed xorshift with all zeroes, so if we're
 	// given a zero, then set get the seed_in from an entropy source
 	// instead.
-	if (seed_in == RNG_ENTROPY)
+	if (seed_in == RNG_ENTROPY) {
 		s_rand();
+		return;
+	}
+
+	assert(seed_in != 0);
 
 	// Xorshift64*
 	seed_in ^= seed_in >> 12; // a
@@ -38,13 +42,18 @@ void rng::s_rand(uint64_t seed_in) {
 }
 
 void rng::s_rand() {
-	uint64_t seed_in[1];
-	ssize_t numbytes = getrandom(seed_in, sizeof(uint64_t), 0);
+	uint64_t seed_in[1] = {0};
+	ssize_t numbytes;
 
-	if (numbytes != sizeof(uint64_t)) {
-		throw std::runtime_error("rng: could only read " + itos(numbytes) +
-			" bytes from entropy for seeding.");
+	while (seed_in[0] == 0) {
+		numbytes = getrandom(seed_in, sizeof(uint64_t), 0);
+
+		if (numbytes != sizeof(uint64_t)) {
+			throw std::runtime_error("rng: could only read " + itos(numbytes) +
+				" bytes from entropy for seeding.");
+		}
 	}
+
 	s_rand(seed_in[0]);
 }
 
