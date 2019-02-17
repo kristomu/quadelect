@@ -282,6 +282,13 @@ int main(int argc, char ** argv) {
 
 	std::vector<test_instance_generator> test_generators;
 
+	// Perhaps make the constrain generators return the before and after
+	// number of candidates? Then we can just pass in other_equivs and
+	// not have to care about numcands. However, I think I should make
+	// 4,4 first (to establish the recording format), and then go to
+	// cloning, and at that point start on fixing all these dependencies
+	// on numcands.
+
 	// Having many different scales helps eliminate methods more quickly.
 	// Strictly speaking, the polytope with the largest number of max voters
 	// covers the other two given enough time, but this approach gives more
