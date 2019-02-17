@@ -125,7 +125,7 @@ bool test_generator::set_scenarios(copeland_scenario before,
 
 	// Set the margin of pairwise victory and add a nonnegativity
 	// constraint.
-	all_constraints.set_fixed_param("min_victory_margin", 1);
+	all_constraints.set_fixed_param("min_victory_margin", 0.01);
 	all_constraints.add(general_const::all_nonnegative(all_constraints));
 
 	// Set up the polytope and sampler. Return true if we can do so,
@@ -165,7 +165,7 @@ monotonicity_test_instance test_generator::sample_instance(
 	// This is kinda unwieldy: we go from vector<double> to
 	// list<ballot_group> only so we can rotate and determine scenarios;
 	// then we go right back because gen_custom_function takes vector<double>.
-	// TODO at some later time: skip the middle-man. Probably will involve
+	// TODO at some later time: skip the middle man. Probably will involve
 	// making a vector<double> election class.
 
 	std::vector<double> vector_election(before_permutation_indices.size());
@@ -227,6 +227,7 @@ class test_instance_generator {
 };
 
 std::vector<test_instance_generator> get_all_permitted_test_generators(
+	double max_numvoters,
 	const std::vector<copeland_scenario> canonical_scenarios,
 	const relative_criterion_const & relative_criterion,
 	const fixed_cand_equivalences before_cand_remapping,
@@ -243,7 +244,8 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 			std::cout << "Combination " << x.to_string() << ", "
 				<< y.to_string() << ":";
-			if (!cur_test.set_scenarios(x, y, 100, relative_criterion)) {
+			if (!cur_test.set_scenarios(x, y, max_numvoters,
+				relative_criterion)) {
 				std::cout << "not permitted\n";
 				continue;
 			}
@@ -260,7 +262,7 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 				// Get the scenarios by sampling once.
 				monotonicity_test_instance ti = to_add.tgen.
-					sample_instance(i, before_cand_remapping, 
+					sample_instance(i, before_cand_remapping,
 						after_cand_remapping);
 				to_add.before_A = ti.before_A.scenario;
 				to_add.before_B = ti.before_B.scenario;
@@ -302,7 +304,7 @@ monotonicity_test_instance get_test_instance(test_instance_generator &
 		after_numcands = generator.after_A.get_numcands();
 
 	monotonicity_test_instance ti = generator.tgen.sample_instance(
-			generator.cand_B_idx, 
+			generator.cand_B_idx,
 			candidate_equivalences.find(before_numcands)->second,
 			candidate_equivalences.find(after_numcands)->second);
 
@@ -313,7 +315,7 @@ monotonicity_test_instance get_test_instance(test_instance_generator &
 // all currently passing algorithms.
 size_t update_pass_list(size_t & global_iter_count,
 	const std::vector<algo_t> & functions_to_test,
-	std::vector<bool> & passes_so_far, 
+	std::vector<bool> & passes_so_far,
 	const std::vector<monotonicity_test_instance> & test_instances) {
 
 	std::vector<std::vector<std::vector<double> > > ballot_vectors;
@@ -381,12 +383,13 @@ size_t test(int test_iterations, size_t & global_iter_count,
 
 	size_t passes = 0;
 	size_t stride = 10;
+	size_t linear_count = 0;
 
 	for (int iter = 0; iter < test_iterations; ++iter) {
 		std::vector<monotonicity_test_instance> instances;
 		for (size_t i = 0; i < stride; ++i) {
 			instances.push_back(get_test_instance(
-			same_group_test_generators[iter % 
+			same_group_test_generators[linear_count++ %
 				same_group_test_generators.size()], candidate_equivalences));
 		}
 
@@ -400,13 +403,8 @@ size_t test(int test_iterations, size_t & global_iter_count,
 
 int main(int argc, char ** argv) {
 
-	int seed = 104;
 	int numcands = 3;
-	rng randomizer(seed);
-
-	srand(seed);
-	srandom(seed);
-	srand48(seed);
+	rng randomizer(RNG_ENTROPY);
 
 	// Integrity test.
 
@@ -442,7 +440,7 @@ int main(int argc, char ** argv) {
 
 	sifter_file.close();
 
-	std::cout << "... done (read " << prospective_functions[3].size() 
+	std::cout << "... done (read " << prospective_functions[3].size()
 		<<  " functions)." << std::endl;
 
 	// h4x0ring end
@@ -470,27 +468,46 @@ int main(int argc, char ** argv) {
 
 	// I don't know why references don't work here...
 	for (copeland_scenario x: canonical_full) {
-		std::cout << "Smith set " << numcands << " canonical: " 
+		std::cout << "Smith set " << numcands << " canonical: "
 			<< x.to_string() << std::endl;
 	}
 
 	mono_raise_const mono_raise(numcands);
 	mono_add_top_const mono_add_top(numcands);
 
-	std::vector<test_instance_generator> test_generators =
-		get_all_permitted_test_generators(canonical_full_v, mono_raise,
-			other_equivs.find(numcands)->second, 
-			other_equivs.find(numcands)->second,
-			randomizer);
+	std::vector<test_instance_generator> test_generators;
 
-	std::vector<test_instance_generator> test_generators_mat =
-		get_all_permitted_test_generators(canonical_full_v, mono_add_top,
-			other_equivs.find(numcands)->second, 
-			other_equivs.find(numcands)->second,
-			randomizer);
+	// Having many different scales helps eliminate methods more quickly.
+	// Strictly speaking, the polytope with the largest number of max voters
+	// covers the other two given enough time, but this approach gives more
+	// of a spread right away.
+	// Ultimately, this is a symptom that our mixing times are too long,
+	// and the proper remedy is to increase the max step size for the
+	// billiard sampler (or engage in thinning, which amounts to the same
+	// thing...)
+	std::vector<double> numvoters_options = {1, 100, 10000};
 
-	std::copy(test_generators_mat.begin(), test_generators_mat.end(),
-		std::back_inserter(test_generators));
+	for (double numvoters: numvoters_options) {
+		std::vector<test_instance_generator> test_generators_mr =
+			get_all_permitted_test_generators(numvoters,
+				canonical_full_v, mono_raise,
+				other_equivs.find(numcands)->second,
+				other_equivs.find(numcands)->second,
+				randomizer);
+
+		std::copy(test_generators_mr.begin(), test_generators_mr.end(),
+			std::back_inserter(test_generators));
+
+		std::vector<test_instance_generator> test_generators_mat =
+			get_all_permitted_test_generators(numvoters,
+				canonical_full_v, mono_add_top,
+				other_equivs.find(numcands)->second,
+				other_equivs.find(numcands)->second,
+				randomizer);
+
+		std::copy(test_generators_mat.begin(), test_generators_mat.end(),
+			std::back_inserter(test_generators));
+	}
 
 	for (test_instance_generator itgen : test_generators) {
 		std::cout << "A: " << itgen.before_A.to_string()
@@ -509,16 +526,16 @@ int main(int argc, char ** argv) {
 
 		monotonicity_test_instance ti = get_test_instance(
 			itgen, other_equivs);
-		
+
 		ballot_tools().print_ranked_ballots(ti.before_A.election);
 
 		std::cout << "----- And again!\n";
 
 		ti = get_test_instance(itgen, other_equivs);
-		
+
 		ballot_tools().print_ranked_ballots(ti.before_A.election);
 
-		std::cout << "-----\n\n";
+		std::cout << "-----" << std::endl << std::endl;
 	}
 
 	// Some stuff here
@@ -536,7 +553,7 @@ int main(int argc, char ** argv) {
 		for (size_t i = 0; i < prospective_functions[3].size(); ++i) {
 			if (passes_so_far[i]) {
 				evaluator.force_set_algorithm(prospective_functions[3][i]);
-				out_file << prospective_functions[3][i] << "\t" 
+				out_file << prospective_functions[3][i] << "\t"
 					<< evaluator.to_string() << "\n";
 			}
 		}
