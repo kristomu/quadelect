@@ -4,7 +4,10 @@
 #include <iostream>
 #include <cstddef>
 
+#include <sys/random.h>
+
 #include "random.h"
+#include "../tools/tools.h"
 
 using namespace std;
 
@@ -22,15 +25,27 @@ void rng::s_rand(uint64_t seed_in) {
 	seed[0] = 0;
 
 	// We can't ordinarily seed xorshift with all zeroes, so if we're
-	// given a zero, then seed[0] gets bumped up to one.
-	if (seed_in == 0)
-		seed[0] = 1;
+	// given a zero, then set get the seed_in from an entropy source
+	// instead.
+	if (seed_in == RNG_ENTROPY)
+		s_rand();
 
 	// Xorshift64*
 	seed_in ^= seed_in >> 12; // a
 	seed_in ^= seed_in << 25; // b
 	seed_in ^= seed_in >> 27; // c
 	seed[1] = seed_in * 2685821657736338717LL;
+}
+
+void rng::s_rand() {
+	uint64_t seed_in[1];
+	ssize_t numbytes = getrandom(seed_in, sizeof(uint64_t), 0);
+
+	if (numbytes != sizeof(uint64_t)) {
+		throw std::runtime_error("rng: could only read " + itos(numbytes) +
+			" bytes from entropy for seeding.");
+	}
+	s_rand(seed_in[0]);
 }
 
 long double rng::ldrand() {

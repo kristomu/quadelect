@@ -2,14 +2,20 @@
 // random(), and it passes Crush even when the seed is quickly altered, making
 // it useful for per-case randomization.
 
-#ifndef __KRAND
-#define __KRAND
+// The reason this does not have a () constructor that seeds from the entropy
+// source is so that variable declarations like rng whatever; fail instead of
+// silently being set. This helps control randomness and keeps things
+// reproducible.
+
+#pragma once
 
 #include <stdint.h>
 #include <iostream>
 #include <cstddef>
 
 #define rseed_t uint64_t
+// Set seed to this to draw seed from entropy source.
+#define RNG_ENTROPY 0
 
 class rng {
 	private:
@@ -18,9 +24,12 @@ class rng {
 
 	public:
 		void s_rand(uint64_t seed_in); // Now passes Crush (not BigCrush)
+		void s_rand();                 // from entropy source
+
 		rng(uint64_t seed_in) {
 			s_rand(seed_in);
 		}
+
 		uint64_t long_rand() {
 			return (rng64(seed));
 		}
@@ -46,5 +55,3 @@ class rng {
 			return (lrand(max));
 		}
 };
-
-#endif
