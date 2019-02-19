@@ -3,8 +3,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <cstddef>
-
-#include <sys/random.h>
+#include <random>
 
 #include "random.h"
 #include "../tools/tools.h"
@@ -42,19 +41,24 @@ void rng::s_rand(uint64_t seed_in) {
 }
 
 void rng::s_rand() {
-	uint64_t seed_in[1] = {0};
-	ssize_t numbytes;
+	// std::random_device is a C++ hardware RNG class. It returns 
+	// unsigned 32-bit ints, so we need two of them.
+	std::random_device rd;
+	uint64_t seed_in = 0;
 
-	while (seed_in[0] == 0) {
-		numbytes = getrandom(seed_in, sizeof(uint64_t), 0);
-
-		if (numbytes != sizeof(uint64_t)) {
-			throw std::runtime_error("rng: could only read " + itos(numbytes) +
-				" bytes from entropy for seeding.");
-		}
+	// Guard against a 2^-64 probability event and platforms where
+	// rd is not random at all, but returns 0 all the time.
+	for (int i = 0; i < 10 && seed_in == 0; ++i) {
+		uint64_t a = rd(), b = rd();
+		seed_in = (a << 32ULL) + b;
 	}
 
-	s_rand(seed_in[0]);
+	if (seed_in == 0) {
+		throw std::runtime_error(
+			"RNG: std::random_device always returns 0");
+	}
+
+	s_rand(seed_in);
 }
 
 long double rng::ldrand() {
