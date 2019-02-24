@@ -26,13 +26,13 @@ class test_generator {
 			const std::vector<double> & election, int numcands) const;
 		uint64_t rng_seed;
 
-	public:
 		copeland_scenario scenario_before, scenario_after;
 		billiard_sampler<constraint_polytope> sampler;
 		constraint_polytope election_polytope;
 		std::vector<int> before_permutation_indices,
 			after_permutation_indices;
 
+	public:
 		// Samples an instance to get A, A', and then rotates to
 		// other_candidate_idx to get B and B'.
 		relative_test_instance sample_instance(
