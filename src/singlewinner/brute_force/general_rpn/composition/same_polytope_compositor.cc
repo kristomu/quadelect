@@ -1,4 +1,4 @@
-#include "test_results.h"
+
 #include "test_tuple_generator.h"
 #include "test_generator.h"
 #include "vector_ballot.h"
@@ -116,177 +116,100 @@ relative_test_instance get_test_instance(test_instance_generator &
 	return ti;
 }
 
-// This is a list of results gathered by testing multiple candidate
-// algorithms against a particular test generator oe test generator group. 
-// As long as the scenarios are the same for each test instance generator,
-// they can be treated as the same test instance generator as far as the
-// test results are concerned.
+// Returns the number of passes after the test has been evaluated on
+// all currently passing algorithms.
+size_t update_pass_list(size_t & global_iter_count,
+	const std::vector<algo_t> & functions_to_test,
+	std::vector<bool> & passes_so_far,
+	const std::vector<relative_test_instance> & test_instances) {
 
-class vector_test_instance {
-	public:
-		std::vector<vector<double> > ballot_vectors;
-		relative_test_instance ti;
+	std::vector<std::vector<std::vector<double> > > ballot_vectors;
+	size_t stride = test_instances.size(), i;
 
-		vector_test_instance(const relative_test_instance in) {
-			ti = in;
-			// Convert the test instance to ballot vectors.
-			ballot_vectors = {
-				get_ballot_vector(ti.before_A),
-				get_ballot_vector(ti.before_B),
-				get_ballot_vector(ti.after_A),
-				get_ballot_vector(ti.after_B)
-			};
-		}
-};
+	// Handle stride (since setting up an algorithm takes time.)
+	for (i = 0; i < stride; ++i) {
+		ballot_vectors.push_back( {
+			get_ballot_vector(test_instances[i].before_A),
+			get_ballot_vector(test_instances[i].before_B),
+			get_ballot_vector(test_instances[i].after_A),
+			get_ballot_vector(test_instances[i].after_B)
+		});
+	};
 
+	size_t passes = 0;
 
-// Beware of ugly hacks. The triple nested loop is the way it is so as to
-// minimize the amount of seeking that needs to be done in the memory-
-// mapped file. It's pretty hideous.
-void update_results(const std::vector<algo_t> & functions_to_test,
-	test_results & results_so_far,
-	const std::vector<vector_test_instance> & elections) {
-
-	// HACK! Fix later. Will not work when numcands are different
-	// (e.g. cloning)
-	int numcands = elections[0].ti.before_A.scenario.get_numcands();
+	// HACK! Fix later. Will not work when numcands are different.
+	int numcands = test_instances[0].before_A.scenario.get_numcands();
 
 	gen_custom_function evaluator(numcands);
 
-	// Linear count for the progress report
-	double max_count = NUM_REL_ELECTION_TYPES * functions_to_test.size();
-	size_t cur_count = 0;
+	for (size_t funct_idx = 0; funct_idx < passes_so_far.size();
+		++funct_idx) {
 
-	for (int type = TYPE_A; type <= TYPE_B_PRIME; ++type) {
+		if (!passes_so_far[funct_idx]) { continue; }
 
-		for (size_t funct_idx = 0; funct_idx < functions_to_test.size();
-			++funct_idx) {
+		algo_t to_test = functions_to_test[funct_idx];
 
-			algo_t to_test = functions_to_test[funct_idx];
+		// set_algorithm is slower than force_set_algorithm because the
+		// former checks the algorithm against a default instance. Thus,
+		// we skip the testing if we're past the first global iteration.
+		if (global_iter_count == 0) {
+			assert(evaluator.set_algorithm(to_test));
+		} else {
+			evaluator.force_set_algorithm(to_test);
+		}
 
-			// Forcing an algorithm skips various sanity checks and is
-			// faster. So only do those checks the first time we set the
-			// evaluator to a particular algorithm.
-			if (type == TYPE_A) {
-				assert(evaluator.set_algorithm(to_test));
-			} else {
-				evaluator.force_set_algorithm(to_test);
-			}
+		bool passed_this = true;
+		for (i = 0; i < stride && passed_this; ++i) {
+			double result_A = evaluator.evaluate(ballot_vectors[i][0]),
+				result_B = evaluator.evaluate(ballot_vectors[i][1]),
+				result_Ap = evaluator.evaluate(ballot_vectors[i][2]),
+				result_Bp = evaluator.evaluate(ballot_vectors[i][3]);
 
-			std::cout << "Generating results for " << to_test << "(rel: " <<
-				cur_count++/max_count << ")\n";
-
-			for (size_t test_number = 0; test_number < elections.size(); 
-				++test_number) {
-		
-				double result = evaluator.evaluate(elections[test_number].ballot_vectors[type]);
-				results_so_far.set_result(funct_idx, test_number,
-					(test_election)type, result);
+			if (result_A - result_B > 0 && result_Ap - result_Bp < 0) {
+				passes_so_far[funct_idx] = false;
+				std::cout << "Disqualified " << to_test << " at iteration " << global_iter_count << "\n";
+				passed_this = false;
 			}
 		}
-	}
-}
-
-class test_generator_group {
-	public:
-		std::vector<test_instance_generator> generators;
-		std::vector<bool> should_be_reversed; // for future purposes
-		copeland_scenario before_A, after_A;
-
-		std::vector<vector_test_instance> sample(
-			size_t desired_samples, 
-			const std::map<int, fixed_cand_equivalences> & 
-			candidate_equivalences);
-
-		bool fits_group(const test_instance_generator & candidate) const;
-
-		void insert(test_instance_generator candidate);
-};
-
-std::vector<vector_test_instance> test_generator_group::sample(
-	size_t desired_samples, const std::map<int, fixed_cand_equivalences> & 
-	candidate_equivalences) {
-
-	if (desired_samples < generators.size()) {
-		throw std::runtime_error(
-			"test_generator_group: too few samples to cover all "
-			"test instances.");
-	}
-
-	if (generators.empty()) {
-		throw std::runtime_error(
-			"test_generator_group: tried to sample from empty group.");
-	}
-
-	size_t sample_number = 0;
-
-	std::vector<vector_test_instance> elections;
-	elections.reserve(desired_samples);
-
-	while (sample_number != desired_samples) {
-		for (test_instance_generator & gen: generators) {
-			if (sample_number++ == desired_samples) { 
-				return elections;
-			}
-
-			elections.push_back(vector_test_instance(get_test_instance(
-				gen, candidate_equivalences)));
+		if (passed_this) {
+			++passes;
 		}
 	}
-
-	return elections;
+	++ global_iter_count;
+	return passes;
 }
 
-bool test_generator_group::fits_group(
-	const test_instance_generator & candidate) const {
-	// If it's empty, everything matches.
-	if (generators.empty()) { return true; }
-
-	// Check if the scenarios match.
-
-	return candidate.before_A == before_A && candidate.after_A == after_A;
-}
-
-void test_generator_group::insert(test_instance_generator candidate) {
-	if (!fits_group(candidate)) {
-		throw std::runtime_error(
-			"test_generator_group: inserted wrong type of "
-			"test_instance_generator!");
-	}
-
-	// If the group is empty, we need to set what's allowable from now on.
-	if (generators.empty()) {
-		before_A = candidate.before_A;
-		after_A = candidate.after_A;
-	}
-
-	generators.push_back(candidate);
-	should_be_reversed.push_back(false);
-}
-
-void test(size_t desired_samples, 
+size_t test(int test_iterations, size_t & global_iter_count,
 	const std::vector<algo_t> & functions_to_test,
-	test_results & results_so_far, test_generator_group & group,
+	std::vector<bool> & passes_so_far,
+	std::vector<test_instance_generator> & same_group_test_generators,
 	const std::map<int, fixed_cand_equivalences> & candidate_equivalences) {
 
-	update_results(functions_to_test, results_so_far, group.sample(
-		desired_samples, candidate_equivalences));
+	size_t passes = 0;
+	size_t stride = 10;
+	size_t linear_count = 0;
+
+	for (int iter = 0; iter < test_iterations; ++iter) {
+		std::vector<relative_test_instance> instances;
+		for (size_t i = 0; i < stride; ++i) {
+			instances.push_back(get_test_instance(
+			same_group_test_generators[linear_count++ %
+				same_group_test_generators.size()], candidate_equivalences));
+		}
+
+		passes = update_pass_list(global_iter_count,
+			functions_to_test, passes_so_far, instances);
+	}
+
+	return passes;
+
 }
-
-// TODO: Find out why 0x5140-0x52c0 is empty. 
-// (There's a method that returns 0 all the time, that's why.)
-
-// Then next: refactor, and test_generator_groups class that
-// does "if suitable tgg exists, dump next test_instance into it,
-// otherwise append a new tgg to the end". Perhaps also name() for
-// constraints?
-// And then more testing?
 
 int main(int argc, char ** argv) {
 
-	int numcands = 4;
-	rng randomizer(1);
-	//rng randomizer(RNG_ENTROPY);
+	int numcands = 3;
+	rng randomizer(RNG_ENTROPY);
 
 	// Integrity test.
 
@@ -302,7 +225,7 @@ int main(int argc, char ** argv) {
 	std::cout << "Reading file... " << std::endl;
 
 	if (argc < 3) {
-		std::cerr << "Usage: " << argv[0] << " [file containing sifter output, " << numcands << " cands] [output file]" <<
+		std::cerr << "Usage: " << argv[0] << " [file containing sifter output, 3 cands] [output file]" <<
 			std::endl;
 		return(-1);
 	}
@@ -357,6 +280,8 @@ int main(int argc, char ** argv) {
 	mono_raise_const mono_raise(numcands);
 	mono_add_top_const mono_add_top(numcands);
 
+	std::vector<test_instance_generator> test_generators;
+
 	// Perhaps make the constrain generators return the before and after
 	// number of candidates? Then we can just pass in other_equivs and
 	// not have to care about numcands. However, I think I should make
@@ -372,21 +297,9 @@ int main(int argc, char ** argv) {
 	// and the proper remedy is to increase the max step size for the
 	// billiard sampler (or engage in thinning, which amounts to the same
 	// thing...)
-
-	// Something kinda is wrong with get_all_permitted_test_generators;
-	// needs more design attention. Should it return a group, or iterate
-	// over all groups, or something entirely different? On the one hand,
-	// std::vector<test_instance_generator> is sort of a mask for a
-	// test_generator_group. On the other... it's not constrained the way
-	// a test_generator_group is.
-
 	std::vector<double> numvoters_options = {1, 100, 10000};
 
-	test_generator_group grp;
-
 	for (double numvoters: numvoters_options) {
-		std::vector<test_instance_generator> test_generators;
-
 		std::vector<test_instance_generator> test_generators_mr =
 			get_all_permitted_test_generators(numvoters,
 				canonical_full_v, mono_raise,
@@ -406,31 +319,59 @@ int main(int argc, char ** argv) {
 
 		std::copy(test_generators_mat.begin(), test_generators_mat.end(),
 			std::back_inserter(test_generators));
-
-		for (test_instance_generator itgen : test_generators) {
-			if (grp.fits_group(itgen)) {
-				grp.insert(itgen);
-			}
-		}
 	}
 
-	for (test_instance_generator itgen : grp.generators) {
+	for (test_instance_generator itgen : test_generators) {
 		std::cout << "A: " << itgen.before_A.to_string()
 			<< " A': " << itgen.after_A.to_string()
 			<< " B: " << itgen.before_B.to_string()
 			<< " B': " << itgen.after_B.to_string() << "\t"
 			<< "cddt B = # " << itgen.cand_B_idx << "\n";
 		std::cout << "Random sample:\n";
+
+		// Known bug: random sample is not the same for all cddt Bs
+		// with the same set of A, A'. It should be since all of them are
+		// initialized from the same test generator which starts off with
+		// the same seed.
+
+		std::cout << "Now sampling an instance." << std::endl;
+
+		relative_test_instance ti = get_test_instance(
+			itgen, other_equivs);
+
+		ballot_tools().print_ranked_ballots(ti.before_A.election);
+
+		std::cout << "----- And again!\n";
+
+		ti = get_test_instance(itgen, other_equivs);
+
+		ballot_tools().print_ranked_ballots(ti.before_A.election);
+
+		std::cout << "-----" << std::endl << std::endl;
 	}
 
 	// Some stuff here
-	int num_tests = 100;
-	test_results results(num_tests, functions_to_test.size());
 
-	std::cout << "Space required: " << results.get_bytes_required() << "\n";
-	results.allocate_space(out_filename);
+	size_t global_iter_count = 0;
+	std::vector<bool> passes_so_far(functions_to_test.size(), true);
 
-	test(num_tests, functions_to_test, results, grp, other_equivs);
+	for(;;) {
+		size_t x = test(20, global_iter_count, functions_to_test,
+			passes_so_far, test_generators, other_equivs);
+
+		std::ofstream out_file(out_filename);
+		gen_custom_function evaluator(numcands);
+
+		for (size_t i = 0; i < prospective_functions[3].size(); ++i) {
+			if (passes_so_far[i]) {
+				evaluator.force_set_algorithm(prospective_functions[3][i]);
+				out_file << prospective_functions[3][i] << "\t"
+					<< evaluator.to_string() << "\n";
+			}
+		}
+
+		std::cout << "passes: " << x << std::endl;
+	}
 
 	return 0;
 }

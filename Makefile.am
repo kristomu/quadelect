@@ -61,6 +61,7 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/singlewinner/brute_force/general_rpn/composition/equivalences.cc \
 	src/singlewinner/brute_force/general_rpn/composition/test_generator.cc \
 	src/singlewinner/brute_force/general_rpn/composition/vector_ballot.cc \
+	src/singlewinner/brute_force/general_rpn/composition/test_results.cc \
 	src/pairwise/abstract_matrix.cc src/pairwise/beatpath.cc \
 	src/pairwise/cache_matrix.cc src/pairwise/grad_matrix.cc \
 	src/pairwise/matrix.cc src/pairwise/types.cc \
