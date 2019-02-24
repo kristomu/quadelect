@@ -166,7 +166,12 @@ size_t update_pass_list(size_t & global_iter_count,
 				result_Ap = evaluator.evaluate(ballot_vectors[i][2]),
 				result_Bp = evaluator.evaluate(ballot_vectors[i][3]);
 
-			if (result_A - result_B > 0 && result_Ap - result_Bp < 0) {
+			bool is_nan = isnan(result_A) || isnan(result_B) ||
+				isnan(result_Ap) || isnan(result_Bp);
+
+			if (is_nan || (result_A - result_B > 0 &&
+				result_Ap - result_Bp < 0)) {
+
 				passes_so_far[funct_idx] = false;
 				std::cout << "Disqualified " << to_test << " at iteration " << global_iter_count << "\n";
 				passed_this = false;
