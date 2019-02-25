@@ -62,6 +62,8 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/singlewinner/brute_force/general_rpn/composition/test_generator.cc \
 	src/singlewinner/brute_force/general_rpn/composition/vector_ballot.cc \
 	src/singlewinner/brute_force/general_rpn/composition/test_results.cc \
+	src/singlewinner/brute_force/general_rpn/composition/test_instance_gen.cc \
+	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc \
 	src/pairwise/abstract_matrix.cc src/pairwise/beatpath.cc \
 	src/pairwise/cache_matrix.cc src/pairwise/grad_matrix.cc \
 	src/pairwise/matrix.cc src/pairwise/types.cc \
@@ -141,7 +143,7 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/modes/interpret.cc \
 	src/singlewinner/brute_force/general_rpn/composition/polytope_compositor.cc
 
-qelect_CXXFLAGS = --std=c++11 -Wall -Werror -march=native -mtune=native -ggdb
+qelect_CXXFLAGS = --std=c++14 -Wall -Werror -march=native -mtune=native -ggdb
 
 # HACK HACK. Find out how to determine the name and location of glpk the "right"
 # way later. (Same with SSL, which is used for SHA.)

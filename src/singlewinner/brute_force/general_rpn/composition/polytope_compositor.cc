@@ -1,5 +1,8 @@
+#include "groups/test_generator_groups.h"
+#include "groups/test_generator_group.h"
+#include "logistics/vector_test_instance.h"
 #include "test_results.h"
-#include "test_tuple_generator.h"
+#include "test_instance_gen.h"
 #include "test_generator.h"
 #include "vector_ballot.h"
 #include "equivalences.h"
@@ -9,8 +12,7 @@
 #include <time.h>
 
 #include <stdexcept>
-
-#include <eigen3/Eigen/Dense>
+#include <memory>
 
 #include "../../../../tools/ballot_tools.h"
 
@@ -82,64 +84,6 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 	return out;
 }
 
-// TODO: Group the identified test generators into groups that we can
-// test all at once. E.g. if both test instance generators A and B have
-// the same scenario 4-tuple, then we can test both at once.
-
-// Our general design when the scenarios in the 4-tuple aren't all the
-// same, is that for each algorithm and for k tests, we have a k-vector
-// giving what that algorithm scored the A-election of that test. Then
-// we have other such vectors for B, A', and B'; and the monotonicity
-// criterion for algorithms aA, aA', aB, aB' is satisfied if
-// score(aA, eA) - score(aB, eB) <= score(aA', eA') - score(aB', eB'),
-// where eA, eB, eA', eB' are the elections in question.
-
-// A group would consist of all test instance generators where scenarios
-// [A, B, A', B'] are the same, or the scenario list can be permuted to
-// make it the same.
-
-// I'm not yet sure whether I'll implement that group, so I'll leave it
-// for later. For now, just do the "every scenario is the same" bit.
-
-relative_test_instance get_test_instance(test_instance_generator &
-	generator, const std::map<int, fixed_cand_equivalences>
-	candidate_equivalences) {
-
-	int before_numcands = generator.before_A.get_numcands(),
-		after_numcands = generator.after_A.get_numcands();
-
-	relative_test_instance ti = generator.tgen.sample_instance(
-			generator.cand_B_idx,
-			candidate_equivalences.find(before_numcands)->second,
-			candidate_equivalences.find(after_numcands)->second);
-
-	return ti;
-}
-
-// This is a list of results gathered by testing multiple candidate
-// algorithms against a particular test generator oe test generator group. 
-// As long as the scenarios are the same for each test instance generator,
-// they can be treated as the same test instance generator as far as the
-// test results are concerned.
-
-class vector_test_instance {
-	public:
-		std::vector<vector<double> > ballot_vectors;
-		relative_test_instance ti;
-
-		vector_test_instance(const relative_test_instance in) {
-			ti = in;
-			// Convert the test instance to ballot vectors.
-			ballot_vectors = {
-				get_ballot_vector(ti.before_A),
-				get_ballot_vector(ti.before_B),
-				get_ballot_vector(ti.after_A),
-				get_ballot_vector(ti.after_B)
-			};
-		}
-};
-
-
 // Beware of ugly hacks. The triple nested loop is the way it is so as to
 // minimize the amount of seeking that needs to be done in the memory-
 // mapped file. It's pretty hideous.
@@ -185,83 +129,6 @@ void update_results(const std::vector<algo_t> & functions_to_test,
 			}
 		}
 	}
-}
-
-class test_generator_group {
-	public:
-		std::vector<test_instance_generator> generators;
-		std::vector<bool> should_be_reversed; // for future purposes
-		copeland_scenario before_A, after_A;
-
-		std::vector<vector_test_instance> sample(
-			size_t desired_samples, 
-			const std::map<int, fixed_cand_equivalences> & 
-			candidate_equivalences);
-
-		bool fits_group(const test_instance_generator & candidate) const;
-
-		void insert(test_instance_generator candidate);
-};
-
-std::vector<vector_test_instance> test_generator_group::sample(
-	size_t desired_samples, const std::map<int, fixed_cand_equivalences> & 
-	candidate_equivalences) {
-
-	if (desired_samples < generators.size()) {
-		throw std::runtime_error(
-			"test_generator_group: too few samples to cover all "
-			"test instances.");
-	}
-
-	if (generators.empty()) {
-		throw std::runtime_error(
-			"test_generator_group: tried to sample from empty group.");
-	}
-
-	size_t sample_number = 0;
-
-	std::vector<vector_test_instance> elections;
-	elections.reserve(desired_samples);
-
-	while (sample_number != desired_samples) {
-		for (test_instance_generator & gen: generators) {
-			if (sample_number++ == desired_samples) { 
-				return elections;
-			}
-
-			elections.push_back(vector_test_instance(get_test_instance(
-				gen, candidate_equivalences)));
-		}
-	}
-
-	return elections;
-}
-
-bool test_generator_group::fits_group(
-	const test_instance_generator & candidate) const {
-	// If it's empty, everything matches.
-	if (generators.empty()) { return true; }
-
-	// Check if the scenarios match.
-
-	return candidate.before_A == before_A && candidate.after_A == after_A;
-}
-
-void test_generator_group::insert(test_instance_generator candidate) {
-	if (!fits_group(candidate)) {
-		throw std::runtime_error(
-			"test_generator_group: inserted wrong type of "
-			"test_instance_generator!");
-	}
-
-	// If the group is empty, we need to set what's allowable from now on.
-	if (generators.empty()) {
-		before_A = candidate.before_A;
-		after_A = candidate.after_A;
-	}
-
-	generators.push_back(candidate);
-	should_be_reversed.push_back(false);
 }
 
 void test(size_t desired_samples, 
@@ -316,13 +183,13 @@ int main(int argc, char ** argv) {
 
 	std::vector<std::vector<algo_t> > prospective_functions(5);
 
-	get_first_token_on_lines(sifter_file, prospective_functions[3]);
+	get_first_token_on_lines(sifter_file, prospective_functions[numcands]);
 
-	std::vector<algo_t> functions_to_test = prospective_functions[3];
+	std::vector<algo_t> functions_to_test = prospective_functions[numcands];
 
 	sifter_file.close();
 
-	std::cout << "... done (read " << prospective_functions[3].size()
+	std::cout << "... done (read " << prospective_functions[numcands].size()
 		<<  " functions)." << std::endl;
 
 	// h4x0ring end
@@ -330,8 +197,6 @@ int main(int argc, char ** argv) {
 	std::string out_filename = argv[2];
 
 	std::cout << "Initializing equivalences..." << std::endl;
-
-	fixed_cand_equivalences three_equivalences(3);
 
 	std::map<int, fixed_cand_equivalences> other_equivs;
 	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(4, fixed_cand_equivalences(4)));;
@@ -349,13 +214,19 @@ int main(int argc, char ** argv) {
 	copeland_scenario example_desired_A, example_desired_B;
 
 	// I don't know why references don't work here...
-	for (copeland_scenario x: canonical_full) {
+	for (const copeland_scenario x: canonical_full) {
 		std::cout << "Smith set " << numcands << " canonical: "
 			<< x.to_string() << std::endl;
 	}
 
-	mono_raise_const mono_raise(numcands);
-	mono_add_top_const mono_add_top(numcands);
+	std::vector<std::unique_ptr<relative_criterion_const> > 
+		relative_constraints;
+
+	// Add some relative constraints. (Kinda ugly, but what can you do.)
+	relative_constraints.push_back(
+		std::make_unique<mono_raise_const>(numcands));
+	relative_constraints.push_back(
+		std::make_unique<mono_add_top_const>(numcands));
 
 	// Perhaps make the constrain generators return the before and after
 	// number of candidates? Then we can just pass in other_equivs and
@@ -382,46 +253,28 @@ int main(int argc, char ** argv) {
 
 	std::vector<double> numvoters_options = {1, 100, 10000};
 
-	test_generator_group grp;
+	test_generator_groups grps;
 
 	for (double numvoters: numvoters_options) {
-		std::vector<test_instance_generator> test_generators;
+		for (auto & constraint : relative_constraints) {
+			std::vector<test_instance_generator> test_generators =
+				get_all_permitted_test_generators(numvoters,
+					canonical_full_v, *constraint,
+					other_equivs.find(numcands)->second,
+					other_equivs.find(numcands)->second,
+					randomizer);
 
-		std::vector<test_instance_generator> test_generators_mr =
-			get_all_permitted_test_generators(numvoters,
-				canonical_full_v, mono_raise,
-				other_equivs.find(numcands)->second,
-				other_equivs.find(numcands)->second,
-				randomizer);
-
-		std::copy(test_generators_mr.begin(), test_generators_mr.end(),
-			std::back_inserter(test_generators));
-
-		std::vector<test_instance_generator> test_generators_mat =
-			get_all_permitted_test_generators(numvoters,
-				canonical_full_v, mono_add_top,
-				other_equivs.find(numcands)->second,
-				other_equivs.find(numcands)->second,
-				randomizer);
-
-		std::copy(test_generators_mat.begin(), test_generators_mat.end(),
-			std::back_inserter(test_generators));
-
-		for (test_instance_generator itgen : test_generators) {
-			if (grp.fits_group(itgen)) {
-				grp.insert(itgen);
+			for (test_instance_generator itgen : test_generators) {
+				grps.insert(itgen);
 			}
 		}
 	}
 
-	for (test_instance_generator itgen : grp.generators) {
-		std::cout << "A: " << itgen.before_A.to_string()
-			<< " A': " << itgen.after_A.to_string()
-			<< " B: " << itgen.before_B.to_string()
-			<< " B': " << itgen.after_B.to_string() << "\t"
-			<< "cddt B = # " << itgen.cand_B_idx << "\n";
-		std::cout << "Random sample:\n";
-	}
+	std::cout << "Number of groups: " << grps.groups.size() << "\n";
+
+	test_generator_group grp = grps.groups[0];
+
+	grp.print_members();
 
 	// Some stuff here
 	int num_tests = 100;
@@ -429,6 +282,18 @@ int main(int argc, char ** argv) {
 
 	std::cout << "Space required: " << results.get_bytes_required() << "\n";
 	results.allocate_space(out_filename);
+
+	// Write metadata
+	ofstream out_meta(out_filename + ".meta");
+
+	out_meta << out_filename << " ";
+	grp.print_scenarios(out_meta);
+	out_meta << " " << results.num_tests << " ";
+	std::copy(results.num_methods.begin(), results.num_methods.end(),
+		ostream_iterator<int>(out_meta, " "));
+	out_meta << "\n";
+
+	out_meta.close();
 
 	test(num_tests, functions_to_test, results, grp, other_equivs);
 

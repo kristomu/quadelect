@@ -12,7 +12,6 @@
 // into these tuples also makes divide and conquer possible.
 
 class test_instance_generator {
-	private:
 	public:
 		copeland_scenario before_A, after_A, before_B, after_B;
 		int cand_B_idx;
@@ -20,4 +19,7 @@ class test_instance_generator {
 
 		test_instance_generator(test_generator in) : tgen(in) {}
 
+		relative_test_instance get_test_instance(
+			const std::map<int, fixed_cand_equivalences> 
+			candidate_equivalences);
 };
