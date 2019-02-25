@@ -82,4 +82,6 @@ class relative_criterion_const {
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
 		}
+
+		virtual ~relative_criterion_const() {}
 };
