@@ -299,3 +299,19 @@ std::map<copeland_scenario, std::set<copeland_scenario> >
 
 	return out;
 }
+
+// Get all fixed cand equivalences up to (and including) this number of
+// candidates.
+
+std::map<int, fixed_cand_equivalences> get_cand_equivalences(
+	int max_numcands) {
+
+	std::map<int, fixed_cand_equivalences> other_equivs;
+
+	for (int i = 3; i <= max_numcands; ++i) {
+		other_equivs.insert(std::pair<int, fixed_cand_equivalences>(i,
+			fixed_cand_equivalences(i)));
+	}
+
+	return other_equivs;
+}

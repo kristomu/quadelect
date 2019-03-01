@@ -156,3 +156,6 @@ struct election_scenario_pair {
 	copeland_scenario scenario;
 	int from_perspective_of;
 };
+
+std::map<int, fixed_cand_equivalences> get_cand_equivalences(
+	int max_numcands);
