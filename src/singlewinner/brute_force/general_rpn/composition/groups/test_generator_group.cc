@@ -29,21 +29,23 @@ vector_test_instance test_generator_group::sample(
 	const std::map<int, fixed_cand_equivalences> & 
 	candidate_equivalences) const {
 
-	relative_test_instance ti = generator.get_test_instance(
+	relative_test_instance in_ti = generator.get_test_instance(
 			candidate_equivalences);
 
+	// Insert debug text here. And evoke...
+
 	if (reverse) {
-		relative_test_instance rti;
+		relative_test_instance out_ti;
 
-		rti.before_A = ti.after_B;
-		rti.before_B = ti.after_A;
-		rti.after_A = ti.before_B;
-		rti.after_B = ti.before_A;
+		out_ti.before_A = in_ti.after_B;
+		out_ti.before_B = in_ti.after_A;
+		out_ti.after_A = in_ti.before_B;
+		out_ti.after_B = in_ti.before_A;
 
-		ti = rti;
+		return vector_test_instance(out_ti);
 	}
 
-	return vector_test_instance(ti);
+	return vector_test_instance(in_ti);
 }
 
 std::vector<vector_test_instance> test_generator_group::sample(
@@ -141,4 +143,45 @@ void test_generator_group::print_members() const {
 void test_generator_group::print_scenarios(std::ostream & where) const {
 	where << before_A.to_string() << " " << before_B.to_string() << " "
 		<< after_A.to_string() << " " << after_B.to_string();
+}
+
+std::set<copeland_scenario>
+	test_generator_group::get_tested_scenarios() const {
+
+	std::set<copeland_scenario> out;
+	out.insert(before_A);
+	out.insert(after_A);
+	out.insert(before_B);
+	out.insert(after_B);
+
+	return out;
+}
+
+bool test_generator_group::operator<(
+	const test_generator_group & other) const {
+
+	if (before_A != other.before_A) { return before_A < other.before_A; }
+	if (before_B != other.before_B) { return before_B < other.before_B; }
+	if (after_A != other.after_A) { return after_A < other.after_A; }
+	return after_B < other.after_B;
+}
+
+bool test_generator_group::operator==(
+	const test_generator_group & other) const {
+
+	return !(*this < other) && !(other < *this);
+}
+
+copeland_scenario test_generator_group::get_scenario(
+	test_election election_type) const {
+
+	switch(election_type) {
+		case TYPE_A: return(before_A);
+		case TYPE_B: return(before_B);
+		case TYPE_A_PRIME: return(after_A);
+		case TYPE_B_PRIME: return(after_B);
+		default:
+			throw std::runtime_error("test_generator_group: invalid"
+				" current_election!");
+	}
 }

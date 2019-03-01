@@ -198,12 +198,11 @@ int main(int argc, char ** argv) {
 
 	std::cout << "Initializing equivalences..." << std::endl;
 
-	std::map<int, fixed_cand_equivalences> other_equivs;
-	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(4, fixed_cand_equivalences(4)));;
-	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(3, fixed_cand_equivalences(3)));;
-
+	std::map<int, fixed_cand_equivalences> cand_equivs = 
+		get_cand_equivalences(4);
+	
 	std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
-		numcands, other_equivs.find(numcands)->second);
+		numcands, cand_equivs.find(numcands)->second);
 
 	std::vector<copeland_scenario> canonical_full_v;
 	std::copy(canonical_full.begin(), canonical_full.end(),
@@ -229,7 +228,7 @@ int main(int argc, char ** argv) {
 		std::make_unique<mono_add_top_const>(numcands));
 
 	// Perhaps make the constrain generators return the before and after
-	// number of candidates? Then we can just pass in other_equivs and
+	// number of candidates? Then we can just pass in cand_equivs and
 	// not have to care about numcands. However, I think I should make
 	// 4,4 first (to establish the recording format), and then go to
 	// cloning, and at that point start on fixing all these dependencies
@@ -251,6 +250,7 @@ int main(int argc, char ** argv) {
 	// test_generator_group. On the other... it's not constrained the way
 	// a test_generator_group is.
 
+	// More problems...
 	std::vector<double> numvoters_options = {1, 100, 10000};
 
 	test_generator_groups grps;
@@ -260,8 +260,8 @@ int main(int argc, char ** argv) {
 			std::vector<test_instance_generator> test_generators =
 				get_all_permitted_test_generators(numvoters,
 					canonical_full_v, *constraint,
-					other_equivs.find(numcands)->second,
-					other_equivs.find(numcands)->second,
+					cand_equivs.find(numcands)->second,
+					cand_equivs.find(numcands)->second,
 					randomizer);
 
 			for (test_instance_generator itgen : test_generators) {
@@ -272,30 +272,35 @@ int main(int argc, char ** argv) {
 
 	std::cout << "Number of groups: " << grps.groups.size() << "\n";
 
-	test_generator_group grp = grps.groups[0];
+	for (size_t i = 0; i < grps.groups.size(); ++i) {
 
-	grp.print_members();
+		std::string fn_prefix = "algo_testing/" + itos(i) + "_" + out_filename;
 
-	// Some stuff here
-	int num_tests = 100;
-	test_results results(num_tests, functions_to_test.size());
+		test_generator_group grp = grps.groups[i];
 
-	std::cout << "Space required: " << results.get_bytes_required() << "\n";
-	results.allocate_space(out_filename);
+		grp.print_members();
 
-	// Write metadata
-	ofstream out_meta(out_filename + ".meta");
+		// Some stuff here
+		int num_tests = 100;
+		test_results results(num_tests, functions_to_test.size());
 
-	out_meta << out_filename << " ";
-	grp.print_scenarios(out_meta);
-	out_meta << " " << results.num_tests << " ";
-	std::copy(results.num_methods.begin(), results.num_methods.end(),
-		ostream_iterator<int>(out_meta, " "));
-	out_meta << "\n";
+		std::cout << "Space required: " << results.get_bytes_required() << "\n";
+		results.allocate_space(fn_prefix);
 
-	out_meta.close();
+		// Write metadata
+		ofstream out_meta(fn_prefix + ".meta");
 
-	test(num_tests, functions_to_test, results, grp, other_equivs);
+		out_meta << fn_prefix << " ";
+		grp.print_scenarios(out_meta);
+		out_meta << " " << results.num_tests << " ";
+		std::copy(results.num_methods.begin(), results.num_methods.end(),
+			ostream_iterator<int>(out_meta, " "));
+		out_meta << "\n";
+
+		out_meta.close();
+
+		test(num_tests, functions_to_test, results, grp, cand_equivs);
+	}
 
 	return 0;
 }

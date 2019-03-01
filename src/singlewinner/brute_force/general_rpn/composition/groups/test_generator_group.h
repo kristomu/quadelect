@@ -5,6 +5,8 @@
 #include "../test_instance_gen.h"
 #include "../logistics/vector_test_instance.h"
 
+#include "../test_results.h" // FIX LATER
+
 // A test generator group is a group of test instance generators that
 // output elections that make use of the same scenarios, and thus can be
 // tested on the same tuple of algorithms.
@@ -45,4 +47,13 @@ class test_generator_group {
 
 		void print_members() const;
 		void print_scenarios(std::ostream & where) const;
+
+		std::set<copeland_scenario> get_tested_scenarios() const;
+
+		// used for producing an ordering among groups with the same
+		// scenarios.
+		bool operator<(const test_generator_group & other) const;
+		bool operator==(const test_generator_group & other) const;
+
+		copeland_scenario get_scenario(test_election election_type) const;
 };

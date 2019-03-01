@@ -141,8 +141,8 @@ qelect_SOURCES = src/tools/ballot_tools.h src/ballots.h src/cache.h \
 	src/main/strat_test.cc \
 	src/modes/breg.cc src/images/color/color.cc src/modes/yee.cc \
 	src/modes/interpret.cc \
-	src/singlewinner/brute_force/general_rpn/composition/polytope_compositor.cc
-
+	src/singlewinner/brute_force/general_rpn/verifier/verifier.cc
+	
 qelect_CXXFLAGS = --std=c++14 -Wall -Werror -march=native -mtune=native -ggdb
 
 # HACK HACK. Find out how to determine the name and location of glpk the "right"
