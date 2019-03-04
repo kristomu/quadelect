@@ -25,14 +25,12 @@
 // respective scenarios are also swapped around.
 
 vector_test_instance test_generator_group::sample(
-	test_instance_generator generator, bool reverse, 
+	test_instance_generator & generator, bool reverse,
 	const std::map<int, fixed_cand_equivalences> & 
 	candidate_equivalences) const {
 
 	relative_test_instance in_ti = generator.get_test_instance(
 			candidate_equivalences);
-
-	// Insert debug text here. And evoke...
 
 	if (reverse) {
 		relative_test_instance out_ti;

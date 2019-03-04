@@ -25,7 +25,7 @@ class test_generator_group {
 		std::vector<bool> should_be_reversed;
 		copeland_scenario before_A, after_A, before_B, after_B;
 
-		vector_test_instance sample(test_instance_generator generator,
+		vector_test_instance sample(test_instance_generator & generator,
 			bool reverse, const std::map<int, fixed_cand_equivalences> & 
 			candidate_equivalences) const;
 
