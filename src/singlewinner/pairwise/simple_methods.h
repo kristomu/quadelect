@@ -25,16 +25,31 @@ using namespace std;
 // This produces a social ordering according to the greatest opponent magnitude,
 // negated (so as to keep with the convention that higher score is better).
 
+// If reverse_perspective is true, we do min(candidate above others) 
+// instead of -max(others over candidate). This is mostly intended for
+// debugging with CM_PAIRWISE_OPP; keep it off for standard uses.
+
 class ord_minmax : public pairwise_method {
+
+	private:
+		bool reverse_perspective;
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
 				const vector<bool> & hopefuls, 
 				cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { return("Minmax"); }
-		ord_minmax(pairwise_type def_type_in) : 
-			pairwise_method(def_type_in) { update_name(); }
+		string pw_name() const { 
+			if (reverse_perspective) {
+				return ("Minmax (rev. persp.)");
+			} else {
+				return("Minmax");
+			}
+		}
+		ord_minmax(pairwise_type def_type_in, bool rev_persp_in) : 
+			pairwise_method(def_type_in) { 
+				reverse_perspective = rev_persp_in;
+				update_name(); }
 
 };
 

@@ -6,8 +6,6 @@
 
 #include <complex>
 
-using namespace std;
-
 //////////////////////////////
 
 // Some simple (low K-complexity) Condorcet methods follow.
@@ -33,17 +31,27 @@ pair<ordering, bool> ord_minmax::pair_elect(const abstract_condmat & input,
 
 		int record_pos = 0;
 
-		for (int sec = 1; sec < input.get_num_candidates(); ++sec)
+		for (int sec = 1; sec < input.get_num_candidates(); ++sec) {
 			if (input.get_magnitude(sec, counter, hopefuls) > 
 					input.get_magnitude(record_pos, 
 						counter, hopefuls))
 				record_pos = sec;
+		}
 
-		if (debug)
-			cout << "ord_minmax: candidate " << counter << " has maximal defeat " << input.get_magnitude(record_pos, counter) << " by " << record_pos << endl;
+		if (debug) {
+			std::cout << "ord_minmax: candidate " << counter 
+				<< " has maximal defeat " << 
+				input.get_magnitude(record_pos, counter) << " by " << 
+				record_pos << std::endl;
+		}
 
-		toRet.insert(candscore(counter, -input.get_magnitude(
-						record_pos, counter)));
+		if (reverse_perspective) {
+			toRet.insert(candscore(counter, input.get_magnitude(
+				counter, record_pos)));
+		} else {
+			toRet.insert(candscore(counter, -input.get_magnitude(
+				record_pos, counter)));
+		}
 	}
 
 	return(pair<ordering, bool>(toRet, false));
