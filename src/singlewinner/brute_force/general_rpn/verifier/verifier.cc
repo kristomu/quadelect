@@ -157,116 +157,142 @@ std::list<int> toposort(
 // data file produced by compositor.
 
 // TODO: Clean up the extreme number of parameters passed around here.
+// It doesn't work, either...
 
-class backtracker {};
+class test_and_result {
+	public:
+		test_generator_group test_group;
+		test_results group_results;
 
-void traverse_within_group(const test_generator_groups & all_groups,
-	const test_generator_group & current_group,
-	const std::list<int> & groups_to_visit,
-	std::list<int>::const_iterator & pos, test_election current_election,
-	std::map<copeland_scenario, int> & set_algorithm_indices,
-	const std::vector<std::vector<algo_t> > & prospective_functions,
-	const std::vector<test_results> & all_results,
-	std::vector<int> & cur_results_method_indices);
+		test_and_result(const test_generator_group & group_in, 
+			const test_results & results_in) : test_group(group_in),
+			group_results(results_in) {}
+};
 
-void traverse_groups(const test_generator_groups & all_groups,
-	const std::list<int> & groups_to_visit, 
-	std::list<int>::const_iterator pos, 
-	std::map<copeland_scenario, int> & set_algorithm_indices,
-	const std::vector<std::vector<algo_t> > & prospective_functions,
-	const std::vector<test_results> & all_results,
-	std::vector<int> & cur_results_method_indices) {
+class backtracker {
+	public:
+		std::vector<test_and_result> tests_and_results;
+		std::map<copeland_scenario, int> algorithm_for_scenario;
+		std::vector<std::vector<algo_t> > prospective_functions;
+		std::vector<std::vector<int> > algorithm_per_setting;
+		int numcands;
 
-	if (pos == groups_to_visit.end()) {
-		// Print out or something here.
-		// HACK HACK! Numcands is not 4 always!
-		std::cout << "Success??\n";
+		void set_tests_and_results(
+			const std::list<int> & order,
+			const test_generator_groups & all_groups,
+			const std::vector<test_results> & all_results);
 
-		gen_custom_function evaluator(4);
+		void try_algorithms(size_t test_group_idx, 
+			test_election current_election_setting);
 
-		for (const auto & sai: set_algorithm_indices) {
-			algo_t algorithm = prospective_functions[4][sai.second];
-
-			assert(evaluator.set_algorithm(algorithm));
-			std::cout << "\t" << sai.first.to_string() << " = " << 
-				algorithm << ": " << evaluator.to_string() << "\n";
+		void try_algorithms() {
+			try_algorithms(0, TYPE_A);
 		}
-		/*std::copy(set_algorithm_indices.begin(), set_algorithm_indices.end(),
-			ostream_iterator<int>(cout));*/
+
+		backtracker(int numcands_in) {
+			numcands = numcands_in; // remove later
+		}
+};
+
+
+void backtracker::try_algorithms(size_t test_group_idx,
+	test_election current_election_setting) {
+
+	if (test_group_idx == tests_and_results.size()) {
+		// End case.
+		std::cout << "Reached the end." << std::endl;
+		gen_custom_function evaluator(numcands);
+
+		for (const auto & kv : algorithm_for_scenario) {
+			algo_t algorithm = prospective_functions[numcands][kv.second];
+			evaluator.set_algorithm(algorithm);
+			std::cout << "\t" << kv.first.to_string() << ": " 
+				<< algorithm << "\t" << evaluator.to_string() << "\n";
+		}
+
 		std::cout << std::endl;
 		return;
 	}
 
-	traverse_within_group(all_groups, all_groups.groups[*pos], 
-		groups_to_visit, pos, TYPE_A, set_algorithm_indices,
-		prospective_functions, all_results,
-		cur_results_method_indices);
-}
+	// First check if we've set an algorithm for the current test group.
+	// If not, go through every possible algorithm.
 
-void traverse_within_group(const test_generator_groups & all_groups,
-	const test_generator_group & current_group,
-	const std::list<int> & groups_to_visit,
-	std::list<int>::const_iterator & pos, test_election current_election,
-	std::map<copeland_scenario, int> & set_algorithm_indices,
-	const std::vector<std::vector<algo_t> > & prospective_functions,
-	const std::vector<test_results> & all_results,
-	std::vector<int> & cur_results_method_indices) {
+	copeland_scenario current_scenario = tests_and_results[test_group_idx].
+		test_group.get_scenario(current_election_setting);
 
-	copeland_scenario cur = current_group.get_scenario(current_election);
+	size_t i;
 
-	if (set_algorithm_indices.find(cur) == set_algorithm_indices.end() ||
-		set_algorithm_indices[cur] == -1) {
-		size_t numcands = cur.get_numcands();
-		for (size_t i = 0; i < prospective_functions[numcands].size(); ++i) {
-			set_algorithm_indices[cur] = i;
-			traverse_within_group(all_groups, current_group, 
-				groups_to_visit, pos, current_election,
-				set_algorithm_indices, prospective_functions,
-				all_results, cur_results_method_indices);
+	if (algorithm_for_scenario.find(current_scenario) == 
+		algorithm_for_scenario.end() ||
+		algorithm_for_scenario.find(current_scenario)->second == -1) {
+
+		// Go through every possible algorithm. For each, recurse back with
+		// the current position the same so we'll fall through next time.
+
+		for (i = 0; i < prospective_functions[numcands].size(); ++i){
+
+			algorithm_for_scenario[current_scenario] = i;
+
+			try_algorithms(test_group_idx, current_election_setting);
+
+			assert(algorithm_for_scenario[current_scenario] == (int)i);
 		}
-		set_algorithm_indices[cur] = -1;
+
+		// Since we've looped through to ourselves, there's no need
+		// to do anything but return here
 		return;
 	}
 
-	// If we have set all scenarios up to and including the one
-	// corresponding to election B', then perform the test. Otherwise
-	// (if we've only set some), recurse on.
+	// If we got here, the algorithm to use for the current scenario has
+	// already been defined. So set the algorithm_per_setting array to
+	// this particular algorithm, as the testing function need is in that
+	// particular format.
 
-	cur_results_method_indices[current_election] = set_algorithm_indices[
-		cur];
+	// Note that we need a different algorithm_per_setting array for each
+	// test_group_idx. Otherwise recursions further in might scribble on
+	// an algorithm_per_setting that a recursion further out needs to
+	// preserve.
 
-	if (current_election == TYPE_B_PRIME) {
-		// Evaluate here
-		assert((size_t)(*pos) < all_results.size());
-		bool passes_test = all_results[*pos].passes_tests(
-			cur_results_method_indices);
-		if (passes_test) {
-			std::list<int>::const_iterator next_pos = pos;
-			++next_pos;
+	algorithm_per_setting[test_group_idx][(int)current_election_setting] = 
+		algorithm_for_scenario[current_scenario];
 
-			traverse_groups(all_groups, groups_to_visit, next_pos,
-				set_algorithm_indices, prospective_functions, all_results,
-				cur_results_method_indices);
-		} else {
-			std::cout << "Elimination. Scenario is " << *pos << ":\n";
-			all_groups.groups[*pos].print_members();
-			std::cout << "\n";
-			gen_custom_function evaluator(4);
-			for (const auto & sai: set_algorithm_indices) {
-				if (sai.second == -1) {continue;}
-				algo_t algorithm = prospective_functions[4][sai.second];
+	// If we're at the last election setting, run a test, because we have
+	// algorithms for every selection setting (A, B, A', B').
+	if (current_election_setting == TYPE_B_PRIME) {
+		bool pass = tests_and_results[test_group_idx].group_results.
+			passes_tests(algorithm_per_setting[test_group_idx]);
 
-				assert(evaluator.set_algorithm(algorithm));
-				std::cout << "\t" << sai.first.to_string() << " = " << 
-					algorithm << ": " << evaluator.to_string() << "\n";
-			}
-		}
-	} else {
-		traverse_within_group(all_groups, current_group, 
-				groups_to_visit, pos, (test_election)(current_election+1),
-				set_algorithm_indices, prospective_functions, all_results,
-				cur_results_method_indices);
+		// Abort early if no pass.
+		if (!pass) { return; }
 	}
+
+	// Recurse either to the next group or to the next election setting.
+	if (current_election_setting == TYPE_B_PRIME) {
+		try_algorithms(test_group_idx+1, TYPE_A);
+	} else {
+		try_algorithms(test_group_idx, (test_election)
+			((int)current_election_setting+1));
+	}
+
+	// Make debugging easier by cleaning up after ourselves.
+	algorithm_per_setting[test_group_idx][(int)current_election_setting] = -1;
+}
+
+void backtracker::set_tests_and_results(
+	const std::list<int> & order,
+	const test_generator_groups & all_groups,
+	const std::vector<test_results> & all_results) {
+
+	tests_and_results.clear();
+
+	for (int idx: order) {
+		tests_and_results.push_back(
+			test_and_result(all_groups.groups[idx], all_results[idx]));
+	}
+
+	algorithm_per_setting = 
+		std::vector<std::vector<int> >(tests_and_results.size(),
+			std::vector<int>(NUM_REL_ELECTION_TYPES, -1));
 }
 
 int main(int argc, char ** argv) {
@@ -401,15 +427,17 @@ int main(int argc, char ** argv) {
 
 	// Verify meta here.
 
-	std::list<int> only_zero_and_eleven = {0, 11};
+	std::list<int> only = {14, 15};
 	std::list<int> trunc = toposorted;
-	std::cout << *toposorted.begin() << std::endl;
-		std::vector<int> cur_results_method_indices(4, -1);
-		std::map<copeland_scenario, int> set_algorithm_indices;
+	//std::cout << *toposorted.begin() << std::endl;
 
-	traverse_groups(grps, trunc,//only_zero_and_eleven, 
-		trunc.begin(), set_algorithm_indices, 
-		prospective_functions, all_results, cur_results_method_indices);
+	std::vector<int> cur_results_method_indices(4, -1);
+	std::map<copeland_scenario, int> set_algorithm_indices;
+
+	backtracker foo(4);
+	foo.set_tests_and_results(trunc, grps, all_results);
+	foo.prospective_functions = prospective_functions;
+	foo.try_algorithms();
 
 	return 0;
 }
