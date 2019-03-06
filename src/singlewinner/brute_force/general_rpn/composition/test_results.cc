@@ -5,6 +5,7 @@
 #include <fcntl.h>
 
 #include <stdexcept>
+#include <iostream>
 
 void test_results::set_size_variables() {
 
@@ -37,6 +38,11 @@ size_t test_results::get_linear_idx(size_t method_idx,
 
 	// Check that the indices make sense.
 
+	if (type > NUM_REL_ELECTION_TYPES) {
+		throw std::runtime_error(
+			"get_linear_idx: unknown type");
+	}
+
 	if (method_idx >= num_methods[type]) {
 		throw std::runtime_error(
 			"get_linear_idx: method idx > num methods");
@@ -44,7 +50,7 @@ size_t test_results::get_linear_idx(size_t method_idx,
 
 	if (test_instance_number >= num_tests) {
 		throw std::runtime_error(
-			"get_linear_idx: method idx > num methods");	
+			"get_linear_idx: test_instance_number > num tests");
 	}
 
 	// Find the linear index into the results array.
