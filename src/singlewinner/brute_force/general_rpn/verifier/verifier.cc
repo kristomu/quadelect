@@ -30,6 +30,19 @@
 // with simple tests first, this strategy should divide-and-conquer pretty
 // nicely.
 
+// Next to do, optimization wise: replace the map in backtracker with a
+// vector of ints, and have the testing function just do a lookup, e.g.
+// chosen[0] = algorithm for 37,4
+// chosen[1] = algorithm for 39,4
+// test pointer vector for some test group with 37,4/39,4/37,4/39,4 = 0 1 0 1
+// starts[i] = chosen[test_pointer_vector[our group][election type]]
+// then the rest as before.
+// This would also allow us to constrain e.g. 37,4 = 39,4 if searching the
+// whole space becomes too slow.
+
+// But probably refactoring before that, and probably changing what make tool
+// to use before *that*.
+
 // Cut and paste code, fix later! But where should I put it?
 std::vector<test_instance_generator> get_all_permitted_test_generators(
 	double max_numvoters,
@@ -158,9 +171,6 @@ std::list<int> toposort(
 // and we can test if this configuration passes the tests according to the
 // data file produced by compositor.
 
-// TODO: Clean up the extreme number of parameters passed around here.
-// It doesn't work, either...
-
 class test_and_result {
 	public:
 		test_generator_group test_group;
@@ -193,6 +203,7 @@ class backtracker {
 		time_t last_shown_time, start_time;
 
 		// for calculating the progress
+		// needs to be improved.
 		std::vector<std::vector<int> > max_num_algorithms;
 
 		void set_tests_and_results(
@@ -241,11 +252,55 @@ double backtracker::get_progress(size_t test_group_idx,
 	return progress;
 }
 
+std::string format_time(double seconds_total) {
+	// Use doubles to handle extreme values, e.g. 1e+40 seconds.
+	double secs = fmod(seconds_total, 60);
+	double x = (seconds_total - secs) / 60.0;
+	double mins = fmod(x, 60);
+	x = (x - mins) / 60.0;
+	double hrs = fmod(x, 24);
+	x = (x - hrs) / 24.0;
+	double days = fmod(x,365.24);
+	x = (x - days) / 365.24;
+	double years = x;
+
+	std::string hstr = itos(round(hrs), 2),
+		mstr = itos(round(mins), 2), sstr = itos(round(secs), 2);
+
+	// Set up time string.
+	std::string time_str;
+	if (hrs > 0) {
+		time_str = hstr + ":" + mstr + ":" + sstr;
+	}
+	if (hrs == 0 && mins > 0) {
+		time_str = mstr + ":" + sstr;
+	}
+	if (hrs == 0 && mins == 0) {
+		time_str = sstr + "s";
+	}
+
+	// Set up date str
+	string date_str = "";
+
+	if (days > 0) {
+		date_str = itos(round(days), 2) + "d and ";
+	}
+	if (years > 0) {
+		date_str = dtos(years) + "y, " + date_str;
+	}
+
+	return date_str + time_str;
+}
+
 void backtracker::print_progress(size_t test_group_idx,
 	test_election current_election_setting) const {
 
-	std::cerr << "Progress: " << get_progress(test_group_idx,
-		current_election_setting) << "    \r" << std::flush;
+	double progress = get_progress(test_group_idx, current_election_setting);
+	double eta_seconds = (last_shown_time-start_time)/progress;
+
+	std::cerr << "Progress: " << progress << "    ";
+	std::cerr << "ETA: " << format_time(eta_seconds) << ".";
+	std::cerr << "    \r" << std::flush;
 }
 
 void backtracker::try_algorithms(size_t test_group_idx,
@@ -318,10 +373,10 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		prospective_functions[numcands].size();
 
 	// Show a progress report if the global counter is high enough and enough
-	// time has elapsed. (2s hard-coded.)
+	// time has elapsed. (1s hard-coded.)
 	if (global_counter++ >= counter_threshold) {
 		global_counter = 0;
-		if (time(NULL) >= last_shown_time + 2) {
+		if (time(NULL) >= last_shown_time + 1) {
 			last_shown_time = time(NULL);
 			print_progress(test_group_idx, current_election_setting);
 		}
@@ -493,7 +548,7 @@ int main(int argc, char ** argv) {
 
 		std::string fn_prefix = "algo_testing/" + itos(i) + "_" + "out.dat";
 
-		int num_tests = 14;
+		int num_tests = 100;
 		test_results results(num_tests, prospective_functions[4].size());
 		results.allocate_space(fn_prefix);
 
