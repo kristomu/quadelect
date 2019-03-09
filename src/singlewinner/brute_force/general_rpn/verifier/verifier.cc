@@ -292,7 +292,9 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		}
 
 		// Since we've looped through to ourselves, there's no need
-		// to do anything but return here
+		// to do anything but reset the scenario to undecided and return.
+
+		algorithm_for_scenario[current_scenario] = -1;
 		return;
 	}
 
@@ -491,7 +493,7 @@ int main(int argc, char ** argv) {
 
 		std::string fn_prefix = "algo_testing/" + itos(i) + "_" + "out.dat";
 
-		int num_tests = 100;
+		int num_tests = 14;
 		test_results results(num_tests, prospective_functions[4].size());
 		results.allocate_space(fn_prefix);
 
