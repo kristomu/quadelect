@@ -140,7 +140,10 @@ pair<map<int, string>, list<ballot_group> > rank_order_int::interpret_ballots(
 			for (sec = 0; sec < cur_name.size() &&
 			        cur_name[sec] == ' '; ++sec);
 			first_nonspace_before = sec;
-			for (sec = cur_name.size()-1; sec >= 0 &&
+			// Nasty trick: sec <= cur_name.size()-1 really means >= 0
+			// because subtracting one from 0 will wrap around to max
+			// value for size_t.
+			for (sec = cur_name.size()-1; sec <= cur_name.size()-1 &&
 			        cur_name[sec] == ' '; --sec);
 			first_nonspace_after = sec;
 
