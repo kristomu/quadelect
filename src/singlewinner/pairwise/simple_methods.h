@@ -51,6 +51,8 @@ class ord_minmax : public pairwise_method {
 				reverse_perspective = rev_persp_in;
 				update_name(); }
 
+		ord_minmax(pairwise_type def_type_in) : ord_minmax(def_type_in, 
+			false) {}
 };
 
 
