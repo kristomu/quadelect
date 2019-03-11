@@ -5,9 +5,16 @@ project(quadelect)
 set (CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+# Parameters
+# Consider splitting into debug and release (but by how slow things are
+# without optimization, even debug would need the -O switches)
+
+# Also consider adding -Wextra. 
+set(CMAKE_CXX_FLAGS "-O2 -Wall -Werror -march=native -mtune=native -ggdb")
+
 # External library requirements
 
-#find_package(OpenSSL REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_package(GLPK REQUIRED)
 
 include_directories(${OPENSSL_INCLUDE_DIR})
