@@ -7,41 +7,27 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # External library requirements
 
-#find_package(OpenSSL REQUIRED)
+find_package(OpenSSL REQUIRED)
 find_package(GLPK REQUIRED)
 
 include_directories(${OPENSSL_INCLUDE_DIR})
 
-add_library(quadelect_lib src/tools/tools.cc
-	src/interpreter/rank_order.cc
-	src/tools/ballot_tools.cc
-	src/tools/factoradic.cc
-	src/ballots.cc
-	src/cache.cc
-	src/choose_inc.cc
-	src/distances/vivaldi_test.cc
-	src/generator/spatial/gaussian.cc
-	src/generator/impartial_gen.cc
-	src/generator/spatial/spatial.cc
-	src/grad_median/grad_median.cc
-	src/generator/spatial/uniform.cc
-	src/singlewinner/brute_force/general_rpn/gen_custom_function.cc
+# Internal functionality groupings. Not all programs need all the
+# functionality: in particular, the yee/BR program doesn't need the
+# gen_custom_function search and vice versa.
+
+add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_function.cc
 	src/singlewinner/brute_force/general_rpn/composition/scenario.cc
 	src/singlewinner/brute_force/general_rpn/composition/equivalences.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_generator.cc
 	src/singlewinner/brute_force/general_rpn/composition/vector_ballot.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_results.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_instance_gen.cc
-	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc
-	src/pairwise/abstract_matrix.cc
-	src/pairwise/beatpath.cc
-	src/pairwise/cache_matrix.cc
-	src/pairwise/grad_matrix.cc
-	src/pairwise/matrix.cc
-	src/pairwise/types.cc
-	src/pairwise/unfinished/sha.cc
-	src/random/random.cc
-	src/singlewinner/elimination.cc
+	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc)
+
+add_library(qe_quick_hash src/spookyhash/SpookyV2.cpp)
+
+add_library(qe_singlewinner_methods src/singlewinner/elimination.cc
 	src/singlewinner/gradual_c_b.cc
 	src/singlewinner/meta/comma.cc
 	src/singlewinner/meta/slash.cc
@@ -49,7 +35,6 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/singlewinner/brute_force/brute.cc
 	src/singlewinner/brute_force/bruterpn.cc
 	src/singlewinner/brute_force/rpn/custom_func.cc
-	src/singlewinner/brute_force/rpn/chaotic_functions.cc
 	src/singlewinner/experimental/3exp.cc
 	src/singlewinner/experimental/fpa_experiment.cc
 	src/singlewinner/experimental/sv2.cc
@@ -83,7 +68,30 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/singlewinner/sets/mdd.cc
 	src/singlewinner/sets/partition.cc
 	src/singlewinner/sets/topological.cc
-	src/singlewinner/stats/cardinal.cc
+	src/singlewinner/stats/cardinal.cc)
+
+add_library(quadelect_lib src/tools/tools.cc
+	src/interpreter/rank_order.cc
+	src/tools/ballot_tools.cc
+	src/tools/factoradic.cc
+	src/ballots.cc
+	src/cache.cc
+	src/choose_inc.cc
+	src/distances/vivaldi_test.cc
+	src/generator/spatial/gaussian.cc
+	src/generator/impartial_gen.cc
+	src/generator/spatial/spatial.cc
+	src/grad_median/grad_median.cc
+	src/generator/spatial/uniform.cc
+	src/pairwise/abstract_matrix.cc
+	src/pairwise/beatpath.cc
+	src/pairwise/cache_matrix.cc
+	src/pairwise/grad_matrix.cc
+	src/pairwise/matrix.cc
+	src/pairwise/types.cc
+	src/pairwise/unfinished/sha.cc
+	src/random/random.cc
+	src/singlewinner/brute_force/rpn/chaotic_functions.cc
 	src/singlewinner/stats/mode.cc
 	src/singlewinner/stats/var_median/vmedian.cc
 	src/singlewinner/young.cc
@@ -127,10 +135,17 @@ add_library(quadelect_lib src/tools/tools.cc
 # They might not all need all the files above, but I'll fix that later.
 	
 add_executable(qe_verifier src/singlewinner/brute_force/general_rpn/verifier/verifier.cc)
-target_link_libraries(qe_verifier quadelect_lib glpk)
+target_link_libraries(qe_verifier qe_rpn_search quadelect_lib glpk)
 
 add_executable(qe_compositor src/singlewinner/brute_force/general_rpn/composition/polytope_compositor.cc)
-target_link_libraries(qe_compositor quadelect_lib glpk)
+target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadelect_lib glpk)
+
+add_executable(qe_sifter src/singlewinner/brute_force/general_rpn/sifter.cc)
+target_link_libraries(qe_sifter qe_rpn_search qe_quick_hash quadelect_lib)
+
+# TODO: Better name and description.
+add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
+target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib)
 
 add_executable(quadelect src/main/combined.cc)
-target_link_libraries(quadelect quadelect_lib glpk crypto)
+target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk crypto)
