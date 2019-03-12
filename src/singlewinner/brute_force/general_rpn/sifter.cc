@@ -9,9 +9,6 @@
 // of the results, i.e. which test returned max score, which returned next to
 // max and so on, to the orders we've already seen).
 
-// TODO: Use a secure hash to only need 128 bits per unique solution instead
-// of a very large amount of memory per.
-
 #include <map>
 #include <unordered_map>		// Test performance? Needs hash
 #include "gen_custom_function.h"

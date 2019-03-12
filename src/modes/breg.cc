@@ -4,6 +4,8 @@
 // Hm, have some kind of logic where if you add a method, it resets? Some way
 // of signaling this?
 
+// Possibly change this by removing the MS_* type that we don't need.
+
 #include "breg.h"
 
 bayesian_regret::bayesian_regret() {
@@ -150,7 +152,7 @@ bayesian_regret::bayesian_regret(int maxiters_in, int min_cand_in,
 
 bool bayesian_regret::init_one(size_t idx) {
 
-	if (idx < 0 || (idx <= method_stats.size() && idx >= methods.size())) 
+	if (idx <= method_stats.size() && idx >= methods.size()) 
 		return(false);
 
 	// Because stats come in a linear order, handle previous methods

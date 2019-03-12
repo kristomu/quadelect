@@ -1,5 +1,8 @@
 // Young's method. See young.h for more information!
 
+// Possible later thing to do: use the virtual equation stuff in 
+// linear_model/ to simplify the construction of the GLPK model.
+
 #include "../pairwise/matrix.h"
 #include "method.h"
 
@@ -20,7 +23,7 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 
 	pair<double, double> score(-1, -1);
 
-	assert (candidate >= 0 && candidate < num_candidates);
+	assert (candidate < num_candidates);
 	if (!hopeful[candidate]) return(score);
 
 	// Yup, you guessed it, it's return of GLPK.
@@ -346,7 +349,7 @@ string young::determine_name() const {
 
 pair<ordering, bool> young::elect_inner(const list<ballot_group> & papers,
 		const vector<bool> & hopefuls, int num_candidates, 
-		cache_map * cache, bool winner_only) const {
+		cache_map * /*cache*/, bool /*winner_only*/) const {
 
 	// Rather simple.
 

@@ -9,8 +9,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # Consider splitting into debug and release (but by how slow things are
 # without optimization, even debug would need the -O switches)
 
-# Also consider adding -Wextra. 
-set(CMAKE_CXX_FLAGS "-O3 -Wall -Werror -march=native -mtune=native -ggdb")
+# The unused-parameter warning suggests some refactoring, but is yet too
+# spammy, so I've disabled it.
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wno-unused-parameter -Werror -march=native -mtune=native -ggdb")
 
 # External library requirements
 

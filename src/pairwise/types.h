@@ -70,7 +70,7 @@ class pws_wv : public pairwise_strategy {
 		string explain() const { return("wv"); }
 
 		double transform(double favor, double oppose, 
-				double num_voters) const {
+				double /*num_voters*/) const {
 			if (favor > oppose)
 				return(favor);
 			else	return(0);
@@ -96,20 +96,20 @@ class pws_margins : public pairwise_strategy {
 		string explain() const { return("margins"); }
 
 		double transform(double favor, double oppose,
-				double num_voters) const {
+				double /*num_voters*/) const {
 			return (max(0.0, favor - oppose));
 		}
 };
 
 class pws_lmargins : public pairwise_strategy {
-        public:
-                pairwise_ident get() const { return(CM_LMARGINS); }
-                string explain() const { return("l-margins"); }
+	public:
+		pairwise_ident get() const { return(CM_LMARGINS); }
+		string explain() const { return("l-margins"); }
 
-                double transform(double favor, double oppose,
-                                double num_voters) const {
+		double transform(double favor, double oppose,
+				double /*num_voters*/) const {
 			return (favor - oppose);
-                }
+		}
 };
 
 class pws_pairwise_opp : public pairwise_strategy {
@@ -117,74 +117,74 @@ class pws_pairwise_opp : public pairwise_strategy {
 		pairwise_ident get() const { return(CM_PAIRWISE_OPP); }
 		string explain() const { return("PO"); }
 
-		double transform(double favor, double oppose,
-				double num_voters) const {
+		double transform(double favor, double /*oppose*/,
+				double /*num_voters*/) const {
 			return(favor); }
 };
 
 class pws_wtv : public pairwise_strategy {
-        public:
-                pairwise_ident get() const { return(CM_WTV); }
-                string explain() const { return("w/tv"); }
+    public:
+		pairwise_ident get() const { return(CM_WTV); }
+		string explain() const { return("w/tv"); }
 
-                double transform(double favor, double oppose,
-                                double num_voters) const {
+		double transform(double favor, double oppose,
+				double /*num_voters*/) const {
 			if (favor >= oppose)
 				return(favor);
 			else	return(0);
-                }
+		}
 };
 
 class pws_tourn_wv : public pairwise_strategy {
-        public:
-                pairwise_ident get() const { return(CM_TOURN_WV); }
-                string explain() const { return("tourn-wv"); }
+    public:
+		pairwise_ident get() const { return(CM_TOURN_WV); }
+		string explain() const { return("tourn-wv"); }
 
-                double transform(double favor, double oppose,
-                                double num_voters) const {
+		double transform(double favor, double oppose,
+				double /*num_voters*/) const {
 			if (favor > oppose)
 				return(1);
 			else	return(0);
-                }
+		}
 };
 
 class pws_tourn_sym : public pairwise_strategy {
-        public:
-                pairwise_ident get() const { return(CM_TOURN_SYM); }
-                string explain() const { return("tourn-sym"); }
+	public:
+		pairwise_ident get() const { return(CM_TOURN_SYM); }
+		string explain() const { return("tourn-sym"); }
 
-                double transform(double favor, double oppose,
-                                double num_voters) const {
+		double transform(double favor, double oppose,
+				double /*num_voters*/) const {
 			if (favor > oppose)
 				return(1);
 			if (favor == oppose)
 				return(0);
 			else	return(-1);
-                }
+		}
 };
 
 class pws_fractional_wv : public pairwise_strategy {
-        public:
-                pairwise_ident get() const { return(CM_FRACTIONAL_WV); }
-                string explain() const { return("fwv"); }
+	public:
+		pairwise_ident get() const { return(CM_FRACTIONAL_WV); }
+		string explain() const { return("fwv"); }
 
-                double transform(double favor, double oppose,
-                                double num_voters) const {
+		double transform(double favor, double oppose,
+			double /*num_voters*/) const {
 			if (favor > oppose)
 				return (favor / (favor + oppose));
 			else	return (0);
-                }
+		}
 };
 
 class pws_rel_margins : public pairwise_strategy {
-        public:
-                pairwise_ident get() const { return(CM_RELATIVE_MARGINS); }
-                string explain() const { return("rel-margins"); }
+		public:
+			pairwise_ident get() const { return(CM_RELATIVE_MARGINS); }
+			string explain() const { return("rel-margins"); }
 
-                double transform(double favor, double oppose,
-                                double num_voters) const {
-			return(max(0.0, (favor-oppose)/(favor+oppose)));
-                }
+			double transform(double favor, double oppose,
+					double /*num_voters*/) const {
+				return(max(0.0, (favor-oppose)/(favor+oppose)));
+			}
 };
 
 class pws_keener_margins : public pairwise_strategy {
@@ -193,7 +193,7 @@ class pws_keener_margins : public pairwise_strategy {
 		string explain() const { return("keener"); }
 
 		double transform(double favor, double oppose,
-				double num_voters) const {
+				double /*num_voters*/) const {
 			double inner = (favor + 1.0) / (favor + oppose + 2.0);
 			double outer = 0.5 + copysign(0.5, inner - 0.5) *
 				sqrt(fabs(2*inner - 1));

@@ -45,7 +45,7 @@ double cache_condmat::get_internal(int candidate, int against, bool raw) const {
 
 // This won't work since the reference is a const. Therefore, we just give up
 // early so the problem will be easily visible.
-bool cache_condmat::set_internal(int candidate, int against, double value) {
+bool cache_condmat::set_internal(int /*candidate*/, int /*against*/, double /*value*/) {
 	assert (1 != 1);
 }
 

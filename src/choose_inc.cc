@@ -16,7 +16,7 @@ unsigned long long fact(int n) {
 // Now uses recursive version, though perhaps somewhat overkill...
 
 unsigned int choose(unsigned int n, unsigned int k) {
-    if (k < 0 || k > n) 
+    if (k > n) 
         return(0);
     
     if (k > n-k)

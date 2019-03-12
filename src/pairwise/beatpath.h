@@ -28,7 +28,8 @@ class beatpath : public abstract_condmat {
 		// Set doesn't work since this is an inferred ordering. To set,
 		// one would have to pull all the data back in and rerun. Thus
 		// this just returns an assertion failure if you try to set.
-		bool set_internal(int candidate, int against, double value) {
+		bool set_internal(int /*candidate*/, int /*against*/, 
+			double /*value*/) {
 			assert (1 != 1);
 		}
 
