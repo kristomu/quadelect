@@ -6,7 +6,12 @@ Interval exp(Interval in) {
 }
 
 Interval log(Interval in) {
-	return boost::numeric::log(in);
+	// I need to do it manually like this because Boost's log
+	// sets log 0 = nan, whereas my code assumes log 0 = -inf. Since
+	// log is monotone, transforming the endpoints suffice in every
+	// case.
+	return Interval(log(boost::numeric::lower(in)),
+		log(boost::numeric::upper(in)));
 }
 
 Interval sqrt(Interval in) {
