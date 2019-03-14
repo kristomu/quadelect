@@ -530,6 +530,8 @@ template<class T> T gen_custom_function<T>::evaluate(std::vector<T> & stack,
 	switch(cur_atom) {
 		case UNARY_FUNC_INFRMAP: return (1.0/(1.0 + exp(-right_arg)));
 		case UNARY_FUNC_INFRMAPINV: return(log(-right_arg/(right_arg-1.0)));
+		// Must have a dedicated squaring functions when using Interval,
+		// possibly.
 		case UNARY_FUNC_SQUARE: return(right_arg*right_arg);
 		case UNARY_FUNC_SQRT: return(sqrt(right_arg));
 		case UNARY_FUNC_LOG:
@@ -543,8 +545,8 @@ template<class T> T gen_custom_function<T>::evaluate(std::vector<T> & stack,
 			return(log(right_arg));
 		case UNARY_FUNC_EXP: return(exp(right_arg));
 		case UNARY_FUNC_NEG: return(-right_arg);
-		case UNARY_FUNC_BLANCMANGE: return(blancmange(blancmange_order,
-			right_arg));
+		case UNARY_FUNC_BLANCMANGE: 
+			return(blancmange(blancmange_order,right_arg));
 		case UNARY_FUNC_MINKOWSKIQ: return(minkowski_q(right_arg));
 		default: break;
 	}

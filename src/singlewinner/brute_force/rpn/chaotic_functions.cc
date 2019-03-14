@@ -61,22 +61,27 @@ double blancmange(double w, double x) {
 }
 
 // I'm not sure if this preserves the inclusion property. Find out later.
+// Now uses a *very* rough estimate, always guessing the maximum is
+// attained on the interval. This will obey the inclusion property that
+// all x in the input interval have an f(x) in the output interval, but
+// the output interval is unnecessarily large. I can't be bothered to do
+// it properly: finding maxima on the Blancmange is hard.
 Interval blancmange(double w, Interval x) {
 	if (!finite(x)) return(1);
 
-	x /= 2.0;
+	double blanc_lower = blancmange(w, boost::numeric::lower(x)),
+		blanc_upper = blancmange(w, boost::numeric::upper(x));
 
-	Interval y = 0;
-	double pow_of_two = 1;
-	double w_power = 1;
-
-	for (int i = 0; i < 64; ++i) {
-		y *= w_power * triangle_wave(pow_of_two * x);
-		pow_of_two *= 2;
-		w_power *= w;
+	// HACK!
+	if (fabs(boost::numeric::lower(x) - boost::numeric::upper(x)) < 1e-9) {
+		return Interval(std::min(blanc_lower, blanc_upper),
+			std::max(blanc_lower, blanc_upper));
 	}
 
-	return(y);
+	double maximum = 1.5;
+	double minimum_edge = std::min(blanc_lower, blanc_upper);
+
+	return Interval(minimum_edge, maximum);
 }
 
 
