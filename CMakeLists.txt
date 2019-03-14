@@ -17,6 +17,7 @@ set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wno-unused-parameter -Werror -march=nati
 
 find_package(OpenSSL REQUIRED)
 find_package(GLPK REQUIRED)
+find_package(Boost REQUIRED)
 
 include_directories(${OPENSSL_INCLUDE_DIR})
 
@@ -24,7 +25,8 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 # functionality: in particular, the yee/BR program doesn't need the
 # gen_custom_function search and vice versa.
 
-add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_function.cc
+add_library(qe_rpn_search
+	src/singlewinner/brute_force/general_rpn/gen_custom_function.cc
 	src/singlewinner/brute_force/general_rpn/composition/scenario.cc
 	src/singlewinner/brute_force/general_rpn/composition/equivalences.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_generator.cc
@@ -78,7 +80,8 @@ add_library(qe_singlewinner_methods src/singlewinner/elimination.cc
 	src/singlewinner/sets/topological.cc
 	src/singlewinner/stats/cardinal.cc)
 
-add_library(quadelect_lib src/tools/tools.cc
+add_library(quadelect_lib src/interval/interval.cc
+	src/tools/tools.cc
 	src/interpreter/rank_order.cc
 	src/tools/ballot_tools.cc
 	src/tools/factoradic.cc

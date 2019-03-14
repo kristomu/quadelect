@@ -1,0 +1,5 @@
+Contains a definition of a shorter alias for an interval arithmetic data
+structure that uses Boost.
+
+Also overloads some mathematical functions so we can use this interval
+structure in gen_custom_function.

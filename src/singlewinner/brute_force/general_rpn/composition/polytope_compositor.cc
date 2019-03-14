@@ -95,7 +95,7 @@ void update_results(const std::vector<algo_t> & functions_to_test,
 	// (e.g. cloning)
 	int numcands = elections[0].ti.before_A.scenario.get_numcands();
 
-	gen_custom_function evaluator(numcands);
+	gen_custom_function<double> evaluator(numcands);
 
 	// Linear count for the progress report
 	double max_count = NUM_REL_ELECTION_TYPES * functions_to_test.size();
@@ -157,7 +157,7 @@ int main(int argc, char ** argv) {
 
 	// Integrity test.
 
-	gen_custom_function integrity_test(3);
+	gen_custom_function<double> integrity_test(3);
 	if (!integrity_test.test()) {
 		throw std::runtime_error("Compositor: failed integrity test!");
 	}

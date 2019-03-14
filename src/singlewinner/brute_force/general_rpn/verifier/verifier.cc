@@ -309,7 +309,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	if (test_group_idx == tests_and_results.size()) {
 		// End case.
 		std::cout << "Reached the end." << std::endl;
-		gen_custom_function evaluator(numcands);
+		gen_custom_function<double> evaluator(numcands);
 
 		for (const auto & kv : algorithm_for_scenario) {
 			algo_t algorithm = prospective_functions[numcands][kv.second];

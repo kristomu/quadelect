@@ -54,7 +54,8 @@ std::vector<std::vector<double> > get_identity_vectors(int numcands,
 	return out;
 }
 
-std::vector<double> evaluate_algorithm(gen_custom_function & gcf,
+template<typename T> std::vector<double> evaluate_algorithm(
+	gen_custom_function<T> & gcf,
 	//algo_t algorithm_number,
 	const std::vector<std::vector<double> > & test_vectors) {
 
@@ -154,7 +155,7 @@ hash_result get_ordinal_hash_test_result(const std::vector<double> &
 // (adjusting epsilon as necessary).
 
 std::string algo_str(int numcands, algo_t algorithm) {
-	return gen_custom_function(numcands, algorithm).to_string();
+	return gen_custom_function<double>(numcands, algorithm).to_string();
 }
 
 int main(int argc, const char ** argv)  {
@@ -185,7 +186,7 @@ int main(int argc, const char ** argv)  {
 
 	// End of our little file diversion
 
-	gen_custom_function x(numcands);
+	gen_custom_function<double> x(numcands);
 
 	std::vector<std::vector<double> > cardinal_tests = get_test_vectors(8,
 		numcands);
