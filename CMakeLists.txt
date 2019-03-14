@@ -11,7 +11,8 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # The unused-parameter warning suggests some refactoring, but is yet too
 # spammy, so I've disabled it.
-set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wno-unused-parameter -Werror -march=native -mtune=native -ggdb")
+# I've also disabled implicit-fallthrough as SpookyHash triggers it.
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -ggdb")
 
 # External library requirements
 
