@@ -151,6 +151,9 @@ target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadel
 add_executable(qe_sifter src/singlewinner/brute_force/general_rpn/sifter.cc)
 target_link_libraries(qe_sifter qe_rpn_search qe_quick_hash quadelect_lib)
 
+add_executable(qe_invariance_sifter src/singlewinner/brute_force/general_rpn/invariance.cc)
+target_link_libraries(qe_invariance_sifter qe_rpn_search qe_quick_hash quadelect_lib)
+
 # TODO: Better name and description.
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
 target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib)
