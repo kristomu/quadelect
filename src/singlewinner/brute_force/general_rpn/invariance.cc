@@ -11,6 +11,7 @@
 // is a quick hack that should be improved later.
 
 #include <map>
+#include <iterator>
 #include <unordered_map>		// Test performance? Needs hash
 #include "gen_custom_function.h"
 
@@ -46,6 +47,9 @@ std::vector<double> get_test_vector(int numcands, rng & randomizer) {
 //	f(A) >= f(B) ==> f(A+x) >= f(B+x) for all x in (0..infty)
 // I.e. adding voters who vote for every preference equally should not
 // matter.
+
+std::vector<double> added_A, added_B, scaled_A, scaled_B;
+
 bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 
 	int numcands = 4; // HACK, FIX
@@ -54,6 +58,8 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 		randomizer);
 	std::vector<double> test_vector_B = get_test_vector(numcands, 
 		randomizer);
+
+	size_t tvlen = test_vector_A.size();
 
 	double tvA_result = algorithm.evaluate(test_vector_A),
 			 tvB_result = algorithm.evaluate(test_vector_B);
@@ -64,6 +70,10 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 		std::swap(tvA_result, tvB_result);
 	}
 
+	if (isnan(tvA_result) || isnan(tvB_result)) {
+		return false;
+	}
+
 	double epsilon = 1e-9;
 
 	std::vector<double> test_factors = {1/128.0, 1/16.0, 16, 128, 1024};
@@ -71,40 +81,47 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 	// Now we must check that the outcome for A is never strictly greater 
 	// than B.
 
+	scaled_A.resize(tvlen);
+	scaled_B.resize(tvlen);
+
 	for (double factor: test_factors) {
-		std::vector<double> scaled_A, scaled_B;
 
-		for (double pref_A : test_vector_A) {
-			scaled_A.push_back(pref_A * factor);
-		}
-
-		for (double pref_B : test_vector_B) {
-			scaled_B.push_back(pref_B * factor);
+		for (size_t i = 0; i < tvlen; ++i) {
+			scaled_A[i] = test_vector_A[i] * factor;
+			scaled_B[i] = test_vector_B[i] * factor;
 		}
 
 		double scaled_A_result = algorithm.evaluate(scaled_A),
 			scaled_B_result = algorithm.evaluate(scaled_B);
 
+		if (isnan(scaled_A_result) || isnan(scaled_B_result)) {
+			return false;
+		}
+
 		if (scaled_A_result > scaled_B_result + epsilon) {
+			std::cout << "Boom on number one." << std::endl;
 			return false;
 		}
 	}
 
 	std::vector<double> test_addends = {2, 4, 8, 9, 128, 1024};
 
+	added_A.resize(tvlen);
+	added_B.resize(tvlen);
+
 	for (double addend: test_addends) {
-		std::vector<double> added_A, added_B;
 
-		for (double pref_A : test_vector_A) {
-			added_A.push_back(pref_A + addend);
-		}
-
-		for (double pref_B : test_vector_B) {
-			added_B.push_back(pref_B + addend);
+		for (size_t i = 0; i < tvlen; ++i) {
+			added_A[i] = test_vector_A[i] + addend;
+			added_B[i] = test_vector_B[i] + addend;
 		}
 
 		double added_A_result = algorithm.evaluate(added_A),
 			added_B_result = algorithm.evaluate(added_B);
+
+		if (isnan(added_A_result) || isnan(added_B_result)) {
+			return false;
+		}
 
 		if (added_A_result > added_B_result + epsilon) {
 			return false;
@@ -206,10 +223,10 @@ int main(int argc, const char ** argv)  {
 			std::cerr << "Error! " << algorithm << " is not a valid algorithm number!" << std::endl;
 			throw new std::runtime_error("Error reintroducing algorithms");
 		}
-		if (!invariant(100, randomizer, x)) {
-			std::cout << "FAIL: " << x.to_string() << std::endl;
+		if (!invariant(12000, randomizer, x)) {
+			std::cout << "FAIL: " << algorithm << "\t" << x.to_string() << "\n";
 		} else {
-			std::cout << "pass: " << x.to_string() << std::endl;
+			std::cout << "pass: " << algorithm << "\t" << x.to_string() << "\n";
 		}
 	}
 }
