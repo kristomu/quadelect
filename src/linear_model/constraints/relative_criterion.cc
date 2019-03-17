@@ -31,10 +31,10 @@ constraint relative_criterion_const::get_before_after_equality(
 	out.description = "before_after_equality";
 	out.constraint_rel.type = LREL_EQ;
 	out.constraint_rel.lhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::all_permutations(numcands_before), "", 
+		constraint_tools::all_permutations(numcands_before), "",
 		before_suffix);
 	out.constraint_rel.rhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::all_permutations(numcands_after), "", 
+		constraint_tools::all_permutations(numcands_after), "",
 		after_suffix);
 
 	// If we're adding or deleting anything, these terms have to be on the
@@ -61,7 +61,7 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 	std::vector<int> after_perm(numcands_after);
 	std::iota(after_perm.begin(), after_perm.end(), 0);
 
-	std::map<std::vector<int>, std::vector<std::vector<int> > > 
+	std::map<std::vector<int>, std::vector<std::vector<int> > >
 		transitions;
 
 	do {
@@ -72,9 +72,9 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 			if (permissible_transition(before_perm, after_perm)) {
 				transitions[after_perm].push_back(before_perm);
 			}
-		} while (std::next_permutation(before_perm.begin(), 
+		} while (std::next_permutation(before_perm.begin(),
 			before_perm.end()));
-	} while (std::next_permutation(after_perm.begin(), 
+	} while (std::next_permutation(after_perm.begin(),
 		after_perm.end()));
 
 	return transitions;
@@ -82,7 +82,7 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 
 // Reverses the map produced by the above function in case we need a map
 // of before-ballots contributing to a particular after-ballot.
-std::map<std::vector<int>, std::vector<std::vector<int> > > 
+std::map<std::vector<int>, std::vector<std::vector<int> > >
 	relative_criterion_const::reverse_map(const std::map<std::vector<int>,
 	std::vector<std::vector<int> > > & in) const {
 
@@ -126,7 +126,7 @@ constraint_set relative_criterion_const::get_after_constraints(const
 	// the two. If not, create an equation setting that permutation to
 	// zero.
 
-	for (std::vector<int> permutation: 
+	for (std::vector<int> permutation:
 		constraint_tools::all_permutations(numcands_after)) {
 
 		std::string to_after = constraint_tools::permutation_to_str(
@@ -150,10 +150,10 @@ constraint_set relative_criterion_const::get_after_constraints(const
 				before_suffix + "_" + to_after);
 		}
 
-		// Add additions and deletions if the current permutation is one 
+		// Add additions and deletions if the current permutation is one
 		// that we want to add to or remove from.
 
-		add_addition_removal_terms(after_equals_befores.rhs, 
+		add_addition_removal_terms(after_equals_befores.rhs,
 			after_suffix, permutation);
 
 		out.constraint_rel = after_equals_befores;
@@ -210,8 +210,17 @@ constraint_set relative_criterion_const::relative_constraints(
 	out_set.add(get_after_constraints(after_before, before_suffix,
 		after_suffix));
 
-	out_set.add(get_before_constraints(reverse_map(after_before), 
+	out_set.add(get_before_constraints(reverse_map(after_before),
 		before_suffix, after_suffix));
 
 	return out_set;
+}
+
+// The default is that all the candidates are preserved.
+std::vector<int> relative_criterion_const::get_after_as_before() const {
+
+	std::vector<int> out(numcands_before);
+	std::iota(out.begin(), out.end(), 0);
+
+	return out;
 }

@@ -4,6 +4,7 @@
 #include <map>
 
 #include "../lin_relation/constraint_set.h"
+#include "../../tools/tools.h"
 
 // Constraints that involve relative criteria.
 
@@ -26,13 +27,13 @@
 
 class relative_criterion_const {
 	private:
-		void add_addition_removal_terms(relation_side & add_where, 
+		void add_addition_removal_terms(relation_side & add_where,
 			std::string after_suffix,
 			const std::vector<int> & cur_permutation) const;
 		std::map<std::vector<int>, std::vector<std::vector<int> > >
 			get_after_from_before_transitions() const;
-		std::map<std::vector<int>, std::vector<std::vector<int> > > 
-			reverse_map(const std::map<std::vector<int>, 
+		std::map<std::vector<int>, std::vector<std::vector<int> > >
+			reverse_map(const std::map<std::vector<int>,
 				std::vector<std::vector<int> > > & in) const;
 		// Get a set of constraints that define the after-ballots in terms
 		// of the before-ballots and transition counts.
@@ -56,11 +57,26 @@ class relative_criterion_const {
 	protected:
 		int numcands_before, numcands_after;
 
+		// Some relative criteria alter what candidates are in play.
+		// For these, the vector after_as_before is an index where
+		// after_as_before[i] gives what after candidate corresponds to what
+		// before candidate.
+		// E.g. after_as_before = {0, 0, 1, 2} means that we're turning
+		// three candidates into four, and the after candidates A, B, C, D
+		// correspond to the before candidates A, B, C, respectively.
+		std::vector<int> after_as_before;
+
+		// Get the default after_as_before. Remember to call *after*
+		// numcands has been set.
+		virtual std::vector<int> get_after_as_before() const;
+		virtual bool is_valid_numcands_combination() const {
+			return numcands_before == numcands_after; }
+
 		// Default is passthrough for transition, and nothing at all for
 		// addition and deletion.
 		virtual bool permissible_transition(
 			const std::vector<int> & before_permutation,
-			const std::vector<int> & after_permutation) const { 
+			const std::vector<int> & after_permutation) const {
 			return before_permutation == after_permutation; }
 		virtual bool permissible_addition(
 			const std::vector<int> & permutation) const { return false; }
@@ -68,20 +84,29 @@ class relative_criterion_const {
 			const std::vector<int> & permutation) const { return false; }
 
 	public:
-
 		constraint_set relative_constraints(std::string before_suffix,
 			std::string after_suffix) const;
 
-		relative_criterion_const(int numcands_in) {
-			numcands_before = numcands_in;
-			numcands_after = numcands_in;
+		int get_before_cand_number(int after_cand_number) {
+			return after_as_before[after_cand_number];
 		}
 
-		relative_criterion_const(int numcands_before_in, 
+		relative_criterion_const(int numcands_before_in,
 			int numcands_after_in) {
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
+
+			if (!is_valid_numcands_combination()) {
+				throw std::runtime_error("relative criterion: invalid"
+				 "numcands combination: " + itos(numcands_before) + ", " +
+				 itos(numcands_after));
+			}
+
+			after_as_before = get_after_as_before();
 		}
+
+		relative_criterion_const(int numcands_in) :
+			relative_criterion_const(numcands_in, numcands_in) {}
 
 		virtual ~relative_criterion_const() {}
 };

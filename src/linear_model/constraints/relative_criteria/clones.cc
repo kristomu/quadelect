@@ -3,6 +3,17 @@
 #include <numeric>
 #include <assert.h>
 
+std::vector<int> clone_const::get_after_as_before() const {
+
+	std::vector<int> aab_out(numcands_after, 0);
+
+	// Returns 0 1 2 3 4 .. n 0 0 .. 0 by ending the counting after
+	// numcands_before.
+	std::iota(aab_out.begin(), aab_out.begin() + numcands_before, 0);
+
+	return aab_out;
+}
+
 bool clone_const::permissible_transition(
 	const std::vector<int> & before_permutation,
 	const std::vector<int> & after_permutation) const {
