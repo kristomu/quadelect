@@ -22,7 +22,7 @@
 #include "../../../spookyhash/SpookyV2.h"
 
 std::vector<double> get_test_vector(int numcands, rng & randomizer) {
-	
+
 	std::vector<double> out(factorial(numcands));
 	for (int i = 0; i < factorial(numcands); ++i) {
 		out[i] = randomizer.drand();
@@ -52,11 +52,11 @@ std::vector<double> added_A, added_B, scaled_A, scaled_B;
 
 bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 
-	int numcands = 4; // HACK, FIX
+	size_t numcands = algorithm.get_num_candidates();
 
-	std::vector<double> test_vector_A = get_test_vector(numcands, 
+	std::vector<double> test_vector_A = get_test_vector(numcands,
 		randomizer);
-	std::vector<double> test_vector_B = get_test_vector(numcands, 
+	std::vector<double> test_vector_B = get_test_vector(numcands,
 		randomizer);
 
 	size_t tvlen = test_vector_A.size();
@@ -78,7 +78,7 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 
 	std::vector<double> test_factors = {1/128.0, 1/16.0, 16, 128, 1024};
 
-	// Now we must check that the outcome for A is never strictly greater 
+	// Now we must check that the outcome for A is never strictly greater
 	// than B.
 
 	scaled_A.resize(tvlen);
@@ -99,7 +99,6 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 		}
 
 		if (scaled_A_result > scaled_B_result + epsilon) {
-			std::cout << "Boom on number one." << std::endl;
 			return false;
 		}
 	}
@@ -161,7 +160,7 @@ bool invariant(int numiters, rng & randomizer,
 // I think the easiest approach is to make two cardinal collision maps as
 // a no-false-negatives screening mechanism. We assume every interval is of
 // length less than x (this can usually be set rather high). Then the first
-// map contains round(score(A) * 2x)/2x, and the second map contains 
+// map contains round(score(A) * 2x)/2x, and the second map contains
 // round((score(A) + x/2)*2x)/2x. If there's an overlap between A and B
 // on the interval for the kth election score, then either the first
 // or the second rounded value for the kth election is equal for A and B.
@@ -171,18 +170,18 @@ bool invariant(int numiters, rng & randomizer,
 // sort all methods according to the score. Start at the uppermost (with
 // the least score). Every method that's within epsilon of its score
 // is considered to potentially be a dupe. (Or overlaps, if it's interval.)
-// Anything else is kept in the group of non-dupes. 
+// Anything else is kept in the group of non-dupes.
 
-// More formally: we want to group the algorithms into "same as A", 
-// "same as B", and so on. Start with every method in the "not a dupe" 
-// group. Let eps be some epsilon (not needed if we use intervals). 
+// More formally: we want to group the algorithms into "same as A",
+// "same as B", and so on. Start with every method in the "not a dupe"
+// group. Let eps be some epsilon (not needed if we use intervals).
 // Generate an election and sort the resulting scores. Then, going from the
 // least value to the most:
 
 // Call the algorithm with the current value for x. If x is marked evaluated
-// for this round, skip to the next method. 
+// for this round, skip to the next method.
 // Let S be the group x is in.
-// Separate out, into a new group, all algorithms with results within an 
+// Separate out, into a new group, all algorithms with results within an
 // epsilon of x's, unless that would separate out every algorithm in S.
 // Then mark all algorithms thus separated out (trivially always including
 // x) as evaluated. Loop to start.

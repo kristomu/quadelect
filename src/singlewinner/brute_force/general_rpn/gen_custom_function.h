@@ -158,6 +158,8 @@ class gen_custom_function {
 				number_candidates);
 		}
 
+		size_t get_num_candidates() const { return number_candidates; }
+
 		gen_custom_function(size_t number_candidates_in) {
 			// Since force_set_algorithm checks if the algorithm to set is the
 			// one we already have, valgrind will report a conditional jump
