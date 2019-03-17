@@ -494,14 +494,9 @@ int main(int argc, char ** argv) {
 
 	for (double numvoters: numvoters_options) {
 		for (auto & constraint : relative_constraints) {
-			size_t numcands_before = constraint->get_numcands_before(),
-				numcands_after = constraint->get_numcands_after();
-
 			std::vector<test_instance_generator> test_generators =
 				get_all_permitted_test_generators(numvoters,
-					canonical_full_v, *constraint,
-					cand_equivs.find(numcands_before)->second,
-					cand_equivs.find(numcands_after)->second,
+					canonical_full_v, *constraint, cand_equivs,
 					randomizer);
 
 			for (test_instance_generator itgen : test_generators) {
