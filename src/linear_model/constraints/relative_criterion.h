@@ -88,6 +88,7 @@ class relative_criterion_const {
 			std::string after_suffix) const;
 
 		size_t get_before_cand_number(size_t after_cand_number) const {
+			assert(after_cand_number < after_as_before.size());
 			return after_as_before[after_cand_number];
 		}
 
@@ -96,14 +97,9 @@ class relative_criterion_const {
 
 		relative_criterion_const(size_t numcands_before_in,
 			size_t numcands_after_in) {
+
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
-
-			if (!is_valid_numcands_combination()) {
-				throw std::runtime_error("relative criterion: invalid"
-				 "numcands combination: " + itos(numcands_before) + ", " +
-				 itos(numcands_after));
-			}
 
 			after_as_before = get_after_as_before();
 		}

@@ -63,10 +63,8 @@ clone_const::clone_const(std::vector<int> after_as_before_in) :
 	after_as_before = after_as_before_in;
 }
 
-clone_const::clone_const(int before_numcands_in, int after_numcands_in) :
+clone_const::clone_const(size_t before_numcands_in, size_t after_numcands_in) :
 	relative_criterion_const(before_numcands_in, after_numcands_in) {
-
-	assert (before_numcands_in < after_numcands_in);
 
 	// Now every after candidate is a clone of A...
 	after_as_before = std::vector<int>(after_numcands_in, 0);

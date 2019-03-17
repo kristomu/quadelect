@@ -199,6 +199,17 @@ constraint_set relative_criterion_const::get_before_constraints(const
 constraint_set relative_criterion_const::relative_constraints(
 	std::string before_suffix, std::string after_suffix) const {
 
+	// First do a test for validity. (I wanted to put it in the ctor, but
+	// that proved too much of a mess with inheritance.)
+
+	if (!is_valid_numcands_combination()) {
+		throw std::runtime_error("relative criterion: invalid "
+		 "numcands combination: " + itos(numcands_before) + ", " +
+		 itos(numcands_after));
+	}
+
+	// Okay, good to go.
+
 	constraint_set out_set;
 
 	// Before and after constraint

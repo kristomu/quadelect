@@ -15,9 +15,7 @@
 
 class clone_const : public relative_criterion_const {
 	private:
-		std::vector<int> after_as_before;
-
-		// Check that it's valid.
+		// Check that after_as_before is valid. (TODO, use this.)
 		bool check_after_as_before(
 			std::vector<int> after_as_before_in) const;
 
@@ -31,11 +29,14 @@ class clone_const : public relative_criterion_const {
 			const std::vector<int> & before_permutation,
 			const std::vector<int> & after_permutation) const;
 
+		virtual bool is_valid_numcands_combination() const {
+			return numcands_before < numcands_after; }
+
 	public:
 		// Clones the first candidate into the first and all the new
 		// ones. E.g. before = 3, after = 5, clones A in the three-candidate
 		// election into A, D, and E in the five.
-		clone_const(int numcands_before_in, int numcands_after_in);
+		clone_const(size_t numcands_before_in, size_t numcands_after_in);
 
 		// Support cloning someone who is not A.
 		clone_const(std::vector<int> after_as_before_in);
