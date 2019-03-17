@@ -3,6 +3,7 @@
 
 #include "../composition/test_results.h"
 
+#include "../../../../linear_model/constraints/relative_criterion_producer.h"
 #include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
 #include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
 
@@ -473,11 +474,8 @@ int main(int argc, char ** argv) {
 		relative_constraints;
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
-	relative_constraints.push_back(
-		std::make_unique<mono_raise_const>(numcands));
-	relative_constraints.push_back(
-		std::make_unique<mono_add_top_const>(numcands));
-
+	relative_constraints = relative_criterion_producer().get_all(
+		3, 4, true);
 
 	// Create all the groups
 	// There seem to be some bugs where the same group is being added

@@ -30,6 +30,7 @@
 #include "../../../../linear_model/constraints/pairwise.h"
 #include "../../../../linear_model/constraints/general.h"
 
+#include "../../../../linear_model/constraints/relative_criterion_producer.h"
 #include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
 #include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
 
@@ -120,9 +121,9 @@ void update_results(const std::vector<algo_t> & functions_to_test,
 			std::cout << "Generating results for " << to_test << "(rel: " <<
 				cur_count++/max_count << ")\n";
 
-			for (size_t test_number = 0; test_number < elections.size(); 
+			for (size_t test_number = 0; test_number < elections.size();
 				++test_number) {
-		
+
 				double result = evaluator.evaluate(elections[test_number].ballot_vectors[type]);
 				results_so_far.set_result(funct_idx, test_number,
 					(test_election)type, result);
@@ -131,7 +132,7 @@ void update_results(const std::vector<algo_t> & functions_to_test,
 	}
 }
 
-void test(size_t desired_samples, 
+void test(size_t desired_samples,
 	const std::vector<algo_t> & functions_to_test,
 	test_results & results_so_far, test_generator_group & group,
 	const std::map<int, fixed_cand_equivalences> & candidate_equivalences) {
@@ -140,7 +141,7 @@ void test(size_t desired_samples,
 		desired_samples, candidate_equivalences));
 }
 
-// TODO: Find out why 0x5140-0x52c0 is empty. 
+// TODO: Find out why 0x5140-0x52c0 is empty.
 // (There's a method that returns 0 all the time, that's why.)
 
 // Then next: refactor, and test_generator_groups class that
@@ -198,9 +199,9 @@ int main(int argc, char ** argv) {
 
 	std::cout << "Initializing equivalences..." << std::endl;
 
-	std::map<int, fixed_cand_equivalences> cand_equivs = 
+	std::map<int, fixed_cand_equivalences> cand_equivs =
 		get_cand_equivalences(4);
-	
+
 	std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
 		numcands, cand_equivs.find(numcands)->second);
 
@@ -218,14 +219,10 @@ int main(int argc, char ** argv) {
 			<< x.to_string() << std::endl;
 	}
 
-	std::vector<std::unique_ptr<relative_criterion_const> > 
-		relative_constraints;
-
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
-	relative_constraints.push_back(
-		std::make_unique<mono_raise_const>(numcands));
-	relative_constraints.push_back(
-		std::make_unique<mono_add_top_const>(numcands));
+	std::vector<std::unique_ptr<relative_criterion_const> >
+		relative_constraints = relative_criterion_producer().get_all(
+			3, 4, true);
 
 	// Perhaps make the constrain generators return the before and after
 	// number of candidates? Then we can just pass in cand_equivs and
