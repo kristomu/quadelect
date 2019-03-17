@@ -55,7 +55,7 @@ class relative_criterion_const {
 			std::string before_suffix, std::string after_suffix) const;
 
 	protected:
-		int numcands_before, numcands_after;
+		size_t numcands_before, numcands_after;
 
 		// Some relative criteria alter what candidates are in play.
 		// For these, the vector after_as_before is an index where
@@ -87,12 +87,15 @@ class relative_criterion_const {
 		constraint_set relative_constraints(std::string before_suffix,
 			std::string after_suffix) const;
 
-		int get_before_cand_number(int after_cand_number) {
+		size_t get_before_cand_number(size_t after_cand_number) const {
 			return after_as_before[after_cand_number];
 		}
 
-		relative_criterion_const(int numcands_before_in,
-			int numcands_after_in) {
+		size_t get_numcands_before() const { return numcands_before; }
+		size_t get_numcands_after() const { return numcands_after; }
+
+		relative_criterion_const(size_t numcands_before_in,
+			size_t numcands_after_in) {
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
 
@@ -105,7 +108,7 @@ class relative_criterion_const {
 			after_as_before = get_after_as_before();
 		}
 
-		relative_criterion_const(int numcands_in) :
+		relative_criterion_const(size_t numcands_in) :
 			relative_criterion_const(numcands_in, numcands_in) {}
 
 		virtual ~relative_criterion_const() {}

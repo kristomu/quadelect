@@ -44,7 +44,7 @@
 // But probably refactoring before that, and probably changing what make tool
 // to use before *that*.
 
-// Cut and paste code, fix later! But where should I put it?
+/* Cut and paste code, fix later! But where should I put it?
 std::vector<test_instance_generator> get_all_permitted_test_generators(
 	double max_numvoters,
 	const std::vector<copeland_scenario> canonical_scenarios,
@@ -54,6 +54,11 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 	rng & randomizer) {
 
 	std::vector<test_instance_generator> out;
+
+	// Must get before and after numcands for the relative criterion,
+	// then go through canonical scenarios for those candidate numbers.
+	// The inner loop should go through every (before cand, after cand)
+	// pair consistent with after_as_before for that criterion.
 
 	size_t numcands = canonical_scenarios[0].get_numcands();
 
@@ -73,30 +78,32 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 			// Warning: take note of that numcands might vary for
 			// e.g. cloning or ISDA.
-			for (size_t i = 1; i < numcands; ++i) {
+			for (size_t before_cand_idx = 1; before_cand_idx < numcands;
+				++before_cand_idx) {
+
 				test_instance_generator to_add(cur_test);
 				// Set a different seed but use the same sampler and
 				// polytope as we created earlier.
 				to_add.tgen.set_rng_seed(randomizer.long_rand());
 
 				// Get the scenarios by sampling once.
-				relative_test_instance ti = to_add.tgen.
-					sample_instance(i, before_cand_remapping,
-						after_cand_remapping);
+				relative_test_instance ti = to_add.tgen.sample_instance(
+					before_cand_idx, before_cand_remapping,
+					after_cand_remapping);
+
 				to_add.before_A = ti.before_A.scenario;
 				to_add.before_B = ti.before_B.scenario;
 				to_add.after_A = ti.after_A.scenario;
 				to_add.after_B = ti.after_B.scenario;
 
-				to_add.cand_B_idx = i;
+				to_add.cand_B_idx = before_cand_idx;
 				out.push_back(to_add);
 			}
 		}
 	}
 	return out;
 }
-
-
+*/
 
 // Returns true if all scenarios in smaller are also used in larger,
 // otherwise false. Ties (same scenarios in both) are broken in a way
@@ -487,11 +494,14 @@ int main(int argc, char ** argv) {
 
 	for (double numvoters: numvoters_options) {
 		for (auto & constraint : relative_constraints) {
+			size_t numcands_before = constraint->get_numcands_before(),
+				numcands_after = constraint->get_numcands_after();
+
 			std::vector<test_instance_generator> test_generators =
 				get_all_permitted_test_generators(numvoters,
 					canonical_full_v, *constraint,
-					cand_equivs.find(numcands)->second,
-					cand_equivs.find(numcands)->second,
+					cand_equivs.find(numcands_before)->second,
+					cand_equivs.find(numcands_after)->second,
 					randomizer);
 
 			for (test_instance_generator itgen : test_generators) {

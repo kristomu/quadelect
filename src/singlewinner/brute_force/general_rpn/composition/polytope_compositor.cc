@@ -34,57 +34,6 @@
 #include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
 #include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
 
-std::vector<test_instance_generator> get_all_permitted_test_generators(
-	double max_numvoters,
-	const std::vector<copeland_scenario> canonical_scenarios,
-	const relative_criterion_const & relative_criterion,
-	const fixed_cand_equivalences before_cand_remapping,
-	const fixed_cand_equivalences after_cand_remapping,
-	rng & randomizer) {
-
-	std::vector<test_instance_generator> out;
-
-	size_t numcands = canonical_scenarios[0].get_numcands();
-
-	for (copeland_scenario x: canonical_scenarios) {
-		for (copeland_scenario y: canonical_scenarios) {
-			test_generator cur_test(randomizer.long_rand());
-
-			std::cout << "Combination " << x.to_string() << ", "
-				<< y.to_string() << ":";
-			if (!cur_test.set_scenarios(x, y, max_numvoters,
-				relative_criterion)) {
-				std::cout << "not permitted\n";
-				continue;
-			}
-
-			std::cout << "permitted\n";
-
-			// Warning: take note of that numcands might vary for
-			// e.g. cloning or ISDA.
-			for (size_t i = 1; i < numcands; ++i) {
-				test_instance_generator to_add(cur_test);
-				// Set a different seed but use the same sampler and
-				// polytope as we created earlier.
-				to_add.tgen.set_rng_seed(randomizer.long_rand());
-
-				// Get the scenarios by sampling once.
-				relative_test_instance ti = to_add.tgen.
-					sample_instance(i, before_cand_remapping,
-						after_cand_remapping);
-				to_add.before_A = ti.before_A.scenario;
-				to_add.before_B = ti.before_B.scenario;
-				to_add.after_A = ti.after_A.scenario;
-				to_add.after_B = ti.after_B.scenario;
-
-				to_add.cand_B_idx = i;
-				out.push_back(to_add);
-			}
-		}
-	}
-	return out;
-}
-
 // Beware of ugly hacks. The triple nested loop is the way it is so as to
 // minimize the amount of seeking that needs to be done in the memory-
 // mapped file. It's pretty hideous.

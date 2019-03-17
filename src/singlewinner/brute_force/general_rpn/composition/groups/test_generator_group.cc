@@ -2,7 +2,7 @@
 
 // Sample a ballot from the given test_instance_generator and return a
 // vector test instance in such a way that the scenarios fit with the
-// specified scenarios for the test_generator_group. 
+// specified scenarios for the test_generator_group.
 
 // There are two ways to do so: straightforward, if the test instance
 // generator has the same scenarios (before_A == group's before_A and
@@ -26,7 +26,7 @@
 
 vector_test_instance test_generator_group::sample(
 	test_instance_generator & generator, bool reverse,
-	const std::map<int, fixed_cand_equivalences> & 
+	const std::map<int, fixed_cand_equivalences> &
 	candidate_equivalences) const {
 
 	relative_test_instance in_ti = generator.get_test_instance(
@@ -47,7 +47,7 @@ vector_test_instance test_generator_group::sample(
 }
 
 std::vector<vector_test_instance> test_generator_group::sample(
-	size_t desired_samples, const std::map<int, fixed_cand_equivalences> & 
+	size_t desired_samples, const std::map<int, fixed_cand_equivalences> &
 	candidate_equivalences) {
 
 	if (desired_samples < generators.size()) {
@@ -68,11 +68,11 @@ std::vector<vector_test_instance> test_generator_group::sample(
 
 	while (sample_number != desired_samples) {
 		for (size_t i = 0; i < generators.size(); ++i) {
-			if (sample_number++ == desired_samples) { 
+			if (sample_number++ == desired_samples) {
 				return elections;
 			}
 
-			elections.push_back(sample(generators[i], 
+			elections.push_back(sample(generators[i],
 				should_be_reversed[i], candidate_equivalences));
 		}
 	}
@@ -124,7 +124,7 @@ void test_generator_group::insert(test_instance_generator candidate) {
 	}
 
 	generators.push_back(candidate);
-	should_be_reversed.push_back(fits_group_reversed(candidate) && 
+	should_be_reversed.push_back(fits_group_reversed(candidate) &&
 		!fits_group_directly(candidate));
 }
 
@@ -134,7 +134,8 @@ void test_generator_group::print_members() const {
 			<< " B: " << itgen.before_B.to_string()
 			<< " A': " << itgen.after_A.to_string()
 			<< " B': " << itgen.after_B.to_string() << "\t"
-			<< "cddt B = # " << itgen.cand_B_idx << "\n";
+			<< "cddt B = (" << itgen.cand_B_idx_before << ", "
+			<< itgen.cand_B_idx_after << ") \n";
 	}
 }
 
