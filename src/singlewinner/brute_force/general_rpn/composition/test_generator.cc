@@ -151,8 +151,6 @@ relative_test_instance test_generator::sample_instance(
 	out.after_A.from_perspective_of = 0;
 	out.after_A.scenario = scenario_after;
 
-
-	// TODO: Check that these are canonical...
 	isomorphism cand_remapping = before_cand_remapping.
 		get_candidate_remapping(out.before_A.scenario,
 			other_candidate_idx_before);
@@ -162,7 +160,7 @@ relative_test_instance test_generator::sample_instance(
 	out.before_B.from_perspective_of = other_candidate_idx_before;
 	out.before_B.scenario = cand_remapping.to_scenario;
 
-	cand_remapping = before_cand_remapping.get_candidate_remapping(
+	cand_remapping = after_cand_remapping.get_candidate_remapping(
 		out.after_A.scenario, other_candidate_idx_after);
 
 	out.after_B.election = permute_election_candidates(out.after_A.election,

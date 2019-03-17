@@ -20,8 +20,7 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 	double max_numvoters,
 	const std::vector<copeland_scenario> canonical_scenarios,
 	const relative_criterion_const & relative_criterion,
-	const fixed_cand_equivalences before_cand_remapping,
-	const fixed_cand_equivalences after_cand_remapping,
+	const std::map<int, fixed_cand_equivalences> cand_equivs,
 	rng & randomizer) {
 
 	std::vector<test_instance_generator> out;
@@ -33,6 +32,10 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 	size_t numcands_before = relative_criterion.get_numcands_before(),
 		numcands_after = relative_criterion.get_numcands_after();
+
+	fixed_cand_equivalences before_cand_remapping =
+		cand_equivs.find(numcands_before)->second, after_cand_remapping =
+		cand_equivs.find(numcands_after)->second;
 
 	for (copeland_scenario x: canonical_scenarios) {
 		if (x.get_numcands() != numcands_before) { continue; }

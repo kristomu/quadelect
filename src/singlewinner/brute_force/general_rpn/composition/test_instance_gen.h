@@ -32,6 +32,5 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 	double max_numvoters,
 	const std::vector<copeland_scenario> canonical_scenarios,
 	const relative_criterion_const & relative_criterion,
-	const fixed_cand_equivalences before_cand_remapping,
-	const fixed_cand_equivalences after_cand_remapping,
+	const std::map<int, fixed_cand_equivalences> cand_equivs,
 	rng & randomizer);
