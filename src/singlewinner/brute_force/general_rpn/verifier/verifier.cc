@@ -44,67 +44,6 @@
 // But probably refactoring before that, and probably changing what make tool
 // to use before *that*.
 
-/* Cut and paste code, fix later! But where should I put it?
-std::vector<test_instance_generator> get_all_permitted_test_generators(
-	double max_numvoters,
-	const std::vector<copeland_scenario> canonical_scenarios,
-	const relative_criterion_const & relative_criterion,
-	const fixed_cand_equivalences before_cand_remapping,
-	const fixed_cand_equivalences after_cand_remapping,
-	rng & randomizer) {
-
-	std::vector<test_instance_generator> out;
-
-	// Must get before and after numcands for the relative criterion,
-	// then go through canonical scenarios for those candidate numbers.
-	// The inner loop should go through every (before cand, after cand)
-	// pair consistent with after_as_before for that criterion.
-
-	size_t numcands = canonical_scenarios[0].get_numcands();
-
-	for (copeland_scenario x: canonical_scenarios) {
-		for (copeland_scenario y: canonical_scenarios) {
-			test_generator cur_test(randomizer.long_rand());
-
-			std::cout << "Combination " << x.to_string() << ", "
-				<< y.to_string() << ":";
-			if (!cur_test.set_scenarios(x, y, max_numvoters,
-				relative_criterion)) {
-				std::cout << "not permitted\n";
-				continue;
-			}
-
-			std::cout << "permitted\n";
-
-			// Warning: take note of that numcands might vary for
-			// e.g. cloning or ISDA.
-			for (size_t before_cand_idx = 1; before_cand_idx < numcands;
-				++before_cand_idx) {
-
-				test_instance_generator to_add(cur_test);
-				// Set a different seed but use the same sampler and
-				// polytope as we created earlier.
-				to_add.tgen.set_rng_seed(randomizer.long_rand());
-
-				// Get the scenarios by sampling once.
-				relative_test_instance ti = to_add.tgen.sample_instance(
-					before_cand_idx, before_cand_remapping,
-					after_cand_remapping);
-
-				to_add.before_A = ti.before_A.scenario;
-				to_add.before_B = ti.before_B.scenario;
-				to_add.after_A = ti.after_A.scenario;
-				to_add.after_B = ti.after_B.scenario;
-
-				to_add.cand_B_idx = before_cand_idx;
-				out.push_back(to_add);
-			}
-		}
-	}
-	return out;
-}
-*/
-
 // Returns true if all scenarios in smaller are also used in larger,
 // otherwise false. Ties (same scenarios in both) are broken in a way
 // that doesn't produce cycles.
@@ -203,7 +142,8 @@ class backtracker {
 		std::map<copeland_scenario, int> algorithm_for_scenario;
 		std::vector<std::vector<algo_t> > prospective_functions;
 		std::vector<std::vector<int> > algorithm_per_setting;
-		int numcands;
+		std::vector<gen_custom_function> evaluators;
+		size_t min_numcands, max_numcands;
 
 		// for showing a progress report without wasting too much time
 		// on time-elapsed calls.
@@ -227,11 +167,16 @@ class backtracker {
 			try_algorithms(0, TYPE_A);
 		}
 
-		backtracker(int numcands_in) {
-			numcands = numcands_in; // remove later
+		backtracker(size_t min_numcands_in, size_t max_numcands_in) {
+			min_numcands = min_numcands_in; // remove later
+			max_numcands = max_numcands_in;
 			counter_threshold = 1000;
 			global_counter = 0;
 			last_shown_time = 0;
+
+			for (size_t i = 0; i <= max_numcands; ++i) {
+				evaluators.push_back(gen_custom_function(i));
+			}
 		}
 };
 
@@ -304,7 +249,9 @@ void backtracker::print_progress(size_t test_group_idx,
 	test_election current_election_setting) const {
 
 	double progress = get_progress(test_group_idx, current_election_setting);
-	double eta_seconds = (last_shown_time-start_time)/progress;
+
+	double eta_seconds = (1-progress)/progress * 
+		(last_shown_time-start_time);
 
 	std::cerr << "Progress: " << progress << "    ";
 	std::cerr << "ETA: " << format_time(eta_seconds) << ".";
@@ -317,13 +264,15 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	if (test_group_idx == tests_and_results.size()) {
 		// End case.
 		std::cout << "Reached the end." << std::endl;
-		gen_custom_function evaluator(numcands);
 
 		for (const auto & kv : algorithm_for_scenario) {
+			size_t numcands = kv.first.get_numcands(); // a scenario
+
 			algo_t algorithm = prospective_functions[numcands][kv.second];
-			evaluator.set_algorithm(algorithm);
+			evaluators[numcands].set_algorithm(algorithm);
 			std::cout << "\t" << kv.first.to_string() << ": "
-				<< algorithm << "\t" << evaluator.to_string() << "\n";
+				<< algorithm << "\t" << evaluators[numcands].to_string() 
+				<< "\n";
 		}
 
 		std::cout << std::endl;
@@ -337,6 +286,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		test_group.get_scenario(current_election_setting);
 
 	size_t i;
+	size_t numcands = current_scenario.get_numcands();
 
 	if (algorithm_for_scenario.find(current_scenario) ==
 		algorithm_for_scenario.end() ||
@@ -434,45 +384,60 @@ void backtracker::set_tests_and_results(
 }
 
 int main(int argc, char ** argv) {
-	int numcands = 4;
+	size_t min_numcands = 3, max_numcands = 4;
 	rng randomizer(1);
 
 	// Read algorithms from file.
 
-	if (argc < 2) {
-		std::cerr << "Usage: " << argv[0] << " [file containing "
-		"sifter output, " << numcands << " cands]" << std::endl;
+	std::cout << "Reading files..." << std::endl;
+
+	if (argc < 3) {
+		std::cerr << "Usage: " << argv[0]
+			<< " [file containing sifter output, 3 cands] "
+			<< " [file containing sifter output, 4 cands] "
+			<< std::endl;
 		return(-1);
 	}
 
-	std::string filename = argv[1];
-	std::ifstream sifter_file(filename);
+	std::vector<std::string> filename_cand_inputs = {"", "", "",
+		argv[1], argv[2]};
 
-	if (!sifter_file) {
-		std::cerr << "Could not open " << filename << std::endl;
+	size_t i;
+
+	std::vector<std::vector<algo_t> > functions_to_test(max_numcands+1);
+
+	for (i = min_numcands; i <= max_numcands; ++i) {
+		std::ifstream sifter_file(filename_cand_inputs[i]);
+
+		if (!sifter_file) {
+			std::cerr << "Could not open " << filename_cand_inputs[i]
+				<< std::endl;
+		}
+
+		get_first_token_on_lines(sifter_file, functions_to_test[i]);
+
+		sifter_file.close();
+
+		std::cout << "... done " << i << " candidates. (read "
+			<< functions_to_test[i].size() <<  " functions)."
+			<< std::endl;
 	}
-
-	std::vector<std::vector<algo_t> > prospective_functions(5);
-
-	get_first_token_on_lines(sifter_file, prospective_functions[numcands]);
-
-	std::vector<algo_t> functions_to_test = prospective_functions[numcands];
-
-	std::cout << functions_to_test.size() << std::endl;
-
-	sifter_file.close();
 
 	// eof
 
 	std::map<int, fixed_cand_equivalences> cand_equivs =
-		get_cand_equivalences(4);
-
-	std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
-		numcands, cand_equivs.find(numcands)->second);
+		get_cand_equivalences(max_numcands);
 
 	std::vector<copeland_scenario> canonical_full_v;
-	std::copy(canonical_full.begin(), canonical_full.end(),
-		std::back_inserter(canonical_full_v));
+
+	for (i = min_numcands; i <= max_numcands; ++i) {
+
+		std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
+			i, cand_equivs.find(i)->second);
+
+		std::copy(canonical_full.begin(), canonical_full.end(),
+			std::back_inserter(canonical_full_v));
+	}
 
 	// We need at least one relative constraint to make our groups, so
 	// allocate them here.
@@ -543,6 +508,17 @@ int main(int argc, char ** argv) {
 		std::cout << "\n";
 	}
 
+	// Because the output file is linear, we need to allocate space for
+	// the same number of functions no matter what the number of
+	// candidates is. So allocate enough to always have room, i.e.
+	// as many as the max i: functions_to_test[i].size();
+	size_t max_num_functions = 0;
+	for (i = min_numcands; i <= max_numcands; ++i) {
+		max_num_functions = std::max(max_num_functions,
+			functions_to_test[i].size());
+	}
+
+
 	// And now for some tests. Quick and dirty.
 
 	std::vector<test_results> all_results;
@@ -552,7 +528,7 @@ int main(int argc, char ** argv) {
 		std::string fn_prefix = "algo_testing/" + itos(i) + "_" + "out.dat";
 
 		int num_tests = 100;
-		test_results results(num_tests, prospective_functions[4].size());
+		test_results results(num_tests, max_num_functions);
 		results.allocate_space(fn_prefix);
 
 		all_results.push_back(results); // for i
@@ -567,9 +543,9 @@ int main(int argc, char ** argv) {
 	std::vector<int> cur_results_method_indices(4, -1);
 	std::map<copeland_scenario, int> set_algorithm_indices;
 
-	backtracker foo(4);
+	backtracker foo(min_numcands, max_numcands);
 	foo.set_tests_and_results(trunc, grps, all_results);
-	foo.prospective_functions = prospective_functions;
+	foo.prospective_functions = functions_to_test;
 	foo.try_algorithms();
 
 	return 0;
