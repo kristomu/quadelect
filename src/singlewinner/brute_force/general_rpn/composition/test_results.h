@@ -89,5 +89,6 @@ class test_results {
 		// Check if a given combination of methods pass all the
 		// tests according to the recorded results.
 
-		bool passes_tests(const std::vector<int> method_indices) const;
+		bool passes_tests(const std::vector<int> method_indices,
+			bool no_harm, bool no_help) const;
 };

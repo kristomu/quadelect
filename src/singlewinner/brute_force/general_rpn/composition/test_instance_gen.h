@@ -20,6 +20,8 @@ class test_instance_generator {
 		int cand_B_idx_before, cand_B_idx_after;
 		test_generator tgen;
 
+		bool no_help, no_harm;
+
 		test_instance_generator(test_generator in) : tgen(in) {}
 
 		relative_test_instance get_test_instance(

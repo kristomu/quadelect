@@ -85,6 +85,14 @@ bool test_generator_group::fits_group_directly(
 	// If it's empty, everything matches.
 	if (generators.empty()) { return true; }
 
+	// Check that the tests this group will be subjected to, and
+	// what the new test_instance_generator wants to be subjected to,
+	// fits.
+
+	if (candidate.no_harm ^ no_harm || candidate.no_help ^ no_help) {
+		return false;
+	}
+
 	// Check if the scenarios match directly.
 
 	return candidate.before_A == before_A && candidate.after_A == after_A &&
@@ -95,6 +103,10 @@ bool test_generator_group::fits_group_reversed(
 	const test_instance_generator & candidate) const {
 
 	if (generators.empty()) { return true; }
+
+	if (candidate.no_harm ^ no_harm || candidate.no_help ^ no_help) {
+		return false;
+	}
 
 	// Check if the scenarios match after reversing (see beginning of file).
 
@@ -117,6 +129,8 @@ void test_generator_group::insert(test_instance_generator candidate) {
 
 	// If the group is empty, we need to set what's allowable from now on.
 	if (generators.empty()) {
+		no_harm = candidate.no_harm;
+		no_help = candidate.no_help;
 		before_A = candidate.before_A;
 		after_A = candidate.after_A;
 		before_B = candidate.before_B;
@@ -158,6 +172,9 @@ std::set<copeland_scenario>
 
 bool test_generator_group::operator<(
 	const test_generator_group & other) const {
+
+	if (no_help != other.no_help) { return no_help < other.no_help; }
+	if (no_harm != other.no_harm) { return no_harm < other.no_harm; }
 
 	if (before_A != other.before_A) { return before_A < other.before_A; }
 	if (before_B != other.before_B) { return before_B < other.before_B; }

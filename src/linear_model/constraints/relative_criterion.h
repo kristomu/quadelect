@@ -84,6 +84,13 @@ class relative_criterion_const {
 			const std::vector<int> & permutation) const { return false; }
 
 	public:
+
+		// States whether the criteria requires that A's position is not
+		// harmed (the default for monotonicity), that A's position is not
+		// helped (immunity to teaming) or both (clone independence).
+		virtual bool no_harm() const { return true; }
+		virtual bool no_help() const { return false; }
+
 		constraint_set relative_constraints(std::string before_suffix,
 			std::string after_suffix) const;
 

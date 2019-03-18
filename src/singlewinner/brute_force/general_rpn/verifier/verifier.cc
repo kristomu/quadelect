@@ -344,7 +344,9 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	// algorithms for every selection setting (A, B, A', B').
 	if (current_election_setting == TYPE_B_PRIME) {
 		bool pass = tests_and_results[test_group_idx].group_results.
-			passes_tests(algorithm_per_setting[test_group_idx]);
+			passes_tests(algorithm_per_setting[test_group_idx],
+				tests_and_results[test_group_idx].test_group.get_no_harm(),
+				tests_and_results[test_group_idx].test_group.get_no_help());
 
 		// Abort early if no pass.
 		if (!pass) { return; }

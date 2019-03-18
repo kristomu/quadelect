@@ -71,6 +71,12 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 					// polytope as we created earlier.
 					to_add.tgen.set_rng_seed(randomizer.long_rand());
 
+					// Set what kind of test this group should perform,
+					// depending on what the relative criterion says.
+
+					to_add.no_help = relative_criterion.no_help();
+					to_add.no_harm = relative_criterion.no_harm();
+
 					// Get the scenarios by sampling once.
 					relative_test_instance ti = to_add.tgen.sample_instance(
 						before_cand_idx, after_cand_idx,

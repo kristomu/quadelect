@@ -93,17 +93,19 @@ void test_results::finish_space_disk() {
 }
 
 bool test_results::passes_tests(
-	const std::vector<int> method_indices) const {
+	const std::vector<int> method_indices, bool no_harm,
+	bool no_help) const {
 
-	// The method fails a test if A has greater score than B in the
+	// The method fails a no-harm test if A has greater score than B in the
 	// before scenario, but has lower score than B in the after scenario,
 	// because going from before to after is supposed to always help A
 	// more than it helps some non-A candidate.
 
-	// (Note: cloning is more strict than this: handle later when we
-	// start dealing with cloning.)
+	// Conversely, it fails no-help if A has lower score than B in the
+	// before scenario but higher after. 
 
 	// Caching will also happen later if required.
+	// (I thought I had also done this!)
 
 	std::vector<std::vector<test_t> > cur_combo_results(
 		NUM_REL_ELECTION_TYPES);
@@ -115,11 +117,33 @@ bool test_results::passes_tests(
 			std::back_inserter(cur_combo_results[type]));
 	}
 
+	// There are three possibilities: either the test is both no-harm and
+	// no-help, it's only no-harm, or it's only no-help.
+	// The fourth option (neither no-harm nor no-help) trivially returns
+	// true all the time.
+
+	bool before_direction, after_direction;
+
 	for (size_t i = 0; i < num_tests; ++i) {
-		if (cur_combo_results[TYPE_A][i] - cur_combo_results[TYPE_B][i] > 0 
-			&& cur_combo_results[TYPE_A_PRIME][i] -
-			   cur_combo_results[TYPE_B_PRIME][i] < 0) {
-			return false;
+		before_direction = cur_combo_results[TYPE_A][i] - 
+			cur_combo_results[TYPE_B][i] > 0;
+		after_direction = cur_combo_results[TYPE_A_PRIME][i] - 
+			cur_combo_results[TYPE_B_PRIME][i] > 0;
+
+		if (no_harm) {
+			// If the signs are different, someone who was losing is now
+			// winning or vice versa, so return false.
+			if (no_help && (before_direction ^ after_direction)) {
+				return false;
+			}
+			// If A went from winner to loser over B, return false.
+			if (before_direction && !after_direction) {
+				return false;
+			}
+		} else {
+			if (no_help && (!before_direction && after_direction)) {
+				return false;
+			}
 		}
 	}
 
