@@ -43,8 +43,9 @@ bool clone_const::permissible_transition(
 
 clone_const::clone_const(std::vector<int> after_as_before_in) :
 	relative_criterion_const
-		// Number of candidates before cloning: maximum value in a_a_b_i
-		(*std::max_element(after_as_before_in.begin(),
+		// Number of candidates before cloning: one plus maximum value in
+		// a_a_b_i (due to zero indexing).
+		(1 + *std::max_element(after_as_before_in.begin(),
 			after_as_before_in.end()),
 		// Number of candidates after cloning: length of after_as_before_in
 		after_as_before_in.size()) {
