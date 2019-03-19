@@ -18,8 +18,12 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	int i;
 
 	for (i = min_num_cands; i < max_num_cands; ++i) {
+		// Teaming and vote_splitting
 		relative_constraints.push_back(
 			std::make_unique<clone_const>(i, i+1));
+		// Crowding
+		relative_constraints.push_back(
+			std::make_unique<clone_const>(i, i+1, 1));
 	}
 
 	for (i = min_num_cands; i <= max_num_cands; ++i) {
