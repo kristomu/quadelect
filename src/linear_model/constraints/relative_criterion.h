@@ -54,6 +54,10 @@ class relative_criterion_const {
 		constraint get_before_after_equality(
 			std::string before_suffix, std::string after_suffix) const;
 
+		// Get the default after_as_before. Remember to call *after*
+		// numcands has been set.
+		std::vector<int> get_default_after_as_before() const;
+
 	protected:
 		size_t numcands_before, numcands_after;
 
@@ -66,9 +70,6 @@ class relative_criterion_const {
 		// correspond to the before candidates A, B, C, respectively.
 		std::vector<int> after_as_before;
 
-		// Get the default after_as_before. Remember to call *after*
-		// numcands has been set.
-		virtual std::vector<int> get_after_as_before() const;
 		virtual bool is_valid_numcands_combination() const {
 			return numcands_before == numcands_after; }
 
@@ -108,7 +109,7 @@ class relative_criterion_const {
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
 
-			after_as_before = get_after_as_before();
+			after_as_before = get_default_after_as_before();
 		}
 
 		relative_criterion_const(size_t numcands_in) :

@@ -3,17 +3,6 @@
 #include <numeric>
 #include <assert.h>
 
-std::vector<int> clone_const::get_after_as_before() const {
-
-	std::vector<int> aab_out(numcands_after, 0);
-
-	// Returns 0 1 2 3 4 .. n 0 0 .. 0 by ending the counting after
-	// numcands_before.
-	std::iota(aab_out.begin(), aab_out.begin() + numcands_before, 0);
-
-	return aab_out;
-}
-
 bool clone_const::permissible_transition(
 	const std::vector<int> & before_permutation,
 	const std::vector<int> & after_permutation) const {
@@ -63,12 +52,17 @@ clone_const::clone_const(std::vector<int> after_as_before_in) :
 	after_as_before = after_as_before_in;
 }
 
-clone_const::clone_const(size_t before_numcands_in, size_t after_numcands_in) :
+clone_const::clone_const(size_t before_numcands_in, size_t after_numcands_in,
+	size_t candidate_to_clone) :
 	relative_criterion_const(before_numcands_in, after_numcands_in) {
 
-	// Now every after candidate is a clone of A...
-	after_as_before = std::vector<int>(after_numcands_in, 0);
-	// ... but we don't want the before-candidates to be clones of A.
+	// Now every after candidate is a clone of whoever...
+	after_as_before = std::vector<int>(after_numcands_in, candidate_to_clone);
+	// ... but we don't want the before-candidates to be clones of that
+	// candidate.
 	std::iota(after_as_before.begin(),
 		after_as_before.begin() + before_numcands_in, 0);
 }
+
+clone_const::clone_const(size_t numcands_before_in, size_t numcands_after_in) :
+	clone_const(numcands_before_in, numcands_after_in, 0) {}

@@ -228,7 +228,7 @@ constraint_set relative_criterion_const::relative_constraints(
 }
 
 // The default is that all the candidates are preserved.
-std::vector<int> relative_criterion_const::get_after_as_before() const {
+std::vector<int> relative_criterion_const::get_default_after_as_before() const {
 
 	std::vector<int> out(numcands_before);
 	std::iota(out.begin(), out.end(), 0);

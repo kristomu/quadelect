@@ -23,8 +23,6 @@ class clone_const : public relative_criterion_const {
 			std::vector<int> after_as_before_in) const;
 
 	protected:
-		virtual std::vector<int> get_after_as_before() const;
-
 		bool permissible_transition(
 			const std::vector<int> & before_permutation,
 			const std::vector<int> & after_permutation) const;
@@ -38,7 +36,13 @@ class clone_const : public relative_criterion_const {
 		// election into A, D, and E in the five.
 		clone_const(size_t numcands_before_in, size_t numcands_after_in);
 
-		// Support cloning someone who is not A.
+		// For crowding, we need to clone someone who isn't A.
+		clone_const(size_t numcands_before_in, size_t numcands_after_in,
+			size_t candidate_to_clone);
+
+		// Support cloning someone who is not A, more generally.
+		// TODO: See if there's a way to clone so that either A' or B'
+		// is 55,4.
 		clone_const(std::vector<int> after_as_before_in);
 
 		// If A wins before and loses after cloning A: vote splitting.
