@@ -49,6 +49,7 @@ class test_results {
 		// start_of_type is the start of all data that has to do with
 		// a particular 
 
+		mutable std::vector<size_t> results_start_position;
 		std::vector<size_t> num_methods, start_of_type;
 		size_t total_num_entries;
 		size_t num_tests;
@@ -56,7 +57,9 @@ class test_results {
 		// Assume the same number of methods for each test election type.
 		test_results(int num_tests_in, int num_methods_in) {
 			num_tests = num_tests_in;
-			num_methods = std::vector<size_t>(4, num_methods_in);
+			results_start_position.resize(NUM_REL_ELECTION_TYPES);
+			num_methods = std::vector<size_t>(NUM_REL_ELECTION_TYPES,
+				num_methods_in);
 			set_size_variables();
 			allocated = false;
 		}
@@ -89,6 +92,6 @@ class test_results {
 		// Check if a given combination of methods pass all the
 		// tests according to the recorded results.
 
-		bool passes_tests(const std::vector<int> method_indices,
+		bool passes_tests(const std::vector<int> & method_indices,
 			bool no_harm, bool no_help) const;
 };

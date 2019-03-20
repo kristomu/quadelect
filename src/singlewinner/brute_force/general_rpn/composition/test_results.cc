@@ -93,7 +93,7 @@ void test_results::finish_space_disk() {
 }
 
 bool test_results::passes_tests(
-	const std::vector<int> method_indices, bool no_harm,
+	const std::vector<int> & method_indices, bool no_harm,
 	bool no_help) const {
 
 	// The method fails a no-harm test if A has greater score than B in the
@@ -104,17 +104,13 @@ bool test_results::passes_tests(
 	// Conversely, it fails no-help if A has lower score than B in the
 	// before scenario but higher after. 
 
-	// Caching will also happen later if required.
-	// (I thought I had also done this!)
 
-	std::vector<std::vector<test_t> > cur_combo_results(
-		NUM_REL_ELECTION_TYPES);
+	// First determine the location of the first test result for each
+	// algorithm.
 
 	for (int type = 0; type < NUM_REL_ELECTION_TYPES; ++type) {
-		size_t start = get_linear_idx(method_indices[type], 0, 
-			(test_election)type);
-		std::copy(results + start, results + start + num_tests, 
-			std::back_inserter(cur_combo_results[type]));
+		results_start_position[type] = get_linear_idx(method_indices[type],
+			0,  (test_election)type);
 	}
 
 	// There are three possibilities: either the test is both no-harm and
@@ -125,10 +121,13 @@ bool test_results::passes_tests(
 	bool before_direction, after_direction;
 
 	for (size_t i = 0; i < num_tests; ++i) {
-		before_direction = cur_combo_results[TYPE_A][i] - 
-			cur_combo_results[TYPE_B][i] > 0;
-		after_direction = cur_combo_results[TYPE_A_PRIME][i] - 
-			cur_combo_results[TYPE_B_PRIME][i] > 0;
+		test_t result_A  = results[results_start_position[TYPE_A]+i],
+			   result_B  = results[results_start_position[TYPE_B]+i],
+			   result_Ap = results[results_start_position[TYPE_A_PRIME]+i],
+			   result_Bp = results[results_start_position[TYPE_B_PRIME]+i];
+
+		before_direction = result_A - result_B > 0;
+		after_direction = result_Ap - result_Bp > 0;
 
 		if (no_harm) {
 			// If the signs are different, someone who was losing is now
