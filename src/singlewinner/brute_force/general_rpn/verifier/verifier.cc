@@ -138,6 +138,7 @@ class backtracker {
 			test_election current_election_setting) const;
 
 	public:
+		std::vector<size_t> iteration_count;
 		std::vector<test_and_result> tests_and_results;
 		std::map<copeland_scenario, int> algorithm_for_scenario;
 		std::vector<std::vector<algo_t> > prospective_functions;
@@ -165,6 +166,11 @@ class backtracker {
 		void try_algorithms() {
 			start_time = time(NULL);
 			try_algorithms(0, TYPE_A);
+
+			std::cout << "DEBUG: Iteration counts." << std::endl;
+			for (size_t i = 0; i < iteration_count.size(); ++i) {
+				std::cout << i << "\t" << iteration_count[i] << std::endl;
+			}
 		}
 
 		backtracker(size_t min_numcands_in, size_t max_numcands_in) {
@@ -276,7 +282,17 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		}
 
 		std::cout << std::endl;
+
+		std::cout << "DEBUG: Iteration counts." << std::endl;
+		for (size_t i = 0; i < iteration_count.size(); ++i) {
+			std::cout << i << "\t" << iteration_count[i] << std::endl;
+		}
 		return;
+	}
+
+	// Increment the relevant iteration count.
+	if (current_election_setting == TYPE_A) {
+		++iteration_count[test_group_idx];
 	}
 
 	// First check if we've set an algorithm for the current test group.
@@ -285,8 +301,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	copeland_scenario current_scenario = tests_and_results[test_group_idx].
 		test_group.get_scenario(current_election_setting);
 
-	size_t i;
-	size_t numcands = current_scenario.get_numcands();
+	size_t i, numcands = current_scenario.get_numcands();
 
 	if (algorithm_for_scenario.find(current_scenario) ==
 		algorithm_for_scenario.end() ||
@@ -298,10 +313,8 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		for (i = 0; i < prospective_functions[numcands].size(); ++i){
 
 			algorithm_for_scenario[current_scenario] = i;
-
 			try_algorithms(test_group_idx, current_election_setting);
 
-			assert(algorithm_for_scenario[current_scenario] == (int)i);
 		}
 
 		// Since we've looped through to ourselves, there's no need
@@ -310,7 +323,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		algorithm_for_scenario[current_scenario] = -1;
 		return;
 	}
-
+	
 	// If we got here, the algorithm to use for the current scenario has
 	// already been defined. So set the algorithm_per_setting array to
 	// this particular algorithm, as the testing function need is in that
@@ -383,6 +396,9 @@ void backtracker::set_tests_and_results(
 	max_num_algorithms = std::vector<std::vector<int> >(
 		tests_and_results.size(),
 			std::vector<int>(NUM_REL_ELECTION_TYPES, -1));
+
+	iteration_count =
+		std::vector<size_t>(tests_and_results.size(), 0);
 }
 
 int main(int argc, char ** argv) {
@@ -538,8 +554,8 @@ int main(int argc, char ** argv) {
 
 	// Verify meta here.
 
-	std::list<int> only = {14, 15};
-	std::list<int> trunc = toposorted;
+	std::list<int> only = {1, 0};//, 10, 12, 9, 20, 8, 23, 4, 3, 16, 7, 22, 2, 13, 11, 5, 19, 15, 17, 14, 6, 21, 18};
+	std::list<int> trunc = only;//toposorted;
 	//std::cout << *toposorted.begin() << std::endl;
 
 	std::vector<int> cur_results_method_indices(4, -1);
