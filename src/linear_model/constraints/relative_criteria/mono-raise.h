@@ -16,4 +16,6 @@ class mono_raise_const : public relative_criterion_const {
 	public:
 		mono_raise_const(int numcands_in) : 
 			relative_criterion_const(numcands_in) {}
+
+		std::string name() const { return "Mono-raise"; }
 };

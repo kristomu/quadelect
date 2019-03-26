@@ -46,8 +46,10 @@ class clone_const : public relative_criterion_const {
 		clone_const(std::vector<int> after_as_before_in);
 
 		// If A wins before and loses after cloning A: vote splitting.
-		virtual bool no_harm() const { return true; }
+		bool no_harm() const { return true; }
 
 		// If A loses before and wins after cloning: teaming.
-		virtual bool no_help() const { return true; }
+		bool no_help() const { return true; }
+
+		std::string name() const { return "Clone Independence"; }
 };

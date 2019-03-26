@@ -92,6 +92,8 @@ class relative_criterion_const {
 		virtual bool no_harm() const { return true; }
 		virtual bool no_help() const { return false; }
 
+		virtual std::string name() const = 0;
+
 		constraint_set relative_constraints(std::string before_suffix,
 			std::string after_suffix) const;
 
