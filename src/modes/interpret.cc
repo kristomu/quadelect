@@ -22,18 +22,16 @@ string interpreter_mode::base26(int number) const {
 	return (output);
 }
 
-void interpreter_mode::complete_default_lookup(map<int, string> & to_complete,
-        int how_many) const {
+void interpreter_mode::complete_default_lookup(map<size_t, string> & to_complete,
+        size_t how_many) const {
 
-	assert(how_many > 0);
-
-	for (int counter = 0; counter < how_many; ++counter)
+	for (size_t counter = 0; counter < how_many; ++counter)
 		if (to_complete.find(counter) == to_complete.end())
 			to_complete[counter] = "<" + base26(counter) + ">";
 }
 
-map<int, string> interpreter_mode::gen_default_lookup(int how_many) const {
-	map<int, string> toRet;
+map<size_t, std::string> interpreter_mode::gen_default_lookup(size_t how_many) const {
+	map<size_t, std::string> toRet;
 
 	complete_default_lookup(toRet, how_many);
 
@@ -79,7 +77,7 @@ bool interpreter_mode::parse_ballots(bool debug) {
 
 	// Otherwise, let's get going!
 
-	pair<map<int, string>, list<ballot_group> > parsed = to_use->
+	pair<map<size_t, std::string>, list<ballot_group> > parsed = to_use->
 	        interpret_ballots(input_ballots_unparsed, debug);
 
 	if (parsed.second.empty())
@@ -116,7 +114,7 @@ void interpreter_mode::set_ballots(const list<ballot_group> & ballot_in) {
 }
 
 bool interpreter_mode::set_ballots(const list<ballot_group> & ballot_in,
-                                   const map<int, string> & candidate_names) {
+                                   const map<size_t, std::string> & candidate_names) {
 
 	// First add the ballots themselves. Then check if the needed map to
 	// cover every candidate is larger than the one we've got provided. If
@@ -249,7 +247,7 @@ int interpreter_mode::get_current_round() const {
 }
 
 string interpreter_mode::do_round(bool give_brief_status, bool reseed,
-                                  rng & randomizer, cache_map & cache) {
+                                  rng & randomizer, cache_map * cache) {
 
 	// If we aren't inited, return to tell them no go.
 	if (!inited)
@@ -267,17 +265,14 @@ string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 	// have been completed, so we can use its size for number of candidates.
 	int numcands = cand_lookup.size();
 	ordering next = methods[cur_iter]->elect(input_ballots, numcands,
-	                &cache, true);
+	                cache, true);
 
 	if (give_brief_status)
 		output = "Done getting results for " + methods[cur_iter]->
 		         name();
 
-	assert (next.size() == (size_t)numcands);
-
 	// Increment.
 	++cur_iter;
-	//++cur_iter_ptr;
 
 	// And add the result to our list of results.
 	results.push_back(next);
@@ -287,8 +282,7 @@ string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 
 string interpreter_mode::do_round(bool give_brief_status, bool reseed,
                                   rng & randomizer) {
-	return (do_round(give_brief_status, reseed, randomizer,
-	                 *((cache_map *)NULL)));
+	return (do_round(give_brief_status, reseed, randomizer, NULL));
 }
 
 // More results than status, so more in the vein of the Bayesian Regret mode

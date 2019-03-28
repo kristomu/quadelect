@@ -9,13 +9,13 @@
 
 using namespace std;
 
-double abstract_condmat::get_magnitude(int candidate, int against,
+double abstract_condmat::get_magnitude(size_t candidate, size_t against,
 		const vector<bool> & hopefuls) const {
 
 	// size() is a bit expensive, thus I'm doing it this way.
 	if (candidate < against)
-		assert (candidate >= 0 && against <= (int)hopefuls.size());
-	else	assert (against >= 0 && candidate <= (int)hopefuls.size());
+		assert (against <= hopefuls.size());
+	else	assert (candidate <= hopefuls.size());
 
 	// Make sure num_voters is properly set.
 	assert (get_num_voters() != -INFINITY);
@@ -25,7 +25,7 @@ double abstract_condmat::get_magnitude(int candidate, int against,
 	else	return(0);
 }
 
-bool abstract_condmat::set(int candidate, int against_candidate, double value) {
+bool abstract_condmat::set(size_t candidate, size_t against_candidate, double value) {
 	return(set_internal(candidate, against_candidate, value));
 }
 

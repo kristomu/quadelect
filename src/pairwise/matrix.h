@@ -53,29 +53,29 @@ class condmat : public abstract_condmat {
 		vector<vector<double> > contents;
 
 	protected:
-		double get_internal(int candidate, int against, bool raw) const;
-		bool set_internal(int candidate, int against, double value);
+		double get_internal(size_t candidate, size_t against, bool raw) const;
+		bool set_internal(size_t candidate, size_t against, double value);
 
 	public:
 		condmat(pairwise_type type_in);
-		condmat(const list<ballot_group> & scores, int num_candidates,
+		condmat(const list<ballot_group> & scores, size_t num_candidates,
 				pairwise_type kind);
 		// Should we permit condmat(input, kind)? Does that break
 		// or enhance encapsulation?
 		// Do it for now, then judge later.
 		condmat(const condmat & in, pairwise_type type_in);
-		condmat(int num_candidates_in, double num_voters_in, 
+		condmat(size_t num_candidates_in, double num_voters_in, 
 				pairwise_type type_in);
 
 		// Eh, is this bad?
-		bool add(int candidate, int against, double value) {
+		bool add(size_t candidate, size_t against, double value) {
 			return(set_internal(candidate, against, 
 					get_internal(candidate, against, true) +
 					value));
 		}
 
 		void count_ballots(const list<ballot_group> & scores,
-				int num_candidates);
+				size_t num_candidates);
 
 		// Perhaps "expand candidates by one, contract by one" here?
 		// Clear, etc...

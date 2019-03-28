@@ -37,15 +37,15 @@ class monotonicity : public twotest {
 		// social order, but didn't become winner in any of them.
 		bool check_winner_only, permit_ties;
 
-		string explain_change_int(const vector<int> & data,
-				const map<int, string> & cand_names) const;
+		string explain_change_int(const vector<size_t> & data,
+				const map<size_t, string> & cand_names) const;
 
 	protected:
 
 		ordering_tools otools;
 
 		ordering::const_iterator find_cand(const ordering & to_search,
-				int candnum) const;
+				size_t candnum) const;
 
 		// Whether or not it's possible to turn the "raise" test into
 		// a "lower" test (only possible for straightforwards 
@@ -58,17 +58,17 @@ class monotonicity : public twotest {
 		// Otherwise, output is an appropriately modified version
 		// of input.
 		virtual bool alter_ballot(const ordering & input,
-				ordering & output, int numcands,
-				const vector<int> & data, 
+				ordering & output, size_t numcands,
+				const vector<size_t> & data, 
 				rng & randomizer) const {
 			output = input; return(false); }
 
 		// For mono-add-top, etc. If it returns false, nothing was done,
 		// otherwise some ballots have been added to list<ballot_group>.
-		virtual bool add_ballots(const vector<int> & data,
+		virtual bool add_ballots(const vector<size_t> & data,
 				rng & randomizer,
 				list<ballot_group> & input,
-				double total_weight, int numcands) const { 
+				double total_weight, size_t numcands) const { 
 			return(false); }
 
 	public:
@@ -76,36 +76,36 @@ class monotonicity : public twotest {
 		// to alter, then either 0 (lower) or 1 (raise), then a list 
 		// of ballot numbers to modify. We might also need a seed for 
 		// how far we're going to move the candidate in each ballot.
-		vector<int> generate_aux_data(const list<ballot_group> & input,
-				int numcands) const;
+		vector<size_t> generate_aux_data(const list<ballot_group> & input,
+				size_t numcands) const;
 
 		// Modify data so as to prioritize a certain candidate (usually
 		// raise him). Returns modified data.
-		vector<int> set_candidate_to_alter(vector<int> data,
-			int alter_to) const {
+		vector<size_t> set_candidate_to_alter(vector<size_t> data,
+			size_t alter_to) const {
 			data[0] = alter_to;
 			return data;
 		}
 
 		pair<bool, list<ballot_group> > rearrange_ballots(
 			const list<ballot_group> & input,
-			int numcands, int number_to_add,
-			const vector<int> & data) const;
+			size_t numcands, size_t number_to_add,
+			const vector<size_t> & data) const;
 
 
 		pair<bool, list<ballot_group> > rearrange_ballots(
 			const list<ballot_group> & input,
-			int numcands,
-			const vector<int> & data) const;
+			size_t numcands,
+			const vector<size_t> & data) const;
 
 		// Any are applicable, though ternary may reply INAPP if
 		// the data is so that no ballot is altered.
 		bool applicable(const ordering & check, 
-				const vector<int> & data, bool orig) const;
+				const vector<size_t> & data, bool orig) const;
 
 		bool pass_internal(const ordering & original, const ordering &
-				modified, const vector<int> & data,
-				int numcands) const;
+				modified, const vector<size_t> & data,
+				size_t numcands) const;
 
 		// Ternary?
 

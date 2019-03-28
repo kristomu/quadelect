@@ -13,14 +13,14 @@
 ////////////////////
 
 bool mono_sub_plump::alter_ballot(const ordering & input, ordering & output,
-		int numcands, const vector<int> & data, rng & 
+		size_t numcands, const vector<size_t> & data, rng & 
 		randomizer) const {
 
 	// This one is easy. First check if x is top-ranked. If he isn't,
 	// replace by a ballot where he is, otherwise FALSE.
 	
 	double highest_score = output.begin()->get_score(); 
-	int cand_to_change = data[0];
+	size_t cand_to_change = data[0];
 
 	ordering::const_iterator pos;
 	for (pos = output.begin(); pos != output.end() && 
@@ -41,11 +41,11 @@ bool mono_sub_plump::alter_ballot(const ordering & input, ordering & output,
 //////////////////
 
 bool mono_sub_top::alter_ballot(const ordering & input, ordering & output,
-		int numcands, const vector<int> & data, 
+		size_t numcands, const vector<size_t> & data, 
 		rng & randomizer) const {
 
         double highest_score = output.begin()->get_score();
-        int cand_to_change = data[0];
+        size_t cand_to_change = data[0];
 
         ordering::const_iterator pos;
         for (pos = output.begin(); pos != output.end() &&
@@ -62,7 +62,7 @@ bool mono_sub_top::alter_ballot(const ordering & input, ordering & output,
 	// ... and then random after that.
 	// Again, handle truncation (and ER) later. (Perhaps pass random 
 	// generator to function?)
-	for (int counter = 0; counter < numcands; ++counter)
+	for (size_t counter = 0; counter < numcands; ++counter)
 		if (counter != cand_to_change)
 			output.insert(candscore(counter, randomizer.drand()));
 

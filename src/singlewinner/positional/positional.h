@@ -19,7 +19,7 @@ class positional : public election_method {
 		double get_weight_sum(const list<ballot_group> & input) const;
 
 		ordering elect_to_ordering(const list<ballot_group> & input,
-				int num_candidates, int num_hopefuls,
+				size_t num_candidates, size_t num_hopefuls,
 				const vector<bool> * hopefuls) const;
 
 		string show_type(const positional_type & kind_in) const;
@@ -27,13 +27,14 @@ class positional : public election_method {
 		// Perhaps this should be in positional_aggregator.
 		// It should be. Fix later.
 		double get_pos_score(const ballot_group & input,
-				int candidate_number, 
+				size_t candidate_number, 
 				const vector<bool> * hopefuls,
-				int num_hopefuls) const;
+				size_t num_hopefuls) const;
 		double get_pos_score(const ballot_group & input,
-				int candidate_number, int num_candidates) const;
+				size_t candidate_number, size_t num_candidates) const;
 
-		double get_pos_maximum(int num_candidates) const {
+		double get_pos_maximum(size_t num_candidates) const {
+			assert(num_candidates > 0);
 			return(pos_weight(0, num_candidates-1)); }
 
 	protected:
@@ -43,13 +44,14 @@ class positional : public election_method {
 
 		// For things like Plurality, this returns the position at
 		// which all further weights will be zero.
-		virtual int zero_run_beginning() const { return(-1); }
+		virtual size_t zero_run_beginning() const { return(SIZE_MAX); }
 		// 0..last_position inclusive
-		virtual double pos_weight(int position, 
-				int last_position) const = 0;
+		virtual double pos_weight(size_t position, 
+				size_t last_position) const = 0;
 
 	public:
 		// Interfaces
+		// Beware: still uses int for numcands.
 		pair<ordering, bool> elect_inner(
 				const list<ballot_group> & input,
 				int num_candidates, cache_map * cache,

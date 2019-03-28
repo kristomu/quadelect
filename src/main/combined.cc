@@ -312,24 +312,6 @@ bayesian_regret setup_regret(list<election_method *> & methods,
 	assert(br.init(randomizer));
 
 	return(br);
-
-	/*string status;
-
-	int counter = 0;
-
-	cache_map cache;
-
-	do {
-		cache.clear();
-		status = br.do_round(true, true, randomizer, cache);
-		cout << status << endl;
-
-		if (++counter % report_frequency == (report_frequency - 1)) {
-			vector<string> report = br.provide_status();
-			copy(report.begin(), report.end(), 
-					ostream_iterator<string>(cout, "\n"));
-		}
-	} while (status != "");*/
 }
 
 // The hack with the generators is required so that C++ doesn't delete them 

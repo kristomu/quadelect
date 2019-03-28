@@ -22,10 +22,10 @@ class abstract_condmat {
 		double num_voters;
 
 		// Returns -1 on fail
-		virtual double get_internal(int candidate, int against, 
+		virtual double get_internal(size_t candidate, size_t against, 
 				bool raw) const = 0;
 
-		virtual bool set_internal(int candidate, int against,
+		virtual bool set_internal(size_t candidate, size_t against,
 				double value) = 0;
 
 	public:
@@ -35,8 +35,8 @@ class abstract_condmat {
 		abstract_condmat(pairwise_type type_in) { type = type_in; 
 			num_voters = -INFINITY;}
 
-		double get_magnitude(int candidate, int against) const;
-		double get_magnitude(int candidate, int against, 
+		double get_magnitude(size_t candidate, size_t against) const;
+		double get_magnitude(size_t candidate, size_t against, 
 				const vector<bool> & hopefuls) const;
 
 		virtual double get_num_voters() const { return(num_voters); }
@@ -46,7 +46,7 @@ class abstract_condmat {
 
 		pairwise_type get_type() const { return(type); }
 
-		bool set(int candidate, int against_candidate, double value);
+		bool set(size_t candidate, size_t against_candidate, double value);
 		// Perhaps also + - / * etc
 
 		// In case the matrix we derive is abstractly deleted.
@@ -54,8 +54,8 @@ class abstract_condmat {
 };
 
 // This will get called *a lot*, so inline it.
-inline double abstract_condmat::get_magnitude(int candidate, 
-		int against) const {
+inline double abstract_condmat::get_magnitude(size_t candidate, 
+		size_t against) const {
 	// Make sure num_voters is properly set.
 	// Move this to another function?
 	assert (get_num_voters() != -INFINITY);

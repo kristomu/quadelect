@@ -15,8 +15,8 @@ class cache_condmat : public abstract_condmat {
 	protected:
 		const abstract_condmat * reference;
 
-		double get_internal(int candidate, int against, bool raw) const;
-		bool set_internal(int candidate, int against, double value);
+		double get_internal(size_t candidate, size_t against, bool raw) const;
+		bool set_internal(size_t candidate, size_t against, double value);
 
 	public:
 

@@ -4,7 +4,7 @@
 #include "mono_append.h"
 
 bool mono_append::alter_ballot(const ordering & input, ordering & output,
-		int numcands, const vector<int> & data,
+		int numcands, const vector<size_t> & data,
 		rng & randomizer) const {
 
 	// First check if our candidate is not on the ballot; if he isn't,
@@ -12,7 +12,7 @@ bool mono_append::alter_ballot(const ordering & input, ordering & output,
 	// "Lower" consists of removing the candidate if he's ranked last.
 	
 	int least_score = input.rbegin()->get_score();
-	int cand_to_change = data[0];
+	size_t cand_to_change = data[0];
 	bool raise = (data[1] == 1);
 	ordering::const_iterator cand_data = find_cand(input, cand_to_change);
 

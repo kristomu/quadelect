@@ -73,7 +73,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 	int rank = 0;
 
 	bool debug = false;
-	map<int, string> fakecand;
+	map<size_t, string> fakecand;
 	ordering_tools otools;
 
 	if (debug) {

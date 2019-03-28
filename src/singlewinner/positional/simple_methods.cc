@@ -12,7 +12,7 @@ using namespace std;
 
 /////////////////////////////////////////////
 
-double nrem::gauss(int curcand, int num_cands) const {
+double nrem::gauss(size_t curcand, size_t num_cands) const {
 
 	// Blom's approximation
 
@@ -21,7 +21,7 @@ double nrem::gauss(int curcand, int num_cands) const {
 	return(ppnd16((curcand - alpha)/(num_cands - 2.0*alpha + 1)));
 }
 
-double nrem::pos_weight(int position, int last_position) const {
+double nrem::pos_weight(size_t position, size_t last_position) const {
 
 	int numcands = last_position + 1;
 

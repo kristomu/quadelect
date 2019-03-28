@@ -70,7 +70,7 @@ class grad_fracile {
 		vector<bool> hopefuls;
 		vector<double> scores;
 		bool does_need_reinit, all_sorted, changed;
-		int num_hopefuls;
+		size_t num_hopefuls;
 		completion_type completion;
 
 		list<pair<double, double> > minscorev, maxscorev;
@@ -97,7 +97,7 @@ class grad_fracile {
 	public:
 		grad_fracile();
 
-		int get_num_candidates() const { return(sorted_lists.size()); }
+		size_t get_num_candidates() const { return(sorted_lists.size()); }
 		int add_candidate(); // returns #cands
 		int add_candidates(int how_many);
 		int remove_last_candidate(); // returns #cands.

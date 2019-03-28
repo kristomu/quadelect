@@ -4,7 +4,6 @@
 #include <list>
 #include <string>
 #include <math.h>
-#include <assert.h>
 
 using namespace std;
 
@@ -197,8 +196,6 @@ class pws_keener_margins : public pairwise_strategy {
 			double inner = (favor + 1.0) / (favor + oppose + 2.0);
 			double outer = 0.5 + copysign(0.5, inner - 0.5) *
 				sqrt(fabs(2*inner - 1));
-
-			assert(finite(outer));
 
 			return(outer);
 		}

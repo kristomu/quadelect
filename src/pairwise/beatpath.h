@@ -2,8 +2,7 @@
 #define _VOTE_C_BEATPATH
 
 #include "matrix.h"
-
-using namespace std;
+#include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -23,21 +22,22 @@ class beatpath : public abstract_condmat {
 				const vector<bool> & hopefuls);
 
 	protected:
-		double get_internal(int candidate, int against, bool raw) const;
+		double get_internal(size_t candidate, size_t against, bool raw) const;
 
 		// Set doesn't work since this is an inferred ordering. To set,
 		// one would have to pull all the data back in and rerun. Thus
-		// this just returns an assertion failure if you try to set.
-		bool set_internal(int /*candidate*/, int /*against*/, 
+		// this just returns an exception if you try to set.
+		bool set_internal(size_t /*candidate*/, size_t /*against*/, 
 			double /*value*/) {
-			assert (1 != 1);
+			throw std::domain_error("beatpath: can't directly manipulate"
+				" an inferred ordering!");
 		}
 
 	public:
 		beatpath(const abstract_condmat & input, pairwise_type type_in);
 		beatpath(const abstract_condmat & input, pairwise_type type_in,
 				const vector<bool> & hopefuls);
-		beatpath(const list<ballot_group> & scores, int num_candidates,
+		beatpath(const list<ballot_group> & scores, size_t num_candidates,
 				pairwise_type kind);
 
 		double get_num_candidates() const { return(contents.size()); }

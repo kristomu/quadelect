@@ -21,17 +21,17 @@ class candscore {
 
 	private:
 		double score;
-		int candidate_number;
+		size_t candidate_number;
 
 	public:
 		// Do this by the book
 		double get_score() const { return(score); }
 		void set_score(double score_in);
-		int get_candidate_num() const { return(candidate_number); }
-		void set_candidate_num(int cand_in);
+		size_t get_candidate_num() const { return(candidate_number); }
+		void set_candidate_num(size_t cand_in);
 
-		candscore(int candnum_in);
-		candscore(int cn_in, double score_in);
+		candscore(size_t candnum_in);
+		candscore(size_t cn_in, double score_in);
 
 		// DONE: Trick this so that candscore a == candscore b if
 		// candidate numbers are equal - to prevent double scores

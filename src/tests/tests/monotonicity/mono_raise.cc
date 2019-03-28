@@ -16,14 +16,14 @@
 ////////////////
 
 bool mono_raise::alter_ballot(const ordering & input,
-                              ordering & norm, int numcands,
-                              const vector<int> & data,
+                              ordering & norm, size_t numcands,
+                              const vector<size_t> & data,
                               rng & randomizer) const {
 
 	// Let's raise/lower the candidate to raise (unless he's already
 	// in first/last and not a tie).
 
-	int cand_to_change = data[0];
+	size_t cand_to_change = data[0];
 	norm = input;
 
 	// Raise the candidate's score ever so slightly, which will push him one
@@ -65,8 +65,8 @@ bool mono_raise::alter_ballot(const ordering & input,
 ///////////////////////
 
 bool mono_raise_delete::alter_ballot(const ordering & input,
-                                     ordering & output, int numcands, const vector<int> & data,
-                                     rng & randomizer) const {
+	ordering & output, size_t numcands, const vector<size_t> & data,
+	rng & randomizer) const {
 
 	// As in mono-raise, but we delete everything after the change.
 	// Cut n paste too much?
@@ -74,7 +74,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 	output.clear();
 
 	int highest_score = output.begin()->get_score();
-	int cand_to_change = data[0];
+	size_t cand_to_change = data[0];
 	bool raise = (data[1] == 1);
 
 	// Hack because "lowering" doesn't make sense for add-delete.
@@ -145,8 +145,8 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 ///////////////////////
 
 bool mono_raise_random::alter_ballot(const ordering & input,
-                                     ordering & output, int numcands, const vector<int> & data,
-                                     rng & randomizer) const {
+	ordering & output, size_t numcands, const vector<size_t> & data,
+    rng & randomizer) const {
 
 	// Lost of cut-n-paste code from MRD here. See mono-raise-delete for
 	// what this does. May have to refactor later.
@@ -154,7 +154,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	output.clear();
 
 	int highest_score = output.begin()->get_score();
-	int cand_to_change = data[0];
+	size_t cand_to_change = data[0];
 	bool raise = (data[1] == 1);
 
 	// Could be done, after a fashion, but that wouldn't be symmetric.
