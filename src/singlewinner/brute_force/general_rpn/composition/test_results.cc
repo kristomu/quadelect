@@ -3,6 +3,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <assert.h>
 
 #include <stdexcept>
 #include <iostream>
@@ -36,22 +37,13 @@ void test_results::set_size_variables() {
 size_t test_results::get_linear_idx(size_t method_idx, 
 	size_t test_instance_number, test_election type) const {
 
-	// Check that the indices make sense.
+	// If debugging, check that the indices make sense.
+	// The following checks are assertions so that when not
+	// debugging, we don't slow down the program too much.
 
-	if (type > NUM_REL_ELECTION_TYPES) {
-		throw std::runtime_error(
-			"get_linear_idx: unknown type");
-	}
-
-	if (method_idx >= num_methods[type]) {
-		throw std::runtime_error(
-			"get_linear_idx: method idx > num methods");
-	}
-
-	if (test_instance_number >= num_tests) {
-		throw std::runtime_error(
-			"get_linear_idx: test_instance_number > num tests");
-	}
+	assert (type > NUM_REL_ELECTION_TYPES);
+	assert (method_idx >= num_methods[type]);
+	assert (test_instance_number >= num_tests);
 
 	// Find the linear index into the results array.
 	// The digit system is like this
