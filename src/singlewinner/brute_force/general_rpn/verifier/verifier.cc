@@ -7,6 +7,8 @@
 #include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
 #include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
 
+#include "../../../../config/general_rpn.h"
+
 #include <iostream>
 #include <iterator>
 #include <memory>
@@ -403,22 +405,24 @@ void backtracker::set_tests_and_results(
 
 int main(int argc, char ** argv) {
 	size_t min_numcands = 3, max_numcands = 4;
-	rng randomizer(1);
+	rng randomizer(RNG_ENTROPY);
 
 	// Read algorithms from file.
 
 	std::cout << "Reading files..." << std::endl;
 
-	if (argc < 3) {
+	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0]
-			<< " [file containing sifter output, 3 cands] "
-			<< " [file containing sifter output, 4 cands] "
+			<< " [general_rpn_tools config file] "
 			<< std::endl;
 		return(-1);
 	}
 
-	std::vector<std::string> filename_cand_inputs = {"", "", "",
-		argv[1], argv[2]};
+	// Read configuration file.
+	g_rpn_config settings;
+	settings.load_from_file(argv[1]);
+
+	std::vector<std::string> filename_cand_inputs = settings.source_files;
 
 	size_t i;
 
@@ -465,7 +469,7 @@ int main(int argc, char ** argv) {
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
 	relative_constraints = relative_criterion_producer().get_all(
-		3, 4, true);
+		min_numcands, max_numcands, true);
 
 	// Create all the groups
 	// There seem to be some bugs where the same group is being added
@@ -543,9 +547,9 @@ int main(int argc, char ** argv) {
 
 	for (size_t i = 0; i < grps.groups.size(); ++i) {
 
-		std::string fn_prefix = "algo_testing/" + itos(i) + "_" + "out.dat";
+		std::string fn_prefix = settings.test_storage_prefix + itos(i) + ".dat";
 
-		int num_tests = 100;
+		int num_tests = settings.num_tests;
 		test_results results(num_tests, max_num_functions);
 		results.allocate_space(fn_prefix);
 
@@ -553,10 +557,11 @@ int main(int argc, char ** argv) {
 	}
 
 	// Verify meta here.
+	// Replace with something better once we have criteria_order and
+	// desired_criteria implemented. TODO.
 
 	std::list<int> only = {1, 0};//, 10, 12, 9, 20, 8, 23, 4, 3, 16, 7, 22, 2, 13, 11, 5, 19, 15, 17, 14, 6, 21, 18};
 	std::list<int> trunc = only;//toposorted;
-	//std::cout << *toposorted.begin() << std::endl;
 
 	std::vector<int> cur_results_method_indices(4, -1);
 	std::map<copeland_scenario, int> set_algorithm_indices;

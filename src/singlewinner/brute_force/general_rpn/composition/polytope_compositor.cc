@@ -34,6 +34,8 @@
 #include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
 #include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
 
+#include "../../../../config/general_rpn.h"
+
 // Beware of ugly hacks. The triple nested loop is the way it is so as to
 // minimize the amount of seeking that needs to be done in the memory-
 // mapped file. It's pretty hideous.
@@ -118,8 +120,7 @@ void test(size_t desired_samples,
 int main(int argc, char ** argv) {
 
 	size_t min_numcands = 3, max_numcands = 4;
-	rng randomizer(1);
-	//rng randomizer(RNG_ENTROPY);
+	rng randomizer(RNG_ENTROPY);
 
 	// Integrity test.
 
@@ -134,16 +135,18 @@ int main(int argc, char ** argv) {
 
 	std::cout << "Reading files..." << std::endl;
 
-	if (argc < 4) {
+	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0]
-			<< " [file containing sifter output, 3 cands] "
-			<< " [file containing sifter output, 4 cands] "
-			<< " [output prefix]" << std::endl;
+			<< " [general_rpn_tools config file] "
+			<< std::endl;
 		return(-1);
 	}
 
-	std::vector<std::string> filename_cand_inputs = {"", "", "",
-		argv[1], argv[2]};
+	// Read configuration file.
+	g_rpn_config settings;
+	settings.load_from_file(argv[1]);
+
+	std::vector<std::string> filename_cand_inputs = settings.source_files;
 
 	size_t i;
 
@@ -151,6 +154,7 @@ int main(int argc, char ** argv) {
 
 	for (i = min_numcands; i <= max_numcands; ++i) {
 		std::ifstream sifter_file(filename_cand_inputs[i]);
+		std::cout << filename_cand_inputs[i] << std::endl;
 
 		if (!sifter_file) {
 			std::cerr << "Could not open " << filename_cand_inputs[i]
@@ -200,7 +204,7 @@ int main(int argc, char ** argv) {
 	// TODO min_candidates, max
 	std::vector<std::unique_ptr<relative_criterion_const> >
 		relative_constraints = relative_criterion_producer().get_all(
-			3, 4, true);
+			min_numcands, max_numcands, true);
 
 	// Perhaps make the constrain generators return the before and after
 	// number of candidates? Then we can just pass in cand_equivs and
@@ -257,14 +261,14 @@ int main(int argc, char ** argv) {
 
 	for (size_t group_idx = 0; group_idx < grps.groups.size(); ++group_idx) {
 
-		std::string fn_prefix = "algo_testing/" + itos(group_idx) + "_" + out_prefix;
+		std::string fn_prefix = settings.test_storage_prefix + itos(i) + ".dat";
 
 		test_generator_group grp = grps.groups[group_idx];
 
 		grp.print_members();
 
 		// Some stuff here
-		int num_tests = 100;
+		int num_tests = settings.num_tests;
 
 		test_results results(num_tests, max_num_functions);
 
