@@ -41,9 +41,9 @@ size_t test_results::get_linear_idx(size_t method_idx,
 	// The following checks are assertions so that when not
 	// debugging, we don't slow down the program too much.
 
-	assert (type > NUM_REL_ELECTION_TYPES);
-	assert (method_idx >= num_methods[type]);
-	assert (test_instance_number >= num_tests);
+	assert (type < NUM_REL_ELECTION_TYPES);
+	assert (method_idx < num_methods[type]);
+	assert (test_instance_number < num_tests);
 
 	// Find the linear index into the results array.
 	// The digit system is like this
