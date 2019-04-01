@@ -26,6 +26,15 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 			std::make_unique<clone_const>(i, i+1, 1));
 	}
 
+	// HACK. FIX LATER
+	// For some reason, the ordinary clone constraint above fails
+	// to set up this crowding constraint. I have to find out how
+	// to get every crowding constraint so that I can be sure the
+	// tests cover everything. (Do that later.)
+	std::vector<int> clone_spec = {0, 1, 1, 2};
+	relative_constraints.push_back(
+		std::make_unique<clone_const>(clone_spec));
+
 	for (i = min_num_cands; i <= max_num_cands; ++i) {
 		if (different_scenarios_only && i < 4) {
 			continue;
