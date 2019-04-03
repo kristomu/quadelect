@@ -261,7 +261,7 @@ int main(int argc, char ** argv) {
 
 	for (size_t group_idx = 0; group_idx < grps.groups.size(); ++group_idx) {
 
-		std::string fn_prefix = settings.test_storage_prefix + itos(i) + ".dat";
+		std::string fn_prefix = settings.test_storage_prefix + itos(group_idx) + ".dat";
 
 		test_generator_group grp = grps.groups[group_idx];
 
