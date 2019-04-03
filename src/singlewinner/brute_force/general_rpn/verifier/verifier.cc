@@ -167,9 +167,9 @@ class backtracker {
 			start_time = time(NULL);
 			try_algorithms(0, TYPE_A);
 
-			std::cout << "DEBUG: Iteration counts." << std::endl;
+			std::cout << "Final iteration counts." << std::endl;
 			for (size_t i = 0; i < iteration_count.size(); ++i) {
-				std::cout << i << "\t" << iteration_count[i] << std::endl;
+				std::cout << "idx " << i << "\t" << iteration_count[i] << std::endl;
 			}
 		}
 
@@ -256,8 +256,13 @@ void backtracker::print_progress(size_t test_group_idx,
 
 	double progress = get_progress(test_group_idx, current_election_setting);
 
-	double eta_seconds = (1-progress)/progress * 
+	double eta_seconds = (1-progress)/progress *
 		(last_shown_time-start_time);
+
+	std::cerr << "Iteration counts." << std::endl;
+	for (size_t i = 0; i < iteration_count.size(); ++i) {
+		std::cerr << "idx " << i << "\t" << iteration_count[i] << std::endl;
+        }
 
 	std::cerr << "Progress: " << progress << "    ";
 	std::cerr << "ETA: " << format_time(eta_seconds) << ".";
@@ -277,22 +282,26 @@ void backtracker::try_algorithms(size_t test_group_idx,
 			algo_t algorithm = prospective_functions[numcands][kv.second];
 			evaluators[numcands].set_algorithm(algorithm);
 			std::cout << "\t" << kv.first.to_string() << ": "
-				<< algorithm << "\t" << evaluators[numcands].to_string() 
+				<< algorithm << "\t" << evaluators[numcands].to_string()
 				<< "\n";
+		}
+		std::cout << "Summary: ";
+		for (const auto & kv : algorithm_for_scenario) {
+			size_t numcands = kv.first.get_numcands(); // a scenario
+
+			algo_t algorithm = prospective_functions[numcands][kv.second];
+			evaluators[numcands].set_algorithm(algorithm);
+
+			std::cout << evaluators[numcands].to_string() << " ";
 		}
 
 		std::cout << std::endl;
 
-		std::cout << "DEBUG: Iteration counts." << std::endl;
+		std::cout << "Iteration counts." << std::endl;
 		for (size_t i = 0; i < iteration_count.size(); ++i) {
-			std::cout << i << "\t" << iteration_count[i] << std::endl;
+			std::cout << "idx " << i << "\t" << iteration_count[i] << std::endl;
 		}
 		return;
-	}
-
-	// Increment the relevant iteration count.
-	if (current_election_setting == TYPE_A) {
-		++iteration_count[test_group_idx];
 	}
 
 	// First check if we've set an algorithm for the current test group.
@@ -323,11 +332,16 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		algorithm_for_scenario[current_scenario] = -1;
 		return;
 	}
-	
+
 	// If we got here, the algorithm to use for the current scenario has
 	// already been defined. So set the algorithm_per_setting array to
 	// this particular algorithm, as the testing function need is in that
 	// particular format.
+
+	// Increment the relevant iteration count.
+	if (current_election_setting == TYPE_A) {
+		++iteration_count[test_group_idx];
+	}
 
 	// Note that we need a different algorithm_per_setting array for each
 	// test_group_idx. Otherwise recursions further in might scribble on
