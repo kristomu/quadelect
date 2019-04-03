@@ -17,8 +17,6 @@
 #include "../singlewinner/method.h"
 #include "../interpreter/interpreter.h"
 
-using namespace std;
-
 class interpreter_mode : public mode {
 
 	private:
@@ -27,15 +25,15 @@ class interpreter_mode : public mode {
 		list<ballot_group> input_ballots;
 		vector<string> input_ballots_unparsed;
 		list<ordering> results;
-		map<int, string> cand_lookup;
+		map<size_t, string> cand_lookup;
 		cache_map cache_inside;
 		int cur_iter;
 		bool inited, needs_interpreting;
 
 		string base26(int number) const;
-		void complete_default_lookup(map<int, string> & to_complete,
-		    int how_many) const;
-		map<int, string> gen_default_lookup(int how_many) const;
+		void complete_default_lookup(map<size_t, string> & to_complete,
+		    size_t how_many) const;
+		map<size_t, string> gen_default_lookup(size_t how_many) const;
 
 		// Get an upper bound on how many candidates we need to have
 		// mapped.
@@ -51,7 +49,7 @@ class interpreter_mode : public mode {
 	public:
 		void set_ballots(const list<ballot_group> & ballot_in);
 		bool set_ballots(const list<ballot_group> & ballot_in,
-		    const map<int, string> & candidate_names);
+		    const map<size_t, string> & candidate_names);
 		// ... set_unparsed_ballots ...
 
 		// Seen this before?
@@ -87,7 +85,7 @@ class interpreter_mode : public mode {
 		int get_current_round() const;
 
 		string do_round(bool give_brief_status, bool reseed,
-		    rng & randomizer, cache_map & cache);
+		    rng & randomizer, cache_map * cache);
 
 		string do_round(bool give_brief_status, bool reseed,
 		    rng & randomizer);

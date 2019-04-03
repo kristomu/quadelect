@@ -8,14 +8,14 @@ using namespace std;
 void beatpath::make_beatpaths(const abstract_condmat & input, 
 		const vector<bool> & hopefuls) {
 
-	int num_candidates = input.get_num_candidates();
+	size_t num_candidates = input.get_num_candidates();
 	set_num_voters(input.get_num_voters());
 
 	contents = vector<vector<double> > (num_candidates, vector<double>(
 				num_candidates, 0));
 
 	// Copy it over.
-	int i, j, k;
+	size_t i, j, k;
 
 	for (i = 0; i < num_candidates; ++i)
 		if (hopefuls[i])
@@ -42,11 +42,11 @@ void beatpath::make_beatpaths(const abstract_condmat & input,
 	// All done!
 }
 
-double beatpath::get_internal(int candidate, int against, bool raw) const {
+double beatpath::get_internal(size_t candidate, size_t against, bool raw) const {
 	// Same as in pairwise_matrix.
 
-	assert (candidate >= 0 && candidate < (int)contents.size());
-	assert (against >= 0 && against < (int)contents.size());
+	assert (candidate < contents.size());
+	assert (against < contents.size());
 
 	if (raw)
 		return(contents[candidate][against]);
@@ -65,7 +65,7 @@ beatpath::beatpath(const abstract_condmat & input, pairwise_type type_in,
 }
 
 // ... I think?
-beatpath::beatpath(const list<ballot_group> & scores, int num_candidates,
+beatpath::beatpath(const list<ballot_group> & scores, size_t num_candidates,
 		pairwise_type type_in) : abstract_condmat(CM_PAIRWISE_OPP) {
 	make_beatpaths(condmat(scores, num_candidates, type_in),
 			vector<bool>(num_candidates, true));

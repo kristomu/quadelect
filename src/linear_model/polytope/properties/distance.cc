@@ -72,7 +72,10 @@ diameter_coords polytope_distance::get_extreme_coords(
 
 	int n = poly_in.get_A().cols(), m = poly_in.get_A().rows();
 
-	assert(M_vec.rows() == n);
+	if(M_vec.rows() != n) {
+		throw std::invalid_argument("get_extreme_coords: M_vec length"
+			" differs from number of columns of A!");
+	}
 
 	int prog_rows = 4 * n + 2 * m; // for (1)-(4) and (5) and (6) resp.
 	int prog_cols = 4 * n;

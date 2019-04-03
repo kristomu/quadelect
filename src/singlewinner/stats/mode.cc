@@ -9,8 +9,6 @@
 #include <map>
 #include <iterator>
 
-using namespace std;
-
 pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> & 
 		papers, const vector<bool> & hopefuls,
 		int num_candidates, cache_map * /*cache*/, bool /*winner_only*/) const {

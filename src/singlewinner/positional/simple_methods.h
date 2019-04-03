@@ -20,8 +20,8 @@ class sweep : public positional {
 		double sweep_point;
 
 	protected:
-		int zero_run_beginning() const { return(ceil(sweep_point)); }
-		double pos_weight(int position, int last_position) const {
+		size_t zero_run_beginning() const { return(ceil(sweep_point)); }
+		double pos_weight(size_t position, size_t last_position) const {
 			if (position < ceil(sweep_point)) {
 				if (position > floor(sweep_point))
 					return(sweep_point-floor(sweep_point));
@@ -42,8 +42,8 @@ class sweep : public positional {
 
 class plurality : public positional {
 	protected:
-		int zero_run_beginning() const { return(1); }
-		double pos_weight(int position, int last_position) const {
+		size_t zero_run_beginning() const { return(1); }
+		double pos_weight(size_t position, size_t last_position) const {
 			if (position == 0) return(1); else return(0); }
 		string pos_name() const { return("Plurality"); }
 	public:
@@ -52,7 +52,7 @@ class plurality : public positional {
 
 class borda : public positional {
 	protected:
-		double pos_weight(int position, int last_position) const {
+		double pos_weight(size_t position, size_t last_position) const {
 			return(last_position - position); }
 		string pos_name() const { return("Borda"); }
 
@@ -62,7 +62,7 @@ class borda : public positional {
 
 class antiplurality : public positional {
 	protected:
-		double pos_weight(int position, int last_position) const {
+		double pos_weight(size_t position, size_t last_position) const {
 			if (position == last_position) return(0);
 			else return(1);
 		}
@@ -74,7 +74,7 @@ class antiplurality : public positional {
 
 class for_and_against : public positional {
 	protected:
-		double pos_weight(int position, int last_position) const {
+		double pos_weight(size_t position, size_t last_position) const {
 			if (position == 0) return(1);
 			if (position == last_position) return(-1);
 			return(0);
@@ -89,7 +89,7 @@ class for_and_against : public positional {
 
 class nauru : public positional {
 	protected:
-		double pos_weight(int position, int last_position) const {
+		double pos_weight(size_t position, size_t last_position) const {
 			return (1/(double)(position +1));
 		}
 
@@ -101,8 +101,8 @@ class nauru : public positional {
 
 class heismantrophy : public positional {
 	protected:
-		int zero_run_beginning() const { return(3); }
-		double pos_weight(int position, int last_position) const {
+		size_t zero_run_beginning() const { return(3); }
+		double pos_weight(size_t position, size_t last_position) const {
 			if (position < 3) return(3 - position);
 			return(0);
 		}
@@ -115,8 +115,8 @@ class heismantrophy : public positional {
 
 class baseballmvp : public positional {
 	protected:
-		int zero_run_beginning() const { return(10); }
-		double pos_weight(int position, int last_position) const {
+		size_t zero_run_beginning() const { return(10); }
+		double pos_weight(size_t position, size_t last_position) const {
 			if (position == 0) return(14);
 			if (position < 10) return(10 - position);
 			return(0);
@@ -130,12 +130,13 @@ class baseballmvp : public positional {
 
 class eurovision : public positional {
 	protected:
-		int zero_run_beginning() const { return(10); }
-		double pos_weight(int position, int last_position) const {
+		size_t zero_run_beginning() const { return(10); }
+		double pos_weight(size_t position, size_t last_position) const {
 			// 12 10 8 7 ...
 			if (position == 0) return(12);
 			if (position == 1) return(10);
-			return(max(0, 10 - position));
+			if (position < 10) return(10-position);
+			return(0);
 		}
 
 		string pos_name() const { return("Eurovision"); }
@@ -146,10 +147,11 @@ class eurovision : public positional {
 
 class dabagh : public positional {
 	protected:
-		int zero_run_beginning() const { return(2); }
-		double pos_weight(int position, int last_position) const {
+		size_t zero_run_beginning() const { return(2); }
+		double pos_weight(size_t position, size_t last_position) const {
 			// 2 1 0 0 0 ...
-			return(max(0, 2 - position));
+			if (position >= 2) return(0);
+			return(2 - position);
 		}
 
 		string pos_name() const { return("Dabagh"); }
@@ -162,9 +164,9 @@ class dabagh : public positional {
 class nrem : public positional {
 	protected:
 		// Note, these are one-indexed, not zero
-		double gauss(int curcand, int num_cands) const;
+		double gauss(size_t curcand, size_t num_cands) const;
 		// This one is zero-indexed
-		double pos_weight(int position, int last_position) const;
+		double pos_weight(size_t position, size_t last_position) const;
 
 		string pos_name() const { return("NREM-Opt"); }
 
@@ -177,7 +179,7 @@ class nrem : public positional {
 
 class worstpos : public positional {
 	protected:
-		double pos_weight(int position, int last_position) const {
+		double pos_weight(size_t position, size_t last_position) const {
 			if (position == last_position) return(1);
 			else return(0);
 		}
@@ -189,13 +191,13 @@ class worstpos : public positional {
 };
 
 class worstborda : public positional {
-        protected:
-                double pos_weight(int position, int last_position) const {
-                        return(position); }
+	protected:
+		double pos_weight(size_t position, size_t last_position) const {
+			return(position); }
 		string pos_name() const { return("Worst Borda"); }
 
-        public:
-                worstborda(positional_type kind_in) : positional(kind_in) {}
+	public:
+		worstborda(positional_type kind_in) : positional(kind_in) {}
 };
 
 #endif

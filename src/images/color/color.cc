@@ -234,8 +234,6 @@ vector<double> color_conv::convert(const vector<double> & in,
 		case CS_LAB:
 			translator = LAB_to_RGB(in);
 			break;
-		default:
-			assert (1 != 1);
 	}
 
 	switch (to) {
@@ -247,14 +245,13 @@ vector<double> color_conv::convert(const vector<double> & in,
 			return (RGB_to_XYZ(translator));
 		case CS_LAB:
 			return (RGB_to_LAB(translator));
-		default:
-			assert (1 != 1);
 	}
 
-	throw new std::runtime_error("color_conv: Reached unreachable code.");
+	throw new std::runtime_error("color_conv: Incorrect type specification");
 }
 
-/*
+#ifdef TEST_COLOR
+
 main() {
 
 	vector<double> RGB(3);
@@ -288,4 +285,6 @@ main() {
 	cout << "RGB: ";
 	copy(RGB.begin(), RGB.end(), ostream_iterator<double>(cout, " "));
 	cout << endl;
-}*/
+}
+
+#endif

@@ -16,18 +16,15 @@
 #include <vector>
 #include <list>
 
-#include <assert.h>
 #include <values.h>
-
-using namespace std;
 
 class bayesian_regret : public mode {
 
 	private:
 		bool inited;
-		int maxiters, curiter;
-		int min_candidates, max_candidates;
-		int min_voters, max_voters;
+		size_t maxiters, curiter;
+		size_t min_candidates, max_candidates;
+		size_t min_voters, max_voters;
 		bool show_median;
 
 		stats_type br_type;
@@ -42,9 +39,9 @@ class bayesian_regret : public mode {
 
 		bayesian_regret();
 
-		bool set_maxiters(int maxiters_in, bool clear_curiters);
-		bool set_num_candidates(int min, int max);
-		bool set_num_voters(int min, int max);
+		void set_maxiters(size_t maxiters_in, bool clear_curiters);
+		void set_num_candidates(size_t min, size_t max);
+		void set_num_voters(size_t min, size_t max);
 		void set_format(bool do_show_median);
 		// Altering the statistical type will clear the stats!
 		void set_br_type(const stats_type br_type_in);
@@ -60,16 +57,16 @@ class bayesian_regret : public mode {
 		void clear_methods(bool do_delete);
 		void reset_round_count() { curiter = 0; }
 
-		bool set_parameters(int maxiters_in, int curiter_in,
-				int min_cand_in, int max_cand_in,
-				int min_voters_in, int max_voters_in,
+		void set_parameters(size_t maxiters_in, size_t curiter_in,
+				size_t min_cand_in, size_t max_cand_in,
+				size_t min_voters_in, size_t max_voters_in,
 				bool show_median_in, stats_type br_type_in,
 				list<pure_ballot_generator *> & generators_in,
 				list<const election_method *> & methods_in);
 
-		bayesian_regret(int maxiters_in, 
-				int min_cand_in, int max_cand_in,
-				int min_voters, int max_voters,
+		bayesian_regret(size_t maxiters_in, 
+				size_t min_cand_in, size_t max_cand_in,
+				size_t min_voters, size_t max_voters,
 				bool show_median_in, stats_type br_type_in,
 				list<pure_ballot_generator *> & generators_in,
 				list<const election_method *> & methods_in);

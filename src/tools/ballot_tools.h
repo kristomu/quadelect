@@ -6,8 +6,6 @@
 #include "../ballots.h"
 #include "tools.h"
 
-using namespace std;
-
 // Tools for managing ballots and orderings
 
 class ordering_sorter {
@@ -42,18 +40,18 @@ class ordering_tools {
 		// result.
 		ordering tiebreak(const ordering & tied, 
 				const ordering & tiebreaker,
-				int num_candidates) const;
+				size_t num_candidates) const;
 
 		// Used for testing. Or should be, anyway.
 		ordering ranked_tiebreak(const ordering & tied,
 				const ordering & tiebreaker,
-				int num_candidates) const;
+				size_t num_candidates) const;
 
 		// Returns true if everybody who is ranked is also tied.
 		bool has_equal_rank(const ordering & to_check) const;
 
 		string ordering_to_text(const ordering & rank_ballot,
-				const map<int, string> & reverse_cand_lookup,
+				const map<size_t, string> & reverse_cand_lookup,
 				bool numeric) const;
 
 		ordering direct_vector_to_ordering(const vector<double> & in,
@@ -77,16 +75,16 @@ class ballot_tools {
 				uncompressed) const;
 
 		string ballot_to_text(const ballot_group & rank_ballot,
-				const map<int, string> & reverse_cand_lookup,
+				const map<size_t, string> & reverse_cand_lookup,
 				bool numeric) const;
 
 		vector<string> ballots_to_text(string prefix, 
 				const list<ballot_group> & rank_ballots,
-				const map<int, string> & reverse_cand_lokoup,
+				const map<size_t, string> & reverse_cand_lokoup,
 				bool numeric) const;
 
 		vector<string> ballots_to_text(const list<ballot_group> & 
-				rank_ballots, const map<int, string> & 
+				rank_ballots, const map<size_t, string> & 
 				reverse_cand_lookup, bool numeric) const;
 
 		void print_ranked_ballots(const list<ballot_group> & 

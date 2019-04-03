@@ -24,4 +24,6 @@ class mono_add_top_const : public relative_criterion_const {
 		// Default to helping A.
 		mono_add_top_const(int numcands_in) : mono_add_top_const(
 			numcands_in, 0) {}
+
+		std::string name() const { return "Mono-add-top"; }
 };

@@ -27,7 +27,7 @@ class StrategyTest : public Test {
 	private:
 		rng * randomizer;
 		int numvoters;
-		int numcands;
+		size_t numcands;
 		int total_generation_attempts;
 		election_method * method;
 		list<ballot_group> ballots;

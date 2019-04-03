@@ -5,8 +5,7 @@
 #include "../tools/tools.h"
 #include "confidence/confidence.h"
 #include <iostream>
-
-using namespace std;
+#include <numeric>
 
 // A statistics class for storing results (usually from voting methods, or
 // "best of"/"worst of"). 
@@ -204,15 +203,19 @@ template <typename T> void stats<T>::add_result(T minimum, T result,
 }
 
 template <typename T> T stats<T>::get_mean(stats_type norm_type) const {
+	
+	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+		norm_type == MS_INTERROUND);
+
 	switch(norm_type) {
 		case MS_UNNORM:
 			return(scores_sum / (T)num_scores);
 		case MS_INTRAROUND:
 			return(norm_scores_sum / (T)num_scores);
 		case MS_INTERROUND:
+		default:
 			// For great numerical stability!
 			return(sum_normdiff / (sum_maximum - sum_minimum));
-		default: assert (1 != 1); // Shouldn't happen.
 	}
 }
 
@@ -233,7 +236,10 @@ template <typename T> T stats<T>::get_variance(stats_type norm_type) const {
 	// is equal to sq_num_normdiff.
 
 	T square_sum, square_mean = square(get_mean(norm_type)),
-	  adj_denominator = (sum_maximum - sum_minimum) / (T)num_scores;
+		adj_denominator = (sum_maximum - sum_minimum) / (T)num_scores;
+
+	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+		norm_type == MS_INTERROUND);
 
 	switch(norm_type) {
 		case MS_UNNORM:
@@ -242,10 +248,10 @@ template <typename T> T stats<T>::get_variance(stats_type norm_type) const {
 		case MS_INTRAROUND:
 			square_sum = norm_scores_sq_sum;
 			break;
+		default:
 		case MS_INTERROUND:
 			square_sum = sq_sum_normdiff / square(adj_denominator);
 			break;
-		default: assert (1 != 1);
 	}
 
 	// N / (N-1) * ( 1/N square_sum - square(mean))
@@ -256,39 +262,54 @@ template <typename T> T stats<T>::get_variance(stats_type norm_type) const {
 // Can this be made summable? Nope! (Not short of bucketing.)
 
 template <typename T> T stats<T>::get_median(stats_type norm_type) const {
-	assert(!keep_only_sum);
+	if (keep_only_sum) {
+		throw std::invalid_argument("stats: Can't get median if only"
+			" sums are kept.");
+	}
 	if (norm_type != get_normalization()) return(-INFINITY);
+
+	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+		norm_type == MS_INTERROUND);
 
 	switch(norm_type) {
 		case MS_UNNORM:
 			return(calc_median(scores));
 		case MS_INTRAROUND:
 			return(calc_median(normalized_scores));
+		default:
 		case MS_INTERROUND:
 			// We now use the new formulation (see the constructor).
 			return(calc_median(normalized_scores) /
 					((sum_maximum - sum_minimum) / (T)
 					 num_scores));
-		default: assert(1 != 1); // Shouldn't happen either.
 	}
 }
 
 template <typename T> T stats<T>::get_last(stats_type norm_type) const {
-	assert (!keep_only_sum);
-	assert (!normalized_scores.empty() && !scores.empty());
+	if (keep_only_sum) {
+		throw std::invalid_argument("stats: Can't get last if only"
+			" sums are kept.");
+	}
+	// If empty, return NaN.
+	if (normalized_scores.empty() || scores.empty()) {
+		return std::numeric_limits<T>::quiet_NaN();
+	}
+
+	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+		norm_type == MS_INTERROUND);
 
 	switch(norm_type) {
 		case MS_UNNORM:
 			return(*scores.rbegin());
 		case MS_INTRAROUND:
 			return(*normalized_scores.rbegin());
+		default:
 		case MS_INTERROUND:
 			return(renorm(sum_minimum / (T)scores.size(),
 						sum_maximum/(T)
 						scores.size(),
 						*scores.rbegin(), (T)0.0, 
 						(T)1.0));
-		default: assert (1 != 1);
 	}
 }
 

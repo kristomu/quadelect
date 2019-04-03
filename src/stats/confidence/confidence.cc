@@ -209,7 +209,7 @@ std::pair<double, double> confidence_int::bin_prop_interval(double p,
 	return(prop_interval);
 }
 
-void confidence_int::test() const {
+bool confidence_int::test() const {
 	// All the reference values are from R.
 
 	// Can handle around 4e-7, but I found that value after
@@ -217,16 +217,16 @@ void confidence_int::test() const {
 	// validation. Hence I'm certifying a safer 1e-6.
 	double tolerance = 1e-6;
 
-	assert(fabs(qbeta(0.05, 10, 20)   - 0.2004957) < tolerance);
-	assert(fabs(qbeta(0.05, 90, 0.01) - 0.9999624) < tolerance);
-	assert(fabs(qbeta(0.05, 0.01, 90) - 1e-131) < tolerance);
-	assert(fabs(qbeta(0.55, 45, 100)  - 0.3143163) < tolerance);
+	if(fabs(qbeta(0.05, 10, 20)   - 0.2004957) > tolerance) return(false);
+	if(fabs(qbeta(0.05, 90, 0.01) - 0.9999624) > tolerance) return(false);
+	if(fabs(qbeta(0.05, 0.01, 90) - 1e-131) > tolerance) return(false);
+	if(fabs(qbeta(0.55, 45, 100)  - 0.3143163) > tolerance) return(false);
 
 	// These fail at tolerance 1e-7.
 
-	assert(fabs(qt(0.05, 5.3) - (-1.990124)) < tolerance);
-	assert(fabs(qt(0.45, 5.3) - (-0.1318013)) < tolerance);
-	assert(fabs(qt(0.95, 5.3) -   1.990124) < tolerance);
+	if(fabs(qt(0.05, 5.3) - (-1.990124)) > tolerance) return(false);
+	if(fabs(qt(0.45, 5.3) - (-0.1318013)) > tolerance) return(false);
+	if(fabs(qt(0.95, 5.3) -   1.990124) > tolerance) return(false);
 
 	// T interval test
 	// mean = 0.5, variance = 0.3, 10 samples, confidence 0.05.
@@ -239,9 +239,9 @@ void confidence_int::test() const {
 	        0.5, 0.3, 10);
 	double half_width = t_interval_half_width(0.05, 0.5, 0.3, 10);
 
-	assert(fabs(test_interval_t.first - 0.1081829) < tolerance);
-	assert(fabs(test_interval_t.second - 0.8918171) < tolerance);
-	assert(fabs(half_width - 0.3918171) < tolerance);
+	if(fabs(test_interval_t.first - 0.1081829) > tolerance) return(false);
+	if(fabs(test_interval_t.second - 0.8918171) > tolerance) return(false);
+	if(fabs(half_width - 0.3918171) > tolerance) return(false);
 
 	// Binomial proportion test
 	// not really needed, but eh...
@@ -253,12 +253,17 @@ void confidence_int::test() const {
 	std::pair<double, double> test_interval_bp = bin_prop_interval(0.05,
 	        20, 100);
 
-	assert(fabs(test_interval_bp.first - 0.1307904) < tolerance);
-	assert(fabs(test_interval_bp.second - 0.2862796) < tolerance);
+	if(fabs(test_interval_bp.first - 0.1307904) > tolerance) return(false);
+	if(fabs(test_interval_bp.second - 0.2862796) > tolerance) return(false);
+
+	return(true);
 }
 
+#ifdef _TEST_CI
 
-/*main() {
+main() {
 	confidence_int x;
 	x.test();
-}*/
+}
+
+#endif

@@ -18,6 +18,7 @@ set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallt
 
 find_package(OpenSSL REQUIRED)
 find_package(GLPK REQUIRED)
+find_package(Config++ REQUIRED)
 
 include_directories(${OPENSSL_INCLUDE_DIR})
 
@@ -32,7 +33,8 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/singlewinner/brute_force/general_rpn/composition/vector_ballot.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_results.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_instance_gen.cc
-	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc)
+	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc
+	src/config/general_rpn.cc)
 
 add_library(qe_quick_hash src/spookyhash/SpookyV2.cpp)
 
@@ -145,10 +147,10 @@ add_library(quadelect_lib src/tools/tools.cc
 # They might not all need all the files above, but I'll fix that later.
 
 add_executable(qe_verifier src/singlewinner/brute_force/general_rpn/verifier/verifier.cc)
-target_link_libraries(qe_verifier qe_rpn_search quadelect_lib glpk)
+target_link_libraries(qe_verifier qe_rpn_search quadelect_lib glpk config++)
 
 add_executable(qe_compositor src/singlewinner/brute_force/general_rpn/composition/polytope_compositor.cc)
-target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadelect_lib glpk config++)
 
 add_executable(qe_sifter src/singlewinner/brute_force/general_rpn/sifter.cc)
 target_link_libraries(qe_sifter qe_rpn_search qe_quick_hash quadelect_lib)

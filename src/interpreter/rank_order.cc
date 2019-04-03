@@ -57,7 +57,7 @@ bool rank_order_int::is_this_format(const vector<string> & inputs) const {
 	return (true);
 }
 
-pair<map<int, string>, list<ballot_group> > rank_order_int::interpret_ballots(
+pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots(
     const vector<string> & inputs, bool debug) const {
 
 	// For each line: If it's RANK_ORDER, ignore. Otherwise, check if
@@ -73,8 +73,8 @@ pair<map<int, string>, list<ballot_group> > rank_order_int::interpret_ballots(
 	// the proper name and rank to the ballot, and repeat until the line is
 	// done.
 
-	map<string, int> fwd;
-	pair<map<int, string>, list<ballot_group> > to_ret;
+	map<string, size_t> fwd;
+	pair<map<size_t, string>, list<ballot_group> > to_ret;
 	int candidates = 0;
 
 	if (debug) {

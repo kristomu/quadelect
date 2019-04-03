@@ -2,6 +2,7 @@
 #define _VOTE_C_CMATRIX
 
 #include "matrix.h"
+#include <stdexcept>
 
 // This is a "cache Condorcet matrix". It appears like any other Condorcet 
 // matrix, using any kind of pairwise type, but internally links to a cached
@@ -15,8 +16,8 @@ class cache_condmat : public abstract_condmat {
 	protected:
 		const abstract_condmat * reference;
 
-		double get_internal(int candidate, int against, bool raw) const;
-		bool set_internal(int candidate, int against, double value);
+		double get_internal(size_t candidate, size_t against, bool raw) const;
+		bool set_internal(size_t candidate, size_t against, double value);
 
 	public:
 
@@ -32,7 +33,7 @@ class cache_condmat : public abstract_condmat {
 		cache_condmat(pairwise_type kind);
 };
 
-double cache_condmat::get_internal(int candidate, int against, bool raw) const {
+double cache_condmat::get_internal(size_t candidate, size_t against, bool raw) const {
 	if (!is_loaded()) return(0);
 
 	if (raw)
@@ -45,8 +46,9 @@ double cache_condmat::get_internal(int candidate, int against, bool raw) const {
 
 // This won't work since the reference is a const. Therefore, we just give up
 // early so the problem will be easily visible.
-bool cache_condmat::set_internal(int /*candidate*/, int /*against*/, double /*value*/) {
-	assert (1 != 1);
+bool cache_condmat::set_internal(size_t /*candidate*/, size_t /*against*/, double /*value*/) {
+	throw std::domain_error("beatpath: can't directly manipulate"
+				" read-only cache references!");
 }
 
 bool cache_condmat::set_parameters(const abstract_condmat * reference_in,
@@ -77,6 +79,9 @@ double cache_condmat::get_num_voters() const {
 
 cache_condmat::cache_condmat(const condmat * reference_in,
 		pairwise_type kind) : abstract_condmat(kind) {
+
+	// Caching a matrix that isn't pairwise opposition shouldn't
+	// happen. Doing so is a coding error, and so should be asserted.
 
 	assert (reference_in != NULL && 
 			reference_in->get_type().get() == CM_PAIRWISE_OPP);

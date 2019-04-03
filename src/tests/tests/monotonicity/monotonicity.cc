@@ -6,13 +6,11 @@
 
 #include "monotonicity.h"
 
-using namespace std;
-
 // Abstract class for monotonicity type criteria. The only virtual and complex
 // alterable function is the one that modifies a given ballot.
 
 ordering::const_iterator monotonicity::find_cand(const ordering & to_search,
-		int candnum) const {
+		size_t candnum) const {
 	ordering::const_iterator place_cand;
 
 	for (place_cand = to_search.begin(); place_cand != to_search.end() 
@@ -22,22 +20,23 @@ ordering::const_iterator monotonicity::find_cand(const ordering & to_search,
 	return(place_cand);
 }
 
-vector<int> monotonicity::generate_aux_data(const list<ballot_group> & input, 
-		int numcands) const {
+vector<size_t> monotonicity::generate_aux_data(
+	const list<ballot_group> & input, size_t numcands) const {
 
 	assert (!input.empty());
 
 	// Yuck - linear time.
-	int num_ballots = input.size();
-	int orders_to_modify = 0;
+	size_t num_ballots = input.size();
+	size_t orders_to_modify = 0;
+	// TODO: Use RNG
 	if (num_ballots > 1)
 		orders_to_modify = 1 + random() % (num_ballots-1);
 
 	vector<bool> to_alter(num_ballots, false);
 
-	int counter = 0;
+	size_t counter = 0;
 
-	vector<int> output(2 + orders_to_modify + 1, 0);
+	vector<size_t> output(2 + orders_to_modify + 1, 0);
 
 	while (counter < orders_to_modify) {
 		int possible = random() % to_alter.size();
@@ -64,10 +63,10 @@ vector<int> monotonicity::generate_aux_data(const list<ballot_group> & input,
 
 pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 		const list<ballot_group> & input,
-		int numcands, int number_to_add,
-		const vector<int> & data) const {
+		size_t numcands, size_t number_to_add,
+		const vector<size_t> & data) const {
 
-	int seed = *(data.rbegin());
+	size_t seed = *(data.rbegin());
 
 	// 32 bit should be good enough
 	rng randomizer(seed);
@@ -85,13 +84,15 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 
 		++counter;
 		// If that isn't the ballot we're looking for, move along.
-		if (counter != data[ballot_idx + 2]) {
+		// TODO: Fix this somehow! But how? We can't set counter
+		// to -1 if we use size_t...
+		if (counter != (int)data[ballot_idx + 2]) {
 			// If there are no more ballots to alter, and we
 			// didn't manage to raise any, no point continuing.
 			// NOTE: since the ballots are random, we can choose
 			// to only modify the first p (for some p)! That will
 			// be much quicker! Do that.
-			if (counter > data[ballot_idx + 2] && !output.first)
+			if (counter > (int)data[ballot_idx + 2] && !output.first)
 				return(output);
 			output.second.push_back(*pos);
 		       	continue;
@@ -145,7 +146,7 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 	// Add ballots if it's mono-add-top etc. Or the output.first with the
 	// result of adding ballots.
 
-	if (number_to_add < 0) {
+	if (number_to_add <= 0) {
 		// HACK HACK. TODO, FIX.
 		int fraction = total_weight;
 		while (total_weight/(double)fraction < 1)
@@ -156,7 +157,7 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 
 	// Even more of an ugly hack. Must be fixed at some point to think
 	// about how we should do monotonicity stuff...
-	for (int counter = 0; counter < number_to_add; ++counter)
+	for (size_t counter = 0; counter < number_to_add; ++counter)
 		output.first |= add_ballots(data, randomizer, output.second,
 				1, numcands);
 	
@@ -165,13 +166,13 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 
 pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 		const list<ballot_group> & input,
-		int numcands, const vector<int> & data) const {
+		size_t numcands, const vector<size_t> & data) const {
 
 	return rearrange_ballots(input, numcands, -1, data);
 }
 
 bool monotonicity::applicable(const ordering & check,
-		const vector<int> & data, bool orig) const {
+		const vector<size_t> & data, bool orig) const {
 
 	ordering::const_iterator pos;
 
@@ -189,7 +190,7 @@ bool monotonicity::applicable(const ordering & check,
 	// the winner, then check if the designated candidate is at top. If not,
 	// the method must pass because a loser can't be made loseringer [sic].
 	if (orig && (data[1] == 1) && winner_only()) {
-		int cand = data[0];
+		size_t cand = data[0];
 
 		bool found = false;
 
@@ -205,10 +206,10 @@ bool monotonicity::applicable(const ordering & check,
 }
 
 bool monotonicity::pass_internal(const ordering & original, const ordering &
-		modified, const vector<int> & data, int numcands) const {
+		modified, const vector<size_t> & data, size_t numcands) const {
 
 	// Get the candidate we have raised/lowered.
-	int cand = data[0];
+	size_t cand = data[0];
 	bool raise = (data[1] == 1);
 
 	// Get the scores, normalized so ratings don't affect anything.
@@ -314,10 +315,10 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 	return(true);
 }
 
-string monotonicity::explain_change_int(const vector<int> & data,
-		const map<int, string> & cand_names) const {
+string monotonicity::explain_change_int(const vector<size_t> & data,
+		const map<size_t, string> & cand_names) const {
 
-	int cand = data[0];
+	size_t cand = data[0];
 	bool raise = (data[1] == 1);
 
 	assert (cand_names.find(cand) != cand_names.end());

@@ -8,17 +8,15 @@
 #include <iterator>
 #include <iostream>
 
-using namespace std;
-
 // Condorcet matrix, the Implementation.
 
-double condmat::get_internal(int candidate, int against, bool raw) const {
-	// If outside of bounds, kick and shout.
-	// Too slow, enable it if you wish.
-	/*
-	if (candidate < against)
-		assert (candidate >= 0 && against < contents.size());
-	else	assert (against >= 0 && candidate < contents.size());*/
+double condmat::get_internal(size_t candidate, size_t against, bool raw) const {
+	// If outside bounds, complain (if assertions are enabled).
+	if (candidate < against) {
+		assert (against < contents.size());
+	} else {
+		assert (candidate < contents.size());
+	}
 
 	if (raw)
 		return(contents[candidate][against]);
@@ -26,11 +24,11 @@ double condmat::get_internal(int candidate, int against, bool raw) const {
 				contents[against][candidate], num_voters));
 }
 
-bool condmat::set_internal(int candidate, int against, double value) {
+bool condmat::set_internal(size_t candidate, size_t against, double value) {
 	// Again, if outside of bounds, yell very loudly.
 	if (candidate < against)
-		assert (candidate >= 0 && against < (int)contents.size());
-	else	assert (against >= 0 && candidate < (int)contents.size());
+		assert (against < contents.size());
+	else	assert (candidate < contents.size());
 
 	contents[candidate][against] = value;
 
@@ -39,7 +37,7 @@ bool condmat::set_internal(int candidate, int against, double value) {
 
 condmat::condmat(pairwise_type type_in) : abstract_condmat(type_in) {}
 
-condmat::condmat(const list<ballot_group> & scores, int num_candidates,
+condmat::condmat(const list<ballot_group> & scores, size_t num_candidates,
 		pairwise_type kind) : abstract_condmat(kind) {
 
 	assert (num_candidates > 1);
@@ -50,7 +48,7 @@ condmat::condmat(const list<ballot_group> & scores, int num_candidates,
 	count_ballots(scores, num_candidates);
 }
 
-condmat::condmat(int num_candidates_in, double num_voters_in,
+condmat::condmat(size_t num_candidates_in, double num_voters_in,
 		pairwise_type type_in) : abstract_condmat(type_in) {
 
 	assert(num_candidates_in > 1);
@@ -71,7 +69,7 @@ condmat::condmat(const condmat & in, pairwise_type type_in) : abstract_condmat(
 
 // Perhaps bool clear.
 void condmat::count_ballots(const list<ballot_group> & scores,
-		int num_candidates) {
+		size_t num_candidates) {
 
 	// For each ballot
 	//	 For each pair of candidates
@@ -84,7 +82,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 	// add weight points to all trues above all falses afterwards. We do
 	// nothing if we've seen all the candidates (i.e. ballot is complete).
 	
-	if ((int)contents.size() != num_candidates)
+	if (contents.size() != num_candidates)
 		contents = vector<vector<double> > (num_candidates,
 				vector<double> (num_candidates, 0));
 
@@ -97,7 +95,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 			ballot != scores.end(); ++ballot) {
 
 		fill(seen.begin(), seen.end(), false);
-		int seen_candidates = 0;
+		size_t seen_candidates = 0;
 
 		ordering::const_iterator cand, against;
 
@@ -107,9 +105,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 				cand != ballot->contents.end(); ++cand) {
 
 			// Check that the data is valid.
-			assert(cand->get_candidate_num() >= 0 &&
-					cand->get_candidate_num() < 
-					num_candidates);
+			assert(cand->get_candidate_num() < num_candidates);
 
 			// Okay, it's valid, so mark it off...
 			if (!seen[cand->get_candidate_num()]) {
@@ -127,9 +123,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 				if (against->get_score() == cand->get_score())
 					continue;
 
-				assert(against->get_candidate_num() >= 0 &&
-						against->get_candidate_num() <
-						num_candidates);
+				assert(against->get_candidate_num() < num_candidates);
 
 				// Okay, it's legitimate and there's a 
 				// strict preference. Add it.
@@ -204,8 +198,8 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 
 	if (debug) {
 		cout << "After count-ballots:" << endl;
-		for (int y = 0; y < num_candidates; ++y) {
-			for (int x = 0; x < num_candidates; ++x)
+		for (size_t y = 0; y < num_candidates; ++y) {
+			for (size_t x = 0; x < num_candidates; ++x)
 				cout << get_internal(y, x, true) << "    ";
 			cout << endl;
 		}

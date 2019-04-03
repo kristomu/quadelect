@@ -19,8 +19,8 @@ class mono_sub_plump : public monotonicity {
 
         private:
                 bool alter_ballot(const ordering & input,
-                                ordering & output, int numcands,
-                                const vector<int> & data,
+                                ordering & output, size_t numcands,
+                                const vector<size_t> & data,
                                 rng & randomizer) const;
 
                 string basename() const { return("Mono-sub-plump"); }
@@ -44,8 +44,8 @@ class mono_sub_top : public monotonicity {
 
         private:
                 bool alter_ballot(const ordering & input,
-                                ordering & output, int numcands,
-                                const vector<int> & data,
+                                ordering & output, size_t numcands,
+                                const vector<size_t> & data,
                                 rng & randomizer) const;
 
                 string basename() const { return("Mono-sub-top"); }

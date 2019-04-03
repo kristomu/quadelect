@@ -19,13 +19,13 @@ class cond_borda_matrix : public abstract_condmat {
 
 	private:
 		grad_fracile engine;
-		int num_candidates;
-		size_t linear(int cand, int against, int numcands) const;
+		size_t num_candidates;
+		size_t linear(size_t cand, size_t against, size_t numcands) const;
 
 	protected:
 		// Aborts if not prepared. Remember to reinit after all
 		// set/add!
-		double get_internal(int candidate, int against, 
+		double get_internal(size_t candidate, size_t against, 
 				bool raw) const;
 
 		// add_internal adds the specified (weight, value) vote to the
@@ -33,19 +33,19 @@ class cond_borda_matrix : public abstract_condmat {
 		// from. set_internal does the same, but clears what was there
 		// before.
 
-		bool add_internal(int candidate, int against, double weight,
+		bool add_internal(size_t candidate, size_t against, double weight,
 				double value);
-		bool set_internal(int candidate, int against, double weight,
+		bool set_internal(size_t candidate, size_t against, double weight,
 				double value);
 
-		bool set_internal(int candidate, int against, double value);
+		bool set_internal(size_t candidate, size_t against, double value);
 
 	public:
 
 		cond_borda_matrix(pairwise_type type_in) : 
 			abstract_condmat(type_in) {}
 		cond_borda_matrix(const list<ballot_group> & scores, 
-				int num_candidates_in, pairwise_type kind,
+				size_t num_candidates_in, pairwise_type kind,
 				bool cardinal, completion_type completion_in);
 		cond_borda_matrix(const cond_borda_matrix & in,
 				pairwise_type type_in);
@@ -57,7 +57,7 @@ class cond_borda_matrix : public abstract_condmat {
 
 		// Add Range (cardinal distances) here later?
 		void count_ballots(const list<ballot_group> & scores,
-				int num_candidates_in, bool cardinal,
+				size_t num_candidates_in, bool cardinal,
 				completion_type completion);
 
 		void zeroize();

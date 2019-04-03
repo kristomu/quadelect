@@ -11,12 +11,12 @@
 
 #include "grad_matrix.h"
 
-size_t cond_borda_matrix::linear(int cand, int against, int numcands) const {
+size_t cond_borda_matrix::linear(size_t cand, size_t against, size_t numcands) const {
 
 	return(against * numcands + cand);
 }
 
-double cond_borda_matrix::get_internal(int candidate, int against, 
+double cond_borda_matrix::get_internal(size_t candidate, size_t against, 
 		bool raw) const {
 
 	if (candidate == against) return(0);
@@ -39,32 +39,34 @@ double cond_borda_matrix::get_internal(int candidate, int against,
 				num_voters));
 }
 
-bool cond_borda_matrix::add_internal(int candidate, int against, double weight,
-		double value) {
+bool cond_borda_matrix::add_internal(size_t candidate, size_t against,
+	double weight, double value) {
 
-	assert (candidate >= 0 && candidate < num_candidates);
-	assert (against >= 0 && against < num_candidates);
+	assert (candidate < num_candidates);
+	assert (against < num_candidates);
 
 	return(engine.add_rating(linear(candidate, against, num_candidates), 
 				weight, value));
 }
 
-bool cond_borda_matrix::set_internal(int candidate, int against, double weight,
-		double value) {
+bool cond_borda_matrix::set_internal(size_t candidate, size_t against,
+	double weight, double value) {
 
-	assert (candidate >= 0 && candidate < num_candidates);
-	assert (against >= 0 && against < num_candidates);
+	assert (candidate < num_candidates);
+	assert (against < num_candidates);
 
 	return(engine.set_rating(linear(candidate, against, num_candidates), 
 				weight, value));
 }
 
-bool cond_borda_matrix::set_internal(int candidate, int against, double value) {
+bool cond_borda_matrix::set_internal(size_t candidate, size_t against,
+	double value) {
+
 	return(set_internal(candidate, against, 1, value));
 }
 
 cond_borda_matrix::cond_borda_matrix(const list<ballot_group> & scores,
-		int num_candidates_in, pairwise_type kind, bool cardinal,
+		size_t num_candidates_in, pairwise_type kind, bool cardinal,
 		completion_type completion_in) : abstract_condmat(kind) {
 
 	assert (num_candidates_in > 1);
@@ -87,7 +89,7 @@ cond_borda_matrix::cond_borda_matrix(const cond_borda_matrix & in,
 }
 
 void cond_borda_matrix::count_ballots(const list<ballot_group> & scores, 
-		int num_candidates_in, bool cardinal, completion_type
+		size_t num_candidates_in, bool cardinal, completion_type
 		completion) {
 
 	// Check that we have as many candidates as needed. If not, boom.
@@ -168,7 +170,7 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 			primary_old = pri->get_score();
 			sec_count = pri_count;
 
-			int pri_cand = pri->get_candidate_num();
+			size_t pri_cand = pri->get_candidate_num();
 
 			for (sec = pri; sec != pos->contents.end(); ++sec) {
 				if (sec == pri) continue;

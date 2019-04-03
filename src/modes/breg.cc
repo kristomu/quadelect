@@ -7,6 +7,7 @@
 // Possibly change this by removing the MS_* type that we don't need.
 
 #include "breg.h"
+#include <stdexcept>
 
 bayesian_regret::bayesian_regret() {
 
@@ -20,40 +21,35 @@ bayesian_regret::bayesian_regret() {
 }
 
 // Use clear_curiters if you want to run a new round.
-bool bayesian_regret::set_maxiters(int maxiters_in, bool clear_curiters) {
-
-	if (maxiters_in < 1)
-		return(false);
+void bayesian_regret::set_maxiters(size_t maxiters_in, bool clear_curiters) {
 
 	maxiters = maxiters_in;
 	
-	if (clear_curiters)
+	if (clear_curiters) {
 		curiter = 0;
-	else if (curiter >= maxiters)
+	} else if (curiter >= maxiters) {
 		curiter = maxiters - 1; // Means it's done.
-
-	return(true);
+	}
 }
 
-bool bayesian_regret::set_num_candidates(int min, int max) {
+void bayesian_regret::set_num_candidates(size_t min, size_t max) {
 
-	if (min >= max) return(false);
-	if (min <= 0) return(false);
+	if (min > max) {
+		throw std::range_error("bayesian_regret: min cand > max cand");
+	}
 
 	min_candidates = min;
 	max_candidates = max;
-
-	return(true);
 }
 
-bool bayesian_regret::set_num_voters(int min, int max) {
+void bayesian_regret::set_num_voters(size_t min, size_t max) {
 
-	if (min >= max || min <= 0) return(false);
+	if (min > max) {
+		throw std::range_error("bayesian_regret: min voters > max voters");
+	}
 
 	min_voters = min;
 	max_voters = max;
-
-	return(true);
 }
 
 void bayesian_regret::set_format(bool do_show_median) {
@@ -80,8 +76,9 @@ void bayesian_regret::add_method(const election_method * to_add) {
 	// so desiers. Caveat emptor - he'll have to be sure to check the
 	// confidence interval so as to know they haven't run the same number
 	// of trials, though!
-	if (inited)
+	if (inited) {
 		init_one(methods.size()-1);
+	}
 }
 
 void bayesian_regret::clear_generators(bool do_delete) {
@@ -107,21 +104,16 @@ void bayesian_regret::clear_methods(bool do_delete) {
 	inited = false;
 }
 
-bool bayesian_regret::set_parameters(int maxiters_in, int curiter_in,
-		int min_cand_in, int max_cand_in, int min_voters_in, 
-		int max_voters_in, bool show_median_in, stats_type br_type_in,
+void bayesian_regret::set_parameters(size_t maxiters_in, size_t curiter_in,
+		size_t min_cand_in, size_t max_cand_in, size_t min_voters_in, 
+		size_t max_voters_in, bool show_median_in, stats_type br_type_in,
 		list<pure_ballot_generator *> & generators_in, 
 		list<const election_method *> & methods_in) {
 
 	curiter = curiter_in;
-	if (!set_maxiters(maxiters_in, false))
-		return(false);
-
-	if (!set_num_candidates(min_cand_in, max_cand_in))
-		return(false);
-
-	if (!set_num_voters(min_voters_in, max_voters_in))
-		return(false);
+	set_maxiters(maxiters_in, false);
+	set_num_candidates(min_cand_in, max_cand_in);
+	set_num_voters(min_voters_in, max_voters_in);
 
 	set_format(show_median_in);
 	set_br_type(br_type_in);
@@ -133,21 +125,18 @@ bool bayesian_regret::set_parameters(int maxiters_in, int curiter_in,
 				generators));
 	copy(methods_in.begin(), methods_in.end(), back_inserter(methods));
 	inited = false;
-
-	return(true);
 }
 
-bayesian_regret::bayesian_regret(int maxiters_in, int min_cand_in, 
-		int max_cand_in, int min_voters, int max_voters, 
+bayesian_regret::bayesian_regret(size_t maxiters_in, size_t min_cand_in, 
+		size_t max_cand_in, size_t min_voters, size_t max_voters, 
 		bool show_median_in, stats_type br_type_in,
 		list<pure_ballot_generator *> & generators_in,
 		list<const election_method *> & methods_in) {
 
 	inited = false;
-	assert(set_parameters(maxiters_in, 0, min_cand_in, 
-				max_cand_in, min_voters, max_voters, 
-				show_median_in, br_type_in,
-				generators_in, methods_in));
+	set_parameters(maxiters_in, 0, min_cand_in, max_cand_in, min_voters,
+		max_voters, show_median_in, br_type_in, generators_in,
+		methods_in);
 }
 
 bool bayesian_regret::init_one(size_t idx) {

@@ -75,13 +75,13 @@ strategy_result StrategyTest::attempt_execute_strategy() { // Mega method, fix l
 
     ties_in_a_row = 0;
 
-    int winner = honest.begin()->get_candidate_num();
+    size_t winner = honest.begin()->get_candidate_num();
 
     //cout << "The winner is " << winner << endl;
 
     bool strategy_worked = false;
 
-    for (int counter = 0; counter < numcands && !strategy_worked;
+    for (size_t counter = 0; counter < numcands && !strategy_worked;
             ++counter) {
         if (counter == winner) continue;
 

@@ -64,7 +64,7 @@ ordering positional::pos_elect(const vector<vector<double> > & matrix,
 }
 
 ordering positional::elect_to_ordering(const list<ballot_group> & input, 
-		int num_candidates, int num_hopefuls, 
+		size_t num_candidates, size_t num_hopefuls, 
 		const vector<bool> * hopefuls) const {
 
 	return(pos_elect(positional_aggregator().get_positional_matrix(input,
@@ -108,14 +108,14 @@ pair<ordering, bool> positional::elect_inner(const list<ballot_group> & input,
 };
 
 double positional::get_pos_score(const ballot_group & input,
-		int candidate_number, const vector<bool> * hopefuls, 
-		int num_hopefuls) const {
+		size_t candidate_number, const vector<bool> * hopefuls, 
+		size_t num_hopefuls) const {
 
 	// Going down the ordering, increment a counter for each new rank.
 	// Equal ranks split the first counter, but after they're investigated,
 	// the counter increments as if they were strictly ranked.
 	
-	int counter = 0, span = 0;
+	size_t counter = 0, span = 0;
 	double lastvalue = INFINITY;
 
 	for (ordering::const_iterator pos = input.contents.begin();
@@ -138,7 +138,7 @@ double positional::get_pos_score(const ballot_group & input,
 }
 
 double positional::get_pos_score(const ballot_group & input, 
-		int candidate_number, int num_candidates) const {
+		size_t candidate_number, size_t num_candidates) const {
 	return(get_pos_score(input, candidate_number, NULL, num_candidates));
 }
 

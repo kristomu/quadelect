@@ -143,7 +143,7 @@ list<int> ordering_tools::get_winners(const ordering & in) const {
 // deltas will only disambiguate equals. Then we proceed down the original 
 // ballot, adding deltas accordingly.
 ordering ordering_tools::tiebreak(const ordering & tied,
-		const ordering & tiebreaker, int num_candidates) const {
+		const ordering & tiebreaker, size_t num_candidates) const {
 
 	// Some simple checks.
 	// If tied is of size 1, then there's nothing to do - the tie is
@@ -191,8 +191,7 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 	// renorm ensures "real" scores will be above 0.01 deltas.
 	
 	for (pos = tiebreaker.begin(); pos != tiebreaker.end(); ++pos) {
-		assert (pos->get_candidate_num() >= 0 && 
-				pos->get_candidate_num() < num_candidates);
+		assert (pos->get_candidate_num() < num_candidates);
 
 		tiebreaker_diff[pos->get_candidate_num()] = renorm(
 				tiebreaker.rbegin()->get_score(), 
@@ -219,7 +218,7 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 }
 
 ordering ordering_tools::ranked_tiebreak(const ordering & tied,
-		const ordering & tiebreaker, int num_candidates) const {
+		const ordering & tiebreaker, size_t num_candidates) const {
 
 	// This works by sorting a struct of ints, which includes a pair.
 	// The first int in the pair is the order of the candidate according 
@@ -228,7 +227,7 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	size_t counter;
 	bool debug = false;
 
-	map<int, string> fakecand;
+	map<size_t, string> fakecand;
 	if (debug) {
 		// DEBUG.
 		for (counter = 0; counter < 26; ++counter)
@@ -324,7 +323,7 @@ bool ordering_tools::has_equal_rank(const ordering & to_check) const {
 }
 
 string ordering_tools::ordering_to_text(const ordering & rank_ballot, 
-		const map<int, string> & reverse_cand_lookup, 
+		const map<size_t, string> & reverse_cand_lookup, 
 		bool numeric) const {
 
         double oldscore = -INFINITY;
@@ -429,7 +428,7 @@ list<ballot_group> ballot_tools::compress(const list<ballot_group> &
 }
 
 string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
-		const map<int, string> & reverse_cand_lookup,
+		const map<size_t, string> & reverse_cand_lookup,
 		bool numeric) const {
 
 	string out = dtos(rank_ballot.weight) + ": ";
@@ -443,7 +442,7 @@ string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
 
 vector<string> ballot_tools::ballots_to_text(string prefix, 
 		const list<ballot_group> & rank_ballots,
-		const map<int, string> & reverse_cand_lookup,
+		const map<size_t, string> & reverse_cand_lookup,
 		bool numeric) const {
 
 	vector<string> output;
@@ -461,7 +460,7 @@ vector<string> ballot_tools::ballots_to_text(string prefix,
 }
 
 vector<string> ballot_tools::ballots_to_text(const list<ballot_group> & 
-		rank_ballots, const map<int, string> & reverse_cand_lookup, 
+		rank_ballots, const map<size_t, string> & reverse_cand_lookup, 
 		bool numeric) const {
 
 	return(ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
@@ -471,7 +470,7 @@ vector<string> ballot_tools::ballots_to_text(const list<ballot_group> &
 void ballot_tools::print_ranked_ballots(const list<ballot_group> & 
 		rank_ballots) const {
 	
-	map<int, string> fakecand;
+	map<size_t, string> fakecand;
 
 	string f = "!";
 	for (int counter = 0; counter < 26; ++counter) {

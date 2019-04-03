@@ -25,7 +25,7 @@ class confidence_int {
 		double qt(double p, double dof) const;
 		double qbeta(double p, double a, double b) const;
 	public:
-		void test() const;
+		bool test() const;
 
 		// Uncertainty is 1 - confidence, i.e. 0.05 for 95%.
 		// Here, variance is the sample variance, not that of the 

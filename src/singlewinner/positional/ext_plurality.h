@@ -14,7 +14,7 @@
 class ext_plurality : public positional {
 
 	protected:
-		virtual double pos_weight(int position, int last_position) const {
+		virtual double pos_weight(size_t position, size_t last_position) const {
 			// This should never be called.
 			throw std::logic_error(
 				"ext_plurality pos_weight should not be called!");

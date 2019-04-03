@@ -24,7 +24,7 @@ class mono_raise : public monotonicity {
 
 	private:
 		bool alter_ballot(const ordering & input, ordering & output, 
-				int numcands, const vector<int> & data,
+				size_t numcands, const vector<size_t> & data,
 				rng & randomizer) const;
 
 		string basename() const { return("Mono-raise"); }
@@ -47,8 +47,8 @@ class mono_raise_delete : public monotonicity {
 
         private:
                 bool alter_ballot(const ordering & input,
-                                ordering & output, int numcands,
-                                const vector<int> & data,
+                                ordering & output, size_t numcands,
+                                const vector<size_t> & data,
                                 rng & randomizer) const;
 
                 string basename() const { return("Mono-raise-delete"); }
@@ -71,8 +71,8 @@ class mono_raise_random : public monotonicity {
 
         private:
                 bool alter_ballot(const ordering & input,
-                                ordering & output, int numcands,
-                                const vector<int> & data,
+                                ordering & output, size_t numcands,
+                                const vector<size_t> & data,
                                 rng & randomizer) const;
 
                 string basename() const { return("Mono-raise-random"); }

@@ -21,17 +21,16 @@ void candscore::set_score(double score_in) {
 	score = score_in;
 }
 
-void candscore::set_candidate_num(int candnum_in) {
-	assert (candnum_in >= -1);
+void candscore::set_candidate_num(size_t candnum_in) {
 	candidate_number = candnum_in;
 }
 
-candscore::candscore(int candnum_in) {
+candscore::candscore(size_t candnum_in) {
 	score = 0;
 	set_candidate_num(candnum_in);
 }
 
-candscore::candscore(int cn_in, double score_in) {
+candscore::candscore(size_t cn_in, double score_in) {
 	set_candidate_num(cn_in);
 	set_score(score_in);
 }

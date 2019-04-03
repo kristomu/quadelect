@@ -82,7 +82,7 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 	assert(source.init(fracile, GF_NONE));
 
 	list<pair<double, int> >::iterator opos, obpos;
-	int iter = 0, counter;
+	size_t iter = 0, counter;
 
 	// Create our ordering struct with the initial state of every candidate
 	// being tied with each other.
