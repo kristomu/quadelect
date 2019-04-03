@@ -4,7 +4,7 @@
 void g_rpn_config::clear() {
 	source_files.clear();
 	desired_criteria.clear();
-	criteria_order.clear();
+	group_order.clear();
 
 	num_tests = 0;
 	test_storage_prefix = "";
@@ -46,8 +46,8 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 
 	// and order (if specified).
 	try {
-		for (i = 0; i < algosearch["criteria_order"].getLength(); ++i) {
-			desired_criteria.push_back(algosearch["criteria_order"][i]);
+		for (i = 0; i < algosearch["group_order"].getLength(); ++i) {
+			group_order.push_back(algosearch["group_order"][i]);
 		}
 	} catch (libconfig::SettingNotFoundException snfex) {
 		// ignore

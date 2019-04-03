@@ -5,6 +5,7 @@
 // projects without having to keep track of which projects use which
 // settings.
 
+#include <list>
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -15,11 +16,14 @@ class g_rpn_config {
 		std::vector<std::string> source_files;
 		std::vector<std::string> desired_criteria;
 
-		// Which criteria should be tested first? If empty, it doesn't
-		// matter.This is important most of the time because some criteria
-		// are harder to satisfy than others, and so those should be put
-		// first so that backtracking happens early.
-		std::vector<std::string> criteria_order;
+		// What order to recurse into the various test_generator_groups.
+		// This is important because some criteria are harder to satisfy
+		// than others, If the group order isn't specified, the program
+		// will try to construct one (and output it at the start of
+		// runtime).
+		// It's a list for compatibility reasons.
+		std::list<int> group_order;
+
 		int num_tests;
 		std::string test_storage_prefix;
 

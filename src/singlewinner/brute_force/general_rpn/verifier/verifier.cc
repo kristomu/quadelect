@@ -108,6 +108,42 @@ std::list<int> toposort(
 	return sorted_order;
 }
 
+std::list<int> get_toposorted_group_order(
+	const test_generator_groups & grps) {
+
+	size_t num_groups = grps.groups.size();
+
+	// Create the adjacency matrix
+	std::vector<std::vector<bool> > subproblem(num_groups+1,
+		std::vector<bool>(num_groups+1, false));
+	size_t from, to;
+
+	// Link every node to the supersink that represents printing out the
+	// result.
+
+	for (from = 0; from < num_groups; ++from) {
+		subproblem[from][num_groups] = true;
+	}
+
+	// Link nodes to greater tests.
+
+	for (from = 0; from < num_groups; ++from) {
+		for (to = 0; to < num_groups; ++to) {
+			subproblem[from][to] = uses_subset_of_scenarios(
+				grps.groups[from], grps.groups[to]);
+		}
+	}
+
+	// Get topologically sorted ordering
+
+	std::list<int> toposorted = toposort(subproblem);
+
+	// Remove the supersink.
+	toposorted.pop_back();
+
+	return toposorted;
+}
+
 // Once we know what order to investigate, we can do a recursive
 // enumeration. We set up a vector listing what algorithm to try for
 // what scenario (-1 if we haven't decided yet), and go through each data
@@ -492,44 +528,6 @@ int main(int argc, char ** argv) {
 		}
 	}
 
-	size_t num_groups = grps.groups.size();
-
-	// Create the adjacency matrix
-	std::vector<std::vector<bool> > subproblem(num_groups+1,
-		std::vector<bool>(num_groups+1, false));
-	size_t from, to;
-
-	// Link every node to the supersink that represents printing out the
-	// result.
-
-	for (from = 0; from < num_groups; ++from) {
-		subproblem[from][num_groups] = true;
-	}
-
-	// Link nodes to greater tests.
-
-	for (from = 0; from < num_groups; ++from) {
-		for (to = 0; to < num_groups; ++to) {
-			subproblem[from][to] = uses_subset_of_scenarios(
-				grps.groups[from], grps.groups[to]);
-		}
-	}
-
-	// Get topologically sorted ordering
-
-	std::list<int> toposorted = toposort(subproblem);
-
-	// Remove the supersink.
-	toposorted.pop_back();
-
-	// Print.
-
-	for (int ts : toposorted) {
-		std::cout << ts << ": ";
-		grps.groups[ts].print_scenarios(cout);
-		std::cout << "\n";
-	}
-
 	// Because the output file is linear, we need to allocate space for
 	// the same number of functions no matter what the number of
 	// candidates is. So allocate enough to always have room, i.e.
@@ -557,17 +555,40 @@ int main(int argc, char ** argv) {
 	}
 
 	// Verify meta here.
-	// Replace with something better once we have criteria_order and
+	// Replace with something better once we have group_order and
 	// desired_criteria implemented. TODO.
 
-	std::list<int> only = {1, 0};//, 10, 12, 9, 20, 8, 23, 4, 3, 16, 7, 22, 2, 13, 11, 5, 19, 15, 17, 14, 6, 21, 18};
-	std::list<int> trunc = only;//toposorted;
+	std::list<int> group_order = settings.group_order;
+	if (group_order.empty()) {
+		std::cout << "Group order not specified. Generating...\n";
+		group_order = get_toposorted_group_order(grps);
+	}
+
+	// Print the order we decided upon.
+
+	std::cout << "group_order = [";
+	// https://stackoverflow.com/questions/3496982
+	for (std::list<int>::const_iterator iter = group_order.begin();
+		iter != group_order.end(); iter++) {
+
+		if (iter != group_order.begin()) {
+			cout << ", ";
+		}
+		cout << *iter;
+	}
+	std::cout << "];\n";
+
+	for (int ts : group_order) {
+		std::cout << ts << ": ";
+		grps.groups[ts].print_scenarios(cout);
+		std::cout << "\n";
+	}
 
 	std::vector<int> cur_results_method_indices(4, -1);
 	std::map<copeland_scenario, int> set_algorithm_indices;
 
 	backtracker foo(min_numcands, max_numcands);
-	foo.set_tests_and_results(trunc, grps, all_results);
+	foo.set_tests_and_results(group_order, grps, all_results);
 	foo.prospective_functions = functions_to_test;
 	foo.try_algorithms();
 
