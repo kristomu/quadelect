@@ -17,10 +17,10 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 	// directly to cerr?
 	try {
 		cfg.readFile(config_filename.c_str());
-	} catch (libconfig::FileIOException fioex) {
+	} catch (libconfig::FileIOException & fioex) {
 		std::cerr << "Error reading config file " << config_filename << "\n";
 		throw std::runtime_error("Config file read error");
-	} catch (libconfig::ParseException pex) {
+	} catch (libconfig::ParseException & pex) {
 		std::cerr << "Error parsing config file " << config_filename << "\n";
 		std::cerr << pex.getFile() << ": " << pex.getLine() << " - "
 			<< pex.getError() << "\n";
@@ -49,10 +49,10 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 		for (i = 0; i < algosearch["group_order"].getLength(); ++i) {
 			group_order.push_back(algosearch["group_order"][i]);
 		}
-	} catch (libconfig::SettingNotFoundException snfex) {
+	} catch (libconfig::SettingNotFoundException & snfex) {
 		// ignore
 	}
-	
+
 	algosearch.lookupValue("num_tests", num_tests);
 	algosearch.lookupValue("test_storage_prefix", test_storage_prefix);
 }
