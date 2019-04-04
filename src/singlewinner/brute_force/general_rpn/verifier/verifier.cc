@@ -175,11 +175,22 @@ class backtracker {
 		void print_progress(size_t test_group_idx,
 			test_election current_election_setting) const;
 
+		std::map<copeland_scenario, int> algorithm_used_idx_for_scenario;
+		std::vector<std::vector<int> > algorithm_used_idx_for_test;
+		std::vector<int> algorithm_used;
+		std::vector<size_t> numcands_per_scenario_idx;
+
+		//std::map<copeland_scenario, int> algorithm_for_scenario;
+
+		void init_algorithms_used();
+
+		void try_algorithms(size_t test_group_idx,
+			test_election current_election_setting);
+
 	public:
 		std::vector<size_t> iteration_count;
 		std::vector<test_and_result> tests_and_results;
-		std::map<copeland_scenario, int> algorithm_for_scenario;
-		std::vector<std::vector<algo_t> > prospective_functions;
+		std::vector<std::vector<algo_t> > prospective_algorithms;
 		std::vector<std::vector<int> > algorithm_per_setting;
 		std::vector<gen_custom_function> evaluators;
 		size_t min_numcands, max_numcands;
@@ -198,8 +209,7 @@ class backtracker {
 			const test_generator_groups & all_groups,
 			const std::vector<test_results> & all_results);
 
-		void try_algorithms(size_t test_group_idx,
-			test_election current_election_setting);
+		void set_algorithms(const std::vector<vector<algo_t> > & algos_in);
 
 		void try_algorithms() {
 			start_time = time(NULL);
@@ -307,6 +317,72 @@ void backtracker::print_progress(size_t test_group_idx,
 	std::cerr << "    \r" << std::flush;
 }
 
+// We want to assign an algorithm to each scenario, which then determines
+// what voting method we have constructed out of the algorithms. Because
+// indexing by scenario takes too long time when we're calling the
+// try_algorithms function billions of times, instead the program uses a
+// bit of an in-between move. It assigns each (group_idx, election_setting)
+// pair to an index into an array. What that index is depends on what
+// scenario corresponds to that particular group and that particular
+// election setting. Then the try_algorithms function can simply check if
+// some algorithm has already been set at algorithm_used[
+// algorithm_used_idx_for_test[test_group_idx][current_election_setting]]
+// without having to do a costly map lookup.
+void backtracker::init_algorithms_used() {
+
+	algorithm_used_idx_for_scenario.clear();
+
+	algorithm_used_idx_for_test = std::vector<std::vector<int> >(
+		tests_and_results.size(), std::vector<int>(NUM_REL_ELECTION_TYPES,
+			0));
+
+	max_num_algorithms = std::vector<std::vector<int> >(
+		tests_and_results.size(), std::vector<int>(NUM_REL_ELECTION_TYPES,
+			0));
+
+	// Map scenarios to indices and (test_group, current_election) pairs
+	// to the same indices through their scenarios.
+	size_t num_distinct_scenarios = 0, test_group_idx;
+	int current_election_setting;
+
+	numcands_per_scenario_idx = std::vector<size_t>();
+
+	for (test_group_idx = 0; test_group_idx < tests_and_results.size();
+		++test_group_idx) {
+
+		for (current_election_setting = 0; current_election_setting <
+			NUM_REL_ELECTION_TYPES; ++current_election_setting) {
+
+			copeland_scenario current_scenario = tests_and_results[
+				test_group_idx].test_group.get_scenario(
+				(test_election)current_election_setting);
+
+			if (algorithm_used_idx_for_scenario.find(current_scenario) ==
+				algorithm_used_idx_for_scenario.end()) {
+				algorithm_used_idx_for_scenario[current_scenario] =
+					num_distinct_scenarios;
+
+				numcands_per_scenario_idx.push_back(
+					current_scenario.get_numcands());
+
+				num_distinct_scenarios++;
+			}
+
+			algorithm_used_idx_for_test[test_group_idx]
+				[current_election_setting] = 
+				algorithm_used_idx_for_scenario[current_scenario];
+
+			// Set the denominator for the progress indicator.
+			// This could be done once and for all outside of the loop.
+			// TODO: Do that.
+			max_num_algorithms[test_group_idx][(int)current_election_setting] =
+				prospective_algorithms[current_scenario.get_numcands()].size();
+		}
+	}
+
+	algorithm_used = std::vector<int>(num_distinct_scenarios, -1);
+}
+
 void backtracker::try_algorithms(size_t test_group_idx,
 	test_election current_election_setting) {
 
@@ -314,23 +390,25 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		// End case.
 		std::cout << "Reached the end." << std::endl;
 
-		for (const auto & kv : algorithm_for_scenario) {
-			size_t numcands = kv.first.get_numcands(); // a scenario
+		for (const auto & kv : algorithm_used_idx_for_scenario) {
+			size_t numcands = kv.first.get_numcands();
 
-			algo_t algorithm = prospective_functions[numcands][kv.second];
+			int algo_idx = algorithm_used[kv.second];
+			algo_t algorithm = prospective_algorithms[numcands][algo_idx];
 			evaluators[numcands].set_algorithm(algorithm);
 			std::cout << "\t" << kv.first.to_string() << ": "
 				<< algorithm << "\t" << evaluators[numcands].to_string()
 				<< "\n";
 		}
 		std::cout << "Summary: ";
-		for (const auto & kv : algorithm_for_scenario) {
-			size_t numcands = kv.first.get_numcands(); // a scenario
+		for (const auto & kv : algorithm_used_idx_for_scenario) {
+			size_t numcands = kv.first.get_numcands();
 
-			algo_t algorithm = prospective_functions[numcands][kv.second];
+			int algo_idx = algorithm_used[kv.second];
+			algo_t algorithm = prospective_algorithms[numcands][algo_idx];
 			evaluators[numcands].set_algorithm(algorithm);
-
-			std::cout << evaluators[numcands].to_string() << " ";
+		
+			std::cout << evaluators[numcands].to_string() << " ## ";
 		}
 
 		std::cout << std::endl;
@@ -345,21 +423,17 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	// First check if we've set an algorithm for the current test group.
 	// If not, go through every possible algorithm.
 
-	copeland_scenario current_scenario = tests_and_results[test_group_idx].
-		test_group.get_scenario(current_election_setting);
+	int current_scenario_idx = algorithm_used_idx_for_test[test_group_idx]
+		[(int)current_election_setting];
 
-	size_t i, numcands = current_scenario.get_numcands();
+	size_t i, numcands = numcands_per_scenario_idx[current_scenario_idx];
 
-	if (algorithm_for_scenario.find(current_scenario) ==
-		algorithm_for_scenario.end() ||
-		algorithm_for_scenario.find(current_scenario)->second == -1) {
-
+	if (algorithm_used[current_scenario_idx] == -1) {
 		// Go through every possible algorithm. For each, recurse back with
 		// the current position the same so we'll fall through next time.
 
-		for (i = 0; i < prospective_functions[numcands].size(); ++i){
-
-			algorithm_for_scenario[current_scenario] = i;
+		for (i = 0; i < prospective_algorithms[numcands].size(); ++i){
+			algorithm_used[current_scenario_idx] = i;
 			try_algorithms(test_group_idx, current_election_setting);
 
 		}
@@ -367,7 +441,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		// Since we've looped through to ourselves, there's no need
 		// to do anything but reset the scenario to undecided and return.
 
-		algorithm_for_scenario[current_scenario] = -1;
+		algorithm_used[current_scenario_idx] = -1;
 		return;
 	}
 
@@ -387,13 +461,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	// preserve.
 
 	algorithm_per_setting[test_group_idx][(int)current_election_setting] =
-		algorithm_for_scenario[current_scenario];
-
-	// Set the denominator for the progress indicator.
-	// This could be done once and for all outside of the loop.
-	// TODO: Do that.
-	max_num_algorithms[test_group_idx][(int)current_election_setting] =
-		prospective_functions[numcands].size();
+		algorithm_used[current_scenario_idx];
 
 	// Show a progress report if the global counter is high enough and enough
 	// time has elapsed. (1s hard-coded.)
@@ -451,6 +519,26 @@ void backtracker::set_tests_and_results(
 
 	iteration_count =
 		std::vector<size_t>(tests_and_results.size(), 0);
+
+	// Init_algorithms_used also initializes the size counts that we
+	// need for progress reports. These counts depend on the algorithms
+	// having been set, so we can only call init_algorithms if both
+	// tests_and_results and prospective_algorithms have been set.
+
+	if (!prospective_algorithms.empty()) {
+		init_algorithms_used();
+	}
+}
+
+void backtracker::set_algorithms(
+	const std::vector<vector<algo_t> > & algos_in) {
+
+	prospective_algorithms = algos_in;
+
+	// See above.
+	if (!tests_and_results.empty()) {
+		init_algorithms_used();	
+	}
 }
 
 int main(int argc, char ** argv) {
@@ -603,7 +691,7 @@ int main(int argc, char ** argv) {
 
 	backtracker foo(min_numcands, max_numcands);
 	foo.set_tests_and_results(group_order, grps, all_results);
-	foo.prospective_functions = functions_to_test;
+	foo.set_algorithms(functions_to_test); 
 	foo.try_algorithms();
 
 	return 0;
