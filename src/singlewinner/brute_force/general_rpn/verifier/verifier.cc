@@ -518,8 +518,8 @@ int main(int argc, char ** argv) {
 		relative_constraints;
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
-	relative_constraints = relative_criterion_producer().get_all(
-		min_numcands, max_numcands, true);
+	relative_constraints = relative_criterion_producer().get_criteria(
+		min_numcands, max_numcands, true, settings.desired_criteria);
 
 	// Create all the groups
 	// There seem to be some bugs where the same group is being added

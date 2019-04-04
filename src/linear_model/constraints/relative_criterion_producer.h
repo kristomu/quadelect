@@ -4,6 +4,7 @@
 
 #include "relative_criterion.h"
 #include <memory>
+#include <string>
 
 class relative_criterion_producer {
 	public:
@@ -15,5 +16,10 @@ class relative_criterion_producer {
 		// inputs have been pre-sifted that way).
 		std::vector<std::unique_ptr<relative_criterion_const> >
 			get_all(int min_num_cands, int max_num_cands,
-				bool different_scenarios_only) const;
+			bool different_scenarios_only) const;
+
+		std::vector<std::unique_ptr<relative_criterion_const> >
+			get_criteria(int min_num_cands, int max_num_cands,
+			bool different_scenarios_only,
+			const std::vector<std::string> & desired_criteria) const;
 };

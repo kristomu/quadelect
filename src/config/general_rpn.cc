@@ -40,8 +40,12 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 	}
 
 	// Dump desired criteria
-	for (i = 0; i < algosearch["desired_criteria"].getLength(); ++i) {
-		desired_criteria.push_back(algosearch["desired_criteria"][i]);
+	try {
+		for (i = 0; i < algosearch["desired_criteria"].getLength(); ++i) {
+			desired_criteria.push_back(algosearch["desired_criteria"][i]);
+		}
+	} catch (libconfig::SettingNotFoundException & snfex) {
+		// ignore
 	}
 
 	// and order (if specified).

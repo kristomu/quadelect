@@ -3,6 +3,8 @@
 #include "relative_criteria/mono-raise.h"
 #include "relative_criteria/clones.h"
 
+#include <set>
+
 std::vector<std::unique_ptr<relative_criterion_const> >
 	relative_criterion_producer::get_all(int min_num_cands,
 	int max_num_cands, bool different_scenarios_only) const {
@@ -46,4 +48,38 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	}
 
 	return relative_constraints;
+}
+
+std::vector<std::unique_ptr<relative_criterion_const> >
+	relative_criterion_producer::get_criteria(int min_num_cands,
+	int max_num_cands, bool different_scenarios_only,
+	const std::vector<std::string> & desired_criteria) const {
+
+	// First get every relative criterion.
+
+	std::vector<std::unique_ptr<relative_criterion_const> > out =
+		get_all(min_num_cands, max_num_cands, different_scenarios_only);
+
+	// If there are no filtering specs, return everything
+	if (desired_criteria.empty()) { return out; }
+
+	// Otherwise remove the undesired ones. Note erase is O(n) and 
+	// so the whole thing is O(n^ 2). This could be optimized with
+	// cleverness, but there's no reason thus far.
+
+	std::set<std::string> desired_criteria_set(desired_criteria.begin(),
+		desired_criteria.end());
+	
+	auto cur = out.begin();
+
+	while (cur != out.end()) {
+		if (desired_criteria_set.find((*cur)->name()) == 
+			desired_criteria_set.end()) {
+			cur = out.erase(cur);
+		} else {
+			++cur;
+		}
+	}
+
+	return out;
 }

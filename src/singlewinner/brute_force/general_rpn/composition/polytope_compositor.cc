@@ -201,10 +201,9 @@ int main(int argc, char ** argv) {
 	}
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
-	// TODO min_candidates, max
 	std::vector<std::unique_ptr<relative_criterion_const> >
-		relative_constraints = relative_criterion_producer().get_all(
-			min_numcands, max_numcands, true);
+		relative_constraints = relative_criterion_producer().get_criteria(
+			min_numcands, max_numcands, true, settings.desired_criteria);
 
 	// Perhaps make the constrain generators return the before and after
 	// number of candidates? Then we can just pass in cand_equivs and
