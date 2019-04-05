@@ -169,18 +169,13 @@ class test_and_result {
 class backtracker {
 	private:
 		// returns fraction covered.
-		double get_progress(size_t test_group_idx,
-			test_election current_election_setting) const;
-
-		void print_progress(size_t test_group_idx,
-			test_election current_election_setting) const;
+		double get_progress() const;
+		void print_progress() const;
 
 		std::map<copeland_scenario, int> algorithm_used_idx_for_scenario;
 		std::vector<std::vector<int> > algorithm_used_idx_for_test;
 		std::vector<int> algorithm_used;
 		std::vector<size_t> numcands_per_scenario_idx;
-
-		//std::map<copeland_scenario, int> algorithm_for_scenario;
 
 		void init_algorithms_used();
 
@@ -194,6 +189,7 @@ class backtracker {
 		std::vector<std::vector<int> > algorithm_per_setting;
 		std::vector<gen_custom_function> evaluators;
 		size_t min_numcands, max_numcands;
+		size_t num_groups;
 
 		// for showing a progress report without wasting too much time
 		// on time-elapsed calls.
@@ -224,7 +220,7 @@ class backtracker {
 		backtracker(size_t min_numcands_in, size_t max_numcands_in) {
 			min_numcands = min_numcands_in; // remove later
 			max_numcands = max_numcands_in;
-			counter_threshold = 1000;
+			counter_threshold = 2000;
 			global_counter = 0;
 			last_shown_time = 0;
 
@@ -234,26 +230,26 @@ class backtracker {
 		}
 };
 
-double backtracker::get_progress(size_t test_group_idx,
-	test_election current_election_setting) const {
-
+double backtracker::get_progress() const {
 	// This is basically a least significant digit first radix conversion.
 	// While MSD is easier to write, it would also cause overflows.
 	// idx is indexed backwards to avoid problems with going below zero
 	// on an unsigned counter.
 
+	// Fortunately for us, algorithm_used is indexed so that [0] changes
+	// least often, [1] changes a bit more often, and so on, so we can
+	// simply go in reverse order, skipping any -1 values.
+
 	double progress = 0;
 
-	for (size_t idx = 0; idx <= test_group_idx; ++idx) {
-		test_election max_current_election_setting = TYPE_B_PRIME;
-		if (idx == 0) {
-			max_current_election_setting = current_election_setting;
-		}
+	for (size_t r_idx = 1; r_idx <= algorithm_used.size(); ++r_idx) {
+		size_t idx = algorithm_used.size() - r_idx;
 
-		for (int i = (int)max_current_election_setting; i >= 0; --i) {
-			progress += algorithm_per_setting[test_group_idx-idx][i];
-			progress /= max_num_algorithms[test_group_idx-idx][i];
-		}
+		if (algorithm_used[idx] == -1) { continue; }
+
+		progress += algorithm_used[idx];
+		progress /= (double)prospective_algorithms[
+			numcands_per_scenario_idx[idx]].size();
 	}
 
 	return progress;
@@ -299,10 +295,9 @@ std::string format_time(double seconds_total) {
 	return date_str + time_str;
 }
 
-void backtracker::print_progress(size_t test_group_idx,
-	test_election current_election_setting) const {
+void backtracker::print_progress() const {
 
-	double progress = get_progress(test_group_idx, current_election_setting);
+	double progress = get_progress();
 
 	double eta_seconds = (1-progress)/progress *
 		(last_shown_time-start_time);
@@ -386,7 +381,7 @@ void backtracker::init_algorithms_used() {
 void backtracker::try_algorithms(size_t test_group_idx,
 	test_election current_election_setting) {
 
-	if (test_group_idx == tests_and_results.size()) {
+	if (test_group_idx == num_groups) {
 		// End case.
 		std::cout << "Reached the end." << std::endl;
 
@@ -440,7 +435,6 @@ void backtracker::try_algorithms(size_t test_group_idx,
 
 		// Since we've looped through to ourselves, there's no need
 		// to do anything but reset the scenario to undecided and return.
-
 		algorithm_used[current_scenario_idx] = -1;
 		return;
 	}
@@ -469,7 +463,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		global_counter = 0;
 		if (time(NULL) >= last_shown_time + 1) {
 			last_shown_time = time(NULL);
-			print_progress(test_group_idx, current_election_setting);
+			print_progress();
 		}
 	}
 
@@ -528,6 +522,8 @@ void backtracker::set_tests_and_results(
 	if (!prospective_algorithms.empty()) {
 		init_algorithms_used();
 	}
+
+	num_groups = tests_and_results.size();
 }
 
 void backtracker::set_algorithms(
