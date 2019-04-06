@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iterator>
 #include <memory>
+#include <queue>
 
 #include <time.h>
 
@@ -22,127 +23,22 @@
 // viable election methods (i.e. ones that pass the tests tested by
 // polytope_compositor).
 
-// The general idea is to construct a DAG of each polytope_compositor
-// test_generator_group, where test group A has an edge to B if all the
-// scenarios that appear in A also appear in B. In addition, every node
-// has an edge to a supersink.
+// The program does the actual checking by a backtracking recursive
+// algorithm that consists of alternating between assigning algorithms to
+// unassigned scenarios and checking if they pass tests.
 
-// We can then tentatively assign a method to each scenario while
-// traversing the DAG in topological order, backtracking whenever it's
-// clear that the current (partial) assignment fails the test. By starting
-// with simple tests first, this strategy should divide-and-conquer pretty
-// nicely.
+// However, that still leaves the question of in what order to investigate
+// the different test groups. We would want to put the most discriminating
+// tests first, so that the backtracking aborts the recursive tests as early
+// as possible (thus avoiding the combinatorial explosion problem).
 
-// Next to do, optimization wise: replace the map in backtracker with a
-// vector of ints, and have the testing function just do a lookup, e.g.
-// chosen[0] = algorithm for 37,4
-// chosen[1] = algorithm for 39,4
-// test pointer vector for some test group with 37,4/39,4/37,4/39,4 = 0 1 0 1
-// starts[i] = chosen[test_pointer_vector[our group][election type]]
-// then the rest as before.
-// This would also allow us to constrain e.g. 37,4 = 39,4 if searching the
-// whole space becomes too slow.
+// Previously, I determined the order by using a topological sort, but that
+// led to bad assignments (where some very discriminating tests were pushed
+// to the back), so instead I now use a local search: try every test group
+// alone and check how many tests pass it after 2 seconds, then pick the one
+// that pass the fewest tests and repeat with the next test group.
 
-// But probably refactoring before that, and probably changing what make tool
-// to use before *that*.
-
-// Returns true if all scenarios in smaller are also used in larger,
-// otherwise false. Ties (same scenarios in both) are broken in a way
-// that doesn't produce cycles.
-bool uses_subset_of_scenarios(const test_generator_group & smaller,
-	const test_generator_group & larger) {
-
-	std::set<copeland_scenario> in_smaller = smaller.get_tested_scenarios(),
-		in_larger = larger.get_tested_scenarios();
-
-	for (const copeland_scenario small_cand : in_smaller) {
-		if (in_larger.find(small_cand) == in_larger.end()) {
-			return false;
-		}
-	}
-
-	// If they're equal and have the same scenarios, do a minimum tiebreak.
-	if (in_smaller.size() == in_larger.size()) {
-		return smaller < larger;
-	}
-
-	return true;
-}
-
-// Depth first search
-
-const int NO_VISIT = 0, TEMP_VISIT = 1, PERM_VISIT = 2;
-
-void toposort_visit(int in_idx,
-	const std::vector<std::vector<bool> > & adjacencies,
-	std::vector<int> & node_color, std::list<int> & sorted_order) {
-
-	if (node_color[in_idx] == PERM_VISIT) { return; }
-	if (node_color[in_idx] == TEMP_VISIT) {
-		throw std::runtime_error("toposort: input graph is not a DAG!");
-	}
-
-	node_color[in_idx] = TEMP_VISIT;
-	for (size_t out_idx = 0; out_idx < adjacencies.size(); ++out_idx) {
-		if (adjacencies[in_idx][out_idx]) {
-			toposort_visit(out_idx, adjacencies, node_color,
-				sorted_order);
-		}
-	}
-	node_color[in_idx] = PERM_VISIT;
-	sorted_order.push_front(in_idx);
-}
-
-std::list<int> toposort(
-	const std::vector<std::vector<bool> > & adjacencies) {
-
-	std::vector<int> node_color(adjacencies.size(), NO_VISIT);
-	std::list<int> sorted_order;
-
-	for (size_t i = 0; i < adjacencies.size(); ++i) {
-		if (node_color[i] == NO_VISIT) {
-			toposort_visit(i, adjacencies, node_color, sorted_order);
-		}
-	}
-
-	return sorted_order;
-}
-
-std::list<int> get_toposorted_group_order(
-	const test_generator_groups & grps) {
-
-	size_t num_groups = grps.groups.size();
-
-	// Create the adjacency matrix
-	std::vector<std::vector<bool> > subproblem(num_groups+1,
-		std::vector<bool>(num_groups+1, false));
-	size_t from, to;
-
-	// Link every node to the supersink that represents printing out the
-	// result.
-
-	for (from = 0; from < num_groups; ++from) {
-		subproblem[from][num_groups] = true;
-	}
-
-	// Link nodes to greater tests.
-
-	for (from = 0; from < num_groups; ++from) {
-		for (to = 0; to < num_groups; ++to) {
-			subproblem[from][to] = uses_subset_of_scenarios(
-				grps.groups[from], grps.groups[to]);
-		}
-	}
-
-	// Get topologically sorted ordering
-
-	std::list<int> toposorted = toposort(subproblem);
-
-	// Remove the supersink.
-	toposorted.pop_back();
-
-	return toposorted;
-}
+///////////////////////////////////////////////////////////////////////////
 
 // Once we know what order to investigate, we can do a recursive
 // enumeration. We set up a vector listing what algorithm to try for
@@ -196,25 +92,40 @@ class backtracker {
 		size_t global_counter, counter_threshold;
 		time_t last_shown_time, start_time;
 
+		size_t num_passed_methods;
+		bool show_reports;
+
+		int time_limit = 0; // in seconds from start, or -1 if none.
+		size_t pass_limit = 0; // abort after this many passes
+
 		// for calculating the progress
 		// needs to be improved.
 		std::vector<std::vector<int> > max_num_algorithms;
 
 		void set_tests_and_results(
-			const std::list<int> & order,
+			const std::list<size_t> & order,
 			const test_generator_groups & all_groups,
 			const std::vector<test_results> & all_results);
 
 		void set_algorithms(const std::vector<vector<algo_t> > & algos_in);
 
-		void try_algorithms() {
+		size_t try_algorithms() {
+			if (prospective_algorithms.empty()) {
+				throw new std::runtime_error("No algorithms to check!");
+			}
+
 			start_time = time(NULL);
+			num_passed_methods = 0;
 			try_algorithms(0, TYPE_A);
 
-			std::cout << "Final iteration counts." << std::endl;
-			for (size_t i = 0; i < iteration_count.size(); ++i) {
-				std::cout << "idx " << i << "\t" << iteration_count[i] << std::endl;
+			if (show_reports) {
+				std::cout << "Final iteration counts." << std::endl;
+				for (size_t i = 0; i < iteration_count.size(); ++i) {
+					std::cout << "idx " << i << "\t" << iteration_count[i] << std::endl;
+				}
 			}
+
+			return num_passed_methods;
 		}
 
 		backtracker(size_t min_numcands_in, size_t max_numcands_in) {
@@ -223,6 +134,10 @@ class backtracker {
 			counter_threshold = 2000;
 			global_counter = 0;
 			last_shown_time = 0;
+			num_passed_methods = 0;
+			show_reports = true;
+			time_limit = -1;
+			pass_limit = 0;
 
 			for (size_t i = 0; i <= max_numcands; ++i) {
 				evaluators.push_back(gen_custom_function(i));
@@ -364,7 +279,7 @@ void backtracker::init_algorithms_used() {
 			}
 
 			algorithm_used_idx_for_test[test_group_idx]
-				[current_election_setting] = 
+				[current_election_setting] =
 				algorithm_used_idx_for_scenario[current_scenario];
 
 			// Set the denominator for the progress indicator.
@@ -383,6 +298,10 @@ void backtracker::try_algorithms(size_t test_group_idx,
 
 	if (test_group_idx == num_groups) {
 		// End case.
+		++num_passed_methods;
+
+		if (!show_reports) { return; }
+
 		std::cout << "Reached the end." << std::endl;
 
 		for (const auto & kv : algorithm_used_idx_for_scenario) {
@@ -402,7 +321,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 			int algo_idx = algorithm_used[kv.second];
 			algo_t algorithm = prospective_algorithms[numcands][algo_idx];
 			evaluators[numcands].set_algorithm(algorithm);
-		
+
 			std::cout << evaluators[numcands].to_string() << " ## ";
 		}
 
@@ -430,7 +349,6 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		for (i = 0; i < prospective_algorithms[numcands].size(); ++i){
 			algorithm_used[current_scenario_idx] = i;
 			try_algorithms(test_group_idx, current_election_setting);
-
 		}
 
 		// Since we've looped through to ourselves, there's no need
@@ -460,8 +378,18 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	// Show a progress report if the global counter is high enough and enough
 	// time has elapsed. (1s hard-coded.)
 	if (global_counter++ >= counter_threshold) {
+		// Time limit check
+		if (time_limit > 0 && time(NULL) >= start_time + time_limit) {
+			return;
+		}
+
+		// Number of passes check
+		if (pass_limit > 0 && num_passed_methods > pass_limit) {
+			return;
+		}
+
 		global_counter = 0;
-		if (time(NULL) >= last_shown_time + 1) {
+		if (show_reports && time(NULL) >= last_shown_time + 1) {
 			last_shown_time = time(NULL);
 			print_progress();
 		}
@@ -492,13 +420,13 @@ void backtracker::try_algorithms(size_t test_group_idx,
 }
 
 void backtracker::set_tests_and_results(
-	const std::list<int> & order,
+	const std::list<size_t> & order,
 	const test_generator_groups & all_groups,
 	const std::vector<test_results> & all_results) {
 
 	tests_and_results.clear();
 
-	for (int idx: order) {
+	for (size_t idx: order) {
 		tests_and_results.push_back(
 			test_and_result(all_groups.groups[idx], all_results[idx]));
 	}
@@ -533,8 +461,105 @@ void backtracker::set_algorithms(
 
 	// See above.
 	if (!tests_and_results.empty()) {
-		init_algorithms_used();	
+		init_algorithms_used();
 	}
+}
+
+/////////////////////////////////////////////////////////////////
+
+// Even better would be to visit the algorithms in random order (e.g. by
+// using form-preserving encryption) to get statistics not biased towards
+// the start of the run, but eh...
+
+std::list<size_t> get_group_order(const test_generator_groups & groups,
+	const std::vector<test_results> & all_results, backtracker & tester,
+	bool report) {
+
+	std::priority_queue<std::pair<size_t, size_t>,
+		std::vector<std::pair<size_t, size_t> >,
+		std::greater<std::pair<size_t, size_t> > > incoming_groups,
+		outgoing_groups;
+
+	std::list<size_t> output_order;
+
+	bool old_reports = tester.show_reports;
+	int old_time_limit = tester.time_limit;
+	size_t old_pass_limit = tester.pass_limit;
+
+	tester.show_reports = false;
+	tester.time_limit = 2; // number of seconds.
+	tester.pass_limit = 0;
+
+	// Dump every group into the incoming_groups priority queue.
+
+	for (size_t i = 0; i < groups.groups.size(); ++i) {
+		incoming_groups.push(std::pair<size_t, size_t>(0, i));
+	}
+
+	while (!incoming_groups.empty()) {
+		// Visit the incoming queue in order from most discriminating
+		// to least, as a proxy for how discriminating it will be this
+		// time around. The idea is to (hopefully) identify the most
+		// discriminating tests quickly so that we don't have to spend a
+		// lot of time checking the less discriminating ones.
+
+		size_t min_passes_so_far = SIZE_MAX-1;
+
+		while (!incoming_groups.empty()) {
+			std::list<size_t> tentative = output_order;
+			tentative.push_back(incoming_groups.top().second);
+
+			// We only need to know if it has more passes than the
+			// current record, not how much more. Any difference due to
+			// time discretization (we only check for pass_limit so often)
+			// will benefit us next time around as the priority queue will
+			// be in proper sorted order.
+			tester.pass_limit = min_passes_so_far + 1;
+			tester.set_tests_and_results(tentative, groups, all_results);
+
+			size_t number_of_passes = tester.try_algorithms();
+
+			if (report) {
+				std::cout << incoming_groups.top().second << ": at least "
+					<< number_of_passes << " passes.\n";
+			}
+			min_passes_so_far = std::min(number_of_passes, min_passes_so_far);
+			outgoing_groups.push(std::pair<size_t, size_t>(number_of_passes,
+				incoming_groups.top().second));
+			incoming_groups.pop();
+		}
+		// Insert the top as the next element of the output order.
+		if (report) {
+			std::cout << "Inserting recordholder " <<
+				outgoing_groups.top().second << " with " <<
+				outgoing_groups.top().first << " passes.\n";
+		}
+
+		output_order.push_back(outgoing_groups.top().second);
+		outgoing_groups.pop();
+
+		swap(incoming_groups, outgoing_groups);
+	}
+
+	tester.show_reports = old_reports;
+	tester.time_limit = old_time_limit;
+	tester.pass_limit = old_pass_limit;
+
+	return output_order;
+}
+
+void print_group_order(const std::list<size_t> & group_order) {
+	std::cout << "group_order = [";
+	// https://stackoverflow.com/questions/3496982
+	for (std::list<size_t>::const_iterator iter = group_order.begin();
+		iter != group_order.end(); iter++) {
+
+		if (iter != group_order.begin()) {
+			cout << ", ";
+		}
+		cout << *iter;
+	}
+	std::cout << "];\n";
 }
 
 int main(int argc, char ** argv) {
@@ -656,25 +681,19 @@ int main(int argc, char ** argv) {
 	// Replace with something better once we have group_order and
 	// desired_criteria implemented. TODO.
 
-	std::list<int> group_order = settings.group_order;
+	backtracker verifier(min_numcands, max_numcands);
+	verifier.set_algorithms(functions_to_test);
+
+	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
 		std::cout << "Group order not specified. Generating...\n";
-		group_order = get_toposorted_group_order(grps);
+		group_order = get_group_order(grps, all_results, verifier, false);
+		std::cout << "Insert the following into the config file " <<
+			"to skip this step the next time:\n";
+		print_group_order(group_order);
 	}
 
 	// Print the order we decided upon.
-
-	std::cout << "group_order = [";
-	// https://stackoverflow.com/questions/3496982
-	for (std::list<int>::const_iterator iter = group_order.begin();
-		iter != group_order.end(); iter++) {
-
-		if (iter != group_order.begin()) {
-			cout << ", ";
-		}
-		cout << *iter;
-	}
-	std::cout << "];\n";
 
 	for (int ts : group_order) {
 		std::cout << ts << ": ";
@@ -685,10 +704,8 @@ int main(int argc, char ** argv) {
 	std::vector<int> cur_results_method_indices(4, -1);
 	std::map<copeland_scenario, int> set_algorithm_indices;
 
-	backtracker foo(min_numcands, max_numcands);
-	foo.set_tests_and_results(group_order, grps, all_results);
-	foo.set_algorithms(functions_to_test); 
-	foo.try_algorithms();
+	verifier.set_tests_and_results(group_order, grps, all_results);
+	std::cout << verifier.try_algorithms() << " passing methods" << std::endl;
 
 	return 0;
 }

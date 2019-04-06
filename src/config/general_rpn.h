@@ -22,7 +22,7 @@ class g_rpn_config {
 		// will try to construct one (and output it at the start of
 		// runtime).
 		// It's a list for compatibility reasons.
-		std::list<int> group_order;
+		std::list<size_t> group_order;
 
 		int num_tests;
 		std::string test_storage_prefix;
