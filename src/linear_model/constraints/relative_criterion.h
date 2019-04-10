@@ -86,7 +86,7 @@ class relative_criterion_const {
 
 	public:
 
-		// States whether the criteria requires that A's position is not
+		// States whether the criterion requires that A's position is not
 		// harmed (the default for monotonicity), that A's position is not
 		// helped (immunity to teaming) or both (clone independence).
 		virtual bool no_harm() const { return true; }

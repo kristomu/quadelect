@@ -51,7 +51,10 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 	// and order (if specified).
 	try {
 		for (i = 0; i < algosearch["group_order"].getLength(); ++i) {
-			group_order.push_back(algosearch["group_order"][i]);
+			// using size_t leads to an exception.
+			int group_num = algosearch["group_order"][i];
+
+			group_order.push_back(group_num);
 		}
 	} catch (libconfig::SettingNotFoundException & snfex) {
 		// ignore
