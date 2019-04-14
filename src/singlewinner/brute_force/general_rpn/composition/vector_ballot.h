@@ -4,6 +4,7 @@
 
 #include "../../../../ballots.h"
 #include "scenario.h"
+#include "equivalences.h"
 
 // Some functions involving vector ballot groups. Vector ballot
 // groups/elections may get their own class eventually, but not yet.
