@@ -30,16 +30,20 @@ std::list<ballot_group> test_generator::vector_election_to_ordering_format(
 	return out_election;
 }
 
-bool test_generator::set_scenarios(copeland_scenario before,
-	copeland_scenario after, int max_numvoters,
-	const relative_criterion_const & rel_criterion) {
+std::pair<constraint_set, bool> test_generator::set_scenario_constraints(
+	copeland_scenario before, copeland_scenario after, int max_numvoters,
+	const relative_criterion_const & rel_criterion,
+	const std::string before_name, const std::string after_name) {
+
+	std::pair<constraint_set, bool> out;
+	out.second = false;
 
 	// Check that the number of candidates match.
 	if (before.get_numcands() != rel_criterion.get_numcands_before()) {
-		return false;
+		return out;
 	}
 	if (after.get_numcands() != rel_criterion.get_numcands_after()) {
-		return false;
+		return out;
 	}
 
 	// Construct a proper polytope for the desired scenarios and relative
@@ -53,32 +57,49 @@ bool test_generator::set_scenarios(copeland_scenario before,
 	// Set constraints on the number of voters
 	voter_constraints voters("v");
 	all_constraints.add(voters.max_numvoters_definition(before.get_numcands(),
-		"before"));
+		before_name));
 	all_constraints.add(voters.max_numvoters_definition(after.get_numcands(),
-		"after"));
+		after_name));
 	all_constraints.add(voters.max_numvoters_upper_bound(max_numvoters));
 
 	// Set scenario constraints.
 	pairwise_constraints pairwise;
 	all_constraints.add(pairwise.beat_constraints(before.get_short_form(),
-		"before", before.get_numcands()));
+		before_name, before.get_numcands()));
 	all_constraints.add(pairwise.beat_constraints(after.get_short_form(),
-		"after", after.get_numcands()));
+		after_name, after.get_numcands()));
 
 	// Add relative constraints linking the before- and after-election.
-	all_constraints.add(rel_criterion.relative_constraints("before",
-		"after"));
+	all_constraints.add(rel_criterion.relative_constraints(before_name,
+		after_name));
 
 	// Set the margin of pairwise victory and add a nonnegativity
 	// constraint.
 	all_constraints.set_fixed_param("min_victory_margin", 0.01);
 	all_constraints.add(general_const::all_nonnegative(all_constraints));
 
-	// Set up the polytope and sampler. Return true if we can do so,
-	// otherwise.
+	out.first = all_constraints;
+	out.second = true;
 
+	return out;
+}
+
+bool test_generator::set_scenarios(copeland_scenario before,
+	copeland_scenario after, int max_numvoters,
+	const relative_criterion_const & rel_criterion) {
+
+	// Set up constraints. (This has been separated out to better deal
+	// with composition required by ISDA later.)
+
+	std::pair<constraint_set, bool> constraints = set_scenario_constraints(
+		before, after, max_numvoters, rel_criterion, "before", "after");
+
+	if (!constraints.second) { return false; }
+
+	// Set up the polytope and sampler. Return true if we can do so,
+	// false if we can't.
 	try {
-		election_polytope = constraint_polytope(all_constraints);
+		election_polytope = constraint_polytope(constraints.first);
 		sampler = billiard_sampler<constraint_polytope>(election_polytope,
 			true, true, rng_seed);
 	} catch (const std::runtime_error & e) {

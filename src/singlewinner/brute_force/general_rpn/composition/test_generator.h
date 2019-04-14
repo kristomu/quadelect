@@ -32,6 +32,14 @@ class test_generator {
 		std::vector<int> before_permutation_indices,
 			after_permutation_indices;
 
+		// Returns false if it's impossible to create this particular
+		// configuration.
+		std::pair<constraint_set, bool> set_scenario_constraints(
+			copeland_scenario before, copeland_scenario after,
+			int max_numvoters,
+			const relative_criterion_const & rel_criterion,
+			const std::string before_name, const std::string after_name);
+
 	public:
 		// Samples an instance to get A, A', and then rotates to
 		// other_candidate_idx to get B and B'.
