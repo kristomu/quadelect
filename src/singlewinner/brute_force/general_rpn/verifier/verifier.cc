@@ -299,6 +299,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	if (test_group_idx == num_groups) {
 		// End case.
 		++num_passed_methods;
+		++iteration_count[test_group_idx];
 
 		if (!show_reports) { return; }
 
@@ -440,7 +441,7 @@ void backtracker::set_tests_and_results(
 			std::vector<int>(NUM_REL_ELECTION_TYPES, -1));
 
 	iteration_count =
-		std::vector<size_t>(tests_and_results.size(), 0);
+		std::vector<size_t>(tests_and_results.size()+1, 0);
 
 	// Init_algorithms_used also initializes the size counts that we
 	// need for progress reports. These counts depend on the algorithms
@@ -532,7 +533,7 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 		if (report) {
 			std::cout << "Inserting recordholder " <<
 				outgoing_groups.top().second << " with " <<
-				outgoing_groups.top().first << " passes.\n";
+				outgoing_groups.top().first << " passes." << std::endl;
 		}
 
 		output_order.push_back(outgoing_groups.top().second);
