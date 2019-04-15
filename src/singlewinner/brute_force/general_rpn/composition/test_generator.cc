@@ -74,6 +74,10 @@ std::pair<constraint_set, bool> test_generator::set_scenario_constraints(
 	all_constraints.add(rel_criterion.relative_constraints(before_name,
 		after_name));
 
+	// Add the definition of a minimum margin (required for pairwise
+	// constraints).
+	all_constraints.set_fixed_param("min_victory_margin", 0.01);
+
 	// Add a nonnegativity constraint. (HACK: Done elsewhere to avoid
 	// overlapping constraints.)
 
