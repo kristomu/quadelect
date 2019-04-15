@@ -28,7 +28,7 @@ constraint relative_criterion_const::get_before_after_equality(
 	std::string before_suffix, std::string after_suffix) const {
 
 	constraint out;
-	out.description = "before_after_equality";
+	out.description = "before_after_equality__" + before_suffix + "__" + after_suffix;
 	out.constraint_rel.type = LREL_EQ;
 	out.constraint_rel.lhs = constraint_tools::permutations_to_relation_side(
 		constraint_tools::all_permutations(numcands_before), "",
@@ -179,7 +179,8 @@ constraint_set relative_criterion_const::get_before_constraints(const
 			before_and_after.first, before_suffix);
 
 		constraint out;
-		out.description = "conservation_of_voters_" + from_before;
+		out.description = "conservation_of_voters_" + from_before + "__" +
+			after_suffix;
 
 		lin_relation before_equals_afters;
 		before_equals_afters.type = LREL_EQ;

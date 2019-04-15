@@ -110,6 +110,8 @@ class fixed_cand_equivalences {
 			const copeland_scenario & source_scenario,
 			size_t candidate_to_become_A) const {
 
+			assert(num_candidates == source_scenario.get_numcands());
+
 			if (candidate_remappings[candidate_to_become_A].find(
 				source_scenario) == candidate_remappings[
 				candidate_to_become_A].end()) {
