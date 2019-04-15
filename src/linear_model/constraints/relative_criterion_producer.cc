@@ -20,7 +20,7 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	int i;
 
 	for (i = min_num_cands; i < max_num_cands; ++i) {
-		// Teaming and vote_splitting
+		// Teaming and vote splitting
 		relative_constraints.push_back(
 			std::make_unique<clone_const>(i, i+1));
 		// Crowding
@@ -28,12 +28,18 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 			std::make_unique<clone_const>(i, i+1, 1));
 	}
 
+
 	// HACK. FIX LATER
 	// For some reason, the ordinary clone constraint above fails
 	// to set up this crowding constraint. I have to find out how
 	// to get every crowding constraint so that I can be sure the
 	// tests cover everything. (Do that later.)
 	std::vector<int> clone_spec = {0, 1, 1, 2};
+	relative_constraints.push_back(
+		std::make_unique<clone_const>(clone_spec));
+
+	// Also needed??
+	clone_spec = {0, 1, 2, 2};
 	relative_constraints.push_back(
 		std::make_unique<clone_const>(clone_spec));
 
@@ -63,17 +69,17 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	// If there are no filtering specs, return everything
 	if (desired_criteria.empty()) { return out; }
 
-	// Otherwise remove the undesired ones. Note erase is O(n) and 
+	// Otherwise remove the undesired ones. Note erase is O(n) and
 	// so the whole thing is O(n^ 2). This could be optimized with
 	// cleverness, but there's no reason thus far.
 
 	std::set<std::string> desired_criteria_set(desired_criteria.begin(),
 		desired_criteria.end());
-	
+
 	auto cur = out.begin();
 
 	while (cur != out.end()) {
-		if (desired_criteria_set.find((*cur)->name()) == 
+		if (desired_criteria_set.find((*cur)->name()) ==
 			desired_criteria_set.end()) {
 			cur = out.erase(cur);
 		} else {
