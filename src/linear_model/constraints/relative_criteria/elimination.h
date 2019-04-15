@@ -3,7 +3,7 @@
 #include "../relative_criterion.h"
 
 // Relative criterion (not really a fitting name) for expressing the
-// elimination of candidates. The "criterion" is used for expressing
+// elimination of candidates. The "criterion" is used as part of
 // independence criteria like ISDA.
 
 class elimination_util_const : public relative_criterion_const {
@@ -12,6 +12,9 @@ class elimination_util_const : public relative_criterion_const {
 		// otherwise the number that candidate corresponds to after, e.g.
 		// eliminating B in a  4cddt gives {0, -1, 1, 2};
 		std::vector<int> elimination_spec;
+
+		size_t get_num_noneliminated(const std::vector<int> &
+			elimination_spec_in) const;
 
 	protected:
 		bool permissible_transition(
@@ -24,7 +27,7 @@ class elimination_util_const : public relative_criterion_const {
 	public:
 		// Eliminates the latter candidates. (i.e. numcands_before_in = 5,
 		// after = 3, keeps ABC and eliminates D and E).
-		elimination_util_const(size_t numcands_before_in, 
+		elimination_util_const(size_t numcands_before_in,
 			size_t numcands_after_in);
 
 		elimination_util_const(std::vector<int> elimination_spec_in);

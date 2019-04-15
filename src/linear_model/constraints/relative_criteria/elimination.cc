@@ -1,6 +1,18 @@
 #include "elimination.h"
 #include <numeric>
 
+size_t elimination_util_const::get_num_noneliminated(const std::vector<int> &
+	elimination_spec_in) const {
+
+	size_t count = 0;
+
+	for (int cand: elimination_spec_in) {
+		if (cand > -1) { ++count; }
+	}
+
+	return count;
+}
+
 bool elimination_util_const::permissible_transition(
 	const std::vector<int> & before_permutation,
 	const std::vector<int> & after_permutation) const {
@@ -32,14 +44,12 @@ elimination_util_const::elimination_util_const(size_t numcands_before_in,
 }
 
 elimination_util_const::elimination_util_const(
-	std::vector<int> elimination_spec_in) : 
-	relative_criterion_const
+	std::vector<int> elimination_spec_in) :
+	relative_criterion_const(
 		// Number of candidates before elimination: length of vector
-		(elimination_spec_in.size(),
-		// Number of candidates after: maximum element + 1 (due to zero
-		// indexing).
-			1 + *std::max_element(elimination_spec_in.begin(),
-			elimination_spec_in.end())
+			elimination_spec_in.size(),
+		// Number of candidates after: number of nonzeroes.
+			get_num_noneliminated(elimination_spec_in)
 		){
 
 	elimination_spec = elimination_spec_in;
