@@ -32,6 +32,12 @@ class test_generator {
 		std::vector<int> before_permutation_indices,
 			after_permutation_indices;
 
+		// from ISDA. Since the elimination sometimes happens at the
+		// beginning, and sometimes at the end, we can't use the internal
+		// ISDA format for specifying eliminations.
+		std::vector<std::pair<size_t, size_t> > elim_permutations;
+		bool isda_first, isda_last; // HACK! FIX LATER!
+
 		// Returns false if it's impossible to create this particular
 		// configuration.
 		std::pair<constraint_set, bool> set_scenario_constraints(
@@ -41,13 +47,17 @@ class test_generator {
 			const std::string before_name, const std::string after_name);
 
 	public:
+		// Hack. Roll up into elim_permutations? Eh, that's not quite the
+		// same thing...
+		size_t numcands_before, numcands_after;
+
 		// Samples an instance to get A, A', and then rotates to
 		// other_candidate_idx to get B and B'.
 		relative_test_instance sample_instance(
 			size_t other_candidate_idx_before,
 			size_t other_candidate_idx_after,
-			const fixed_cand_equivalences before_cand_remapping,
-			const fixed_cand_equivalences after_cand_remapping);
+			const fixed_cand_equivalences & before_cand_remapping,
+			const fixed_cand_equivalences & after_cand_remapping);
 
 		// Returns false if it's impossible to create this particular
 		// configuration.
@@ -60,4 +70,11 @@ class test_generator {
 		test_generator(uint64_t rng_seed_in) : sampler(rng_seed_in) {
 			rng_seed = rng_seed_in;
 		}
+
+		// Return if the test generator allows b_before to be the candidate
+		// index for B before modification, and b_after to be the candidate
+		// index for B after. This checks both the elimination schedule and
+		// any relabeling interior to the relative criterion used.
+		bool permitted_b_pair(size_t b_before, size_t b_after,
+			const relative_criterion_const & rel_criterion) const;
 };

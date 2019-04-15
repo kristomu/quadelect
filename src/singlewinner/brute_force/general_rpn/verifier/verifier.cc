@@ -611,6 +611,27 @@ int main(int argc, char ** argv) {
 		get_cand_equivalences(max_numcands);
 
 	std::vector<copeland_scenario> canonical_full_v;
+	std::vector<copeland_scenario> canonical_everything;
+
+	for (i = min_numcands; i <= max_numcands; ++i) {
+
+		std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
+			i, cand_equivs.find(i)->second);
+
+		std::copy(canonical_full.begin(), canonical_full.end(),
+			std::back_inserter(canonical_full_v));
+
+		for (const auto & kv: cand_equivs.find(i)->second.get_noncanonical_scenarios()) {
+			if (!kv.second.canonical) { continue; }
+
+			// Anti-cluttering
+			if (smith_set_size(kv.first) > 2) {
+				canonical_everything.push_back(kv.first);
+			}
+		}
+	}
+
+	canonical_full_v = canonical_everything;
 
 	for (i = min_numcands; i <= max_numcands; ++i) {
 

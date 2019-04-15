@@ -56,22 +56,80 @@ std::vector<bool> isda_reduction::smith_set(
 	return smith_set(scenario.get_copeland_matrix());
 }
 
+// Given a scenario with a not-full Smith set, output a reduced scenario
+// with a full Smith set (and with pairwise victories between members of
+// the set being the same as in the input), as well as a relabeling of
+// which candidates in the input correspond to which candidates in the
+// output.
+scenario_reduction isda_reduction::get_ISDA_reduction(
+	const copeland_scenario & in) const {
+
+	scenario_reduction out;
+
+	// 1. Get the Smith set size of in. If it's equal to numcands, just
+	// return in unperturbed.
+
+	std::vector<std::vector<bool> > copeland_matrix =
+		in.get_copeland_matrix();
+
+	std::vector<bool> smith_cands = smith_set(copeland_matrix);
+
+	if (smith_set_size(smith_cands) == in.get_numcands()) {
+		out.to_scenario = in;
+		out.cand_relabeling.resize(in.get_numcands());
+		std::iota(out.cand_relabeling.begin(), out.cand_relabeling.end(), 0);
+
+		return out;
+	}
+
+	// 2. Get the relabeling (not quite a permutation).
+	// NOTE: Remove this as it's not what we need.
+	size_t i, j;
+	for (i = 0; i < copeland_matrix.size(); ++i) {
+		if (!smith_cands[i]) continue;
+		out.cand_relabeling.push_back(i);
+	}
+
+	// 2. Create a new Copeland matrix of size equal to the Smith set,
+	// and copy over from the Copeland matrix, ignoring rows and columns
+	// corresponding to the Smith losers.
+
+	std::vector<int> smith_cand_idx;
+	for (i = 0; i < in.get_numcands(); ++i) {
+		if (smith_cands[i]) { smith_cand_idx.push_back(i); }
+	}
+
+	std::vector<std::vector<bool> > new_copeland_matrix;
+
+	for (i = 0; i < smith_cand_idx.size(); ++i) {
+		std::vector<bool> new_row;
+
+		for (j = 0; j < smith_cand_idx.size(); ++j) {
+			new_row.push_back(copeland_matrix[smith_cand_idx[i]]
+				[smith_cand_idx[j]]);
+		}
+		new_copeland_matrix.push_back(new_row);
+	}
+
+	out.to_scenario = copeland_scenario(new_copeland_matrix);
+
+	return out;
+}
+
 bool isda_reduction::set_scenario_constraints(copeland_scenario before,
-	copeland_scenario after, const std::string before_name, 
+	copeland_scenario after, const std::string before_name,
 	const std::string after_name) {
 
 	interposing_constraints = constraint_set();
-
-	// TODO: When true, set inner to outer and keep interposing_constraints
-	// empty.
 
 	// If before and after scenarios have full Smith sets, then nothing
 	// needs to be done, because the ordinary relative criterion handles
 	// that scenario. We should return true so the original relative
 	// criterion check is accepted in test_generator.
-
 	if (smith_set_size(before) == before.get_numcands() &&
 		smith_set_size(after) == after.get_numcands()) {
+		inner_before = before;
+		inner_after = after;
 		return true;
 	}
 
@@ -106,18 +164,42 @@ bool isda_reduction::set_scenario_constraints(copeland_scenario before,
 	// The base case is where the source scenario has a full Smith set
 	// and the destination does not. If it's the other way around, reverse
 	// the order, then reverse back after.
-
 	if (smith_set_size(before) < smith_set_size(after)) {
 		bool workable = set_scenario_constraints(after, before, after_name,
 			before_name);
 		if (!workable) { return false; }
 		swap(inner_before, inner_after);
+		swap(alters_before, alters_after);
 		return true;
 	}
 
+	// If A is eliminated, then we can't do the reduction, since it will
+	// remove the A candidate.
+	if (!smith_set(after)[0]) {
+		return false;
+	}
+
+	// Get the destination set and candidate relabeling.
+	// order = {3, 2, 0, 1} means
+	// what will be the first candidate (A) in the output is D (#3) in the
+	// input.
+	//std::cout << std::endl;
+	scenario_reduction destination = get_ISDA_reduction(after);
+	/*std::cout << "ISDA reduction info: cand_relabeling: ";
+	std::copy(destination.cand_relabeling.begin(),
+		destination.cand_relabeling.end(), std::ostream_iterator<size_t>(cout, " "));
+	std::cout << std::endl;
+	std::cout << "ISDA reduction info: After Smith set: ";
+	for (bool included: smith_set(after)) {
+		if (included) { std::cout << "T"; }
+		else { std::cout << "F"; }
+	}
+	std::cout << std::endl << "after: " << destination.to_scenario.to_string() << std::endl;
+	std::cout << std::endl;*/
+
 	// Get the destination Smith set, and an elimination constraint that
 	// links these together.
-	std::vector<int> elimination_spec;
+	elimination_spec.clear();
 	int i = 0;
 	for (bool included: smith_set(after)) {
 		if (included) {
@@ -126,18 +208,30 @@ bool isda_reduction::set_scenario_constraints(copeland_scenario before,
 			elimination_spec.push_back(-1);
 		}
 	}
+	/*std::cout << "Elimination spec: ";
+	std::copy(elimination_spec.begin(), elimination_spec.end(),
+		std::ostream_iterator<int>(cout, " "));
+	std::cout << std::endl;*/
 	elimination_util_const euc(elimination_spec);
 
 	interposing_constraints.add(euc.relative_constraints(
 		before_name, after_name));
+	/*interposing_constraints.add(general_const::all_nonnegative(
+		interposing_constraints));*/
 
-	// TODO: Construct the after scenario
 	// TODO: Handle the situation where the after scenario is not
 	// canonical. Has to be done above and also change who the B
 	// candidate becomes after.
 	inner_before = before;
+	inner_after = destination.to_scenario;
 
-	// XXX: Magic happens here!
+	std::cout << "(ISDA) ";
+
+	/*std::cout << "Debug ISDA reduction: " << before.to_string() << " -> " <<
+		after.to_string() <<  " became: " << inner_before.to_string()
+		<< " -> "<< inner_after.to_string() << " ";*/
+	alters_before = false;
+	alters_after = true;
 
 	return true;
 }

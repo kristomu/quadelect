@@ -12,7 +12,16 @@
 
 #include <vector>
 
+struct scenario_reduction {
+	std::vector<int> cand_relabeling;
+	copeland_scenario to_scenario;
+};
+
 class isda_reduction {
+	private:
+		scenario_reduction get_ISDA_reduction(
+			const copeland_scenario & in) const;
+
 	public:
 		std::vector<bool> smith_set(const std::vector<std::vector<bool> > &
 			copeland_matrix) const;
@@ -23,8 +32,14 @@ class isda_reduction {
 
 		constraint_set interposing_constraints;
 		copeland_scenario inner_before, inner_after;
+		std::vector<int> elimination_spec;
+		bool alters_before, alters_after;
 
 		bool set_scenario_constraints(copeland_scenario before,
-			copeland_scenario after, const std::string before_name, 
+			copeland_scenario after, const std::string before_name,
 			const std::string after_name);
+
+		bool is_interposing_required() const {
+			return !interposing_constraints.empty();
+		}
 };
