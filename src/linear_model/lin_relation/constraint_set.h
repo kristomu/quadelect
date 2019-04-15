@@ -11,6 +11,7 @@
 #pragma once
 #include "constraint.h"
 #include <map>
+#include <set>
 #include <vector>
 #include <iterator>
 
@@ -18,6 +19,12 @@ class constraint_set {
 	private:
 		// e.g. fixed_parameters["eps"] = 1
 		std::map<std::string, double> fixed_parameters;
+
+		// We don't permit adding more than one of the same description,
+		// and will throw an exception if that is attempted, because GMPL
+		// doesn't permit multiple constraints to have the same description
+		// either.
+		std::set<std::string> known_descriptions;
 
 		// Printing functions.
 		std::vector<std::string> get_free_variables(
@@ -45,12 +52,19 @@ class constraint_set {
 
 		// Consider operator overloading later, perhaps...
 		void add(const constraint & in) {
+			if (known_descriptions.find(in.description) !=
+				known_descriptions.end()) {
+				throw new std::runtime_error("Error: trying to add already "
+					"existing constraint, name: " + in.description);
+			}
 			constraints.push_back(in);
+			known_descriptions.insert(in.description);
 		}
 
 		void add(const std::vector<constraint> & in) {
-			std::copy(in.begin(), in.end(), 
-				std::back_inserter(constraints));
+			for (const constraint & ct: in) {
+				add(ct);
+			}
 		}
 
 		void add(const constraint_set & other);
@@ -60,6 +74,8 @@ class constraint_set {
 				x.print();
 			}
 		}
+
+		bool empty() const { return constraints.empty(); }
 
 		constraint_set(const std::vector<constraint> in) { add(in); }
 		constraint_set(const constraint in) { add(in); }
