@@ -205,6 +205,15 @@ int main(int argc, char ** argv) {
 	//copeland_scenario example_desired_A, example_desired_B;
 
 	canonical_full_v = canonical_everything;
+	// TESTING!
+	for (size_t i = 1; i < 64; ++i) {
+		copeland_scenario noncanonical(i, 4);
+		if (smith_set_size(noncanonical) == 3) {
+			canonical_full_v.push_back(noncanonical);
+		}
+	}
+
+	//canonical_full_v.push_back(copeland_scenario(47,4)); // TEST
 
 	// I don't know why references don't work here...
 	for (const copeland_scenario x: canonical_full_v) {

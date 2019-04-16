@@ -632,6 +632,14 @@ int main(int argc, char ** argv) {
 	}
 
 	canonical_full_v = canonical_everything;
+	// TESTING!
+	for (size_t i = 1; i < 64; ++i) {
+		copeland_scenario noncanonical(i, 4);
+		if (smith_set_size(noncanonical) == 3) {
+			canonical_full_v.push_back(noncanonical);
+		}
+	}
+	//canonical_full_v.push_back(copeland_scenario(47,4)); // TEST
 
 	for (i = min_numcands; i <= max_numcands; ++i) {
 
@@ -708,8 +716,8 @@ int main(int argc, char ** argv) {
 
 	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
-		std::cout << "Group order not specified. Generating...\n";
-		group_order = get_group_order(grps, all_results, verifier, false);
+		std::cout << "Group order not specified. Generating..." << std::endl;
+		group_order = get_group_order(grps, all_results, verifier, true);
 		std::cout << "Insert the following into the config file " <<
 			"to skip this step the next time:\n";
 		print_group_order(group_order);
