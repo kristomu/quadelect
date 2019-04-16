@@ -76,6 +76,8 @@ std::pair<constraint_set, bool> test_generator::set_scenario_constraints(
 
 	// Add the definition of a minimum margin (required for pairwise
 	// constraints).
+	// TODO: Make whoever it is that's responsible for fixed params detect
+	// if this isn't done.
 	all_constraints.set_fixed_param("min_victory_margin", 0.01);
 
 	// Add a nonnegativity constraint. (HACK: Done elsewhere to avoid
