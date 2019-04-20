@@ -6,6 +6,18 @@
 // elimination of candidates. The "criterion" is used as part of
 // independence criteria like ISDA.
 
+// This "relative criterion", interpreted as one, says "if a given candidate
+// is eliminated, that should not harm/help A". The relevance as a component
+// of ISDA is that ISDA is essentially: "if someone outside the Smith set is
+// eliminated, then that should not harm/help A". Similarly for, say, IPDA,
+// we have "if someone who's Pareto-dominated by someone else is eliminated,
+// then that shouldn't help/harm A". Because the independence criteria depend
+// on just what they're independent *of*, it makes little sense to use this
+// elimination criterion on its own.
+
+// Its closest direct relative criterion is IIA, which we know is
+// unobtainable by any ranked method.
+
 class elimination_util_const : public relative_criterion_const {
 	private:
 		// elimination_spec[x] is -1 if the xth candidate is eliminated,
