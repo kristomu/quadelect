@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../relative_criterion.h"
+#include "../direct_relative_criterion.h"
 
 // Relative criterion (not really a fitting name) for expressing the
 // elimination of candidates. The "criterion" is used as part of
@@ -18,7 +18,7 @@
 // Its closest direct relative criterion is IIA, which we know is
 // unobtainable by any ranked method.
 
-class elimination_util_const : public relative_criterion_const {
+class elimination_util_const : public direct_relative_criterion_const {
 	private:
 		// elimination_spec[x] is -1 if the xth candidate is eliminated,
 		// otherwise the number that candidate corresponds to after, e.g.

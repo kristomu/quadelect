@@ -129,7 +129,7 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/linear_model/constraints/constraint_polytope.cc
 	src/linear_model/constraints/numvoters.cc
 	src/linear_model/constraints/pairwise.cc
-	src/linear_model/constraints/relative_criterion.cc
+	src/linear_model/constraints/direct_relative_criterion.cc
 	src/linear_model/constraints/relative_criterion_producer.cc
 	src/linear_model/constraints/relative_criteria/clones.cc
 	src/linear_model/constraints/relative_criteria/mono-raise.cc

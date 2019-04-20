@@ -33,7 +33,7 @@ bool elimination_util_const::permissible_transition(
 
 elimination_util_const::elimination_util_const(size_t numcands_before_in,
 	size_t numcands_after_in) :
-	relative_criterion_const(numcands_before_in, numcands_after_in) {
+	direct_relative_criterion_const(numcands_before_in, numcands_after_in) {
 
 	numcands_before = numcands_before_in;
 	numcands_after = numcands_after_in;
@@ -45,7 +45,7 @@ elimination_util_const::elimination_util_const(size_t numcands_before_in,
 
 elimination_util_const::elimination_util_const(
 	std::vector<int> elimination_spec_in) :
-	relative_criterion_const(
+	direct_relative_criterion_const(
 		// Number of candidates before elimination: length of vector
 			elimination_spec_in.size(),
 		// Number of candidates after: number of nonzeroes.

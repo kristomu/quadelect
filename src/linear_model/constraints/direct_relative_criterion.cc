@@ -1,10 +1,10 @@
-#include "relative_criterion.h"
+#include "direct_relative_criterion.h"
 #include "constraint_tools.h"
 
 #include <algorithm>
 #include <numeric>
 
-void relative_criterion_const::add_addition_removal_terms(
+void direct_relative_criterion_const::add_addition_removal_terms(
 	relation_side & add_where, std::string after_suffix,
 	const std::vector<int> & cur_permutation) const {
 
@@ -24,7 +24,7 @@ void relative_criterion_const::add_addition_removal_terms(
 	}
 }
 
-constraint relative_criterion_const::get_before_after_equality(
+constraint direct_relative_criterion_const::get_before_after_equality(
 	std::string before_suffix, std::string after_suffix) const {
 
 	constraint out;
@@ -56,7 +56,7 @@ constraint relative_criterion_const::get_before_after_equality(
 // is a sum of before ABC, before BAC, and before BCA.)
 
 std::map<std::vector<int>, std::vector<std::vector<int> > >
-	relative_criterion_const::get_after_from_before_transitions() const {
+	direct_relative_criterion_const::get_after_from_before_transitions() const {
 
 	std::vector<int> after_perm(numcands_after);
 	std::iota(after_perm.begin(), after_perm.end(), 0);
@@ -83,7 +83,7 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 // Reverses the map produced by the above function in case we need a map
 // of before-ballots contributing to a particular after-ballot.
 std::map<std::vector<int>, std::vector<std::vector<int> > >
-	relative_criterion_const::reverse_map(const std::map<std::vector<int>,
+	direct_relative_criterion_const::reverse_map(const std::map<std::vector<int>,
 	std::vector<std::vector<int> > > & in) const {
 
 	std::map<std::vector<int>, std::vector<std::vector<int> > > out;
@@ -114,7 +114,7 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 // variables to the before->after transition counts, not directly to the
 // after variables, and thus addition and deletion is invisible there.
 
-constraint_set relative_criterion_const::get_after_constraints(const
+constraint_set direct_relative_criterion_const::get_after_constraints(const
 	std::map<std::vector<int>, std::vector<std::vector<int> > > &
 	after_from_before_transitions, std::string before_suffix,
 	std::string after_suffix) const {
@@ -165,7 +165,7 @@ constraint_set relative_criterion_const::get_after_constraints(const
 }
 
 // Is this necessary?
-constraint_set relative_criterion_const::get_before_constraints(const
+constraint_set direct_relative_criterion_const::get_before_constraints(const
 	std::map<std::vector<int>, std::vector<std::vector<int> > > &
 	before_to_after_transitions, std::string before_suffix,
 	std::string after_suffix) const {
@@ -197,7 +197,7 @@ constraint_set relative_criterion_const::get_before_constraints(const
 	return before_consts;
 }
 
-constraint_set relative_criterion_const::relative_constraints(
+constraint_set direct_relative_criterion_const::relative_constraints(
 	std::string before_suffix, std::string after_suffix) const {
 
 	// First do a test for validity. (I wanted to put it in the ctor, but
@@ -229,7 +229,7 @@ constraint_set relative_criterion_const::relative_constraints(
 }
 
 // The default is that all the candidates are preserved.
-std::vector<int> relative_criterion_const::get_default_after_as_before() const {
+std::vector<int> direct_relative_criterion_const::get_default_after_as_before() const {
 
 	std::vector<int> out(numcands_before);
 	std::iota(out.begin(), out.end(), 0);

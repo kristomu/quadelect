@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../relative_criterion.h"
+#include "../direct_relative_criterion.h"
 
 // Relative criterion constraint generator for independence of clones.
 // The generator imposes a clone constraint linking before and after,
@@ -13,7 +13,7 @@
 //		- Vote-splitting: Cloning A shouldn't harm A
 //		- Crowding: Cloning B shouldn't help/harm A
 
-class clone_const : public relative_criterion_const {
+class clone_const : public direct_relative_criterion_const {
 	private:
 		// Check that after_as_before is valid. (TODO, use this.)
 		bool check_after_as_before(
