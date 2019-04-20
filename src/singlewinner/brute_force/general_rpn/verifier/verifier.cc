@@ -611,35 +611,6 @@ int main(int argc, char ** argv) {
 		get_cand_equivalences(max_numcands);
 
 	std::vector<copeland_scenario> canonical_full_v;
-	std::vector<copeland_scenario> canonical_everything;
-
-	for (i = min_numcands; i <= max_numcands; ++i) {
-
-		std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
-			i, cand_equivs.find(i)->second);
-
-		std::copy(canonical_full.begin(), canonical_full.end(),
-			std::back_inserter(canonical_full_v));
-
-		for (const auto & kv: cand_equivs.find(i)->second.get_noncanonical_scenarios()) {
-			if (!kv.second.canonical) { continue; }
-
-			// Anti-cluttering
-			if (smith_set_size(kv.first) > 2) {
-				canonical_everything.push_back(kv.first);
-			}
-		}
-	}
-
-	canonical_full_v = canonical_everything;
-	// TESTING!
-	for (size_t i = 1; i < 64; ++i) {
-		copeland_scenario noncanonical(i, 4);
-		if (smith_set_size(noncanonical) == 3) {
-			canonical_full_v.push_back(noncanonical);
-		}
-	}
-	//canonical_full_v.push_back(copeland_scenario(47,4)); // TEST
 
 	for (i = min_numcands; i <= max_numcands; ++i) {
 
@@ -716,8 +687,8 @@ int main(int argc, char ** argv) {
 
 	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
-		std::cout << "Group order not specified. Generating..." << std::endl;
-		group_order = get_group_order(grps, all_results, verifier, true);
+		std::cout << "Group order not specified. Generating...\n";
+		group_order = get_group_order(grps, all_results, verifier, false);
 		std::cout << "Insert the following into the config file " <<
 			"to skip this step the next time:\n";
 		print_group_order(group_order);

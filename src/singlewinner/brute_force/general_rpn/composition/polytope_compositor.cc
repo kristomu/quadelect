@@ -180,7 +180,6 @@ int main(int argc, char ** argv) {
 		get_cand_equivalences(max_numcands);
 
 	std::vector<copeland_scenario> canonical_full_v;
-	std::vector<copeland_scenario> canonical_everything;
 
 	for (i = min_numcands; i <= max_numcands; ++i) {
 
@@ -189,35 +188,15 @@ int main(int argc, char ** argv) {
 
 		std::copy(canonical_full.begin(), canonical_full.end(),
 			std::back_inserter(canonical_full_v));
-
-		for (const auto & kv: cand_equivs.find(i)->second.get_noncanonical_scenarios()) {
-			if (!kv.second.canonical) { continue; }
-
-			// Anti-cluttering
-			if (smith_set_size(kv.first) > 2) {
-				canonical_everything.push_back(kv.first);
-			}
-		}
 	}
 
 	std::cout << "... done." << std::endl;
 
-	//copeland_scenario example_desired_A, example_desired_B;
-
-	canonical_full_v = canonical_everything;
-	// TESTING!
-	for (size_t i = 1; i < 64; ++i) {
-		copeland_scenario noncanonical(i, 4);
-		if (smith_set_size(noncanonical) == 3) {
-			canonical_full_v.push_back(noncanonical);
-		}
-	}
-
-	//canonical_full_v.push_back(copeland_scenario(47,4)); // TEST
+	copeland_scenario example_desired_A, example_desired_B;
 
 	// I don't know why references don't work here...
 	for (const copeland_scenario x: canonical_full_v) {
-		std::cout << "Number of candidates " << x.get_numcands() << " canonical: "
+		std::cout << "Smith set " << x.get_numcands() << " canonical: "
 			<< x.to_string() << std::endl;
 	}
 
