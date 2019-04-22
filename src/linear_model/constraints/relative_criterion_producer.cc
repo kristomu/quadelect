@@ -2,6 +2,7 @@
 #include "relative_criteria/mono-add-top.h"
 #include "relative_criteria/mono-raise.h"
 #include "relative_criteria/clones.h"
+#include "relative_criteria/isda.h"
 
 #include <set>
 
@@ -47,6 +48,40 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 			std::make_unique<mono_add_top_const>(i));
 	}
 
+	// ISDA TEST 3->4:
+	// inner criterion's before ballot -> pairwise constraints ->
+	// elimination by the given schedule -> before ballot
+	// (fewer candidates)
+	// Before_isda must be true, although that's more experimental...
+
+	for (i = 4; i <= max_num_cands; ++i) {
+		std::shared_ptr<relative_criterion_const> mr =
+			std::make_shared<mono_add_top_const>(i);
+		std::vector<int> sched;
+
+		sched = {0, -1, 1, 2};
+		relative_constraints.push_back(
+			std::make_unique<isda_relative_const>(true, mr, sched));
+
+		// Confirmed feasible (minimax mono-add-top example)
+		sched = {0, 1, -1, 2};
+		relative_constraints.push_back(
+			std::make_unique<isda_relative_const>(true, mr, sched));
+
+		sched = {0, 1, 2, -1};
+		relative_constraints.push_back(
+			std::make_unique<isda_relative_const>(true, mr, sched));
+		sched = {0, -1, 2, 1};
+		relative_constraints.push_back(
+			std::make_unique<isda_relative_const>(true, mr, sched));
+		sched = {0, 2, -1, 1};
+		relative_constraints.push_back(
+			std::make_unique<isda_relative_const>(true, mr, sched));
+		sched = {0, 2, 1, -1};
+		relative_constraints.push_back(
+			std::make_unique<isda_relative_const>(true, mr, sched));
+	}
+
 	return relative_constraints;
 }
 
@@ -63,17 +98,17 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	// If there are no filtering specs, return everything
 	if (desired_criteria.empty()) { return out; }
 
-	// Otherwise remove the undesired ones. Note erase is O(n) and 
+	// Otherwise remove the undesired ones. Note erase is O(n) and
 	// so the whole thing is O(n^ 2). This could be optimized with
 	// cleverness, but there's no reason thus far.
 
 	std::set<std::string> desired_criteria_set(desired_criteria.begin(),
 		desired_criteria.end());
-	
+
 	auto cur = out.begin();
 
 	while (cur != out.end()) {
-		if (desired_criteria_set.find((*cur)->name()) == 
+		if (desired_criteria_set.find((*cur)->name()) ==
 			desired_criteria_set.end()) {
 			cur = out.erase(cur);
 		} else {
