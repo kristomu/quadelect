@@ -38,7 +38,7 @@ class relative_criterion_const {
 			std::vector<int> out(numcands_before);
 			std::iota(out.begin(), out.end(), 0);
 			return out;
-	}
+		}
 
 	protected:
 		size_t numcands_before, numcands_after;

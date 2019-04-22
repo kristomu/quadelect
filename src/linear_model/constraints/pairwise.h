@@ -17,6 +17,10 @@ class pairwise_constraints {
 			std::string suffix, int numcands) const;
 
 	public:
+		constraint beat_constraint(bool a_beats_b, int a, int b,
+			std::string ballot_suffix, std::string description_suffix, 
+			int numcands) const;
+
 		constraint_set beat_constraints(
 			const std::vector<bool> & short_form_copeland, 
 			std::string suffix, int numcands) const;
