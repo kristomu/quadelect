@@ -37,6 +37,10 @@ class elimination_util_const : public direct_relative_criterion_const {
 			return numcands_before > numcands_after; }
 
 	public:
+		// Throws exception if the input spec doesn't match the numbers of
+		// candidates that have already been set.
+		void set_elimination_spec(std::vector<int> & elimination_spec_in);
+
 		// Eliminates the latter candidates. (i.e. numcands_before_in = 5,
 		// after = 3, keeps ABC and eliminates D and E).
 		elimination_util_const(size_t numcands_before_in,

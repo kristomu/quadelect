@@ -6,8 +6,8 @@
 // [b beats a permutations], otherwise the other way around. margin is used
 // to turn > into >=, since the polytopes don't support strict inequality.
 
-lin_relation pairwise_constraints::get_beat_equation(bool a_beats_b, int a, 
-	int b, std::string suffix, int numcands) const {
+lin_relation pairwise_constraints::get_beat_equation(bool a_beats_b, size_t a,
+	size_t b, std::string suffix, size_t numcands) const {
 
 	lin_relation out;
 	out.type = LREL_GE;
@@ -31,9 +31,9 @@ lin_relation pairwise_constraints::get_beat_equation(bool a_beats_b, int a,
 	return out;
 }
 
-constraint pairwise_constraints::beat_constraint(bool a_beats_b, int a,
-	int b, std::string ballot_suffix, std::string description_suffix,
-	int numcands) const {
+constraint pairwise_constraints::beat_constraint(bool a_beats_b, size_t a,
+	size_t b, std::string ballot_suffix, std::string description_suffix,
+	size_t numcands) const {
 
 	lin_relation beats = get_beat_equation(a_beats_b, a, b, ballot_suffix,
 		numcands);

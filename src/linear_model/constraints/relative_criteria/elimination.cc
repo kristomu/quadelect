@@ -31,6 +31,21 @@ bool elimination_util_const::permissible_transition(
 	return before_perm_after_elim == after_permutation;
 }
 
+void elimination_util_const::set_elimination_spec(
+	std::vector<int> & elimination_spec_in) {
+
+	size_t should_be_before = elimination_spec_in.size(),
+		should_be_after = get_num_noneliminated(elimination_spec_in);
+
+	if (numcands_before != should_be_before ||
+		numcands_after != should_be_after) {
+		throw std::runtime_error("set_elimination_spec: invalid elimination"
+			" spec!");
+	}
+
+	elimination_spec = elimination_spec_in;
+}
+
 elimination_util_const::elimination_util_const(size_t numcands_before_in,
 	size_t numcands_after_in) :
 	direct_relative_criterion_const(numcands_before_in, numcands_after_in) {
@@ -52,5 +67,5 @@ elimination_util_const::elimination_util_const(
 			get_num_noneliminated(elimination_spec_in)
 		){
 
-	elimination_spec = elimination_spec_in;
+	set_elimination_spec(elimination_spec_in);
 }
