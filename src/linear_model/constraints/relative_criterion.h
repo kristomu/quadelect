@@ -41,7 +41,7 @@ class relative_criterion_const {
 		// that does elimination will have to change this.
 		cand_pairs get_default_candidate_reordering() const {
 
-			cand_pairs out(numcands_before);
+			cand_pairs out;
 			for (size_t i = 0; i < numcands_before; ++i) {
 				out.push_back(std::vector<size_t>(1, i));
 			}
@@ -77,7 +77,7 @@ class relative_criterion_const {
 		virtual constraint_set relative_constraints(std::string before_suffix,
 			std::string after_suffix) const = 0;
 
-		cand_pairs get_candidate_reordering() const {
+		const cand_pairs & get_candidate_reordering() const {
 			return candidate_reordering;
 		}
 
