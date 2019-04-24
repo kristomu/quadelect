@@ -32,7 +32,6 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/singlewinner/brute_force/general_rpn/composition/test_generator.cc
 	src/singlewinner/brute_force/general_rpn/composition/vector_ballot.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_results.cc
-	src/singlewinner/brute_force/general_rpn/composition/isda_reduction.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_instance_gen.cc
 	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc
 	src/config/general_rpn.cc)
