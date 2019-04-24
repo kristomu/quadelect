@@ -36,6 +36,68 @@ size_t isda_relative_const::calc_num_after_cands(bool elimination_first,
 	return elimination_util_const(elimination_spec_in).get_numcands_after();
 }
 
+// Compose two candidate pairs. This works as follows: if (x, y) is a
+// valid pair according to first, and (y, z) is a valid pair according
+// to second, then the composition makes (x, z) into a valid pair. It's
+// used when the ISDA layer remaps x to y, and the inner criterion
+// remaps y to z.
+cand_pairs isda_relative_const::compose(const cand_pairs & first,
+	const cand_pairs & second) const {
+
+	// First use maps to avoid having to resize (and check uniqueness) while
+	// composing.
+	std::map<size_t, std::set<size_t> > compose_temp;
+
+	for (size_t x = 0; x < first.size(); ++x) {
+		for (size_t y : first[x]) {
+			if (second.size() <= y) { continue; }
+			for (size_t z: second[y]) {
+				// Now (x, z) is a valid combination.
+				compose_temp[x].insert(z);
+			}
+		}
+	}
+
+	// A cand_pairs variable isn't a map, it's a vector of vectors, so
+	// spool it all over before returning.
+	cand_pairs out_pair(first.size());
+
+	for (const auto & compose_cand_list : compose_temp) {
+		size_t x = compose_cand_list.first;
+
+		std::copy(compose_cand_list.second.begin(),
+			compose_cand_list.second.end(),
+			std::back_inserter(out_pair[x]));
+	}
+
+	return out_pair;
+}
+
+// If to_reverse says (x, y) is a valid pair, then the output says (y, x)
+// is a valid pair.
+cand_pairs isda_relative_const::reverse(
+	const cand_pairs & to_reverse) const {
+
+	size_t max_y = 0;
+
+	for (const std::vector<size_t> & ys: to_reverse) {
+		if (ys.empty()) { continue; }
+
+		max_y = std::max(max_y, 
+			*std::max_element(ys.begin(), ys.end()));
+	}
+
+	cand_pairs reversed(max_y+1);
+
+	for (size_t x = 0; x < to_reverse.size(); ++x) {
+		for (size_t y: to_reverse[x]) {
+			reversed[y].push_back(x);
+		}
+	}
+
+	return reversed;
+}
+
 std::string isda_relative_const::name() const {
 	if (isda_before) {
 		return "ISDA-before(" + inner_criterion->name() + ")";
@@ -153,32 +215,23 @@ isda_relative_const::isda_relative_const(bool elimination_first,
 	if (isda_before) {
 		assert (inner_criterion_in->get_numcands_before() ==
 			elimination_spec.size());
+
+		// Since the input ballot is "un-eliminated" to produce a larger
+		// ballot, and this is then fed to the inner criterion, the proper
+		// candidate index matching between B and B' is the composition of
+		// the elimination, reversed, and the inner criterion.
+		candidate_reordering = compose(reverse(
+			eliminator.get_candidate_reordering()),
+			inner_criterion_in->get_candidate_reordering());
 	} else {
 		assert (inner_criterion_in->get_numcands_after() ==
 			elimination_spec.size());
-	}
 
-	// Construct after_as_before.
-
-	// elimination_spec[x] is -1 if the xth candidate is eliminated,
-	// otherwise the number that candidate corresponds to after, e.g.
-	// eliminating B in a  4cddt gives {0, -1, 1, 2};
-
-	after_as_before.resize(numcands_after);
-
-	for (size_t i = 0; i < numcands_after; ++i) {
-		// Mark as not assigned.
-		after_as_before[i] = numcands_before+1;
-
-		for (size_t j = 0; j < elimination_spec.size(); ++j) {
-			// BEWARE: signed/unsigned comparison! Not ideal.
-			if (elimination_spec[j] != (int)i) { continue; }
-
-			// Check if we've already set after_as_before for candidate i.
-			// If so, we have a bug.
-			assert (after_as_before[i] == (int)(numcands_before+1));
-
-			after_as_before[i] = j;
-		}
+		// The proper candidate index matching between B and B' is the
+		// composition of the rearrangement performed by the inner
+		// criterion (since it is called first),and the elimination.
+		candidate_reordering = compose(
+			inner_criterion_in->get_candidate_reordering(),
+			eliminator.get_candidate_reordering());
 	}
 }

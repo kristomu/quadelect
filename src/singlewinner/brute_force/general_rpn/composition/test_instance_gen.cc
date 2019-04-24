@@ -57,14 +57,18 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 			for (size_t before_cand_idx = 1;
 				before_cand_idx < numcands_before; ++before_cand_idx) {
 
-				for (size_t after_cand_idx = 0;
-					after_cand_idx < numcands_after; ++after_cand_idx) {
+				std::cout << relative_criterion.name() << std::endl;
 
-					// Only continue with the permitted pairs.
-					if (relative_criterion.get_before_cand_number(
-						after_cand_idx) != before_cand_idx) {
-						continue;
-					}
+				assert (numcands_before == relative_criterion.
+					get_candidate_reordering().size());
+
+				// For every permitted choice of index for B', given the
+				// current choice of index for B...
+
+				for (size_t after_cand_idx: relative_criterion.
+					get_candidate_reordering()[before_cand_idx]) {
+
+					assert(after_cand_idx < numcands_after);
 
 					test_instance_generator to_add(cur_test);
 					// Set a different seed but use the same sampler and

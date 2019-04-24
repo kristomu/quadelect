@@ -54,10 +54,6 @@ class direct_relative_criterion_const : public relative_criterion_const {
 		constraint get_before_after_equality(
 			std::string before_suffix, std::string after_suffix) const;
 
-		// Get the default after_as_before. Remember to call *after*
-		// numcands has been set.
-		std::vector<int> get_default_after_as_before() const;
-
 	protected:
 
 		// Default is passthrough for transition, and nothing at all for
@@ -77,10 +73,7 @@ class direct_relative_criterion_const : public relative_criterion_const {
 
 		direct_relative_criterion_const(size_t numcands_before_in,
 			size_t numcands_after_in) : relative_criterion_const(
-			numcands_before_in, numcands_after_in) {
-
-			after_as_before = get_default_after_as_before();
-		}
+			numcands_before_in, numcands_after_in) {}
 
 		direct_relative_criterion_const(size_t numcands_in) :
 			direct_relative_criterion_const(numcands_in, numcands_in) {}

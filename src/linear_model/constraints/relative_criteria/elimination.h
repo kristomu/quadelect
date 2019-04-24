@@ -28,6 +28,9 @@ class elimination_util_const : public direct_relative_criterion_const {
 		size_t get_num_noneliminated(const std::vector<int> &
 			elimination_spec_in) const;
 
+		cand_pairs get_proper_candidate_reordering(
+			const std::vector<int> & elimination_spec_in) const;
+
 	protected:
 		bool permissible_transition(
 			const std::vector<int> & before_permutation,

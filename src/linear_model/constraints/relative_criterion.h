@@ -24,19 +24,27 @@
 // This is the abstract base class. Some relative criterion constraints
 // can be further categorized - see e.g. direct_relative_criteria.
 
+// ----
+
+// If cand_pairs[x] contains y, then that means that candidate index x
+// before modification corresponds to candidate index y after. A given
+// candidate before may correspond to many after (e.g. when cloning)
+// or none (when eliminating that candidate).
+typedef std::vector<std::vector<size_t> > cand_pairs;
+
 class relative_criterion_const {
 	private:
 
-		// Get the default after_as_before. Remember to call *after*
-		// numcands has been set. It is deliberately set non-virtual so that
-		// anyone making a subclass will know to call their own
-		// get_deefault_after_as_before as part of the inherited constructor.
+		// Get the default corresopndence between candidate numbers for
+		// B and B'. The default is just the identity: that each choice of
+		// index for candidate B (before alteration) is preserved. Anything
+		// that does elimination will have to change this.
+		cand_pairs get_default_candidate_reordering() const {
 
-		// The default is that all the candidates are preserved.
-		std::vector<int> get_default_after_as_before() const {
-
-			std::vector<int> out(numcands_before);
-			std::iota(out.begin(), out.end(), 0);
+			cand_pairs out(numcands_before);
+			for (size_t i = 0; i < numcands_before; ++i) {
+				out.push_back(std::vector<size_t>(1, i));
+			}
 			return out;
 		}
 
@@ -51,7 +59,7 @@ class relative_criterion_const {
 		// three candidates into four, and the after candidates A, B, C, D
 		// correspond to the before candidates A, B, C, respectively.
 		// TODO: refactor this to pairs.
-		std::vector<int> after_as_before;
+		cand_pairs candidate_reordering;
 
 		virtual bool is_valid_numcands_combination() const {
 			return numcands_before == numcands_after; }
@@ -69,9 +77,8 @@ class relative_criterion_const {
 		virtual constraint_set relative_constraints(std::string before_suffix,
 			std::string after_suffix) const = 0;
 
-		size_t get_before_cand_number(size_t after_cand_number) const {
-			assert(after_cand_number < after_as_before.size());
-			return after_as_before[after_cand_number];
+		cand_pairs get_candidate_reordering() const {
+			return candidate_reordering;
 		}
 
 		size_t get_numcands_before() const { return numcands_before; }
@@ -83,7 +90,7 @@ class relative_criterion_const {
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
 
-			after_as_before = get_default_after_as_before();
+			candidate_reordering = get_default_candidate_reordering();
 		}
 
 		relative_criterion_const(size_t numcands_in) :

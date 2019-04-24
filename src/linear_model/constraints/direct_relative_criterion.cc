@@ -227,12 +227,3 @@ constraint_set direct_relative_criterion_const::relative_constraints(
 
 	return out_set;
 }
-
-// The default is that all the candidates are preserved.
-std::vector<int> direct_relative_criterion_const::get_default_after_as_before() const {
-
-	std::vector<int> out(numcands_before);
-	std::iota(out.begin(), out.end(), 0);
-
-	return out;
-}
