@@ -2,68 +2,135 @@
 #include "relative_criteria/mono-add-top.h"
 #include "relative_criteria/mono-raise.h"
 #include "relative_criteria/clones.h"
+#include "relative_criteria/isda.h"
 
 #include <set>
 
-std::vector<std::unique_ptr<relative_criterion_const> >
+std::vector<std::shared_ptr<relative_criterion_const> >
 	relative_criterion_producer::get_all(int min_num_cands,
 	int max_num_cands, bool different_scenarios_only) const {
 
 	// Note: I make use of knowledge that's not encoded in the classes
-	// themselves, e.g. that clone independence takes the number of
-	// candidates before cloning as the before_numcands, and after
-	// cloning as the after_numcands.
+	// themselves, e.g. that clone independence takes a cloning
+	// specification, and ISDA takes an elimination specification.
 
-	std::vector<std::unique_ptr<relative_criterion_const> >
-		relative_constraints;
+	// Clones. This may cover too much (i.e. create redundant criteria)
+	// but should be sufficient (not miss any).
 
-	int i;
+	std::vector<std::shared_ptr<relative_criterion_const> >
+		monotonicity, clones, base_constraints, relative_constraints;
 
-	for (i = min_num_cands; i < max_num_cands; ++i) {
-		// Teaming and vote splitting
-		relative_constraints.push_back(
-			std::make_unique<clone_const>(i, i+1));
-		// Crowding
-		relative_constraints.push_back(
-			std::make_unique<clone_const>(i, i+1, 1));
+	int numcands;
+
+	std::set<std::vector<int> > clone_specs;
+
+	for (numcands = min_num_cands; numcands < max_num_cands; ++numcands) {
+		std::vector<int> cand_permutation(numcands);
+		std::iota(cand_permutation.begin(), cand_permutation.end(), 0);
+
+		// Get all possible clone specs that keeps candidate A at the
+		// beginning.
+		do {
+			for (int to_clone = 0; to_clone < numcands; ++to_clone) {
+				for (int pos = 0; pos < numcands; ++pos) {
+					std::vector<int> clone_spec = cand_permutation;
+					clone_spec.insert(clone_spec.begin()+pos, to_clone);
+					clone_specs.insert(clone_spec);
+				}
+			}
+		} while (std::next_permutation(cand_permutation.begin()+1,
+			cand_permutation.end()));
 	}
 
+	for (const std::vector<int> & clone_spec: clone_specs) {
+		clones.push_back(std::make_shared<clone_const>(clone_spec));
+	}
 
-	// HACK. FIX LATER
-	// For some reason, the ordinary clone constraint above fails
-	// to set up this crowding constraint. I have to find out how
-	// to get every crowding constraint so that I can be sure the
-	// tests cover everything. (Do that later.)
-	std::vector<int> clone_spec = {0, 1, 1, 2};
-	relative_constraints.push_back(
-		std::make_unique<clone_const>(clone_spec));
-
-	// Also needed??
-	clone_spec = {0, 1, 2, 2};
-	relative_constraints.push_back(
-		std::make_unique<clone_const>(clone_spec));
-
-	for (i = min_num_cands; i <= max_num_cands; ++i) {
-		if (different_scenarios_only && i < 4) {
+	// Monotonicity criteria
+	for (numcands = min_num_cands; numcands <= max_num_cands; ++numcands) {
+		if (different_scenarios_only && numcands < 4) {
 			continue;
 		}
-		relative_constraints.push_back(
-			std::make_unique<mono_raise_const>(i));
-		relative_constraints.push_back(
-			std::make_unique<mono_add_top_const>(i));
+		monotonicity.push_back(
+			std::make_shared<mono_raise_const>(numcands));
+		monotonicity.push_back(
+			std::make_shared<mono_add_top_const>(numcands));
 	}
+
+	// Combine to base constraints.
+	std::copy(clones.begin(), clones.end(),
+		std::back_inserter(base_constraints));
+	std::copy(monotonicity.begin(), monotonicity.end(),
+		std::back_inserter(base_constraints));
+
+	// Create ISDA constraints. This is very brute force, but we can
+	// afford it due to the small number of candidates.
+	// For each number of candidates above 3, it creates a possible
+	// elimination schedule. For all of these schedules, for all of the
+	// base constraints, it attempts to create ISDA with this constraint
+	// and schedule. It may fail (if so, ISDA throws an exception).
+
+	// The reason we start at 4 is because eliminating someone from a
+	// beginning of three candidates will produce two, which is a perfect
+	// tie and thus not subject to any algorithm.
+
+	std::set<std::vector<int> > elim_schedules;
+
+	for (numcands = std::max(4, min_num_cands); numcands <= max_num_cands;
+		++numcands) {
+
+		std::vector<int> cand_permutation(numcands), elim_schedule;
+		std::iota(cand_permutation.begin(), cand_permutation.end(), 0);
+
+		do {
+			elim_schedule = cand_permutation;
+
+			// Eliminate someone who isn't A.
+			for (int cand_to_elim = 1; cand_to_elim < numcands;
+				++cand_to_elim) {
+				elim_schedule[cand_to_elim] = -1;
+				elim_schedules.insert(elim_schedule);
+				elim_schedule[cand_to_elim] = cand_permutation[
+					cand_to_elim];
+			}
+		} while (std::next_permutation(cand_permutation.begin()+1,
+			cand_permutation.end()));
+	}
+
+	for (const std::vector<int> & elim_sched : elim_schedules) {
+		for (std::shared_ptr<relative_criterion_const> c: base_constraints) {
+			try {
+				relative_constraints.push_back(
+					std::make_shared<isda_relative_const>(false, c,
+						elim_sched));
+			} catch (std::runtime_error & e) {
+
+			}
+			try {
+				relative_constraints.push_back(
+					std::make_shared<isda_relative_const>(true, c,
+						elim_sched));
+			} catch (std::runtime_error & e) {
+
+			}
+		}
+	}
+
+	// Add base constraints to relative ones.
+	std::copy(base_constraints.begin(), base_constraints.end(),
+		std::back_inserter(relative_constraints));
 
 	return relative_constraints;
 }
 
-std::vector<std::unique_ptr<relative_criterion_const> >
+std::vector<std::shared_ptr<relative_criterion_const> >
 	relative_criterion_producer::get_criteria(int min_num_cands,
 	int max_num_cands, bool different_scenarios_only,
 	const std::vector<std::string> & desired_criteria) const {
 
 	// First get every relative criterion.
 
-	std::vector<std::unique_ptr<relative_criterion_const> > out =
+	std::vector<std::shared_ptr<relative_criterion_const> > out =
 		get_all(min_num_cands, max_num_cands, different_scenarios_only);
 
 	// If there are no filtering specs, return everything

@@ -32,7 +32,6 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/singlewinner/brute_force/general_rpn/composition/test_generator.cc
 	src/singlewinner/brute_force/general_rpn/composition/vector_ballot.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_results.cc
-	src/singlewinner/brute_force/general_rpn/composition/isda_reduction.cc
 	src/singlewinner/brute_force/general_rpn/composition/test_instance_gen.cc
 	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc
 	src/config/general_rpn.cc)
@@ -129,11 +128,12 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/linear_model/constraints/constraint_polytope.cc
 	src/linear_model/constraints/numvoters.cc
 	src/linear_model/constraints/pairwise.cc
-	src/linear_model/constraints/relative_criterion.cc
+	src/linear_model/constraints/direct_relative_criterion.cc
 	src/linear_model/constraints/relative_criterion_producer.cc
 	src/linear_model/constraints/relative_criteria/clones.cc
 	src/linear_model/constraints/relative_criteria/mono-raise.cc
 	src/linear_model/constraints/relative_criteria/elimination.cc
+	src/linear_model/constraints/relative_criteria/isda.cc
 	src/generator/ballotgen.cc
 	src/stats/confidence/confidence.cc
 	src/bandit/bandit.cc

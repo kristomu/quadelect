@@ -13,6 +13,20 @@ size_t elimination_util_const::get_num_noneliminated(const std::vector<int> &
 	return count;
 }
 
+cand_pairs elimination_util_const::get_proper_candidate_reordering(
+	const std::vector<int> & elimination_spec_in) const {
+
+	cand_pairs out(elimination_spec.size());
+
+	for (size_t i = 0; i < elimination_spec_in.size(); ++i) {
+		// Can't use an eliminated candidate!
+		if (elimination_spec_in[i] == -1) { continue; }
+		out[i].push_back(elimination_spec[i]);
+	}
+
+	return out;
+}
+
 bool elimination_util_const::permissible_transition(
 	const std::vector<int> & before_permutation,
 	const std::vector<int> & after_permutation) const {
@@ -31,26 +45,43 @@ bool elimination_util_const::permissible_transition(
 	return before_perm_after_elim == after_permutation;
 }
 
+void elimination_util_const::set_elimination_spec(
+	std::vector<int> & elimination_spec_in) {
+
+	size_t should_be_before = elimination_spec_in.size(),
+		should_be_after = get_num_noneliminated(elimination_spec_in);
+
+	if (numcands_before != should_be_before ||
+		numcands_after != should_be_after) {
+		throw std::runtime_error("set_elimination_spec: invalid elimination"
+			" spec!");
+	}
+
+	elimination_spec = elimination_spec_in;
+	candidate_reordering = get_proper_candidate_reordering(
+		elimination_spec);
+}
+
 elimination_util_const::elimination_util_const(size_t numcands_before_in,
 	size_t numcands_after_in) :
-	relative_criterion_const(numcands_before_in, numcands_after_in) {
+	direct_relative_criterion_const(numcands_before_in, numcands_after_in) {
 
 	numcands_before = numcands_before_in;
 	numcands_after = numcands_after_in;
 	std::vector<int> elimination_spec_in(numcands_before_in, -1);
 	std::iota(elimination_spec_in.begin(),
 		elimination_spec_in.begin()+numcands_after_in, 0);
-	elimination_spec = elimination_spec_in;
+	set_elimination_spec(elimination_spec_in);
 }
 
 elimination_util_const::elimination_util_const(
 	std::vector<int> elimination_spec_in) :
-	relative_criterion_const(
+	direct_relative_criterion_const(
 		// Number of candidates before elimination: length of vector
 			elimination_spec_in.size(),
 		// Number of candidates after: number of nonzeroes.
 			get_num_noneliminated(elimination_spec_in)
 		){
 
-	elimination_spec = elimination_spec_in;
+	set_elimination_spec(elimination_spec_in);
 }

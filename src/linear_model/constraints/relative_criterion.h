@@ -1,5 +1,6 @@
 #pragma once
 
+#include <numeric>
 #include <vector>
 #include <map>
 
@@ -16,47 +17,36 @@
 // first are added.
 
 // This class of constraint generator binds together two settings ("before"
-// and "after"), specifying what transformations may be done to go from
-// "before" to "after". Note that it doesn't implement a relative criterion
+// and "after"). Note that it doesn't implement a relative criterion
 // in itself; it's just used to generate relative criterion examples
 // through constraint programming.
 
-// For now only handles candiate- and voter-preserving transitions. Fix
-// later. Also make things like ISDA a relative criterion ("if we eliminate
-// non-Smith candidates, the winner shouldn't change").
+// This is the abstract base class. Some relative criterion constraints
+// can be further categorized - see e.g. direct_relative_criteria.
+
+// ----
+
+// If cand_pairs[x] contains y, then that means that candidate index x
+// before modification corresponds to candidate index y after. A given
+// candidate before may correspond to many after (e.g. when cloning)
+// or none (when eliminating that candidate).
+typedef std::vector<std::vector<size_t> > cand_pairs;
 
 class relative_criterion_const {
 	private:
-		void add_addition_removal_terms(relation_side & add_where,
-			std::string after_suffix,
-			const std::vector<int> & cur_permutation) const;
-		std::map<std::vector<int>, std::vector<std::vector<int> > >
-			get_after_from_before_transitions() const;
-		std::map<std::vector<int>, std::vector<std::vector<int> > >
-			reverse_map(const std::map<std::vector<int>,
-				std::vector<std::vector<int> > > & in) const;
-		// Get a set of constraints that define the after-ballots in terms
-		// of the before-ballots and transition counts.
-		constraint_set get_after_constraints(const
-			std::map<std::vector<int>, std::vector<std::vector<int> > > &
-			after_from_before_transitions, std::string before_suffix,
-			std::string after_suffix) const;
 
-		// Get a set of constrants that define the before-ballots in terms
-		// of the after-ballots and transition counts.
-		constraint_set get_before_constraints(const
-			std::map<std::vector<int>, std::vector<std::vector<int> > > &
-			before_to_after_transitions, std::string before_suffix,
-			std::string after_suffix) const;
+		// Get the default corresopndence between candidate numbers for
+		// B and B'. The default is just the identity: that each choice of
+		// index for candidate B (before alteration) is preserved. Anything
+		// that does elimination will have to change this.
+		cand_pairs get_default_candidate_reordering() const {
 
-		// Get a constraint that links the before ballots to the after
-		// ballots with equality.
-		constraint get_before_after_equality(
-			std::string before_suffix, std::string after_suffix) const;
-
-		// Get the default after_as_before. Remember to call *after*
-		// numcands has been set.
-		std::vector<int> get_default_after_as_before() const;
+			cand_pairs out;
+			for (size_t i = 0; i < numcands_before; ++i) {
+				out.push_back(std::vector<size_t>(1, i));
+			}
+			return out;
+		}
 
 	protected:
 		size_t numcands_before, numcands_after;
@@ -68,21 +58,11 @@ class relative_criterion_const {
 		// E.g. after_as_before = {0, 0, 1, 2} means that we're turning
 		// three candidates into four, and the after candidates A, B, C, D
 		// correspond to the before candidates A, B, C, respectively.
-		std::vector<int> after_as_before;
+		// TODO: refactor this to pairs.
+		cand_pairs candidate_reordering;
 
 		virtual bool is_valid_numcands_combination() const {
 			return numcands_before == numcands_after; }
-
-		// Default is passthrough for transition, and nothing at all for
-		// addition and deletion.
-		virtual bool permissible_transition(
-			const std::vector<int> & before_permutation,
-			const std::vector<int> & after_permutation) const {
-			return before_permutation == after_permutation; }
-		virtual bool permissible_addition(
-			const std::vector<int> & permutation) const { return false; }
-		virtual bool permissible_deletion(
-			const std::vector<int> & permutation) const { return false; }
 
 	public:
 
@@ -94,12 +74,11 @@ class relative_criterion_const {
 
 		virtual std::string name() const = 0;
 
-		constraint_set relative_constraints(std::string before_suffix,
-			std::string after_suffix) const;
+		virtual constraint_set relative_constraints(std::string before_suffix,
+			std::string after_suffix) const = 0;
 
-		size_t get_before_cand_number(size_t after_cand_number) const {
-			assert(after_cand_number < after_as_before.size());
-			return after_as_before[after_cand_number];
+		const cand_pairs & get_candidate_reordering() const {
+			return candidate_reordering;
 		}
 
 		size_t get_numcands_before() const { return numcands_before; }
@@ -111,7 +90,10 @@ class relative_criterion_const {
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
 
-			after_as_before = get_default_after_as_before();
+			// Break on nonsensical input.
+			assert(std::min(numcands_before, numcands_after) > 0);
+
+			candidate_reordering = get_default_candidate_reordering();
 		}
 
 		relative_criterion_const(size_t numcands_in) :

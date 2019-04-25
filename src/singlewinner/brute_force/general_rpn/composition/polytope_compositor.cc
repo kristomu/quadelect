@@ -201,7 +201,7 @@ int main(int argc, char ** argv) {
 	}
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
-	std::vector<std::unique_ptr<relative_criterion_const> >
+	std::vector<std::shared_ptr<relative_criterion_const> >
 		relative_constraints = relative_criterion_producer().get_criteria(
 			min_numcands, max_numcands, true, settings.desired_criteria);
 
