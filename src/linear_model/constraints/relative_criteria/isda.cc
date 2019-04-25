@@ -36,6 +36,18 @@ size_t isda_relative_const::calc_num_after_cands(bool elimination_first,
 	return elimination_util_const(elimination_spec_in).get_numcands_after();
 }
 
+// DEBUG
+// Perhaps all of this should be pushed into a class and then I could
+// write some tests...
+void isda_relative_const::print_cand_pairs(const cand_pairs & in) const {
+	for (size_t x = 0; x < in.size(); ++x) {
+		std::cout << x << " -> ";
+		std::copy(in[x].begin(), in[x].end(),
+			std::ostream_iterator<size_t>(std::cout, " "));
+		std::cout << std::endl;
+	}
+}
+
 // Compose two candidate pairs. This works as follows: if (x, y) is a
 // valid pair according to first, and (y, z) is a valid pair according
 // to second, then the composition makes (x, z) into a valid pair. It's
@@ -83,7 +95,7 @@ cand_pairs isda_relative_const::reverse(
 	for (const std::vector<size_t> & ys: to_reverse) {
 		if (ys.empty()) { continue; }
 
-		max_y = std::max(max_y, 
+		max_y = std::max(max_y,
 			*std::max_element(ys.begin(), ys.end()));
 	}
 
@@ -99,12 +111,7 @@ cand_pairs isda_relative_const::reverse(
 }
 
 std::string isda_relative_const::name() const {
-	if (isda_before) {
-		return "ISDA-before(" + inner_criterion->name() + ")";
-	} else {
-		return "ISDA-after(" + inner_criterion->name() + ")";
-	}
-	assert (1 != 1);
+	return "ISDA(" + inner_criterion->name() + ")";
 }
 
 constraint_set isda_relative_const::smith_loser_constraints(
@@ -203,18 +210,19 @@ isda_relative_const::isda_relative_const(bool elimination_first,
 	inner_criterion = inner_criterion_in;
 	elimination_spec = elimination_spec_in;
 
-	// Number of candidates before must not be greater than number of
-	// candidates after, due to limitations which will be handled later.
-	// (It might actually work; I'll check that later.)
-
-	if (numcands_before > numcands_after) {
-		throw std::runtime_error("ISDA: numcands_before > numcands_after");
-	}
-
 	// Verify that the number of candidates prior to elimination match.
 	if (isda_before) {
-		assert (inner_criterion_in->get_numcands_before() ==
-			elimination_spec.size());
+		assert(numcands_before == eliminator.get_numcands_after());
+		assert(numcands_after == inner_criterion->get_numcands_after());
+
+		// If the composition is impossible due to the inner criterion
+		// requiring a different number of candidates than ISDA will
+		// provide, throw an exception.
+		if (inner_criterion_in->get_numcands_before() !=
+			elimination_spec.size()) {
+			throw std::runtime_error("ISDA: candidate number mismatch"
+				" in criterion composition!");
+		}
 
 		// Since the input ballot is "un-eliminated" to produce a larger
 		// ballot, and this is then fed to the inner criterion, the proper
@@ -224,8 +232,15 @@ isda_relative_const::isda_relative_const(bool elimination_first,
 			eliminator.get_candidate_reordering()),
 			inner_criterion_in->get_candidate_reordering());
 	} else {
-		assert (inner_criterion_in->get_numcands_after() ==
-			elimination_spec.size());
+		assert(numcands_before == inner_criterion->get_numcands_before());
+		assert(numcands_after == eliminator.get_numcands_after());
+
+		if (inner_criterion_in->get_numcands_after() !=
+			elimination_spec.size()) {
+
+			throw std::runtime_error("ISDA: candidate number mismatch"
+				" in criterion composition!");	
+		}
 
 		// The proper candidate index matching between B and B' is the
 		// composition of the rearrangement performed by the inner

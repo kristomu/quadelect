@@ -624,7 +624,7 @@ int main(int argc, char ** argv) {
 	// We need at least one relative constraint to make our groups, so
 	// allocate them here.
 
-	std::vector<std::unique_ptr<relative_criterion_const> >
+	std::vector<std::shared_ptr<relative_criterion_const> >
 		relative_constraints;
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)

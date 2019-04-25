@@ -90,6 +90,9 @@ class relative_criterion_const {
 			numcands_before = numcands_before_in;
 			numcands_after = numcands_after_in;
 
+			// Break on nonsensical input.
+			assert(std::min(numcands_before, numcands_after) > 0);
+
 			candidate_reordering = get_default_candidate_reordering();
 		}
 

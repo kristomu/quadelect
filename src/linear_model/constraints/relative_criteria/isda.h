@@ -70,6 +70,7 @@ class isda_relative_const : public relative_criterion_const {
 			inner_criterion_in, const std::vector<int> &
 			elimination_spec_in) const;
 
+		void print_cand_pairs(const cand_pairs & in) const;
 		cand_pairs compose(const cand_pairs & first,
 			const cand_pairs & second) const;
 		cand_pairs reverse(const cand_pairs & to_reverse) const;

@@ -44,8 +44,8 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 			if (y.get_numcands() != numcands_after) { continue; }
 			test_generator cur_test(randomizer.long_rand());
 
-			std::cout << "Combination " << x.to_string() << ", "
-				<< y.to_string() << ":";
+			std::cout << relative_criterion.name() << "\tCombination "
+				<< x.to_string() << ", " << y.to_string() << ":";
 			if (!cur_test.set_scenarios(x, y, max_numvoters,
 				relative_criterion)) {
 				std::cout << "not permitted\n";
@@ -56,8 +56,6 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 			for (size_t before_cand_idx = 1;
 				before_cand_idx < numcands_before; ++before_cand_idx) {
-
-				std::cout << relative_criterion.name() << std::endl;
 
 				assert (numcands_before == relative_criterion.
 					get_candidate_reordering().size());

@@ -6,7 +6,7 @@
 
 #include <set>
 
-std::vector<std::unique_ptr<relative_criterion_const> >
+std::vector<std::shared_ptr<relative_criterion_const> >
 	relative_criterion_producer::get_all(int min_num_cands,
 	int max_num_cands, bool different_scenarios_only) const {
 
@@ -15,7 +15,7 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	// candidates before cloning as the before_numcands, and after
 	// cloning as the after_numcands.
 
-	std::vector<std::unique_ptr<relative_criterion_const> >
+	std::vector<std::shared_ptr<relative_criterion_const> >
 		relative_constraints;
 
 	int i;
@@ -23,10 +23,10 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	for (i = min_num_cands; i < max_num_cands; ++i) {
 		// Teaming and vote_splitting
 		relative_constraints.push_back(
-			std::make_unique<clone_const>(i, i+1));
+			std::make_shared<clone_const>(i, i+1));
 		// Crowding
 		relative_constraints.push_back(
-			std::make_unique<clone_const>(i, i+1, 1));
+			std::make_shared<clone_const>(i, i+1, 1));
 	}
 
 	// HACK. FIX LATER
@@ -36,16 +36,16 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	// tests cover everything. (Do that later.)
 	std::vector<int> clone_spec = {0, 1, 1, 2};
 	relative_constraints.push_back(
-		std::make_unique<clone_const>(clone_spec));
+		std::make_shared<clone_const>(clone_spec));
 
 	for (i = min_num_cands; i <= max_num_cands; ++i) {
 		if (different_scenarios_only && i < 4) {
 			continue;
 		}
 		relative_constraints.push_back(
-			std::make_unique<mono_raise_const>(i));
+			std::make_shared<mono_raise_const>(i));
 		relative_constraints.push_back(
-			std::make_unique<mono_add_top_const>(i));
+			std::make_shared<mono_add_top_const>(i));
 	}
 
 	// ISDA TEST 3->4:
@@ -55,44 +55,46 @@ std::vector<std::unique_ptr<relative_criterion_const> >
 	// Before_isda must be true, although that's more experimental...
 
 	for (i = 4; i <= max_num_cands; ++i) {
+		/*std::shared_ptr<relative_criterion_const> mr =
+			std::make_shared<mono_add_top_const>(i);*/
 		std::shared_ptr<relative_criterion_const> mr =
 			std::make_shared<mono_add_top_const>(i);
 		std::vector<int> sched;
 
 		sched = {0, -1, 1, 2};
 		relative_constraints.push_back(
-			std::make_unique<isda_relative_const>(true, mr, sched));
+			std::make_shared<isda_relative_const>(false, mr, sched));
 
 		// Confirmed feasible (minimax mono-add-top example)
 		sched = {0, 1, -1, 2};
 		relative_constraints.push_back(
-			std::make_unique<isda_relative_const>(true, mr, sched));
+			std::make_shared<isda_relative_const>(true, mr, sched));
 
 		sched = {0, 1, 2, -1};
 		relative_constraints.push_back(
-			std::make_unique<isda_relative_const>(true, mr, sched));
+			std::make_shared<isda_relative_const>(true, mr, sched));
 		sched = {0, -1, 2, 1};
 		relative_constraints.push_back(
-			std::make_unique<isda_relative_const>(true, mr, sched));
+			std::make_shared<isda_relative_const>(true, mr, sched));
 		sched = {0, 2, -1, 1};
 		relative_constraints.push_back(
-			std::make_unique<isda_relative_const>(true, mr, sched));
+			std::make_shared<isda_relative_const>(true, mr, sched));
 		sched = {0, 2, 1, -1};
 		relative_constraints.push_back(
-			std::make_unique<isda_relative_const>(true, mr, sched));
+			std::make_shared<isda_relative_const>(true, mr, sched));
 	}
 
 	return relative_constraints;
 }
 
-std::vector<std::unique_ptr<relative_criterion_const> >
+std::vector<std::shared_ptr<relative_criterion_const> >
 	relative_criterion_producer::get_criteria(int min_num_cands,
 	int max_num_cands, bool different_scenarios_only,
 	const std::vector<std::string> & desired_criteria) const {
 
 	// First get every relative criterion.
 
-	std::vector<std::unique_ptr<relative_criterion_const> > out =
+	std::vector<std::shared_ptr<relative_criterion_const> > out =
 		get_all(min_num_cands, max_num_cands, different_scenarios_only);
 
 	// If there are no filtering specs, return everything
