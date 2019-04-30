@@ -14,7 +14,7 @@
 #include <memory>
 #include <queue>
 
-#include <time.h>
+#include <ctime>
 
 #include "../isda.cc"
 
@@ -90,12 +90,12 @@ class backtracker {
 		// for showing a progress report without wasting too much time
 		// on time-elapsed calls.
 		size_t global_counter, counter_threshold;
-		time_t last_shown_time, start_time;
+		clock_t last_shown_time, start_time;
 
 		size_t num_passed_methods;
 		bool show_reports;
 
-		int time_limit = 0; // in seconds from start, or -1 if none.
+		double time_limit = 0; // in seconds from start, or -1 if none.
 		size_t pass_limit = 0; // abort after this many passes
 
 		// for calculating the progress
@@ -114,7 +114,7 @@ class backtracker {
 				throw new std::runtime_error("No algorithms to check!");
 			}
 
-			start_time = time(NULL);
+			start_time = clock();
 			num_passed_methods = 0;
 			try_algorithms(0, TYPE_A);
 
@@ -172,6 +172,9 @@ double backtracker::get_progress() const {
 
 std::string format_time(double seconds_total) {
 	// Use doubles to handle extreme values, e.g. 1e+40 seconds.
+
+	assert (seconds_total > 0);
+
 	double secs = fmod(seconds_total, 60);
 	double x = (seconds_total - secs) / 60.0;
 	double mins = fmod(x, 60);
@@ -214,13 +217,15 @@ void backtracker::print_progress() const {
 
 	double progress = get_progress();
 
-	double eta_seconds = (1-progress)/progress *
-		(last_shown_time-start_time);
+	double seconds_run = (last_shown_time-start_time)/
+		(double)CLOCKS_PER_SEC;
+
+	double eta_seconds = (1-progress)/progress * seconds_run;
 
 	std::cerr << "Iteration counts." << std::endl;
 	for (size_t i = 0; i < iteration_count.size(); ++i) {
 		std::cerr << "idx " << i << "\t" << iteration_count[i] << std::endl;
-        }
+	}
 
 	std::cerr << "Progress: " << progress << "    ";
 	std::cerr << "ETA: " << format_time(eta_seconds) << ".";
@@ -379,8 +384,9 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	// Show a progress report if the global counter is high enough and enough
 	// time has elapsed. (1s hard-coded.)
 	if (global_counter++ >= counter_threshold) {
+
 		// Time limit check
-		if (time_limit > 0 && time(NULL) >= start_time + time_limit) {
+		if (time_limit > 0 && clock() >= start_time + time_limit * CLOCKS_PER_SEC) {
 			return;
 		}
 
@@ -390,8 +396,8 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		}
 
 		global_counter = 0;
-		if (show_reports && time(NULL) >= last_shown_time + 1) {
-			last_shown_time = time(NULL);
+		if (show_reports && clock() >= last_shown_time + CLOCKS_PER_SEC) {
+			last_shown_time = clock();
 			print_progress();
 		}
 	}
@@ -484,7 +490,7 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 	std::list<size_t> output_order;
 
 	bool old_reports = tester.show_reports;
-	int old_time_limit = tester.time_limit;
+	double old_time_limit = tester.time_limit;
 	size_t old_pass_limit = tester.pass_limit;
 
 	tester.show_reports = false;
@@ -688,7 +694,7 @@ int main(int argc, char ** argv) {
 	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
 		std::cout << "Group order not specified. Generating...\n";
-		group_order = get_group_order(grps, all_results, verifier, false);
+		group_order = get_group_order(grps, all_results, verifier, true);
 		std::cout << "Insert the following into the config file " <<
 			"to skip this step the next time:\n";
 		print_group_order(group_order);
