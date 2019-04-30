@@ -92,11 +92,12 @@ class backtracker {
 		size_t global_counter, counter_threshold;
 		clock_t last_shown_time, start_time;
 
-		size_t num_passed_methods;
+		double progress_at_exit;
 		bool show_reports;
 
-		double time_limit = 0; // in seconds from start, or -1 if none.
-		size_t pass_limit = 0; // abort after this many passes
+		// Abort after this time has elapsed, or -1 if no such limit
+		// is desired.
+		double time_limit = 0;
 
 		// for calculating the progress
 		// needs to be improved.
@@ -109,13 +110,13 @@ class backtracker {
 
 		void set_algorithms(const std::vector<vector<algo_t> > & algos_in);
 
-		size_t try_algorithms() {
+		double try_algorithms() {
 			if (prospective_algorithms.empty()) {
 				throw new std::runtime_error("No algorithms to check!");
 			}
 
 			start_time = clock();
-			num_passed_methods = 0;
+			progress_at_exit = 0;
 			try_algorithms(0, TYPE_A);
 
 			if (show_reports) {
@@ -125,7 +126,14 @@ class backtracker {
 				}
 			}
 
-			return num_passed_methods;
+			// If progress at exit is not set, we must have gone through
+			// the whole search space before exceeding our time budget, so
+			// set progress to 1 (for 100% completion).
+			if (progress_at_exit == 0) {
+				progress_at_exit = 1;
+			}
+
+			return progress_at_exit;
 		}
 
 		backtracker(size_t min_numcands_in, size_t max_numcands_in) {
@@ -134,10 +142,9 @@ class backtracker {
 			counter_threshold = 2000;
 			global_counter = 0;
 			last_shown_time = 0;
-			num_passed_methods = 0;
+			progress_at_exit = 0;
 			show_reports = true;
 			time_limit = -1;
-			pass_limit = 0;
 
 			for (size_t i = 0; i <= max_numcands; ++i) {
 				evaluators.push_back(gen_custom_function(i));
@@ -302,8 +309,6 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	test_election current_election_setting) {
 
 	if (test_group_idx == num_groups) {
-		// End case.
-		++num_passed_methods;
 		++iteration_count[test_group_idx];
 
 		if (!show_reports) { return; }
@@ -386,12 +391,14 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	if (global_counter++ >= counter_threshold) {
 
 		// Time limit check
-		if (time_limit > 0 && clock() >= start_time + time_limit * CLOCKS_PER_SEC) {
-			return;
-		}
+		if (time_limit > 0 &&
+			clock() >= start_time + time_limit * CLOCKS_PER_SEC) {
 
-		// Number of passes check
-		if (pass_limit > 0 && num_passed_methods > pass_limit) {
+			// Record how far we managed to get before forced to exit,
+			// if we haven't already recorded it.
+			if (progress_at_exit == 0) {
+				progress_at_exit = get_progress();
+			}
 			return;
 		}
 
@@ -474,6 +481,24 @@ void backtracker::set_algorithms(
 
 /////////////////////////////////////////////////////////////////
 
+// "Greater" sorts descending by score and ascending by group index,
+// which is how the tiebreaking should work for aesthetic reasons.
+class group_score_pair {
+	public:
+		double score;
+		size_t group_idx;
+
+		bool operator>(const group_score_pair & other) const {
+			if (score != other.score) { return score < other.score; }
+			return group_idx >= other.group_idx;
+		}
+
+		group_score_pair(double score_in, size_t idx_in) {
+			group_idx = idx_in;
+			score = score_in;
+		}
+};
+
 // Even better would be to visit the algorithms in random order (e.g. by
 // using form-preserving encryption) to get statistics not biased towards
 // the start of the run, but eh...
@@ -482,75 +507,73 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 	const std::vector<test_results> & all_results, backtracker & tester,
 	bool report) {
 
-	std::priority_queue<std::pair<size_t, size_t>,
-		std::vector<std::pair<size_t, size_t> >,
-		std::greater<std::pair<size_t, size_t> > > incoming_groups,
+	std::priority_queue<group_score_pair,
+		std::vector<group_score_pair >,
+		std::greater<group_score_pair > > incoming_groups,
 		outgoing_groups;
 
 	std::list<size_t> output_order;
 
 	bool old_reports = tester.show_reports;
 	double old_time_limit = tester.time_limit;
-	size_t old_pass_limit = tester.pass_limit;
 
 	tester.show_reports = false;
-	tester.time_limit = 2; // number of seconds.
-	tester.pass_limit = 0;
+	tester.time_limit = 1; // number of seconds.
 
 	// Dump every group into the incoming_groups priority queue.
-
 	for (size_t i = 0; i < groups.groups.size(); ++i) {
-		incoming_groups.push(std::pair<size_t, size_t>(0, i));
+		incoming_groups.push(group_score_pair(0, i));
 	}
 
 	while (!incoming_groups.empty()) {
-		// Visit the incoming queue in order from most discriminating
-		// to least, as a proxy for how discriminating it will be this
-		// time around. The idea is to (hopefully) identify the most
-		// discriminating tests quickly so that we don't have to spend a
-		// lot of time checking the less discriminating ones.
-
-		size_t min_passes_so_far = SIZE_MAX-1;
+		// Visit the incoming queue in order from the furthest progressing
+		// to the least, as a proxy for how far it will progress this
+		// time around.
 
 		while (!incoming_groups.empty()) {
 			std::list<size_t> tentative = output_order;
-			tentative.push_back(incoming_groups.top().second);
+			tentative.push_back(incoming_groups.top().group_idx);
 
-			// We only need to know if it has more passes than the
-			// current record, not how much more. Any difference due to
-			// time discretization (we only check for pass_limit so often)
-			// will benefit us next time around as the priority queue will
-			// be in proper sorted order.
-			tester.pass_limit = min_passes_so_far + 1;
 			tester.set_tests_and_results(tentative, groups, all_results);
 
-			size_t number_of_passes = tester.try_algorithms();
+			double progress = tester.try_algorithms();
 
 			if (report) {
-				std::cout << incoming_groups.top().second << ": at least "
-					<< number_of_passes << " passes.\n";
+				std::cout << incoming_groups.top().group_idx << ": progress at"
+					" exit was " << progress << "\n";
 			}
-			min_passes_so_far = std::min(number_of_passes, min_passes_so_far);
-			outgoing_groups.push(std::pair<size_t, size_t>(number_of_passes,
-				incoming_groups.top().second));
+
+			outgoing_groups.push(group_score_pair(progress,
+					incoming_groups.top().group_idx));
 			incoming_groups.pop();
 		}
 		// Insert the top as the next element of the output order.
 		if (report) {
 			std::cout << "Inserting recordholder " <<
-				outgoing_groups.top().second << " with " <<
-				outgoing_groups.top().first << " passes." << std::endl;
+				outgoing_groups.top().group_idx << " with progress " <<
+				outgoing_groups.top().score << "." << std::endl;
 		}
 
-		output_order.push_back(outgoing_groups.top().second);
+		output_order.push_back(outgoing_groups.top().group_idx);
 		outgoing_groups.pop();
+
+		// Add any indices that has progress level 1. If what we have
+		// so far finishes within the time limit, then every subsequent
+		// test will return progress before exit = 1, which means there's
+		// no point in testing them more than once.
+		while (!outgoing_groups.empty() &&
+			outgoing_groups.top().score == 1) {
+
+			output_order.push_back(outgoing_groups.top().group_idx);
+			outgoing_groups.pop();
+		}
+
 
 		swap(incoming_groups, outgoing_groups);
 	}
 
 	tester.show_reports = old_reports;
 	tester.time_limit = old_time_limit;
-	tester.pass_limit = old_pass_limit;
 
 	return output_order;
 }
