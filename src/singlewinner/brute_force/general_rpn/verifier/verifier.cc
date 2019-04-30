@@ -499,26 +499,48 @@ class group_score_pair {
 		}
 };
 
-// Even better would be to visit the algorithms in random order (e.g. by
-// using form-preserving encryption) to get statistics not biased towards
-// the start of the run, but eh...
+// Local search subroutine: try the same search with randomized algorithm
+// tables every time to get a better idea of the current group arrangement
+// works on different areas of the search space.
+
+double get_mean_progress(int tries, double time_limit,
+	backtracker & tester) {
+
+	// Without taking into account the time it takes to shuffle. I know.
+	double time_limit_per = time_limit / (double)tries;
+	double old_time_limit = tester.time_limit;
+	tester.time_limit = time_limit_per;
+
+	double progress_count = 0;
+
+	for (int i = 0; i < tries; ++i) {
+		// Violate the law of Demeter left and right.
+		for (size_t j = 0; j < tester.prospective_algorithms.size(); ++j) {
+			std::random_shuffle(tester.prospective_algorithms[j].begin(),
+				tester.prospective_algorithms[j].end());
+		}
+		progress_count += tester.try_algorithms();
+	}
+
+	tester.time_limit = old_time_limit;
+	return progress_count/(double)tries;
+}
 
 std::list<size_t> get_group_order(const test_generator_groups & groups,
 	const std::vector<test_results> & all_results, backtracker & tester,
+	const std::vector<std::vector<algo_t> > & functions_to_test,
 	bool report) {
 
-	std::priority_queue<group_score_pair,
-		std::vector<group_score_pair >,
+	std::priority_queue<group_score_pair, std::vector<group_score_pair >,
 		std::greater<group_score_pair > > incoming_groups,
 		outgoing_groups;
 
 	std::list<size_t> output_order;
 
 	bool old_reports = tester.show_reports;
-	double old_time_limit = tester.time_limit;
 
 	tester.show_reports = false;
-	tester.time_limit = 1; // number of seconds.
+	double time_limit = 1;
 
 	// Dump every group into the incoming_groups priority queue.
 	for (size_t i = 0; i < groups.groups.size(); ++i) {
@@ -536,7 +558,7 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 
 			tester.set_tests_and_results(tentative, groups, all_results);
 
-			double progress = tester.try_algorithms();
+			double progress = get_mean_progress(4, time_limit, tester);
 
 			if (report) {
 				std::cout << incoming_groups.top().group_idx << ": progress at"
@@ -573,7 +595,10 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 	}
 
 	tester.show_reports = old_reports;
-	tester.time_limit = old_time_limit;
+
+	// get_mean_progress musses up the order of the algorithms, so
+	// fix that by resetting the tester's algorithms.
+	tester.set_algorithms(functions_to_test);
 
 	return output_order;
 }
@@ -717,7 +742,8 @@ int main(int argc, char ** argv) {
 	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
 		std::cout << "Group order not specified. Generating...\n";
-		group_order = get_group_order(grps, all_results, verifier, true);
+		group_order = get_group_order(grps, all_results, verifier,
+			functions_to_test, true);
 		std::cout << "Insert the following into the config file " <<
 			"to skip this step the next time:\n";
 		print_group_order(group_order);
@@ -735,7 +761,7 @@ int main(int argc, char ** argv) {
 	std::map<copeland_scenario, int> set_algorithm_indices;
 
 	verifier.set_tests_and_results(group_order, grps, all_results);
-	std::cout << verifier.try_algorithms() << " passing methods" << std::endl;
+	verifier.try_algorithms();
 
 	return 0;
 }
