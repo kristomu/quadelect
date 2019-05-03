@@ -16,12 +16,14 @@ size_t elimination_util_const::get_num_noneliminated(const std::vector<int> &
 cand_pairs elimination_util_const::get_proper_candidate_reordering(
 	const std::vector<int> & elimination_spec_in) const {
 
-	cand_pairs out(elimination_spec.size());
+	cand_pairs out;
 
 	for (size_t i = 0; i < elimination_spec_in.size(); ++i) {
 		// Can't use an eliminated candidate!
+		// TODO: Set candidate as eliminated here!
 		if (elimination_spec_in[i] == -1) { continue; }
-		out[i].push_back(elimination_spec[i]);
+
+		out.set_pair(i, elimination_spec[i]);
 	}
 
 	return out;

@@ -1,4 +1,5 @@
 #include "isda.h"
+#include "../../../tools/cp_tools.h"
 
 size_t isda_relative_const::calc_num_before_cands(bool elimination_first,
 	std::shared_ptr<relative_criterion_const> & inner_criterion_in,
@@ -34,80 +35,6 @@ size_t isda_relative_const::calc_num_after_cands(bool elimination_first,
 	// of candidates after.
 
 	return elimination_util_const(elimination_spec_in).get_numcands_after();
-}
-
-// DEBUG
-// Perhaps all of this should be pushed into a class and then I could
-// write some tests...
-void isda_relative_const::print_cand_pairs(const cand_pairs & in) const {
-	for (size_t x = 0; x < in.size(); ++x) {
-		std::cout << x << " -> ";
-		std::copy(in[x].begin(), in[x].end(),
-			std::ostream_iterator<size_t>(std::cout, " "));
-		std::cout << std::endl;
-	}
-}
-
-// Compose two candidate pairs. This works as follows: if (x, y) is a
-// valid pair according to first, and (y, z) is a valid pair according
-// to second, then the composition makes (x, z) into a valid pair. It's
-// used when the ISDA layer remaps x to y, and the inner criterion
-// remaps y to z.
-cand_pairs isda_relative_const::compose(const cand_pairs & first,
-	const cand_pairs & second) const {
-
-	// First use maps to avoid having to resize (and check uniqueness) while
-	// composing.
-	std::map<size_t, std::set<size_t> > compose_temp;
-
-	for (size_t x = 0; x < first.size(); ++x) {
-		for (size_t y : first[x]) {
-			if (second.size() <= y) { continue; }
-			for (size_t z: second[y]) {
-				// Now (x, z) is a valid combination.
-				compose_temp[x].insert(z);
-			}
-		}
-	}
-
-	// A cand_pairs variable isn't a map, it's a vector of vectors, so
-	// spool it all over before returning.
-	cand_pairs out_pair(first.size());
-
-	for (const auto & compose_cand_list : compose_temp) {
-		size_t x = compose_cand_list.first;
-
-		std::copy(compose_cand_list.second.begin(),
-			compose_cand_list.second.end(),
-			std::back_inserter(out_pair[x]));
-	}
-
-	return out_pair;
-}
-
-// If to_reverse says (x, y) is a valid pair, then the output says (y, x)
-// is a valid pair.
-cand_pairs isda_relative_const::reverse(
-	const cand_pairs & to_reverse) const {
-
-	size_t max_y = 0;
-
-	for (const std::vector<size_t> & ys: to_reverse) {
-		if (ys.empty()) { continue; }
-
-		max_y = std::max(max_y,
-			*std::max_element(ys.begin(), ys.end()));
-	}
-
-	cand_pairs reversed(max_y+1);
-
-	for (size_t x = 0; x < to_reverse.size(); ++x) {
-		for (size_t y: to_reverse[x]) {
-			reversed[y].push_back(x);
-		}
-	}
-
-	return reversed;
 }
 
 std::string isda_relative_const::name() const {
@@ -228,9 +155,9 @@ isda_relative_const::isda_relative_const(bool elimination_first,
 		// ballot, and this is then fed to the inner criterion, the proper
 		// candidate index matching between B and B' is the composition of
 		// the elimination, reversed, and the inner criterion.
-		candidate_reordering = compose(reverse(
+		candidate_reordering = cp_tools::compose(cp_tools::reverse(
 			eliminator.get_candidate_reordering()),
-			inner_criterion_in->get_candidate_reordering());
+			inner_criterion_in->get_candidate_reordering(), true);
 	} else {
 		assert(numcands_before == inner_criterion->get_numcands_before());
 		assert(numcands_after == eliminator.get_numcands_after());
@@ -245,8 +172,8 @@ isda_relative_const::isda_relative_const(bool elimination_first,
 		// The proper candidate index matching between B and B' is the
 		// composition of the rearrangement performed by the inner
 		// criterion (since it is called first),and the elimination.
-		candidate_reordering = compose(
+		candidate_reordering = cp_tools::compose(
 			inner_criterion_in->get_candidate_reordering(),
-			eliminator.get_candidate_reordering());
+			eliminator.get_candidate_reordering(), true);
 	}
 }

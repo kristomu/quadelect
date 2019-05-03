@@ -8,18 +8,13 @@ cand_pairs clone_const::get_proper_candidate_reordering(
 	
 	// output[x] containing y means candidate x before corresponds
 	// to candidate y after.
-	cand_pairs output(numcands_before);
+	cand_pairs output;
 
 	for (size_t i = 0; i < after_as_before_in.size(); ++i) {
-		output[after_as_before_in[i]].push_back(i);
+		output.set_pair(after_as_before_in[i], i);
 	}
 
-	// Sort the containers.
-	for (size_t j = 0; j < numcands_before; ++j) {
-		std::sort(output[j].begin(), output[j].end());
-	}
-
-	assert(output.size() == numcands_before);
+	assert(output.num_source_candidates() == numcands_before);
 
 	return output;
 }

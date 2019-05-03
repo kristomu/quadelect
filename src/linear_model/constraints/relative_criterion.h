@@ -6,6 +6,7 @@
 
 #include "../lin_relation/constraint_set.h"
 #include "../../tools/tools.h"
+#include "cand_pairs.h"
 
 // Constraints that involve relative criteria.
 
@@ -24,14 +25,6 @@
 // This is the abstract base class. Some relative criterion constraints
 // can be further categorized - see e.g. direct_relative_criteria.
 
-// ----
-
-// If cand_pairs[x] contains y, then that means that candidate index x
-// before modification corresponds to candidate index y after. A given
-// candidate before may correspond to many after (e.g. when cloning)
-// or none (when eliminating that candidate).
-typedef std::vector<std::vector<size_t> > cand_pairs;
-
 class relative_criterion_const {
 	private:
 
@@ -43,7 +36,7 @@ class relative_criterion_const {
 
 			cand_pairs out;
 			for (size_t i = 0; i < numcands_before; ++i) {
-				out.push_back(std::vector<size_t>(1, i));
+				out.set_pair(i, i);
 			}
 			return out;
 		}

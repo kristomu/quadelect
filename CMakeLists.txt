@@ -83,6 +83,7 @@ add_library(qe_singlewinner_methods src/singlewinner/elimination.cc
 
 add_library(quadelect_lib src/tools/tools.cc
 	src/interpreter/rank_order.cc
+	src/tools/cp_tools.cc
 	src/tools/ballot_tools.cc
 	src/tools/factoradic.cc
 	src/ballots.cc

@@ -54,45 +54,51 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 			std::cout << "permitted\n";
 
-			for (size_t before_cand_idx = 1;
-				before_cand_idx < numcands_before; ++before_cand_idx) {
+			// Some candidates might be eliminated, which would make
+			// equality fail. Still, we should check that the relative
+			// criterion doesn't ask for more candidates than we have.
+			assert (numcands_before >= relative_criterion.
+				get_candidate_reordering().num_source_candidates());
 
-				assert (numcands_before == relative_criterion.
-					get_candidate_reordering().size());
+			// For every allowed pair of candidates for this criterion...
 
-				// For every permitted choice of index for B', given the
-				// current choice of index for B...
+			for (const auto & pair: relative_criterion.
+				get_candidate_reordering()) {
 
-				for (size_t after_cand_idx: relative_criterion.
-					get_candidate_reordering()[before_cand_idx]) {
+				// except A, since we're looking for some other candidate
+				// to compare A to...
 
-					assert(after_cand_idx < numcands_after);
+				if (pair.first == 0) { continue; }
 
-					test_instance_generator to_add(cur_test);
-					// Set a different seed but use the same sampler and
-					// polytope as we created earlier.
-					to_add.tgen.set_rng_seed(randomizer.long_rand());
+				size_t before_cand_idx = pair.first,
+					after_cand_idx = pair.second;
+			
+				assert(after_cand_idx < numcands_after);
 
-					// Set what kind of test this group should perform,
-					// depending on what the relative criterion says.
+				test_instance_generator to_add(cur_test);
+				// Set a different seed but use the same sampler and
+				// polytope as we created earlier.
+				to_add.tgen.set_rng_seed(randomizer.long_rand());
 
-					to_add.no_help = relative_criterion.no_help();
-					to_add.no_harm = relative_criterion.no_harm();
+				// Set what kind of test this group should perform,
+				// depending on what the relative criterion says.
 
-					// Get the scenarios by sampling once.
-					relative_test_instance ti = to_add.tgen.sample_instance(
-						before_cand_idx, after_cand_idx,
-						before_cand_remapping, after_cand_remapping);
+				to_add.no_help = relative_criterion.no_help();
+				to_add.no_harm = relative_criterion.no_harm();
 
-					to_add.before_A = ti.before_A.scenario;
-					to_add.before_B = ti.before_B.scenario;
-					to_add.after_A = ti.after_A.scenario;
-					to_add.after_B = ti.after_B.scenario;
+				// Get the scenarios by sampling once.
+				relative_test_instance ti = to_add.tgen.sample_instance(
+					before_cand_idx, after_cand_idx,
+					before_cand_remapping, after_cand_remapping);
 
-					to_add.cand_B_idx_before = before_cand_idx;
-					to_add.cand_B_idx_after = after_cand_idx;
-					out.push_back(to_add);
-				}
+				to_add.before_A = ti.before_A.scenario;
+				to_add.before_B = ti.before_B.scenario;
+				to_add.after_A = ti.after_A.scenario;
+				to_add.after_B = ti.after_B.scenario;
+
+				to_add.cand_B_idx_before = before_cand_idx;
+				to_add.cand_B_idx_after = after_cand_idx;
+				out.push_back(to_add);
 			}
 		}
 	}
