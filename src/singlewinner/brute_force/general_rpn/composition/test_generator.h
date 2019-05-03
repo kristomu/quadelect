@@ -44,8 +44,8 @@ class test_generator {
 		// Samples an instance to get A, A', and then rotates to
 		// other_candidate_idx to get B and B'.
 		relative_test_instance sample_instance(
-			size_t other_candidate_idx_before,
-			size_t other_candidate_idx_after,
+			ssize_t other_candidate_idx_before,
+			ssize_t other_candidate_idx_after,
 			const fixed_cand_equivalences before_cand_remapping,
 			const fixed_cand_equivalences after_cand_remapping);
 

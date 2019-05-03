@@ -120,26 +120,43 @@ bool test_generator::set_scenarios(copeland_scenario before,
 }
 
 relative_test_instance test_generator::sample_instance(
-	size_t other_candidate_idx_before, size_t other_candidate_idx_after,
+	ssize_t other_candidate_idx_before, ssize_t other_candidate_idx_after,
 	const fixed_cand_equivalences before_cand_remapping,
 	const fixed_cand_equivalences after_cand_remapping) {
+
+	// Quick fix for eliminated candidates. If we get CP_NONEXISTENT as
+	// any index, that means that one of the candidates are eliminated.
+	// In that case, we just pretend that candidate is index 0 (A),
+	// because A can never be eliminated. Since A can never be eliminated,
+	// that scenario's algorithm needs to be defined anyway, so doing it
+	// this way minimizes the number of algorithms to test.
+	// We then set the index appropriately upon return, so that the
+	// testing function can provide the required synthetic score
+	// down the line.
+
+	assert (other_candidate_idx_before != CP_NONEXISTENT ||
+		other_candidate_idx_after != CP_NONEXISTENT);
+
+	if (other_candidate_idx_before == CP_NONEXISTENT ||
+		other_candidate_idx_after == CP_NONEXISTENT) {
+
+		relative_test_instance pretend = sample_instance(
+			std::max(other_candidate_idx_before, (ssize_t)0),
+			std::max((ssize_t)0, other_candidate_idx_after),
+			before_cand_remapping, after_cand_remapping);
+
+		pretend.before_B.from_perspective_of =
+			other_candidate_idx_before;
+		pretend.after_B.from_perspective_of =
+			other_candidate_idx_after;
+
+		return pretend;
+	}
 
 	Eigen::VectorXd point = sampler.billiard_walk();
 
 	relative_test_instance out;
 	size_t i;
-
-	// Check that other_candidate_indices are correct
-	// (i.e. that other_candidate_idx_before gets turned into
-	// other_candidate_idx_after by the relative criterion).
-
-	// Not available yet due to lacking access to the reference criterion
-	// at this point. TODO: Fix later.
-
-	/*if (get_before_cand_number(other_candidate_idx_after) !=
-		other_candidate_idx_before) {
-		throw std::runtime_error("test generator: candidate spec mismatch");
-	}*/
 
 	// This is kinda unwieldy: we go from vector<double> to
 	// list<ballot_group> only so we can rotate and determine scenarios;

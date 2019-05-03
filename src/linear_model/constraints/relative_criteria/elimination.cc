@@ -19,11 +19,13 @@ cand_pairs elimination_util_const::get_proper_candidate_reordering(
 	cand_pairs out;
 
 	for (size_t i = 0; i < elimination_spec_in.size(); ++i) {
-		// Can't use an eliminated candidate!
-		// TODO: Set candidate as eliminated here!
-		if (elimination_spec_in[i] == -1) { continue; }
-
-		out.set_pair(i, elimination_spec[i]);
+		// If the candidate is to be eliminated, say so, otherwise
+		// add its before and after as an ordinary pair.
+		if (elimination_spec_in[i] == -1) {
+			out.set_pair(i, CP_NONEXISTENT);
+		} else {
+			out.set_pair(i, elimination_spec[i]);
+		}
 	}
 
 	return out;

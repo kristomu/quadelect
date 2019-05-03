@@ -70,6 +70,40 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 				if (pair.first == 0) { continue; }
 
+				// Later, we'll set the "evaluation" of any nonexistent
+				// candidate's score to -infinity. (See [file] for more
+				// about that.) Thus, we don't care about nonexistent
+				// before candidates unless the method is no_harm, because
+				// A can't possibly be helped by the nonexistent candidate's
+				// score going from -infinity to something finite.
+				// Analogous reasoning holds when we don't care about
+				// nonexistent after candidates unless the method is
+				// no_help.
+
+				if (pair.first == CP_NONEXISTENT &&
+					!relative_criterion.no_harm()) {
+					std::cout << "Ignoring nonexistent first without" <<
+						" no-harm." << std::endl;
+					continue;
+				}
+				if (pair.second == CP_NONEXISTENT &&
+					!relative_criterion.no_help()) {
+					std::cout << "Ignoring nonexistent second without" <<
+						" no-help." << std::endl;
+					continue;
+				}
+
+				// Don't deal with eliminations yet.
+				if (pair.first == CP_NONEXISTENT ||
+					pair.second == CP_NONEXISTENT) {
+					std::cout << "Ignoring eliminated pair." << std::endl;
+					continue;
+				}
+
+				// Make sure it's safe to cast to unsigned. We should have
+				// handled every special case by the point we get here.
+				assert(pair.first >= 0 && pair.second >= 0);
+
 				size_t before_cand_idx = pair.first,
 					after_cand_idx = pair.second;
 			

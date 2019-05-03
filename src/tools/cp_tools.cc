@@ -20,7 +20,17 @@ cand_pairs cp_tools::compose(const cand_pairs & first,
 	cand_pairs out_pair;
 
 	for (const auto & first_pairs: first) {
-		size_t x = first_pairs.first, y = first_pairs.second;
+		ssize_t x = first_pairs.first, y = first_pairs.second;
+
+		// If it's (something, eliminated), that stays. We don't want
+		// (3 is eliminated, 4 is created) to turn into (3, 4).
+		if (y == CP_NONEXISTENT) {
+			assert (x != CP_NONEXISTENT); // Shouldn't happen.
+			out_pair.set_pair(x, y);
+			continue;
+		}
+
+		// (eliminated, something) is fine and will be handled below.
 
 		if (second.num_after_cands_by_before(y) == 0) {
 			if (!accept_dangling_links) {
@@ -30,15 +40,22 @@ cand_pairs cp_tools::compose(const cand_pairs & first,
 			continue;
 		}
 
-		for (std::set<size_t>::const_iterator pos = second.begin_by_cand(y);
+		for (std::set<ssize_t>::const_iterator pos = second.begin_by_cand(y);
 			pos != second.end_by_cand(y); ++pos) {
-			size_t z = *pos;
+			ssize_t z = *pos;
 
 			// We've verified that (x, y) exists in first and that
 			// (y, z) exists in second, so (x, z) is thus a valid
 			// combination.
 
-			out_pair.set_pair(x, z);
+			// If both x and z are eliminated (e.g. first creates candidate
+			// 2 but second eliminates him), then no need to do anything
+			// because eliminated->eliminated is uninteresting. Otherwise
+			// just insert.
+
+			if (x != CP_NONEXISTENT || z != CP_NONEXISTENT) {
+				out_pair.set_pair(x, z);
+			}
 		}
 	}
 

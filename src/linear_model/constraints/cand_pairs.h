@@ -52,15 +52,18 @@ class cand_pairs {
 		// iterate over all pairs, the data is stored in two structures.
 		// Since they're private, the outside won't have to deal with the
 		// complexity.
-		std::map<size_t, std::set<size_t> > pairs;
-		std::multimap<size_t, size_t> all_pairs;
+		std::map<ssize_t, std::set<ssize_t> > pairs;
+		std::multimap<ssize_t, ssize_t> all_pairs;
 
 		size_t num_source = 0;
 
 	public:
 
-		void set_pair(size_t before, size_t after) {
-			if (pairs.find(before) == pairs.end()) {
+		void set_pair(ssize_t before, ssize_t after) {
+			// Don't count the elimination pseudo-candidate as a real
+			// source candidate.
+			if (pairs.find(before) == pairs.end() && 
+				before != CP_NONEXISTENT) {
 				++num_source;
 			}
 			pairs[before].insert(after);
@@ -71,25 +74,25 @@ class cand_pairs {
 			return num_source;
 		}
 
-		std::multimap<size_t, size_t>::const_iterator begin() const {
+		std::multimap<ssize_t, ssize_t>::const_iterator begin() const {
 			return all_pairs.begin();
 		}
 
-		std::multimap<size_t, size_t>::const_iterator end() const {
+		std::multimap<ssize_t, ssize_t>::const_iterator end() const {
 			return all_pairs.end();
 		}
 
-		std::set<size_t>::const_iterator begin_by_cand(size_t cand) const {
+		std::set<ssize_t>::const_iterator begin_by_cand(ssize_t cand) const {
 			assert(pairs.find(cand) != pairs.end());
 			return pairs.find(cand)->second.begin();
 		}
 
-		std::set<size_t>::const_iterator end_by_cand(size_t cand) const {
+		std::set<ssize_t>::const_iterator end_by_cand(ssize_t cand) const {
 			assert(pairs.find(cand) != pairs.end());
 			return pairs.find(cand)->second.end();
 		}
 
-		size_t num_after_cands_by_before(size_t cand) const {
+		size_t num_after_cands_by_before(ssize_t cand) const {
 			if (pairs.find(cand) == pairs.end()) { return 0; }
 			return pairs.find(cand)->second.size();
 		}
@@ -99,7 +102,7 @@ class cand_pairs {
 				std::cout << x.first << " -> ";
 
 				std::copy(x.second.begin(), x.second.end(),
-					std::ostream_iterator<size_t>(std::cout, " "));
+					std::ostream_iterator<ssize_t>(std::cout, " "));
 
 				std::cout << std::endl;
 			}
