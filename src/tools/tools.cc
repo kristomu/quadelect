@@ -10,6 +10,12 @@
 
 #include "tools.h"
 
+int sign(double in) {
+	if (in < 0) return -1;
+	if (in == 0) return 0;
+	return 1;
+}
+
 double get_abs_time() {
 	timeval tv;
 	if (gettimeofday(&tv, NULL) == 0)

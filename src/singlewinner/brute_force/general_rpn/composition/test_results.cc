@@ -1,4 +1,5 @@
 #include "test_results.h"
+#include "../../../../tools/tools.h"
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -15,7 +16,7 @@ void test_results::set_size_variables() {
 	// Find the linear index into the results array.
 	// The addressing system for the results array is like this, from
 	// most significant digit to the least.
-	// [0..4: type] [0...num_methods: method number] 
+	// [0..4: type] [0...num_methods: method number]
 	//					[0...num_test_instances : test number]
 
 	// Since num_methods may differ based on type, we have to
@@ -34,7 +35,7 @@ void test_results::set_size_variables() {
 	total_num_entries = end_of_cur_type;
 }
 
-size_t test_results::get_linear_idx(size_t method_idx, 
+size_t test_results::get_linear_idx(size_t method_idx,
 	size_t test_instance_number, test_election type) const {
 
 	// If debugging, check that the indices make sense.
@@ -47,7 +48,7 @@ size_t test_results::get_linear_idx(size_t method_idx,
 
 	// Find the linear index into the results array.
 	// The digit system is like this
-	// [0..4: type] [0...num_methods: method number] 
+	// [0..4: type] [0...num_methods: method number]
 	//					[0...num_test_instances : test number]
 	return test_instance_number + method_idx * num_tests +
 		start_of_type[type];
@@ -67,7 +68,7 @@ void test_results::allocate_space_disk(std::string filename) {
 		throw std::runtime_error("test_results: Could not resize file");
 	}
 
-	void * mem_map = mmap(NULL, get_bytes_required(), 
+	void * mem_map = mmap(NULL, get_bytes_required(),
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
 	if (mem_map == MAP_FAILED) {
@@ -94,8 +95,7 @@ bool test_results::passes_tests(
 	// more than it helps some non-A candidate.
 
 	// Conversely, it fails no-help if A has lower score than B in the
-	// before scenario but higher after. 
-
+	// before scenario but higher after.
 
 	// First determine the location of the first test result for each
 	// algorithm.
@@ -110,32 +110,27 @@ bool test_results::passes_tests(
 	// The fourth option (neither no-harm nor no-help) trivially returns
 	// true all the time.
 
-	bool before_direction, after_direction;
-
 	for (size_t i = 0; i < num_tests; ++i) {
 		test_t result_A  = results[results_start_position[TYPE_A]+i],
 			   result_B  = results[results_start_position[TYPE_B]+i],
 			   result_Ap = results[results_start_position[TYPE_A_PRIME]+i],
 			   result_Bp = results[results_start_position[TYPE_B_PRIME]+i];
 
-		before_direction = result_A - result_B > 0;
-		after_direction = result_Ap - result_Bp > 0;
+		int before_sign = sign(result_A - result_B),
+			after_sign = sign(result_Ap - result_Bp);
 
-		if (no_harm) {
-			// If the signs are different, someone who was losing is now
-			// winning or vice versa, so return false.
-			if (no_help && (before_direction ^ after_direction)) {
-				return false;
-			}
-			// If A went from winner to loser over B, return false.
-			if (before_direction && !after_direction) {
-				return false;
-			}
-		} else {
-			if (no_help && (!before_direction && after_direction)) {
-				return false;
-			}
-		}
+		// If B was ranked higher than A before, but lower after, then A was
+		// helped. If B was ranked lower then A before, but higher after,
+		// then A was harmed.
+
+		// These also take into account (used to lose, but now is tied) and
+		// (used to be tied, but now is winning) transitions.
+
+		bool helped = before_sign < after_sign,
+			 harmed = before_sign > after_sign;
+
+		if (no_harm && harmed) { return false; }
+		if (no_help && helped) { return false; }
 	}
 
 	return true;

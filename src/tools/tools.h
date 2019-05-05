@@ -1,5 +1,4 @@
-#ifndef __TOOLS
-#define __TOOLS
+#pragma once
 
 #include <math.h>
 #include <ctype.h>
@@ -12,6 +11,9 @@
 #include <map>
 
 const double PI = 4 * atan(1);
+
+// Sign value: -1 if less than zero, 0 if zero, 1 if greater.
+int sign(double in);
 
 // Templated functions must be included in the header so the compiler knows what
 // to expand.
@@ -119,7 +121,7 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 // Used to read files of the type <number> (space or \t) (other stuff),
 // when we're only interested in the numbers.
 
-template <typename T> void get_first_token_on_lines(std::ifstream & source, 
+template <typename T> void get_first_token_on_lines(std::ifstream & source,
 	std::vector<T> & out) {
 
 	std::string next;
@@ -136,5 +138,3 @@ template <typename T> void get_first_token_on_lines(std::ifstream & source,
 		out.push_back(next_integer);
 	}
 }
-
-#endif
