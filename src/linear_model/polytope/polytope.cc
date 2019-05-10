@@ -11,11 +11,21 @@ std::pair<glp_prob *, bool> polytope::create_mixed_program(
 
 	bool needs_integer_step = false;
 
-	size_t A_size = get_num_halfplanes() * get_dimension();
+	// Get number of nonzeroes.
+	size_t row, col, nonzeroes = 0;
+	for (row = 0; row < get_num_halfplanes(); ++row) {
+		for (col = 0; col < get_dimension(); ++col) {
+			if (get_A()(row, col) != 0) {
+				++nonzeroes;
+			}
+		}
+	}
 
-	// A in sparse representation
-	int row_idx[A_size], col_idx[A_size];
-	double value[A_size];
+	// A in sparse representation. The +1 is required because
+	// glp is one-indexed.
+	int * row_idx = new int[nonzeroes+1];
+	int * col_idx = new int[nonzeroes+1];
+	double * value = new double [nonzeroes+1];
 
 	glp_prob *mip;
 	mip = glp_create_prob();
@@ -48,7 +58,6 @@ std::pair<glp_prob *, bool> polytope::create_mixed_program(
 	}
 
 	// set A
-	size_t row, col;
 	i = 0;
 	for (row = 0; row < get_num_halfplanes(); ++row) {
 		for (col = 0; col < get_dimension(); ++col) {
@@ -64,6 +73,11 @@ std::pair<glp_prob *, bool> polytope::create_mixed_program(
 
 	// load data into program
 	glp_load_matrix(mip, i, row_idx, col_idx, value);
+
+	// free
+	delete[] row_idx;
+	delete[] col_idx;
+	delete[] value;
 
 	return std::pair<glp_prob *, bool>(mip, needs_integer_step);
 }
