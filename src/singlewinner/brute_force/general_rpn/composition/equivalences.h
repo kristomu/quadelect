@@ -156,7 +156,7 @@ class fixed_cand_equivalences {
 struct election_scenario_pair {
 	std::list<ballot_group> election;
 	copeland_scenario scenario;
-	int from_perspective_of;
+	ssize_t from_perspective_of;
 };
 
 std::map<int, fixed_cand_equivalences> get_cand_equivalences(

@@ -17,7 +17,7 @@
 class test_instance_generator {
 	public:
 		copeland_scenario before_A, after_A, before_B, after_B;
-		int cand_B_idx_before, cand_B_idx_after;
+		ssize_t cand_B_idx_before, cand_B_idx_after;
 		test_generator tgen;
 
 		bool no_help, no_harm;

@@ -97,7 +97,32 @@ void update_results(
 			for (size_t test_number = 0; test_number < elections.size();
 				++test_number) {
 
-				double result = evaluator[numcands].evaluate(elections[test_number].ballot_vectors[type]);
+				// Quick and dirty.
+				ssize_t from_perspective_of;
+				switch(type) {
+					case TYPE_A:
+						from_perspective_of = elections[test_number].ti.before_A.from_perspective_of;
+						break;
+					case TYPE_B:
+						from_perspective_of = elections[test_number].ti.before_B.from_perspective_of;
+						break;
+					case TYPE_A_PRIME:
+						from_perspective_of = elections[test_number].ti.after_A.from_perspective_of;
+						break;
+					case TYPE_B_PRIME:
+						from_perspective_of = elections[test_number].ti.after_B.from_perspective_of;
+						break;
+				}
+
+				double result;
+
+				if (from_perspective_of < 0) {
+					result = -std::numeric_limits<double>::infinity();
+					std::cout << "inf!" << std::endl;
+				} else {
+					result = evaluator[numcands].evaluate(elections[test_number].ballot_vectors[type]);
+				}
+
 				results_so_far.set_result(funct_idx, test_number,
 					(test_election)type, result);
 			}

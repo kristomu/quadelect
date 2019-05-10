@@ -93,21 +93,17 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 					continue;
 				}
 
-				// Don't deal with eliminations yet.
-				if (pair.first == CP_NONEXISTENT ||
-					pair.second == CP_NONEXISTENT) {
-					std::cout << "Ignoring eliminated pair." << std::endl;
-					continue;
-				}
+				// Make sure we have either CP_NONEXISTENT or a nonnegative
+				// candidate number (i.e. no weird stuff).
+				assert((pair.first == CP_NONEXISTENT || pair.first >= 0) &&
+					(pair.second == CP_NONEXISTENT || pair.second >= 0));
 
-				// Make sure it's safe to cast to unsigned. We should have
-				// handled every special case by the point we get here.
-				assert(pair.first >= 0 && pair.second >= 0);
-
-				size_t before_cand_idx = pair.first,
+				ssize_t before_cand_idx = pair.first,
 					after_cand_idx = pair.second;
-			
-				assert(after_cand_idx < numcands_after);
+
+				if (after_cand_idx >= 0) {
+					assert((size_t)after_cand_idx < numcands_after);
+				}
 
 				test_instance_generator to_add(cur_test);
 				// Set a different seed but use the same sampler and
