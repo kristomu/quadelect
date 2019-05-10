@@ -1,6 +1,7 @@
 #include "relative_criterion_producer.h"
 #include "relative_criteria/mono-add-top.h"
 #include "relative_criteria/mono-raise.h"
+#include "relative_criteria/strong_um.h"
 #include "relative_criteria/clones.h"
 #include "relative_criteria/isda.h"
 
@@ -18,7 +19,8 @@ std::vector<std::shared_ptr<relative_criterion_const> >
 	// but should be sufficient (not miss any).
 
 	std::vector<std::shared_ptr<relative_criterion_const> >
-		monotonicity, clones, base_constraints, relative_constraints;
+		monotonicity, clones, strategy, base_constraints,
+		relative_constraints;
 
 	int numcands;
 
@@ -57,10 +59,20 @@ std::vector<std::shared_ptr<relative_criterion_const> >
 			std::make_shared<mono_add_top_const>(numcands));
 	}
 
+	// Strategy criteria
+	for (numcands = min_num_cands; numcands <= max_num_cands; ++numcands) {
+		for (int cand = 1; cand < numcands; ++cand) {
+			strategy.push_back(
+				std::make_shared<strong_um>(numcands, cand));
+		}
+	}
+
 	// Combine to base constraints.
 	std::copy(clones.begin(), clones.end(),
 		std::back_inserter(base_constraints));
 	std::copy(monotonicity.begin(), monotonicity.end(),
+		std::back_inserter(base_constraints));
+	std::copy(strategy.begin(), strategy.end(),
 		std::back_inserter(base_constraints));
 
 	// Create ISDA constraints. This is very brute force, but we can

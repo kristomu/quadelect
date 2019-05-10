@@ -132,6 +132,7 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/linear_model/constraints/direct_relative_criterion.cc
 	src/linear_model/constraints/relative_criterion_producer.cc
 	src/linear_model/constraints/relative_criteria/clones.cc
+	src/linear_model/constraints/relative_criteria/strong_um.cc
 	src/linear_model/constraints/relative_criteria/mono-raise.cc
 	src/linear_model/constraints/relative_criteria/elimination.cc
 	src/linear_model/constraints/relative_criteria/isda.cc
