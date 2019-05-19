@@ -11,5 +11,5 @@ typedef std::chrono::duration<double> time_delta;
 
 time_pt get_now();
 
-double to_seconds(const time_delta & duration);
-double to_seconds(const time_pt & then, const time_pt & now);
+double secs_elapsed(const time_delta & duration);
+double secs_elapsed(const time_pt & then, const time_pt & now);
