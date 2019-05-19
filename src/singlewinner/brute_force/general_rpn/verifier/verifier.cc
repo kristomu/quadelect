@@ -9,12 +9,12 @@
 
 #include "../../../../config/general_rpn.h"
 
+#include "../../../../tools/time_tools.h"
+
 #include <iostream>
 #include <iterator>
 #include <memory>
 #include <queue>
-
-#include <ctime>
 
 #include "../isda.cc"
 
@@ -78,10 +78,9 @@ class backtracker {
 		void try_algorithms(size_t test_group_idx,
 			test_election current_election_setting);
 
-	public:
 		std::vector<size_t> iteration_count;
 		std::vector<test_and_result> tests_and_results;
-		std::vector<std::vector<algo_t> > prospective_algorithms;
+
 		std::vector<std::vector<int> > algorithm_per_setting;
 		std::vector<gen_custom_function> evaluators;
 		size_t min_numcands, max_numcands;
@@ -90,9 +89,14 @@ class backtracker {
 		// for showing a progress report without wasting too much time
 		// on time-elapsed calls.
 		size_t global_counter, counter_threshold;
-		clock_t last_shown_time, start_time;
+		time_pt last_shown_time, start_time;
 
 		double progress_at_exit;
+
+	public:
+		// Should be made private once a few things have been improved/
+		// refactored.
+		std::vector<std::vector<algo_t> > prospective_algorithms;
 		bool show_reports;
 
 		// Abort after this time has elapsed, or -1 if no such limit
@@ -115,7 +119,7 @@ class backtracker {
 				throw new std::runtime_error("No algorithms to check!");
 			}
 
-			start_time = clock();
+			start_time = get_now();
 			progress_at_exit = 0;
 			try_algorithms(0, TYPE_A);
 
@@ -141,7 +145,7 @@ class backtracker {
 			max_numcands = max_numcands_in;
 			counter_threshold = 2000;
 			global_counter = 0;
-			last_shown_time = 0;
+			last_shown_time = get_now();
 			progress_at_exit = 0;
 			show_reports = true;
 			time_limit = -1;
@@ -177,56 +181,11 @@ double backtracker::get_progress() const {
 	return progress;
 }
 
-std::string format_time(double seconds_total) {
-	// Use doubles to handle extreme values, e.g. 1e+40 seconds.
-
-	assert (seconds_total > 0);
-
-	double secs = fmod(seconds_total, 60);
-	double x = (seconds_total - secs) / 60.0;
-	double mins = fmod(x, 60);
-	x = (x - mins) / 60.0;
-	double hrs = fmod(x, 24);
-	x = (x - hrs) / 24.0;
-	double days = fmod(x,365.24);
-	x = (x - days) / 365.24;
-	double years = x;
-
-	std::string hstr = itos(round(hrs), 2),
-		mstr = itos(round(mins), 2), sstr = itos(round(secs), 2);
-
-	// Set up time string.
-	std::string time_str;
-	if (hrs > 0) {
-		time_str = hstr + ":" + mstr + ":" + sstr;
-	}
-	if (hrs == 0 && mins > 0) {
-		time_str = mstr + ":" + sstr;
-	}
-	if (hrs == 0 && mins == 0) {
-		time_str = sstr + "s";
-	}
-
-	// Set up date str
-	string date_str = "";
-
-	if (days > 0) {
-		date_str = itos(round(days), 2) + "d and ";
-	}
-	if (years > 0) {
-		date_str = dtos(years) + "y, " + date_str;
-	}
-
-	return date_str + time_str;
-}
-
 void backtracker::print_progress() const {
 
 	double progress = get_progress();
 
-	double seconds_run = (last_shown_time-start_time)/
-		(double)CLOCKS_PER_SEC;
-
+	double seconds_run = to_seconds(start_time, last_shown_time);
 	double eta_seconds = (1-progress)/progress * seconds_run;
 
 	std::cerr << "Iteration counts." << std::endl;
@@ -392,7 +351,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 
 		// Time limit check
 		if (time_limit > 0 &&
-			clock() >= start_time + time_limit * CLOCKS_PER_SEC) {
+			to_seconds(start_time, get_now()) >= time_limit) {
 
 			// Record how far we managed to get before forced to exit,
 			// if we haven't already recorded it.
@@ -403,8 +362,9 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		}
 
 		global_counter = 0;
-		if (show_reports && clock() >= last_shown_time + CLOCKS_PER_SEC) {
-			last_shown_time = clock();
+		if (show_reports && to_seconds(last_shown_time,get_now()) > 1) {
+
+			last_shown_time = get_now();
 			print_progress();
 		}
 	}
@@ -540,7 +500,7 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 	bool old_reports = tester.show_reports;
 
 	tester.show_reports = false;
-	double time_limit = 1;
+	double time_limit = 0.1;
 
 	// Dump every group into the incoming_groups priority queue.
 	for (size_t i = 0; i < groups.groups.size(); ++i) {
