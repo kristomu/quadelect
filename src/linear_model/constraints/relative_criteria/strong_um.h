@@ -31,6 +31,9 @@ class strong_um : public relative_criterion_const {
 		constraint get_before_after_equality(std::string before_suffix,
 			std::string after_suffix) const;
 
+		constraint_set no_compromising(std::string before_suffix,
+			std::string after_suffix) const;
+
 		constraint_set retain_honest_ballots(std::string before_suffix,
 			std::string after_suffix) const;
 

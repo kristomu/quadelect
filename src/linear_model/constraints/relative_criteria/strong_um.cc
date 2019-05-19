@@ -45,6 +45,54 @@ constraint_set strong_um::majority_pairwise_beat(
 	return out_set;
 }
 
+constraint_set strong_um::no_compromising(std::string before_suffix,
+	std::string after_suffix) const {
+
+	constraint_set compromise_limits;
+
+	// The strict < is not a bug. The case least_rank = numcands_after is
+	// implemented by before_after_equality.
+	for (size_t least_rank = 1; least_rank < numcands_after; ++least_rank) {
+		// The sum of every ballot ranking the manipulator less than
+		// least_rank ranks from bottom must be equal both before and after.
+		// Se strong_um.h for explanation. This implements Chris Benahm's
+		// revision of the criterion in [link].
+
+		lin_relation compromise_limit;
+		compromise_limit.type = LREL_GE;
+
+		// TODO: Constraint tools should return size_t.
+		for (std::vector<int> permutation:
+			constraint_tools::all_permutations(numcands_after)) {
+
+			bool ranks_b_below_at = false;
+
+			for (size_t rank = 0; rank < least_rank; ++rank) {
+				ranks_b_below_at |= (permutation[numcands_after - rank - 1]
+					== (int)manipulator);
+			}
+
+			if (!ranks_b_below_at) { continue; }
+
+			compromise_limit.lhs.weights.push_back(std::pair<std::string,
+				double>(constraint_tools::permutation_to_str(permutation,
+					after_suffix), 1));
+			compromise_limit.rhs.weights.push_back(std::pair<std::string,
+				double>(constraint_tools::permutation_to_str(permutation,
+					before_suffix), 1));
+		}
+		if (compromise_limit.lhs.weights.empty()) { continue; }
+
+		constraint compromise_limit_const;
+		compromise_limit_const.description = "no_compromising_rank_" +
+			itos(least_rank) + before_suffix + after_suffix;
+		compromise_limit_const.constraint_rel = compromise_limit;
+		compromise_limits.add(compromise_limit_const);
+	}
+
+	return(compromise_limits);
+}
+
 constraint_set strong_um::retain_honest_ballots(std::string before_suffix,
 	std::string after_suffix) const {
 
@@ -101,6 +149,9 @@ constraint_set strong_um::relative_constraints(std::string before_suffix,
 
 	// A must beat B pairwise by a majority.
 	out_set.add(majority_pairwise_beat(before_suffix));
+
+	// Compromise strategy is not permitted.
+	out_set.add(no_compromising(before_suffix, after_suffix));
 
 	// Every after ballot that is not in the hands of the strategists
 	// (i.e. every ballot that ranks A over the manipulator) must have
