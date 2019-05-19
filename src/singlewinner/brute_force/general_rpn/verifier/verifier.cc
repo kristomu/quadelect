@@ -132,9 +132,13 @@ class backtracker {
 
 			// If progress at exit is not set, we must have gone through
 			// the whole search space before exceeding our time budget, so
-			// set progress to 1 (for 100% completion).
+			// set progress accordingly. If we finish just in time,
+			// set progress to 1, but if we finish before time is up,
+			// extrapolate linearly. E.g. finishing in half the allotted
+			// time gives a progress number of 2.
 			if (progress_at_exit == 0) {
-				progress_at_exit = 1;
+				progress_at_exit = std::max(1.0,
+					time_limit/secs_elapsed(start_time, get_now()));
 			}
 
 			return progress_at_exit;
@@ -185,7 +189,7 @@ void backtracker::print_progress() const {
 
 	double progress = get_progress();
 
-	double seconds_run = to_seconds(start_time, last_shown_time);
+	double seconds_run = secs_elapsed(start_time, last_shown_time);
 	double eta_seconds = (1-progress)/progress * seconds_run;
 
 	std::cerr << "Iteration counts." << std::endl;
@@ -351,7 +355,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 
 		// Time limit check
 		if (time_limit > 0 &&
-			to_seconds(start_time, get_now()) >= time_limit) {
+			secs_elapsed(start_time, get_now()) >= time_limit) {
 
 			// Record how far we managed to get before forced to exit,
 			// if we haven't already recorded it.
@@ -362,7 +366,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		}
 
 		global_counter = 0;
-		if (show_reports && to_seconds(last_shown_time,get_now()) > 1) {
+		if (show_reports && secs_elapsed(last_shown_time,get_now()) > 1) {
 
 			last_shown_time = get_now();
 			print_progress();
@@ -539,12 +543,12 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 		output_order.push_back(outgoing_groups.top().group_idx);
 		outgoing_groups.pop();
 
-		// Add any indices that has progress level 1. If what we have
+		// Add any indices that has progress level >= 1. If what we have
 		// so far finishes within the time limit, then every subsequent
-		// test will return progress before exit = 1, which means there's
+		// test will return progress before exit >= 1, which means there's
 		// no point in testing them more than once.
 		while (!outgoing_groups.empty() &&
-			outgoing_groups.top().score == 1) {
+			outgoing_groups.top().score >= 1) {
 
 			output_order.push_back(outgoing_groups.top().group_idx);
 			outgoing_groups.pop();

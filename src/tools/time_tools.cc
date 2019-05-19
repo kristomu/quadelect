@@ -50,10 +50,10 @@ time_pt get_now() {
 	return std::chrono::system_clock::now();
 }
 
-double to_seconds(const time_delta & duration) {
+double secs_elapsed(const time_delta & duration) {
 	return duration.count();
 }
 
-double to_seconds(const time_pt & then, const time_pt & now) {
-	return to_seconds(now-then);
+double secs_elapsed(const time_pt & then, const time_pt & now) {
+	return secs_elapsed(now-then);
 }
