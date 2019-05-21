@@ -467,7 +467,7 @@ class group_score_pair {
 // tables every time to get a better idea of the current group arrangement
 // works on different areas of the search space.
 
-double get_mean_progress(int tries, double time_limit,
+/*double get_mean_progress(int tries, double time_limit,
 	backtracker & tester) {
 
 	// Without taking into account the time it takes to shuffle. I know.
@@ -488,11 +488,28 @@ double get_mean_progress(int tries, double time_limit,
 
 	tester.time_limit = old_time_limit;
 	return progress_count/(double)tries;
+}*/
+
+double get_progress(double time_limit, backtracker & tester) {
+
+	bool old_show_reports = tester.show_reports;
+	double old_time_limit = tester.time_limit;
+
+	tester.show_reports = false;
+	tester.time_limit = time_limit;
+	double progress = tester.try_algorithms();
+	tester.time_limit = old_time_limit;
+	tester.show_reports = old_show_reports;
+
+	return progress;
 }
 
-std::list<size_t> get_group_order(const test_generator_groups & groups,
+// Local search. Repeatedly pick the group that gets the most progress
+// done when added to the end of the list of groups to test.
+
+std::list<size_t> get_group_order(double time_limit,
+	const test_generator_groups & groups,
 	const std::vector<test_results> & all_results, backtracker & tester,
-	const std::vector<std::vector<algo_t> > & functions_to_test,
 	bool report) {
 
 	std::priority_queue<group_score_pair, std::vector<group_score_pair >,
@@ -500,11 +517,6 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 		outgoing_groups;
 
 	std::list<size_t> output_order;
-
-	bool old_reports = tester.show_reports;
-
-	tester.show_reports = false;
-	double time_limit = 0.1;
 
 	// Dump every group into the incoming_groups priority queue.
 	for (size_t i = 0; i < groups.groups.size(); ++i) {
@@ -522,7 +534,7 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 
 			tester.set_tests_and_results(tentative, groups, all_results);
 
-			double progress = get_mean_progress(4, time_limit, tester);
+			double progress = get_progress(time_limit, tester);
 
 			if (report) {
 				std::cout << incoming_groups.top().group_idx << ": progress at"
@@ -543,28 +555,115 @@ std::list<size_t> get_group_order(const test_generator_groups & groups,
 		output_order.push_back(outgoing_groups.top().group_idx);
 		outgoing_groups.pop();
 
-		// Add any indices that has progress level >= 1. If what we have
-		// so far finishes within the time limit, then every subsequent
-		// test will return progress before exit >= 1, which means there's
-		// no point in testing them more than once.
-		while (!outgoing_groups.empty() &&
-			outgoing_groups.top().score >= 1) {
-
-			output_order.push_back(outgoing_groups.top().group_idx);
-			outgoing_groups.pop();
-		}
-
-
 		swap(incoming_groups, outgoing_groups);
 	}
 
-	tester.show_reports = old_reports;
-
-	// get_mean_progress musses up the order of the algorithms, so
-	// fix that by resetting the tester's algorithms.
-	tester.set_algorithms(functions_to_test);
-
 	return output_order;
+}
+
+// Uniformly reduce the number of algorithms until a full pass can be done
+// in the time allotted. This is used to make a more representative sample
+// of the complete algorithms set.
+
+// Uniformly reducing means that e.g. if num_algorithms_per_candidate is
+// 10 and the number of algorithms for 3 candidates is 200, then every
+// 20th algorithm is included.
+
+std::vector<std::vector<algo_t> > reduce_num_algorithms(
+	const std::vector<std::vector<algo_t> > & functions_to_test,
+	size_t num_algorithms_per_candidate) {
+
+	std::vector<std::vector<algo_t> > out;
+
+	for (const std::vector<algo_t> & algorithms_one_cand : 
+		functions_to_test) {
+
+		if (algorithms_one_cand.size() <= num_algorithms_per_candidate) {
+			out.push_back(algorithms_one_cand);
+			continue;
+		}
+
+		std::vector<algo_t> out_this_candidate;
+
+		for (double source_index = 0;
+			source_index < algorithms_one_cand.size();
+			source_index += algorithms_one_cand.size()/(double)
+				num_algorithms_per_candidate) {
+
+			out_this_candidate.push_back(algorithms_one_cand[(int)
+				round(source_index)]);
+		}
+
+		out.push_back(out_this_candidate);
+	}
+
+	return out;
+}
+
+// Perform a bisection search to get the largest (most representative)
+// sample of algorithms that can still be searched in the time allotted.
+
+std::vector<std::vector<algo_t> > get_function_sample(double time_limit,
+	backtracker & tester, 
+	const std::vector<std::vector<algo_t> > & functions_to_test) {
+
+	double progress = 0;
+	double tolerance = 1e-15;
+
+	// We want a value x for reduce_num_algorithms so that the tester
+	// completes in exactly time_limit. Find said x with a bisection
+	// method (perhaps some other method later).
+
+	double high = 0, low = 1;
+	double f_low = -1000;
+
+	for (const auto & ftt: functions_to_test) {
+		high = std::max(high, (double)ftt.size());
+	}
+
+	for (int iter = 0; iter < 100; ++iter) {
+
+		double mid = round((high + low) * 0.5);
+
+		std::vector<std::vector<algo_t> > reduced_functions_to_test =
+			reduce_num_algorithms(functions_to_test, mid);
+
+		// Found a small enough range to conclude.
+		if (round(high) - round(mid) < 1) {
+			std::cout << "mid is " << mid << std::endl;
+			tester.set_algorithms(functions_to_test);
+			return reduced_functions_to_test;
+		}
+
+		tester.set_algorithms(reduced_functions_to_test);
+
+		progress = get_progress(time_limit, tester);
+
+		std::cout << "iter " << iter << ", progress " << progress << " mid " << mid << std::endl;
+
+		// We want progress to be 1. Bisection search finds the root, i.e.
+		// where y = 0, so we subtract to adjust.
+		// Furthermore, we want y to be negative for low values and
+		// positive for high ones. (Is that necessary?)
+		double y = 1 - progress;
+
+		if (fabs(y) < tolerance) {
+			// Found the correct size sample.
+			std::cout << "mid is " << mid << std::endl;
+			tester.set_algorithms(functions_to_test);
+			return reduced_functions_to_test;
+		}
+
+		if (sign(y) == sign(f_low)) {
+			low = mid;
+			f_low = y;
+		} else {
+			high = mid;
+		}
+	}
+
+	throw std::runtime_error("Did not find the correct number of algorithms"
+		" to finish search in time");
 }
 
 void print_group_order(const std::list<size_t> & group_order) {
@@ -705,9 +804,25 @@ int main(int argc, char ** argv) {
 
 	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
+		double time_limit = 0.1;
+
 		std::cout << "Group order not specified. Generating...\n";
-		group_order = get_group_order(grps, all_results, verifier,
-			functions_to_test, true);
+		std::cout << "Step one:" << std::endl;
+		group_order = get_group_order(time_limit, grps, all_results,
+			verifier, true);
+
+		std::vector<std::vector<algo_t> > function_sample = 
+			get_function_sample(time_limit, verifier, functions_to_test);
+
+		verifier.set_algorithms(function_sample);
+		verifier.set_tests_and_results(group_order, grps, all_results);
+
+		std::cout << "Step two:" << std::endl;
+		group_order = get_group_order(time_limit, grps, all_results,
+			verifier, true);
+
+		verifier.set_algorithms(functions_to_test);
+
 		std::cout << "Insert the following into the config file " <<
 			"to skip this step the next time:\n";
 		print_group_order(group_order);
