@@ -463,32 +463,8 @@ class group_score_pair {
 		}
 };
 
-// Local search subroutine: try the same search with randomized algorithm
-// tables every time to get a better idea of the current group arrangement
-// works on different areas of the search space.
-
-/*double get_mean_progress(int tries, double time_limit,
-	backtracker & tester) {
-
-	// Without taking into account the time it takes to shuffle. I know.
-	double time_limit_per = time_limit / (double)tries;
-	double old_time_limit = tester.time_limit;
-	tester.time_limit = time_limit_per;
-
-	double progress_count = 0;
-
-	for (int i = 0; i < tries; ++i) {
-		// Violate the law of Demeter left and right.
-		for (size_t j = 0; j < tester.prospective_algorithms.size(); ++j) {
-			std::random_shuffle(tester.prospective_algorithms[j].begin(),
-				tester.prospective_algorithms[j].end());
-		}
-		progress_count += tester.try_algorithms();
-	}
-
-	tester.time_limit = old_time_limit;
-	return progress_count/(double)tries;
-}*/
+// Local search subroutine for getting how much progress we can attain
+// in a given time.
 
 double get_progress(double time_limit, backtracker & tester) {
 
