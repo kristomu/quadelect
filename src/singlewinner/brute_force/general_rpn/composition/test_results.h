@@ -94,4 +94,15 @@ class test_results {
 
 		bool passes_tests(const std::vector<int> & method_indices,
 			bool no_harm, bool no_help) const;
+
+		// Do the same, but for failing tests, record what tests
+		// failed. Run the whole way through instead of aborting at
+		// first failed test. This is used for moving the most picky
+		// tests to the beginning, for performance optimization.
+
+		bool passes_tests(const std::vector<int> & method_indices,
+			std::vector<size_t> & fail_counts, size_t must_pass_first_k,
+			bool no_harm, bool no_help) const;
+
+		void swap(size_t first_pos, size_t second_pos);
 };

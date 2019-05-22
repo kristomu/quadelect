@@ -107,10 +107,27 @@ class backtracker {
 		// needs to be improved.
 		std::vector<std::vector<int> > max_num_algorithms;
 
+		// Record which tests fail methods in the given group.
+		// If -1, does no recording.
+		int record_failures_for_group_idx = -1;
+		// Specifies that a method must pass the k first tests before
+		// any failures are recorded.
+		size_t must_pass_first_k = 0;
+		std::vector<size_t> failures_per_test;
+
 		void set_tests_and_results(
 			const std::list<size_t> & order,
 			const test_generator_groups & all_groups,
 			const std::vector<test_results> & all_results);
+
+		void set_test_reporting(int group_idx) {
+			record_failures_for_group_idx = group_idx;
+
+			if (group_idx == -1) { return; }
+
+			failures_per_test = std::vector<size_t>(
+				tests_and_results[group_idx].group_results.num_tests, 0);
+		}
 
 		void set_algorithms(const std::vector<vector<algo_t> > & algos_in);
 
@@ -376,10 +393,22 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	// If we're at the last election setting, run a test, because we have
 	// algorithms for every selection setting (A, B, A', B').
 	if (current_election_setting == TYPE_B_PRIME) {
-		bool pass = tests_and_results[test_group_idx].group_results.
-			passes_tests(algorithm_per_setting[test_group_idx],
-				tests_and_results[test_group_idx].test_group.get_no_harm(),
-				tests_and_results[test_group_idx].test_group.get_no_help());
+		bool pass;
+
+		// If we've been told to record just which tests fail the result,
+		// do so.
+		if (record_failures_for_group_idx == (int)test_group_idx) {
+			pass = tests_and_results[test_group_idx].group_results.
+				passes_tests(algorithm_per_setting[test_group_idx],
+					failures_per_test, must_pass_first_k,
+					tests_and_results[test_group_idx].test_group.get_no_harm(),
+					tests_and_results[test_group_idx].test_group.get_no_help());
+		} else {
+			pass = tests_and_results[test_group_idx].group_results.
+				passes_tests(algorithm_per_setting[test_group_idx],
+					tests_and_results[test_group_idx].test_group.get_no_harm(),
+					tests_and_results[test_group_idx].test_group.get_no_help());
+		}
 
 		// Abort early if no pass.
 		if (!pass) { return; }
@@ -656,6 +685,37 @@ void print_group_order(const std::list<size_t> & group_order) {
 	std::cout << "];\n";
 }
 
+size_t get_most_discriminating_group(backtracker & tester,
+	size_t group_index, size_t must_pass_first_k) {
+
+	// remove when functionality has been implemented.
+	//assert (must_pass_first_k == 0);
+
+	tester.must_pass_first_k = must_pass_first_k;
+
+	int old_fail_report = tester.record_failures_for_group_idx;
+
+	tester.set_test_reporting(group_index);
+	tester.show_reports = false;
+	tester.try_algorithms();
+	tester.show_reports = true;
+
+	size_t record = 0;
+	size_t recordholder = 0;
+
+	for (size_t i = 0; i < tester.failures_per_test.size(); ++i) {
+		if (tester.failures_per_test[i] > record) {
+			record = tester.failures_per_test[i];
+			recordholder = i;
+		}
+	}
+
+	tester.set_test_reporting(old_fail_report);
+	tester.must_pass_first_k = -1;
+	return recordholder;
+
+}
+
 int main(int argc, char ** argv) {
 	size_t min_numcands = 3, max_numcands = 4;
 	rng randomizer(RNG_ENTROPY);
@@ -780,6 +840,7 @@ int main(int argc, char ** argv) {
 
 	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
+		std::vector<std::vector<algo_t> > function_sample;
 		double time_limit = 0.1;
 
 		std::cout << "Group order not specified. Generating...\n";
@@ -787,7 +848,7 @@ int main(int argc, char ** argv) {
 		group_order = get_group_order(time_limit, grps, all_results,
 			verifier, true);
 
-		std::vector<std::vector<algo_t> > function_sample = 
+		function_sample =
 			get_function_sample(time_limit, verifier, functions_to_test);
 
 		verifier.set_algorithms(function_sample);
@@ -797,11 +858,38 @@ int main(int argc, char ** argv) {
 		group_order = get_group_order(time_limit, grps, all_results,
 			verifier, true);
 
-		verifier.set_algorithms(functions_to_test);
-
 		std::cout << "Insert the following into the config file " <<
 			"to skip this step the next time:\n";
 		print_group_order(group_order);
+
+		std::cout << "Now doing some optimization." << std::endl;
+		std::cout << "\tBefore: " << get_progress(time_limit, verifier)
+			<< std::endl;
+
+		// TEST! Very quick, very dirty.
+		size_t group_idx = 0;
+		for (size_t group : group_order) {
+			bool gradient_loss = false;
+			for (size_t tests_to_skip = 0; tests_to_skip < 
+				verifier.failures_per_test.size() && !gradient_loss;
+				++tests_to_skip) {
+
+				double most_disc = get_most_discriminating_group(verifier,
+					group_idx, tests_to_skip);
+				all_results[group].swap(most_disc, tests_to_skip);
+
+				size_t discgroup = get_most_discriminating_group(verifier,
+					group_idx, tests_to_skip);
+				std::cout << discgroup << " ";
+				if (discgroup != tests_to_skip) {gradient_loss = true; }
+			}
+			std::cout << std::endl;
+
+			group_idx++;
+		}
+
+		std::cout << "\tAfter: " << get_progress(time_limit, verifier)
+			<< std::endl;
 	}
 
 	// Print the order we decided upon.
@@ -812,9 +900,7 @@ int main(int argc, char ** argv) {
 		std::cout << "\n";
 	}
 
-	std::vector<int> cur_results_method_indices(4, -1);
-	std::map<copeland_scenario, int> set_algorithm_indices;
-
+	verifier.set_algorithms(functions_to_test);
 	verifier.set_tests_and_results(group_order, grps, all_results);
 	verifier.try_algorithms();
 

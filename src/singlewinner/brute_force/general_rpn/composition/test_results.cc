@@ -135,3 +135,70 @@ bool test_results::passes_tests(
 
 	return true;
 }
+
+// Increments the counter vector for all indices that correspond to a
+// failed test.
+bool test_results::passes_tests(
+	const std::vector<int> & method_indices,
+	std::vector<size_t> & fail_counts, size_t must_pass_first_k,
+	bool no_harm, bool no_help) const {
+
+	assert(fail_counts.size() == num_tests);
+
+	bool fail = false;
+
+	for (int type = 0; type < NUM_REL_ELECTION_TYPES; ++type) {
+		results_start_position[type] = get_linear_idx(method_indices[type],
+			0,  (test_election)type);
+	}
+
+	for (size_t i = 0; i < num_tests; ++i) {
+		test_t result_A  = results[results_start_position[TYPE_A]+i],
+			   result_B  = results[results_start_position[TYPE_B]+i],
+			   result_Ap = results[results_start_position[TYPE_A_PRIME]+i],
+			   result_Bp = results[results_start_position[TYPE_B_PRIME]+i];
+
+		int before_sign = sign(result_A - result_B),
+			after_sign = sign(result_Ap - result_Bp);
+
+		bool helped = before_sign < after_sign,
+			 harmed = before_sign > after_sign;
+
+		if ((no_harm && harmed) || (no_help && helped)) {
+			// If it's one of the first k tests (that we must pass), abort
+			// outright.
+			if (i < must_pass_first_k) {
+				return false;
+			}
+			// Otherwise mark this test as failing.
+			++fail_counts[i]; 
+			fail = true;
+		}
+	}
+
+	return fail;
+}
+
+// Swap all test results at test index first_test with those at
+// index second_test.
+void test_results::swap(size_t first_test, size_t second_test) {
+	if (first_test == second_test) { return; }
+	assert(first_test < num_tests && second_test < num_tests);
+
+	// [0..4: type] [0...num_methods: method number]
+	//					[0...num_test_instances : test number]
+
+	for (size_t type = 0; type < NUM_REL_ELECTION_TYPES; ++type) {
+		for (size_t method = 0; method < num_methods[type]; ++method) {
+			size_t first_loc = get_linear_idx(method, 
+				first_test, (test_election)type);
+			size_t second_loc = get_linear_idx(method,
+				second_test, (test_election)type);
+			assert (first_loc < total_num_entries);
+			assert (second_loc < total_num_entries);
+			// BEWARE! Using swap() without std:: in front causes a
+			// segfault!
+			std::swap(results[first_loc], results[second_loc]);
+		}
+	}
+}
