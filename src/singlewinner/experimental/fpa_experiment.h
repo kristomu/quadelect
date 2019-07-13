@@ -20,7 +20,7 @@ class fpa_experiment : public election_method {
 				bool winner_only) const;
 
 		string name() const {
-			return ("EXP:fpA-experiment");
+			return ("EXP:fpA-experiment/Simmons");
 		}
 };
 
