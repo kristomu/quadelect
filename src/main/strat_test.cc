@@ -1,6 +1,6 @@
 #include "strat_test.h"
 
-/*		
+/*
 		int total_generation_attempts;
 		election_method * method;
 		*/
@@ -30,7 +30,7 @@ strategy_result StrategyTest::attempt_execute_strategy() { // Mega method, fix l
             return(STRAT_FAILED);
         }
 
-        ballots = ballot_gens[ballot_gen_idx++]->generate_ballots(numvoters, 
+        ballots = ballot_gens[ballot_gen_idx++]->generate_ballots(numvoters,
         	numcands, *randomizer);
         if (ballot_gen_idx == ballot_gens.size()) {
         	ballot_gen_idx = 0;
@@ -126,8 +126,7 @@ strategy_result StrategyTest::attempt_execute_strategy() { // Mega method, fix l
         if (num_prefers_challenger == 0) continue;
         assert (num_prefers_challenger > 0);
 
-        // was 512
-        for (int tries = 0; tries < 384 && !strategy_worked; ++tries) {
+        for (int tries = 0; tries < strategy_attempts_per_try && !strategy_worked; ++tries) {
             // Add the strategic ballot by drawing from IC.
             int iterations = 1 + tries % 3, q;
             double cumul = 0;

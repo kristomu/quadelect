@@ -105,7 +105,8 @@ pair<double, double> confidence_interval(int n, double p_mean, double z) {
 
 void test_strategy(election_method * to_test, rng & randomizer,
                    int num_methods, pure_ballot_generator * ballot_gen,
-                   int numvoters, int numcands) {
+                   int numvoters, int numcands, int num_iterations,
+                   int num_strategy_attempts_per_iter) {
 
     // Generate a random ballot set.
     // First should be true: compress the ballots. Second, that's
@@ -149,11 +150,11 @@ void test_strategy(election_method * to_test, rng & randomizer,
     ///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
    /* ballotgens.push_back(new dirichlet(true));*/
 
-	StrategyTest st(ballotgens, &ic, numvoters, numcands, randomizer, 
-		to_test, 0);
+	StrategyTest st(ballotgens, &ic, numvoters, numcands, randomizer,
+		to_test, 0, num_strategy_attempts_per_iter);
 
     int worked = 0, f = 1;
-    int fmax = 5000; //100000;
+    int fmax = num_iterations;
     int total_generation_attempts = 0;
 
     for (f = 0; f < fmax; ++f) {
@@ -191,7 +192,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
     {
         cout << "Worked in " << worked << " ("<< lower_bound << ", " << upper_bound << ") out of " << f << " for " <<
              to_test->name() << " ties: " << total_generation_attempts-f << " (" << tiefreq << ")" << endl;
-        cout << "strat;" << ballot_gen->name() << ";" << to_test->name() 
+        cout << "strat;" << numvoters << ";" << numcands << ";" << ballot_gen->name() << ";" << to_test->name()
             << ";" << lower_bound << ";" << upper_bound << ";" << tiefreq
             << endl;
     }
@@ -207,7 +208,7 @@ int main(int argc, const char ** argv) {
     types.push_back(CM_WV);
 
     if (argc < 3) {
-        cerr << "Usage: " << argv[0] << " [num voters]" 
+        cerr << "Usage: " << argv[0] << " [num voters]"
             << " [num candidates]" << endl;
         return(-1);
     }
@@ -238,28 +239,41 @@ int main(int argc, const char ** argv) {
     // Smith,FPP also fails to impress. 0.78 IC susceptibility
     //condorcets.push_back(new comma(new plurality(PT_WHOLE), new smith_set()));
     // And alas. With 4 cddts, Smith-IRV does much better than fpA-fpC.
+    /*condorcetsrc.push_back(new fpa_experiment());
+    condorcetsrc.push_back(new minmaxy_experimental());
     condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
     condorcetsrc.push_back(new loser_elimination(new antiplurality(PT_WHOLE), false, true));
     condorcetsrc.push_back(new antiplurality(PT_WHOLE));
-    condorcetsrc.push_back(new fpa_experiment());
-    condorcetsrc.push_back(new minmaxy_experimental());
-    condorcetsrc.push_back(new schulze(CM_WV));
+    condorcetsrc.push_back(new schulze(CM_WV));*/
 
     //cout << "Test time!" << endl;
     //cout << "Thy name is " << name << endl;
 
     condorcet_set cond;
     smith_set smith;
+    landau_set landau;
 
 	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
 		if (numcands < 4) {
 			// faster
+            condorcets.push_back(new slash(condorcetsrc[counter], &cond));
 			condorcets.push_back(new comma(condorcetsrc[counter], &cond));
 		} else {
 			// more general
+            condorcets.push_back(new slash(condorcetsrc[counter], &smith));
 			condorcets.push_back(new comma(condorcetsrc[counter], &smith));
 		}
     }
+
+    // Landau
+    for (counter = 0; counter < condorcetsrc.size(); ++counter) {
+        condorcets.push_back(new comma(condorcetsrc[counter], &landau));
+        condorcets.push_back(new slash(condorcetsrc[counter], &landau));
+    }
+
+    // For comparison purposes, even though it isn't a Condorcet.
+    //condorcets.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
+    condorcets.push_back(new fpa_experiment());
 
     cout << "There are " << condorcets.size() << " methods." << endl;
 
@@ -270,15 +284,19 @@ int main(int argc, const char ** argv) {
     int dimensions = 4;
     // Something is wrong with this one. Check later.
     //ballotgens.push_back(new dirichlet(false));
-    ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
     ballotgens.push_back(new impartial(true, false));
+    ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
+
+    int num_iterations = 5000; //100000;
+    int num_strategy_attempts_per_iter = 3*768; // must have 3 as a factor!
 
     for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
 	cout << "Using ballot domain " << ballotgens[bg]->name() << endl;
 	for (counter = 0; counter < condorcets.size(); counter ++) {
             	cout << "\t" << counter << ": " << flush;
-		test_strategy(condorcets[counter], randomizers[0], 
-			condorcets.size(), ballotgens[bg], numvoters, numcands);
+		test_strategy(condorcets[counter], randomizers[0],
+			condorcets.size(), ballotgens[bg], numvoters, numcands,
+            num_iterations, num_strategy_attempts_per_iter);
         }
     }
 }

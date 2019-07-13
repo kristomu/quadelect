@@ -33,9 +33,10 @@ class StrategyTest : public Test {
 		list<ballot_group> ballots;
 		vector<pure_ballot_generator *> ballot_gens;
 		pure_ballot_generator * strat_generator;
+		int strategy_attempts_per_try;
 
 		strategy_result attempt_execute_strategy(); // Mega method, fix later
-		
+
 		bool too_many_ties;
 		size_t ballot_gen_idx;
 
@@ -43,12 +44,16 @@ class StrategyTest : public Test {
 
 		StrategyTest(vector<pure_ballot_generator *> ballot_gens_in,
 			pure_ballot_generator * strat_generator_in,
-			int numvoters_in, int numcands_in, rng & randomizer_in, 
-			election_method * method_in, int index) {
+			int numvoters_in, int numcands_in, rng & randomizer_in,
+			election_method * method_in, int index,
+			int strat_attempts_per_try_in) {
+
 			total_generation_attempts = 0;
 
 			assert (numvoters_in > 0);
 			assert (numcands_in > 0);
+			assert (strat_attempts_per_try_in > 0);
+
 			randomizer = &randomizer_in;
 			method = method_in;
 			numvoters = numvoters_in;
@@ -57,6 +62,9 @@ class StrategyTest : public Test {
 			strat_generator = strat_generator_in;
 			too_many_ties = false;
 			ballot_gen_idx = 0;
+
+			// Was 384
+			strategy_attempts_per_try = strat_attempts_per_try_in;
 		}
 
 		double perform_test() {
@@ -79,7 +87,7 @@ class StrategyTest : public Test {
 		std::string name() const { return ("Strategy(multiple/" +
 			method->name() + ")");}
 
-		int get_total_generation_attempts() const { 
+		int get_total_generation_attempts() const {
 			return(total_generation_attempts); }
 
 		double get_minimum() const { return(0); }
