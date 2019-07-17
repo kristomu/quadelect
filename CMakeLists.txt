@@ -146,6 +146,7 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/modes/breg.cc
 	src/images/color/color.cc
 	src/modes/yee.cc
+	src/modes/barycentric.cc
 	src/modes/interpret.cc)
 
 # Set the different executables.

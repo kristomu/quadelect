@@ -2,7 +2,7 @@
 // combination we can think of, then either dump it all so the user can specify
 // which methods interest him, or intersect it with such a list winnowed down
 // by the user. A more sophisticated version might try to parse the actual names
-// so that we don't have to init every possible combination of methods 
+// so that we don't have to init every possible combination of methods
 // beforehand. (BLUESKY do that, which would thus permit things like LE/LE/LE/
 // (Smith,Plurality).)
 
@@ -29,7 +29,7 @@
 
 // Single-winner methods, including metamethods.
 
-// DONE: Meta-header that includes all of these. 
+// DONE: Meta-header that includes all of these.
 // TODO? Perhaps move the "factory" itself into that, too.
 #include "../singlewinner/all.h"
 
@@ -50,11 +50,14 @@
 #include "../images/color/color.h"
 #include <openssl/sha.h>
 
+// Barycentric characterization mode
+#include "../modes/barycentric.h"
+
 // Interpreter itself.
 #include "../modes/interpret.h"
 
 list<pairwise_method *> get_pairwise_methods(
-		const list<pairwise_type> & types, 
+		const list<pairwise_type> & types,
 		bool include_experimental) {
 
 	// For each type, and for each pairwise method, dump that combination
@@ -101,10 +104,10 @@ list<pairwise_method *> get_pairwise_methods(
 			out.push_back(new tup(*pos, TUP_ALT_6));
 		}
 	}
-	
+
 	// Doesn't matter what these are set to. There should be a test for that
 	// so that we can just do an if.
-	
+
 	// Defined elsewhere...
 	//out.push_back(new copeland(CM_WV));
 
@@ -125,7 +128,7 @@ list<positional *> get_positional_methods(bool truncate) {
 			types.push_back(positional_type(p));
 	// No point in using both if you aren't going to truncate.
 	else	types.push_back(positional_type(PT_FRACTIONAL));
-	
+
 	list<positional *> out;
 
 	for (list<positional_type>::const_iterator pos = types.begin(); pos !=
@@ -184,20 +187,20 @@ template <typename T, typename Q> list<election_method *> expand_meta(
 			if ((*pos)->name() == (*spos)->name()) continue;
 
 			kombinat.push_back(new comma(*pos, *spos));
-			// Use indiscriminately at your own risk! I'm not 
-			// trusting this wholly until I can do hopefuls 
+			// Use indiscriminately at your own risk! I'm not
+			// trusting this wholly until I can do hopefuls
 			// transparently.
 			if (is_positional)
 				kombinat.push_back(new slash(*pos, *spos));
 		}
-		// These are therefore constrained to positional 
+		// These are therefore constrained to positional
 		// methods for the time being. I think there may be bugs with
 		// hopefuls for some of the advanced methods. I'm therefore
-		// not doing anything with them, limiting LE and slash to 
+		// not doing anything with them, limiting LE and slash to
 		if (is_positional) {
-			kombinat.push_back(new loser_elimination(*pos, true, 
+			kombinat.push_back(new loser_elimination(*pos, true,
 						true));
-			kombinat.push_back(new loser_elimination(*pos, false, 
+			kombinat.push_back(new loser_elimination(*pos, false,
 						true));
 		}
 	}
@@ -206,7 +209,7 @@ template <typename T, typename Q> list<election_method *> expand_meta(
 }
 
 
-list<election_method *> get_singlewinner_methods(bool truncate, 
+list<election_method *> get_singlewinner_methods(bool truncate,
 	bool include_experimental) {
 
 	list<election_method *> toRet;
@@ -263,14 +266,14 @@ list<election_method *> get_singlewinner_methods(bool truncate,
 	}
 
 	// Then expand:
-	list<election_method *> expanded = expand_meta(toRet, pairwise_sets, 
+	list<election_method *> expanded = expand_meta(toRet, pairwise_sets,
 			false);
 
 	// and
 
 	copy(positional_methods.begin(), positional_methods.end(),
 			back_inserter(toRet));
-	copy(posnl_expanded.begin(), posnl_expanded.end(), 
+	copy(posnl_expanded.begin(), posnl_expanded.end(),
 			back_inserter(toRet));
 	copy(expanded.begin(), expanded.end(), back_inserter(toRet));
 
@@ -292,7 +295,7 @@ list<pure_ballot_generator *> get_all_generators(bool compress, bool truncate) {
 	return(toRet);
 }
 
-bayesian_regret setup_regret(list<election_method *> & methods, 
+bayesian_regret setup_regret(list<election_method *> & methods,
 		list<pure_ballot_generator *> & generators,
 		int maxiters, int min_candidates, int max_candidates,
 		int min_voters, int max_voters, rng & randomizer) {
@@ -314,11 +317,11 @@ bayesian_regret setup_regret(list<election_method *> & methods,
 	return(br);
 }
 
-// The hack with the generators is required so that C++ doesn't delete them 
+// The hack with the generators is required so that C++ doesn't delete them
 // once the function is done.
 yee setup_yee(list<election_method *> & methods, int num_voters, int num_cands,
 		bool do_use_autopilot, string case_prefix, int picture_size,
-		double sigma, gaussian_generator & gaussian, 
+		double sigma, gaussian_generator & gaussian,
 		uniform_generator & uniform, rng & randomizer) {
 
 	yee to_output;
@@ -328,6 +331,18 @@ yee setup_yee(list<election_method *> & methods, int num_voters, int num_cands,
 
 	to_output.set_voter_pdf(&gaussian);
 	to_output.set_candidate_pdf(&uniform);
+
+	to_output.add_methods(methods.begin(), methods.end());
+
+	assert(to_output.init(randomizer));
+
+	return(to_output);
+}
+
+barycentric setup_bary(list<election_method *> & methods,
+	rng & randomizer) {
+
+	barycentric to_output;
 
 	to_output.add_methods(methods.begin(), methods.end());
 
@@ -482,13 +497,13 @@ void print_usage_info(string program_name) {
 	cout << "\t-bi [maxiters]\tDo a maximum of [maxiters] rounds.\n\t\t\t"<<
 		"Default is 20000." << endl;
 	cout << "\t-bcm [cands]\tUse a minimum of [cands] candidates when"
-		<< " performing a\n\t\t\tBayesian regret round. Default is 3." 
+		<< " performing a\n\t\t\tBayesian regret round. Default is 3."
 		<< endl;
 	cout << "\t-bcx [cands]\tUse a maximum of [cands] candidates when"
 		<< " performing a\n\t\t\tBayesian regret round. Default is 20."
 		<< endl;
 	cout << "\t-bvm [voters]\tUse a minimum of [voters] voters when"
-		<< " performing a\n\t\t\tBayesian regret round. Default is 4." 
+		<< " performing a\n\t\t\tBayesian regret round. Default is 4."
 		<< endl;
 	cout << "\t-bvx [voters]\tUse a maximum of [voters] voters when"
 		<< " performing a\n\t\t\tBayesian regret round. Default is 200."
@@ -517,6 +532,10 @@ void print_usage_info(string program_name) {
 		"pixel.\n\t\t\tDefault is 1000." << endl;
 	cout << "\t-yc [cands]\tPlace [cands] random candidates on the Yee"<<
 		" map.\n\t\t\tDefault is 4." << endl;
+	std::cout << std::endl;
+	std::cout << "Barycentric characterization options:" << std::endl;
+	std::cout << "\t-c\t\tEnable voter method barycentric visualization." <<
+		std::endl;
 }
 
 int main(int argc, char * * argv) {
@@ -531,8 +550,8 @@ int main(int argc, char * * argv) {
 	int breg_rounds = 20000, breg_min_cands = 3, breg_max_cands = 20,
 	    breg_min_voters = 4, breg_max_voters = 200, breg_report_freq = 100;
 
-	bool run_yee = false, run_breg = false, run_int = false,
-	     list_methods = false, list_gen = false, list_int = false, 
+	bool run_yee = false, run_breg = false, run_int = false, run_bary = false,
+	     list_methods = false, list_gen = false, list_int = false,
 	     use_exp_averaging = false;
 	int run_how_many = 0;
 
@@ -579,7 +598,7 @@ int main(int argc, char * * argv) {
 
 	int c, option_index = 0, opt_flag;
 
-	while ((c = getopt_long_only(argc, argv, "ebyMGIim:g:r:",
+	while ((c = getopt_long_only(argc, argv, "ebycMGIim:g:r:",
 				long_options, &option_index)) != -1) {
 
 		if (option_index != 0)
@@ -656,6 +675,10 @@ int main(int argc, char * * argv) {
 			case 'e': // enable experimental
 				include_experimental = true;
 				break;
+			case 'c': // do barycentric characterization
+				run_bary = true;
+				++run_how_many;
+				break;
 			case 'y': // do Yee
 				run_yee = true;
 				++run_how_many;
@@ -696,7 +719,7 @@ int main(int argc, char * * argv) {
 				if (option_index != 0)
 					option_index = 0;
 				else {
-					/*cout << "I pity the foo. " << (char)c 
+					/*cout << "I pity the foo. " << (char)c
 						<< endl;*/
 					success = false;
 				}
@@ -725,7 +748,7 @@ int main(int argc, char * * argv) {
 		include_experimental);
 	list<election_method *>::const_iterator pos;
 
-	list<pure_ballot_generator *> generators = get_all_generators(true, 
+	list<pure_ballot_generator *> generators = get_all_generators(true,
 			false);
 
 	list<pure_ballot_generator *> default_br_generators;
@@ -767,12 +790,12 @@ int main(int argc, char * * argv) {
 		if (*(methods.begin()) == NULL)
 			return(-1); // couldn't open file.
 
-		cout << "Method constraint: loaded " << methods.size() 
+		cout << "Method constraint: loaded " << methods.size()
 			<< " methods." << endl;
 	}
 
 	if (constrain_generators) {
-		generators = intersect_by_file(generators, 
+		generators = intersect_by_file(generators,
 				generator_constraint_fn);
 		if (generators.empty() || *generators.begin() == NULL) {
 			cerr << argv[0] << ": Found no eligible method names in"
@@ -806,13 +829,14 @@ int main(int argc, char * * argv) {
 	cout << "Random number generator: using seed " << seed << endl;
 	randomizer.s_rand(seed);
 
-	// Run_yee and Run_breg goes here.
+	// Run_yee, Run_breg, run_bary goes here.
 	// You need to prepare all the right stuff and then call either yee
 	// or breg. After it's done, just use the same loop since they're both
 	// instances of the ABC, mode.
 
 	yee yee_mode;
 	bayesian_regret br_mode;
+	barycentric bary_mode;
 	pair<bool, interpreter_mode> int_mode;
 	mode * mode_running;
 
@@ -837,7 +861,7 @@ int main(int argc, char * * argv) {
 				"long time." << endl;
 		}
 
-		yee_mode = setup_yee(methods, yee_voters, yee_candidates, 
+		yee_mode = setup_yee(methods, yee_voters, yee_candidates,
 				yee_autopilot, yee_prefix, yee_size, yee_sigma,
 				gaussian, uniform, randomizer);
 
@@ -876,6 +900,14 @@ int main(int argc, char * * argv) {
 		use_exp_averaging = false;
 	}
 
+	if (run_bary) {
+		std::cout << "Setting up barycentric visualization" << std::endl;
+
+		bary_mode = setup_bary(methods, randomizer);
+
+		mode_running = &bary_mode;
+	}
+
 	if (run_int) {
 		cout << "Setting up ballot interpretation..." << endl;
 		cout << "\t\t- input file: " << int_source_file << endl;
@@ -884,14 +916,14 @@ int main(int argc, char * * argv) {
 		cout << "\t\t- number of methods: " << methods.size() << endl;
 
 		list<const interpreter *> int_temp; // yay conversion!
-		for (list<interpreter *>::const_iterator cpos = 
-				interpreters.begin(); 
+		for (list<interpreter *>::const_iterator cpos =
+				interpreters.begin();
 				cpos != interpreters.end(); ++cpos)
 			int_temp.push_back(*cpos);
 
 		int_mode = setup_interpreter_from_file(methods, int_temp,
 				int_source_file, randomizer);
-		
+
 		if (!int_mode.first)
 			return(-1); // Something wrong, outta here.
 
@@ -904,8 +936,8 @@ int main(int argc, char * * argv) {
         double start_time = get_abs_time(), cur_checkpoint = start_time,
 	       cur_disp_checkpoint = start_time;
 	double per_round = -1;
-	
-    while ( (progress = mode_running->do_round(true, false, randomizer)) 
+
+    while ( (progress = mode_running->do_round(true, false, randomizer))
 		!= "") {
 		cout << progress << endl;
 
@@ -937,7 +969,7 @@ int main(int argc, char * * argv) {
 						get_max_rounds()-mode_running->
 						get_current_round()) << "s, "<<
 				" for a total of " <<
-				per_round * mode_running->get_max_rounds() << 
+				per_round * mode_running->get_max_rounds() <<
 				" s. ]" << endl;
 
 			cur_disp_checkpoint = cur_checkpoint;
@@ -947,13 +979,13 @@ int main(int argc, char * * argv) {
 		// If we're at the last round or if at the breg_report_freq and
 		// Bayesian regret, report.
 
-		if (mode_running->get_current_round() == 
+		if (mode_running->get_current_round() ==
 				mode_running->get_max_rounds())
 			should_display_stats = true;
-		else	should_display_stats = run_breg && 
-				mode_running->get_current_round() % 
+		else	should_display_stats = run_breg &&
+				mode_running->get_current_round() %
 				breg_report_freq == (breg_report_freq-1);
-		
+
 		if (should_display_stats) {
 			vector<string> report = mode_running->provide_status();
 			copy(report.begin(), report.end(), ostream_iterator<
