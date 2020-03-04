@@ -14,14 +14,14 @@ using namespace std;
 // below-mean score (if average loser elimination).
 
 ordering loser_elimination::break_tie(const ordering & original_ordering,
-		const list<ordering> & past_ordering, 
+		const list<ordering> & past_ordering,
 		int num_candidates) const {
 
 	ordering fixed_ordering = original_ordering;
 
-	// While more than one candidate is ranked last, go down the 
+	// While more than one candidate is ranked last, go down the
 	// past_ordering list, breaking ties.
-	
+
 	bool tied = true;
 	ordering::const_reverse_iterator pos;
 
@@ -39,7 +39,7 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 		if (!tied)
 			continue;
 
-		fixed_ordering = otools.tiebreak(fixed_ordering, *vpos, 
+		fixed_ordering = otools.tiebreak(fixed_ordering, *vpos,
 				num_candidates);
 	}
 
@@ -91,7 +91,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 			cout << "Loop de loop, rank is " << rank << endl;
 
 		// Get the output for the base method.
-		ordering this_round = base->elect(papers, base_hopefuls, 
+		ordering this_round = base->elect(papers, base_hopefuls,
 				num_candidates, cache, false);
 
 		// Then eliminate and add candidates. If we're using average
@@ -103,46 +103,68 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 		ordering::const_reverse_iterator rpos;
 
 		if (average_loser_elim) {
-			double mean = 0;
-			int inner_count = 0;
+			double total = 0;
+			int inner_num_cands = 0;
 
 			// Orderings where candidates have been eliminated may
 			// still have those candidates listed; in that case,
-			// the scores are undefined and should not be 
+			// the scores are undefined and should not be
 			// considered.
 			for (pos = this_round.begin(); pos != this_round.end();
 					++pos)
 				if (base_hopefuls[pos->get_candidate_num()]) {
-					mean += pos->get_score();
-					++inner_count;
+					total += pos->get_score();
+					++inner_num_cands;
 				}
-
-			mean /= inner_count;
 
 			int elim_this_round = 0;
 
-			// Add them to the output order and actually eliminate 
+			// Add them to the output order and actually eliminate
 			// them by setting them as no longer hopeful.
-			for (rpos = this_round.rbegin(); rpos != 
-					this_round.rend() && rpos->get_score() 
-					<= mean; ++rpos) {
+			// Do the mean comparison as (num cands * score) <= total
+			// instead of dividing through by num_cands - the former has
+			// better numerical precision.
+			for (rpos = this_round.rbegin(); rpos !=
+					this_round.rend() && (inner_num_cands * rpos->get_score())
+					<= total; ++rpos) {
 				if (!base_hopefuls[rpos->get_candidate_num()])
 					continue;
 
+				// TODO: Make ties tied instead of arbitrarily tiebroken.
+				// e.g. all candidates have equal first preference votes,
+				// then Carey should put them all as tied instead of
+				// ordering them in some non-neutral order.
+
+				// Currently doesn't work so...
 				output.first.insert(candscore(rpos->
-							get_candidate_num(), 
+							get_candidate_num(),
 							rank++));
-				base_hopefuls[rpos->get_candidate_num()] = 
+				base_hopefuls[rpos->get_candidate_num()] =
 					false;
 				++elim_this_round;
 			}
 
+			// This shouldn't happen, but might if there's numerical
+			// imprecision. In that case, every remaining candidate ties
+			// for first.
+
 			assert(elim_this_round != 0);
+
+			if (elim_this_round == 0) {
+				for (rpos = this_round.rbegin(); rpos !=
+					this_round.rend(); ++rpos) {
+
+					output.first.insert(candscore(rpos->get_candidate_num(),
+						rank));
+					base_hopefuls[rpos->get_candidate_num()] = false;
+					++elim_this_round;
+				}
+			}
 		} else {
 			// DEBUG
 			if (debug)
 				cout << "this_round: " << otools.
-					ordering_to_text(this_round, fakecand, 
+					ordering_to_text(this_round, fakecand,
 							true) << endl;
 
 			// Otherwise, break any potential ties, then get
@@ -152,12 +174,12 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 			// is done (which means we may have to break by ballot
 			// in there later, e.g. if it's an exact tie).
 
-			ordering mod_this_round = break_tie(this_round, 
+			ordering mod_this_round = break_tie(this_round,
 					base_method_tiebreaks, num_candidates);
 
 			if (debug)
 				cout << "mod_this_round: " << otools.
-					ordering_to_text(mod_this_round, 
+					ordering_to_text(mod_this_round,
 							fakecand, true) << endl;
 
 			// Determine loser and add him to the elimination list,
@@ -168,7 +190,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 				get_candidate_num();
 
 			output.first.insert(candscore(loser, rank++));
-			
+
 			assert(base_hopefuls[loser]);
 			base_hopefuls[loser] = false;
 		}
