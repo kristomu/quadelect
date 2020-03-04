@@ -1,5 +1,6 @@
 #include "sv2.h"
 #include "../positional/all.h"
+#include "../pairwise/simple_methods.h"
 
 pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & papers,
 		const vector<bool> & hopefuls,
@@ -22,12 +23,21 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
 
 	// I'll just negate this; can't be bothered.
 
-	assert (num_candidates == 3);
+	assert (num_candidates <= 3);
 
 	// TODO: Use cache.
 
-	condmat condorcet_matrix = condmat(papers, num_candidates, 
+	condmat condorcet_matrix = condmat(papers, num_candidates,
 			CM_PAIRWISE_OPP);
+
+	int num_hopefuls = 0;
+	for (bool hopeful : hopefuls) { if (hopeful) { ++num_hopefuls; } }
+
+	// If two candidates or fewer, just hand off to a method that does a majority vote.
+	if (num_hopefuls < 3) {
+		return ord_minmax(CM_PAIRWISE_OPP).pair_elect(
+			condorcet_matrix, hopefuls, cache, winner_only);
+	}
 
 	// Get Plurality scores. Whole or fractional? Should perhaps be set
 	// as a parameter...
@@ -35,12 +45,12 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
 
 	// Why do we have to do it like this???
 	election_method * plur = new plurality(PT_WHOLE);
-	ordering plur_result = plur->elect(papers, num_candidates, cache, 
+	ordering plur_result = plur->elect(papers, num_candidates, cache,
 			false);
 	ordering plur_ordering = plur_result;
 	delete plur;
 
-	// Do the rest later. Dump plur stuff into a vector, say plurscores, 
+	// Do the rest later. Dump plur stuff into a vector, say plurscores,
 	// then...
 
 	vector<double> plur_scores(num_candidates, 0);
@@ -64,7 +74,7 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
 
 	for (int i = 0; i < num_candidates; ++i) {
 		for (int j = 0; j < num_candidates; ++j)
-			if (condorcet_matrix.get_magnitude(i, j) > 
+			if (condorcet_matrix.get_magnitude(i, j) >
 					condorcet_matrix.get_magnitude(j, i))
 				scores[i] += plur_scores[j];
 
@@ -108,6 +118,9 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
                	} else {
                		score = -(plur_factors[beaten]/plur_factors[third_party]);
                	}
+
+               	// Set 0/0 to 0
+               	if (isnan(score)) { score = 0; }
 
                 out.insert(candscore(counter, score));
         }

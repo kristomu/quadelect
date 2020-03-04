@@ -2,18 +2,28 @@
 // If there are more than three candidates, abort (undefined). Otherwise,
 // A's score is B>C (If A beats B) + C>B (if A beats C).
 // Same for the other candidates.
-// Tup/SV: A's score is B>C/(epsilon+C>A) instead. Ideally, take the rank as 
+// Tup/SV: A's score is B>C/(epsilon+C>A) instead. Ideally, take the rank as
 // epsilon->0.
 
 #include "tup.h"
+#include "../pairwise/simple_methods.h"
 
 pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache, 
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	ordering out;
 
-	assert (input.get_num_candidates() == 3);
+	assert (input.get_num_candidates() <= 3);
+
+	int num_hopefuls = 0;
+	for (bool hopeful : hopefuls) { if (hopeful) { ++num_hopefuls; } }
+
+	// If two candidates or less, just hand off to a method that does a majority vote.
+	if (num_hopefuls < 3) {
+		return ord_minmax(default_type).pair_elect(
+			input, hopefuls, cache, winner_only);
+	}
 
 	for (int counter = 0; counter < 3; ++counter) {
 		double score = 0;
@@ -68,6 +78,7 @@ pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
 						break;
 					case TUP_ALT_6:
 						score += pow(ab+eps, 3.9) + pow(bc+eps, 0.9);
+						if (isnan(score)) { score = -1e9; }
 						break;
 					default:
 						throw -1;

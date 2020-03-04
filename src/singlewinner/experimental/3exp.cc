@@ -1,5 +1,6 @@
 #include "3exp.h"
 #include "../positional/simple_methods.h"
+#include "../pairwise/simple_methods.h"
 
 pair<ordering, bool> three_experimental::elect_inner(
         const list<ballot_group> & papers,
@@ -9,8 +10,19 @@ pair<ordering, bool> three_experimental::elect_inner(
 
 	// TODO: Use cache.
 
-	condmat condorcet_matrix = condmat(papers, num_candidates, 
-			CM_PAIRWISE_OPP);
+    condmat condorcet_matrix = condmat(papers, num_candidates,
+        CM_PAIRWISE_OPP);
+
+    assert (condorcet_matrix.get_num_candidates() <= 3);
+
+    int num_hopefuls = 0;
+    for (bool hopeful : hopefuls) { if (hopeful) { ++num_hopefuls; } }
+
+    // If two candidates or less, just hand off to a method that does a majority vote.
+    if (num_hopefuls < 3) {
+        return ord_minmax(CM_PAIRWISE_OPP).pair_elect(
+            condorcet_matrix, hopefuls, cache, winner_only);
+    }
 
 	// Get Plurality scores. Whole or fractional? Should perhaps be set
 	// as a parameter...
@@ -18,7 +30,7 @@ pair<ordering, bool> three_experimental::elect_inner(
 
 	// Why do we have to do it like this???
 	election_method * plur = new plurality(PT_WHOLE);
-	ordering plur_result = plur->elect(papers, num_candidates, cache, 
+	ordering plur_result = plur->elect(papers, num_candidates, cache,
 			false);
 	ordering plur_ordering = plur_result;
 	delete plur;
@@ -39,8 +51,6 @@ pair<ordering, bool> three_experimental::elect_inner(
 	for (counter = 0; counter < num_candidates; ++counter) {
 		plur_factors[counter] = 0.5 - plur_scores[counter]/numvoters;
 	}
-
-	assert (num_candidates == 3);
 
 	ordering out;
 
@@ -81,7 +91,7 @@ pair<ordering, bool> three_experimental::elect_inner(
 									// f_third_party/f_beating
 									score += plur_factors[third_party]/plur_factors[sec];
 									break;
-								case TEXP_SV_VAR_3:      
+								case TEXP_SV_VAR_3:
 									// multiplications with epsilon, 1
 									score += (eps+plur_scores[sec])*(eps+plur_scores[sec])*(eps+plur_scores[counter]);
 									break;
@@ -134,7 +144,7 @@ pair<ordering, bool> three_experimental::elect_inner(
                                 	break;
                                 case TEXP_SV_VAR_18:
                                 	score += max(plur_factors[counter], plur_factors[third_party]) + eps * min(plur_factors[counter], plur_factors[third_party]);
-                                	break;	
+                                	break;
                                 case TEXP_SV_VAR_19:
                                 	// A>B = ABC + ACB + CAB
                                 	score += plur_scores[counter] + plur_scores[sec] + eps*condorcet_matrix.get_magnitude(counter, sec);
@@ -174,7 +184,7 @@ pair<ordering, bool> three_experimental::elect_inner(
 				case TEXP_SV_VAR_29: {
 					// ABC/ACB - CBA/BCA
 
-					// ABC: ABC 
+					// ABC: ABC
 					// Reversal symmetric but not monotone
 					double ABC = condorcet_matrix.get_magnitude(sec, third_party) - plur_scores[sec];
 					//double ACB = condorcet_matrix.get_magnitude(third_party, sec) - plur_scores[third_party];
@@ -198,7 +208,7 @@ pair<ordering, bool> three_experimental::elect_inner(
                                 		// There are some x,y that minimize the strategy rate, but I have no idea
                                 		// what they are.
                                 		//score += pow(0.001+plur_scores[sec], 2.3) * pow(0.001+plur_scores[counter], 0.9);
-                                		
+
                                         //score += (double)(plur_scores[sec])/(1e-9 + plur_scores[third_party]);
                                 		//score += (double)(eps+plur_scores[sec])*(eps+plur_scores[sec])*(eps+plur_scores[counter]);
                         }
