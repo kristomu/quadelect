@@ -11,16 +11,24 @@ int condorcet_set::get_CW(const abstract_condmat & input,
 	int curcand = 0;
 	int counter;
 
-	for (counter = 1; counter < input.get_num_candidates(); ++counter)
-		if (hopefuls[counter] && 
-				input.get_magnitude(counter, curcand, 
+	// Find the first hopeful candidate
+	for (curcand = 0; curcand < input.get_num_candidates() &&
+		!hopefuls[curcand]; ++curcand) {
+	}
+
+	// If none, get outta here.
+	if (curcand == input.get_num_candidates()) { return -1; }
+
+	for (counter = curcand+1; counter < input.get_num_candidates(); ++counter)
+		if (hopefuls[counter] &&
+				input.get_magnitude(counter, curcand,
 					hopefuls) >
 				input.get_magnitude(curcand, counter,
 					hopefuls))
 			curcand = counter;
 
 	// Then, we check that candidate's results against everybody else.
-	// If he wins against all of them, he's the CW, otherwise there's a 
+	// If he wins against all of them, he's the CW, otherwise there's a
 	// cycle and we should return -1.
 
 	for (counter = 0; counter < input.get_num_candidates(); ++counter)
@@ -58,13 +66,13 @@ pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat & input,
 			++counter;
 		}
 
-	} while (cw != -1 && !winner_only && 
+	} while (cw != -1 && !winner_only &&
 			counter < input.get_num_candidates());
 
 	// Add all the other candidates below the iterated CWs.
 
 	for (counter = 0; counter < cws.size(); ++counter)
-		if (!cws[counter])
+		if (iter_hopefuls[counter] && !cws[counter])
 			to_ret.insert(candscore(counter, rank));
 
 	return(pair<ordering, bool>(to_ret, winner_only));

@@ -8,18 +8,23 @@ pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat & input,
 
 	int counter, sec;
 
-	for (counter = 0; counter < input.get_num_candidates(); ++counter)
+	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
+		if (!hopefuls[counter]) {continue;}
 		for (sec = 0; sec < input.get_num_candidates(); ++sec) {
-			if (counter == sec) continue;
+			if (counter == sec) {continue;}
+			if (!hopefuls[sec]) {continue;}
 
 			if (input.get_magnitude(counter, sec, hopefuls) >
 			        input.get_num_voters() * 0.5)
 				++num_defeats[sec];
 		}
+	}
 
 	ordering toRet;
 
 	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
+		if (!hopefuls[counter]) {continue;}
+
 		int score;
 		if (sum_defeats)
 			score = -num_defeats[counter];

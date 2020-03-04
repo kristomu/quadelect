@@ -3,7 +3,7 @@
 
 // Perhaps turn into matrix?
 
-int sdom_set::strongly_dominates(int y, int x, const abstract_condmat & input, 
+int sdom_set::strongly_dominates(int y, int x, const abstract_condmat & input,
 		const vector<bool> & hopeful) const {
 
 	// Determine if dominator beats dominated. If so, continue; if it's
@@ -24,8 +24,9 @@ int sdom_set::strongly_dominates(int y, int x, const abstract_condmat & input,
 	// For each other candidate Z,
 	bool still_dominates = true;
 
-	for (int z = 0; z < input.get_num_candidates() && still_dominates; 
+	for (int z = 0; z < input.get_num_candidates() && still_dominates;
 			++z) {
+		if (!hopeful[z]) {continue;}
 		// *other*
 		if (z == x || z == y) continue;
 
@@ -46,7 +47,7 @@ int sdom_set::strongly_dominates(int y, int x, const abstract_condmat & input,
 		if (!still_dominates) continue;
 
 		// if X beats Z, Y beats Z even more.
-		if (input.get_magnitude(x, z, hopeful) > 
+		if (input.get_magnitude(x, z, hopeful) >
 				input.get_magnitude(z, x, hopeful))
 			still_dominates &= (input.get_magnitude(y, z, hopeful) >
 					input.get_magnitude(x, z, hopeful));
@@ -65,7 +66,7 @@ int sdom_set::strongly_dominates(int y, int x, const abstract_condmat & input,
 }
 
 pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache, 
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	// Make the empty "strongly dominates" matrix.
@@ -79,16 +80,18 @@ pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
 	int counter, sec;
 	//cout << "Row dominates col" << endl;
 	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
+		if (!hopefuls[counter]) {continue;}
 		for (sec = 0; sec < input.get_num_candidates(); ++sec) {
+			if (!hopefuls[sec]) {continue;}
 			int result = 0;
 
 			if (counter != sec)
-				result = strongly_dominates(counter, sec, 
+				result = strongly_dominates(counter, sec,
 						input, hopefuls);
 			if (result < 0) {
 				++dominated[counter];
-			sdom_matrix.add(counter, sec, result);
-			assert (sdom_matrix.get_magnitude(counter, sec) == result);
+				sdom_matrix.add(counter, sec, result);
+				assert (sdom_matrix.get_magnitude(counter, sec) == result);
 			}
 	//		cout << sdom_matrix.get_magnitude(counter, sec) << "\t";
 			//sdom_matrix.add(sec, counter, -result);
@@ -98,8 +101,10 @@ pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
 
 	ordering toRet;
 
-	for (counter = 0; counter < input.get_num_candidates(); ++counter)
+	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
+		if (!hopefuls[counter]) {continue;}
 		toRet.insert(candscore(counter, -dominated[counter]));
+	}
 
 	return(pair<ordering, bool>(toRet, false));
 
