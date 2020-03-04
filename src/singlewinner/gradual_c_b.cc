@@ -28,11 +28,17 @@ string gradual_cond_borda::determine_name() const {
 	return(base + ")");
 }
 
-pair<ordering, bool> gradual_cond_borda::elect_inner(const 
-		list<ballot_group> & papers, const vector<bool> & hopefuls, 
+pair<ordering, bool> gradual_cond_borda::elect_inner(const
+		list<ballot_group> & papers, const vector<bool> & hopefuls,
 		int num_candidates, cache_map * cache, bool winner_only) const {
 
-	cond_borda_matrix gcb(papers, num_candidates, CM_PAIRWISE_OPP, 
+	size_t num_hopefuls = 0;
+
+	for (bool x: hopefuls) {
+		if (x) {++num_hopefuls;}
+	}
+
+	cond_borda_matrix gcb(papers, num_candidates, CM_PAIRWISE_OPP,
 			cardinal, completion);
 	condmat gcond(papers, num_candidates, CM_PAIRWISE_OPP);
 
@@ -52,7 +58,7 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 				if (favor == 0) cout << " ";
 
 				cout << favor;
-				if (gcb.get_magnitude(counter, sec) > 
+				if (gcb.get_magnitude(counter, sec) >
 						gcb.get_magnitude(sec, counter))
 					cout << "* ";
 				else cout << "  ";
@@ -60,14 +66,14 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 			cout << endl;
 		}
 
-		cout << endl << "Condorcet matrix (row against column): " 
+		cout << endl << "Condorcet matrix (row against column): "
 			<< endl;
 
 		for (counter = 0; counter < num_candidates; ++counter) {
 			for (sec = 0; sec < num_candidates; ++sec) {
 				cout << gcond.get_magnitude(counter, sec);
 				if (gcond.get_magnitude(counter, sec) > gcond.
-						get_magnitude(sec, counter)) 
+						get_magnitude(sec, counter))
 					cout << "* ";
 				else cout << "  ";
 			}
@@ -77,7 +83,7 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 	}
 
 	// HACK HACK
-	// Remember, comma is suspect (no longer). 
+	// Remember, comma is suspect (no longer).
 	// Also consider early abort, particularly if winner_only is true.
 	ordering base = base_method->pair_elect(gcb, hopefuls, false).first,
 		 current;

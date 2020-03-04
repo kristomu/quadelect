@@ -32,8 +32,6 @@ class ext_plurality : public positional {
 			// on second place, ties in first and second based on third,
 			// and so on.
 
-			int numcands = (int)positional_matrix.size();
-
 			std::vector<std::pair<std::vector<double>, int> >
 				scores_per_candidate;
 
@@ -44,29 +42,26 @@ class ext_plurality : public positional {
 			}
 
 			// Sort ascending
-			std::sort(scores_per_candidate.begin(), 
+			std::sort(scores_per_candidate.begin(),
 				scores_per_candidate.end());
 			// Reverse to get descending
-			std::reverse(scores_per_candidate.begin(), 
+			std::reverse(scores_per_candidate.begin(),
 				scores_per_candidate.end());
 
-			// Now just read off the sorted entries and check if they're 
+			// Now just read off the sorted entries and check if they're
 			// equal.
 
 			int rank_counter = 0;
 			ordering social_order;
 
 			for (size_t i = 0; i < positional_matrix.size(); ++i) {
-				if (i != 0 && scores_per_candidate[i].first != 
+				if (i != 0 && scores_per_candidate[i].first !=
 					scores_per_candidate[i-1].first) {
 					--rank_counter;
 				}
 
-				if (hopefuls != NULL && !(*hopefuls)[scores_per_candidate[i].second]) {
-					social_order.insert(candscore(scores_per_candidate[i].second, 
-						-numcands-1));					
-				} else {
-					social_order.insert(candscore(scores_per_candidate[i].second, 
+				if (hopefuls == NULL || (*hopefuls)[scores_per_candidate[i].second]) {
+					social_order.insert(candscore(scores_per_candidate[i].second,
 						rank_counter));
 				}
 			}

@@ -14,19 +14,19 @@ using namespace std;
 // here. If the method in question wishes, it can override the function with a
 // quicker one - that's why it's virtual.
 pair<ordering, bool> election_method::elect_inner(
-		const list<ballot_group> & papers, int num_candidates, 
+		const list<ballot_group> & papers, int num_candidates,
 		cache_map * cache, bool winner_only) const {
 
 	vector<bool> hopefuls(num_candidates, true);
 
-	return(elect_inner(papers, hopefuls, num_candidates, cache, 
+	return(elect_inner(papers, hopefuls, num_candidates, cache,
 				winner_only));
 }
 
 // Cache wrappers.
 
 pair<ordering, bool> election_method::elect_detailed(
-		const list<ballot_group> & papers, int num_candidates, 
+		const list<ballot_group> & papers, int num_candidates,
 		cache_map * cache, bool winner_only) const {
 
 	// Do a few sanity checks.
@@ -34,9 +34,9 @@ pair<ordering, bool> election_method::elect_detailed(
 
 	// If there are only two candidates, then winner_only and full ordering
 	// is the same, so set winner_only to true for a speedup. (It might also
-	// be the same in case of (n-1)-way loser ties for n > 2, but we can't 
+	// be the same in case of (n-1)-way loser ties for n > 2, but we can't
 	// detect that in a general case.)
-	
+
 	if (num_candidates <= 2)
 		winner_only = true;
 
@@ -54,7 +54,7 @@ pair<ordering, bool> election_method::elect_detailed(
 	}
 
 	// Otherwise, get the output the hard way.
-	toRet = elect_inner(papers, num_candidates, cache, 
+	toRet = elect_inner(papers, num_candidates, cache,
 			winner_only);
 
 	// Check that there are no errors.
@@ -71,10 +71,10 @@ pair<ordering, bool> election_method::elect_detailed(
 }
 
 pair<ordering, bool> election_method::elect_detailed(
-		const list<ballot_group> & papers, 
+		const list<ballot_group> & papers,
 		const vector<bool> & hopefuls,
 		int num_candidates, cache_map * cache, bool winner_only) const {
-	
+
 	// A few sanity checks...
 	assert (num_candidates > 0);
 	assert ((int)hopefuls.size() == num_candidates);
@@ -83,9 +83,9 @@ pair<ordering, bool> election_method::elect_detailed(
 	if (num_candidates <= 2)
 		winner_only = true;
 
-	// If all are hopeful, it's just an ordinary election and so we can 
+	// If all are hopeful, it's just an ordinary election and so we can
 	// make use of the cache. Detect that.
-	
+
 	int num_hopefuls = 0, last_hopeful = -1, counter = 0;
 	vector<bool>::const_iterator hpos;
 
@@ -108,12 +108,12 @@ pair<ordering, bool> election_method::elect_detailed(
 	}
 
 	if (num_hopefuls == num_candidates)
-		return(elect_detailed(papers, num_candidates, cache, 
+		return(elect_detailed(papers, num_candidates, cache,
 					winner_only));
 
 	// Otherwise, go about it the hard way.
 
-	pair<ordering, bool> toRet = elect_inner(papers, hopefuls, 
+	pair<ordering, bool> toRet = elect_inner(papers, hopefuls,
 			num_candidates, cache, winner_only);
 
 	// Check that there are no errors.
@@ -123,7 +123,7 @@ pair<ordering, bool> election_method::elect_detailed(
 	// Then return! We can't use cache as there could be collisions
 	// between different hopefuls patterns.
 	// Bluesky: build a prefix according to the hopefuls? E.g. IRV
-	// round with A and B excluded, C and D remaining becomes 
+	// round with A and B excluded, C and D remaining becomes
 	// __##/Plurality... Is it worth it? Find out when we have a tester,
 	// but probably not.
 	return(toRet);
@@ -138,8 +138,8 @@ ordering election_method::elect(const list<ballot_group> & papers,
 			first);
 }
 
-ordering election_method::elect(const list<ballot_group> & papers, 
-		const vector<bool> & hopefuls, int num_candidates, 
+ordering election_method::elect(const list<ballot_group> & papers,
+		const vector<bool> & hopefuls, int num_candidates,
 		cache_map * cache, bool winner_only) const {
 
 	return(elect_detailed(papers, hopefuls, num_candidates, cache,
