@@ -7,6 +7,8 @@ double odm::nltrans(double pairwise_value, double opposing_strength) const {
 }
 
 double odm::get_score(double offense, double defense) const {
+	if (offense == 0 && defense == 0) { return 0; } // hack
+
 	return (offense / defense);
 }
 

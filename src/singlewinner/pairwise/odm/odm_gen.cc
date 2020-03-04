@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// Generic class for methods similar to the Offense-Defense model of Govan et 
+// Generic class for methods similar to the Offense-Defense model of Govan et
 // al. These methods are Sinkhorn-esque: they involve determining row and column
 // factors depending on each other and on either the rows or columns of the
 // pairwise matrix. The calculation of the row and column factors is alternated,
@@ -24,7 +24,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 	double eps = 1e-6;
 	int maxiter = 500;
 
-	double convergence = INFINITY;
+	double convergence = 0;
 	size_t counter, sec;
 	int iter = 0;
 
@@ -48,7 +48,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 	for (counter = 0; counter < num_hopefuls; ++counter)
 		for (sec = 0; sec < num_hopefuls; ++sec) {
 			if (counter == sec) continue;
-			
+
 			double curval = input.get_magnitude(
 					permitted_candidates[counter],
 					permitted_candidates[sec]);
@@ -59,9 +59,10 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 			// to make that call."
 			if (curval < 0) {
 				pair<ordering, bool> retval;
-				for (counter = 0; counter < input.
-						get_num_candidates(); ++counter)
-					retval.first.insert(candscore(counter, 
+				for (counter = 0; counter < num_hopefuls;
+						++counter)
+					retval.first.insert(candscore(
+						permitted_candidates[counter],
 								0));
 				return(retval);
 			}
@@ -75,7 +76,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 
 		old_score = score;
 
-		// A candidate's offense rating is equal to the sum over all 
+		// A candidate's offense rating is equal to the sum over all
 		// other candidates, of the victory against that candidate
 		// times one divided by the candidate's defense rating.
 
@@ -84,7 +85,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		for (counter = 0; counter < num_hopefuls; ++counter) {
 			for (sec = 0; sec < num_hopefuls; ++sec)
 				if (counter != sec)
-					offense[counter] += nltrans(eps + 
+					offense[counter] += nltrans(eps +
 							matrix[counter][sec],
 							defense[sec]);
 
@@ -102,11 +103,11 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		// times one divided by the candidate's offense rating.
 
 		fill(defense.begin(), defense.end(), 0);
-		
+
 		for (counter = 0; counter < num_hopefuls; ++counter) {
 			for (sec = 0; sec < num_hopefuls; ++sec)
 				if (hopefuls[sec] && counter != sec)
-					defense[counter] += nltrans(eps + 
+					defense[counter] += nltrans(eps +
 							matrix[sec][counter],
 							offense[sec]);
 
@@ -123,26 +124,36 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		// converged.
 
 		for (counter = 0; counter < matrix.size(); ++counter) {
-			score[counter] = get_score(offense[counter], 
+			score[counter] = get_score(offense[counter],
 					defense[counter]);
 
+			assert (!isnan(score[counter]));
+
 			if (debug)
-				cout << "Score for " << 
-					permitted_candidates[counter] 
+				cout << "Score for " <<
+					permitted_candidates[counter]
 					<< " is " << score[counter] << endl;
 		}
 
 		// And then check that.
+		// Don't do it if we're on the first iteration, because then
+		// old_score hasn't been set yet.
+
+		if (iter == 0) {
+			++iter;
+			continue;
+		}
 
 		convergence = 0;
 
-		for (counter = 0; counter < matrix.size(); ++counter) 
+		for (counter = 0; counter < matrix.size(); ++counter)
 			convergence += (score[counter] - old_score[counter]) *
 				(score[counter] - old_score[counter]);
 
 		// If it's not converging, do the most of it and get outta
 		// here.
-		if (!finite(convergence) && iter > 1) {
+		std::cout << "Convergence " << convergence << std::endl;
+		if (!finite(convergence)) {
 			if (debug) // error
 				cout << "ERROR: Failed to converge, bailing."
 					<< endl;
@@ -159,22 +170,34 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 	} while (convergence > tolerance && iter < maxiter);
 
 	// Determine final scores and renormalize so the sum is 1.
+	// Only do this if there're no infinities. If there are
+	// infinities, only sum the finite components.
 	double sum = 0;
-	for (counter = 0; counter < score.size(); ++counter)
+	bool all_infinite = true;
+	for (counter = 0; counter < score.size(); ++counter) {
+		if (!finite(score[counter])) { continue; }
 		sum += score[counter];
+		all_infinite = false;
+	}
 
 	for (counter = 0; counter < score.size(); ++counter) {
-		score[counter] /= sum;
+		if (finite(score[counter])) {
+			score[counter] /= sum;
+		} else {
+			if (all_infinite) {
+				score[counter] = copysign(1, score[counter]);
+			}
+		}
 
 		if (debug)
-			cout << "Final score for " << 
-				permitted_candidates[counter] << ": " 
+			cout << "Final score for " <<
+				permitted_candidates[counter] << ": "
 				<< score[counter] << endl;
 	}
-	
+
 	// All done, return the results.
 	return(pair<ordering, bool>(ordering_tools().
-				indirect_vector_to_ordering(score, 
+				indirect_vector_to_ordering(score,
 					permitted_candidates), false));
 }
 
