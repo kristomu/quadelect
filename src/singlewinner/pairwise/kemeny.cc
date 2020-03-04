@@ -6,9 +6,12 @@
 // The exact integer program will be given in comments within the pair_elect
 // function itself.
 
-// YOUNG, H. Peyton; LEVENGLICK, Arthur. A consistent extension of 
-// Condorcet’s election principle. SIAM Journal on applied Mathematics, 
+// YOUNG, H. Peyton; LEVENGLICK, Arthur. A consistent extension of
+// Condorcet’s election principle. SIAM Journal on applied Mathematics,
 // 1978, 35.2: 285-300.
+
+// TODO: Something wrong happens when numcands = 2. Find out what.
+// Probably related to criterion (3) below.
 
 #include "../../pairwise/matrix.h"
 #include "method.h"
@@ -43,7 +46,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	//	for any i, j in 1...c, i != j
 	//		x[i][j] >= 0, x[i][j] <= 1		(1)
 	//		x[i][j] + x[j][i] = 1			(2)
-	//						
+	//
 	//
 	//	for any i, j, k in 1...c, i != j != k
 	//		x[i][j] + x[j][k] + x[k][i] >= 1	(3)
@@ -112,7 +115,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	string name;
 
 	// Set columns as binary and give them proper names. Excess columns
-	// (x[1][1], [2][2] etc) are left alone so they won't slow things too 
+	// (x[1][1], [2][2] etc) are left alone so they won't slow things too
 	// much.
 	for (counter = 0; counter < n; ++counter) {
 		if (!hopefuls[counter]) continue;
@@ -124,9 +127,9 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 			// time.
 
 			if (debug) {
-				name = "x[" + itos(counter) + "][" + itos(sec) 
+				name = "x[" + itos(counter) + "][" + itos(sec)
 					+ "]";
-				glp_set_col_name(ip, counter * n + sec + 1, 
+				glp_set_col_name(ip, counter * n + sec + 1,
 						name.c_str());
 			}
 
@@ -143,13 +146,13 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 			if (!hopefuls[sec]) continue;
 
 			if (debug) {
-				name = "direct_" + itos(counter) + "_" + 
+				name = "direct_" + itos(counter) + "_" +
 					itos(sec);
-				glp_set_row_name(ip, counter * n + sec + 1, 
+				glp_set_row_name(ip, counter * n + sec + 1,
 						name.c_str());
 			}
 
-			glp_set_row_bnds(ip, counter * n + sec + 1, GLP_FX, 1, 
+			glp_set_row_bnds(ip, counter * n + sec + 1, GLP_FX, 1,
 					1);
 
 			// This row includes x[i][j] times one...
@@ -184,10 +187,10 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 					tri;
 
 				if (debug) {
-					name = "triangle_" + itos(counter) 
-						+ "_" + itos(sec) + "_" 
+					name = "triangle_" + itos(counter)
+						+ "_" + itos(sec) + "_"
 						+ itos(tri);
-					glp_set_row_name(ip, offset + 
+					glp_set_row_name(ip, offset +
 							constraint_no + 1,
 							name.c_str());
 				}
@@ -216,7 +219,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	}
 
 	// Proceed to load the constraints into the IP solver.
-	//cout << "Running count: " << running_count << " of " << 
+	//cout << "Running count: " << running_count << " of " <<
 	//	entries << endl;
 	assert (running_count <= entries + 1);
 	glp_load_matrix(ip, running_count - 1, ia, ja, ar);
@@ -232,7 +235,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	}
 
 	// PHEW!
-	// Now all we have to do is set a few parameters and then *SOLVE*. 
+	// Now all we have to do is set a few parameters and then *SOLVE*.
 	// Since this version of glpk doesn't support presolving of the IP,
 	// we have to first solve the linear programming relaxation, then the
 	// IP.
@@ -241,16 +244,16 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	// stated explicitly, and therefore the LP relaxation will ignore them.
 	glp_smcp params;
 	glp_init_smcp(&params);
-	
+
 	if (debug)
 		params.msg_lev = GLP_MSG_ON;
 	else	params.msg_lev = GLP_MSG_OFF;
 	params.presolve = GLP_ON;
 
-	// Solve the relaxation. If it doesn't succeed, return an empty matrix
-	// to signal error.
-	if (glp_simplex(ip, &params) != 0)
-		return(vector<vector<bool> >());
+	// Solve the relaxation. If it doesn't succeed, signal an error.
+	if (glp_simplex(ip, &params) != 0) {
+		throw std::runtime_error("Kemeny: Could not solve relaxation!");
+	}
 
 	// Check if the relaxation is already all-integer. If so, there's no
 	// need to call the (slow) IP solver. We lose a little by doing this,
@@ -269,42 +272,44 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	if (debug)
 		io_param.msg_lev = GLP_MSG_ON;
 	else	io_param.msg_lev = GLP_MSG_OFF;
-	
-	//io_param.presolve = GLP_ON;
-	//io_param.pp_tech = GLP_PP_ALL;
 
-	// Now solve if necessary, and if we get a reasonable answer, 
-	// populate the return matrix. If "already_int" is on, we don't have
-	// to solve.
+	// Solve if we don't already have an integer solution.
+	if (!already_int) {
+		int solver_error = glp_intopt(ip, &io_param);
+		if (solver_error != 0 || glp_mip_status(ip) != GLP_OPT) {
+			throw std::runtime_error("Kemeny: Could not solve integer program!");
+		}
+	}
+
+	// Now populate the return matrix.
+
 	vector<vector<bool> > adjacency;
-	if (already_int || (glp_intopt(ip, &io_param) == 0 && 
-			glp_mip_status(ip) == GLP_OPT)) {
-		adjacency = vector<vector<bool> > (n, vector<bool>(n, false));
-		
-		for (counter = 0; counter < n; ++counter) {
-			if (!hopefuls[counter]) continue;
-			for (sec = 0; sec < n; ++sec) {
-				if (counter == sec) continue;
-				if (!hopefuls[sec]) continue;
 
-				if (already_int)
-					adjacency[counter][sec] = (
-							glp_get_col_prim(ip,
-								counter * n +
-								sec + 1) == 1);
-				else
-					adjacency[counter][sec] = (
-							glp_mip_col_val(ip,
-								counter * n + 
-								sec + 1) == 1);
-			}
+	adjacency = vector<vector<bool> > (n, vector<bool>(n, false));
+
+	for (counter = 0; counter < n; ++counter) {
+		if (!hopefuls[counter]) continue;
+		for (sec = 0; sec < n; ++sec) {
+			if (counter == sec) continue;
+			if (!hopefuls[sec]) continue;
+
+			if (already_int)
+				adjacency[counter][sec] = (
+						glp_get_col_prim(ip,
+							counter * n +
+							sec + 1) == 1);
+			else
+				adjacency[counter][sec] = (
+						glp_mip_col_val(ip,
+							counter * n +
+							sec + 1) == 1);
 		}
 	}
 
 	// Either the matrix is still empty, in which case there was a failure,
 	// or it is now populated, in which case we're done. Thus, deallocate
 	// everything and return - the caller will find out.
-	
+
 	delete[] ia;
 	delete[] ja;
 	delete[] ar;
@@ -314,11 +319,15 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 }
 
 pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache, 
+		const vector<bool> & hopefuls, cache_map * cache,
 		bool winner_only) const {
 
 	// First, get the transitive adjacency matrix for Kemeny.
-	vector<vector<bool> > adj = solve_kemeny(input, hopefuls, false);
+	vector<vector<bool> > adj = solve_kemeny(input, hopefuls, true);
+
+	// If we start with at least one candidate, we should finish with
+	// at least one.
+	assert (input.get_num_candidates() == 0 || !adj.empty());
 
 	// If there's nothing here, abort as that's an error.
 	if (adj.empty())
@@ -333,9 +342,11 @@ pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
 	for (size_t counter = 0; counter < adj.size(); ++counter) {
 		if (!hopefuls[counter]) continue;
 		int candcount = 0;
-		for (size_t sec = 0; sec < adj.size(); ++sec)
+		for (size_t sec = 0; sec < adj.size(); ++sec) {
+			if (!hopefuls[sec]) continue;
 			if (adj[counter][sec])
 				++candcount;
+		}
 
 		out.insert(candscore(counter, candcount));
 	}
