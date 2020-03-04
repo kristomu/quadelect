@@ -13,6 +13,7 @@
 #include "../tools/tools.h"
 
 #include "../singlewinner/positional/as241.h"
+#include "../singlewinner/get_methods.h"
 
 #include "../generator/all.h"
 
@@ -153,31 +154,39 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	StrategyTest st(ballotgens, &ic, numvoters, numcands, randomizer,
 		to_test, 0, num_strategy_attempts_per_iter);
 
-    int worked = 0, f = 1;
-    int fmax = num_iterations;
-    int total_generation_attempts = 0;
+    int strategy_worked = 0, strategy_failed = 0;
+    int i;
+    int total_test_attempts = 0;
 
-    for (f = 0; f < fmax; ++f) {
+    for (i = 0; i < num_iterations; ++i) {
+        // Perform_test may do more than one test if there's a tie, so that
+        // such ties do not make the method look artificially susceptible
+        // or resistant to strategy.
+
+        // The total number of tests actually performed is retrieved later.
         if (st.perform_test() == 0) {
-            ++worked;
+            ++strategy_worked;
+        } else {
+            ++strategy_failed;
         }
 
-		if ((f & 63) == 63) {
+		if ((i & 63) == 63) {
             cerr << "." << flush;
-            if ((f & 4095) == 4095)
-                cerr << f/(double)fmax << flush;
+            if ((i & 4095) == 4095)
+                cerr << i/(double)num_iterations << flush;
         }
     }
 
-    total_generation_attempts = st.get_total_generation_attempts();
+    total_test_attempts = st.get_total_generation_attempts();
+    int ties = total_test_attempts - num_iterations;
 
     // Do a simple proportions test
-    double prop = worked/(double)f;
+    double prop = strategy_worked/(double)num_iterations;
 
     double significance = 0.05;
     double zv = ppnd7(1-significance/num_methods);
 
-    pair<double, double> c_i = confidence_interval(f, prop, zv);
+    pair<double, double> c_i = confidence_interval(num_iterations, prop, zv);
 
     double lower_bound = c_i.first;
     double upper_bound = c_i.second;
@@ -185,16 +194,19 @@ void test_strategy(election_method * to_test, rng & randomizer,
     lower_bound = round(lower_bound*10000)/10000.0;
     upper_bound = round(upper_bound*10000)/10000.0;
 
-    double tiefreq = (total_generation_attempts-f)/(double)f;
-    tiefreq = round(tiefreq*10000)/1000.0;
+    double tiefreq = ties/(double)total_test_attempts;
+    tiefreq = round(tiefreq*1000)/1000.0;
 
     //#pragma omp critical
     {
-        cout << "Worked in " << worked << " ("<< lower_bound << ", " << upper_bound << ") out of " << f << " for " <<
-             to_test->name() << " ties: " << total_generation_attempts-f << " (" << tiefreq << ")" << endl;
-        cout << "strat;" << numvoters << ";" << numcands << ";" << ballot_gen->name() << ";" << to_test->name()
-            << ";" << lower_bound << ";" << upper_bound << ";" << tiefreq
-            << endl;
+        std::cout << "Worked in " << strategy_worked << " ("<< lower_bound
+            << ", " << upper_bound << ") out of " << num_iterations
+            << " for " << to_test->name() << " ties: "
+            << ties << " (" << tiefreq << ")" << endl;
+        cout << "strat;" << numvoters << ";" << numcands << ";"
+            << ballot_gen->name() << ";" << to_test->name() << ";"
+            << lower_bound << ";" << prop << ";" << upper_bound
+            << ";" << tiefreq << endl;
     }
 }
 
@@ -251,7 +263,12 @@ int main(int argc, const char ** argv) {
 
     condorcet_set cond;
     smith_set smith;
+    schwartz_set schwartz;
     landau_set landau;
+    copeland cope(CM_WV);
+
+    condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
+    condorcetsrc.push_back(new fpa_experiment());
 
 	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
 		if (numcands < 4) {
@@ -262,19 +279,26 @@ int main(int argc, const char ** argv) {
 			// more general
             condorcets.push_back(new slash(condorcetsrc[counter], &smith));
 			condorcets.push_back(new comma(condorcetsrc[counter], &smith));
+            condorcets.push_back(new slash(condorcetsrc[counter], &schwartz));
+            condorcets.push_back(new comma(condorcetsrc[counter], &schwartz));
 		}
     }
 
     // Landau
     for (counter = 0; counter < condorcetsrc.size(); ++counter) {
+        condorcets.push_back(new comma(condorcetsrc[counter], &cope));
+        condorcets.push_back(new slash(condorcetsrc[counter], &cope));
         condorcets.push_back(new comma(condorcetsrc[counter], &landau));
         condorcets.push_back(new slash(condorcetsrc[counter], &landau));
     }
 
     // For comparison purposes, even though it isn't a Condorcet.
-    //condorcets.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
-    condorcets.push_back(new fpa_experiment());
+    condorcets.push_back(new loser_elimination(new plurality(PT_WHOLE), true, true));
+    condorcets.push_back(new schulze(CM_WV));
 
+    std::list<election_method *> condorcetsl = get_singlewinner_methods(true, false);
+    condorcets.clear();
+    std::copy(condorcetsl.begin(), condorcetsl.end(), std::back_inserter(condorcets));
     cout << "There are " << condorcets.size() << " methods." << endl;
 
     vector<rng> randomizers;

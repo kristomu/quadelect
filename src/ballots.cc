@@ -17,7 +17,8 @@ using namespace std;
 // and so that we may experiment with cardinal ratings later.
 
 void candscore::set_score(double score_in) {
-	assert (finite(score_in));
+	//assert (finite(score_in));
+	assert (!isnan(score_in));
 	score = score_in;
 }
 
