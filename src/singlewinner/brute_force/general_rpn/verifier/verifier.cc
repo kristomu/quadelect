@@ -93,6 +93,9 @@ class backtracker {
 
 		double progress_at_exit;
 
+		size_t greatest_idx_reached;
+		bool show_partially_complying_methods;
+
 	public:
 		// Should be made private once a few things have been improved/
 		// refactored.
@@ -174,6 +177,9 @@ class backtracker {
 			for (size_t i = 0; i <= max_numcands; ++i) {
 				evaluators.push_back(gen_custom_function(i));
 			}
+
+			greatest_idx_reached = 0;
+			show_partially_complying_methods = true;
 		}
 };
 
@@ -288,12 +294,29 @@ void backtracker::init_algorithms_used() {
 void backtracker::try_algorithms(size_t test_group_idx,
 	test_election current_election_setting) {
 
+	bool do_printout = false;
+
 	if (test_group_idx == num_groups) {
 		++iteration_count[test_group_idx];
 
 		if (!show_reports) { return; }
 
+		do_printout = true;
+
 		std::cout << "Reached the end." << std::endl;
+	}
+
+	if (show_reports && test_group_idx >= std::max((size_t)7, greatest_idx_reached) &&
+		show_partially_complying_methods) {
+
+		std::cout << "Found another best-so-far at idx " << test_group_idx << std::endl;
+		std::cout << "Printing it to get partial method information." << std::endl;
+
+		do_printout = true;
+		greatest_idx_reached = test_group_idx;
+	}
+
+	if (do_printout) {
 
 		for (const auto & kv : algorithm_used_idx_for_scenario) {
 			size_t numcands = kv.first.get_numcands();
@@ -322,6 +345,9 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		for (size_t i = 0; i < iteration_count.size(); ++i) {
 			std::cout << "idx " << i << "\t" << iteration_count[i] << std::endl;
 		}
+	}
+
+	if (test_group_idx == num_groups) {
 		return;
 	}
 
@@ -480,15 +506,17 @@ class group_score_pair {
 	public:
 		double score;
 		size_t group_idx;
+		bool beginning;
 
 		bool operator>(const group_score_pair & other) const {
 			if (score != other.score) { return score < other.score; }
 			return group_idx >= other.group_idx;
 		}
 
-		group_score_pair(double score_in, size_t idx_in) {
+		group_score_pair(double score_in, size_t idx_in, bool beginning_in) {
 			group_idx = idx_in;
 			score = score_in;
+			beginning = beginning_in;
 		}
 };
 
@@ -525,7 +553,7 @@ std::list<size_t> get_group_order(double time_limit,
 
 	// Dump every group into the incoming_groups priority queue.
 	for (size_t i = 0; i < groups.groups.size(); ++i) {
-		incoming_groups.push(group_score_pair(0, i));
+		incoming_groups.push(group_score_pair(0, i, false));
 	}
 
 	while (!incoming_groups.empty()) {
@@ -535,19 +563,34 @@ std::list<size_t> get_group_order(double time_limit,
 
 		while (!incoming_groups.empty()) {
 			std::list<size_t> tentative = output_order;
-			tentative.push_back(incoming_groups.top().group_idx);
+
+			tentative.push_front(incoming_groups.top().group_idx);
 
 			tester.set_tests_and_results(tentative, groups, all_results);
 
-			double progress = get_progress(time_limit, tester);
+			double progress_front = get_progress(time_limit, tester);
 
 			if (report) {
 				std::cout << incoming_groups.top().group_idx << ": progress at"
-					" exit was " << progress << "\n";
+					" exit was " << progress_front << " (beginning)\n";
 			}
 
+			tentative.pop_front();
+			tentative.push_back(incoming_groups.top().group_idx);
+			tester.set_tests_and_results(tentative, groups, all_results);
+
+			double progress_back = get_progress(time_limit, tester);
+
+			if (report) {
+				std::cout << incoming_groups.top().group_idx << ": progress at"
+					" exit was " << progress_back << " (end)\n";
+			}
+
+			bool beginning = progress_front > progress_back;
+			double progress = std::max(progress_front, progress_back);
+
 			outgoing_groups.push(group_score_pair(progress,
-					incoming_groups.top().group_idx));
+					incoming_groups.top().group_idx, beginning));
 			incoming_groups.pop();
 		}
 		// Insert the top as the next element of the output order.
@@ -557,7 +600,11 @@ std::list<size_t> get_group_order(double time_limit,
 				outgoing_groups.top().score << "." << std::endl;
 		}
 
-		output_order.push_back(outgoing_groups.top().group_idx);
+		if (outgoing_groups.top().beginning) {
+			output_order.push_front(outgoing_groups.top().group_idx);
+		} else {
+			output_order.push_back(outgoing_groups.top().group_idx);
+		}
 		outgoing_groups.pop();
 
 		swap(incoming_groups, outgoing_groups);
@@ -580,7 +627,7 @@ std::vector<std::vector<algo_t> > reduce_num_algorithms(
 
 	std::vector<std::vector<algo_t> > out;
 
-	for (const std::vector<algo_t> & algorithms_one_cand : 
+	for (const std::vector<algo_t> & algorithms_one_cand :
 		functions_to_test) {
 
 		if (algorithms_one_cand.size() <= num_algorithms_per_candidate) {
@@ -609,7 +656,7 @@ std::vector<std::vector<algo_t> > reduce_num_algorithms(
 // sample of algorithms that can still be searched in the time allotted.
 
 std::vector<std::vector<algo_t> > get_function_sample(double time_limit,
-	backtracker & tester, 
+	backtracker & tester,
 	const std::vector<std::vector<algo_t> > & functions_to_test) {
 
 	double progress = 0;
@@ -841,7 +888,7 @@ int main(int argc, char ** argv) {
 	std::list<size_t> group_order = settings.group_order;
 	if (group_order.empty()) {
 		std::vector<std::vector<algo_t> > function_sample;
-		double time_limit = 0.1;
+		double time_limit = 0.3;
 
 		std::cout << "Group order not specified. Generating...\n";
 		std::cout << "Step one:" << std::endl;
@@ -866,11 +913,15 @@ int main(int argc, char ** argv) {
 		std::cout << "\tBefore: " << get_progress(time_limit, verifier)
 			<< std::endl;
 
+		// Something is definitely bizarre here. Doing the optimization
+		// below and then restarting gives a very strong improvement???
+
 		// TEST! Very quick, very dirty.
-		size_t group_idx = 0;
+
+/*		size_t group_idx = 0;
 		for (size_t group : group_order) {
 			bool gradient_loss = false;
-			for (size_t tests_to_skip = 0; tests_to_skip < 
+			for (size_t tests_to_skip = 0; tests_to_skip <
 				verifier.failures_per_test.size() && !gradient_loss;
 				++tests_to_skip) {
 
@@ -889,7 +940,7 @@ int main(int argc, char ** argv) {
 		}
 
 		std::cout << "\tAfter: " << get_progress(time_limit, verifier)
-			<< std::endl;
+			<< std::endl;*/
 	}
 
 	// Print the order we decided upon.
