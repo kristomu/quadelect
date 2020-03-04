@@ -38,7 +38,8 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 
 add_library(qe_quick_hash src/spookyhash/SpookyV2.cpp)
 
-add_library(qe_singlewinner_methods src/singlewinner/elimination.cc
+add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
+	src/singlewinner/elimination.cc
 	src/singlewinner/gradual_c_b.cc
 	src/singlewinner/meta/comma.cc
 	src/singlewinner/meta/slash.cc
@@ -166,7 +167,7 @@ target_link_libraries(qe_invariance_sifter qe_rpn_search qe_quick_hash quadelect
 
 # TODO: Better name and description.
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
-target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib)
+target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib glpk)
 
 add_executable(quadelect src/main/combined.cc)
 target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk crypto)
