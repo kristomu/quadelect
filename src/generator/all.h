@@ -7,6 +7,7 @@
 #include "ballotgen.h"
 #include "impartial.h"
 #include "dirichlet.h"
+#include "iac.h"
 #include "spatial/all.h"
 
 #endif

@@ -93,6 +93,7 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/choose_inc.cc
 	src/distances/vivaldi_test.cc
 	src/generator/spatial/gaussian.cc
+	src/generator/iac.cc
 	src/generator/impartial_gen.cc
 	src/generator/spatial/spatial.cc
 	src/grad_median/grad_median.cc

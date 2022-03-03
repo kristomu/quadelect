@@ -67,6 +67,7 @@ list<pure_ballot_generator *> get_all_generators(bool compress, bool truncate) {
 	toRet.push_back(new gaussian_generator(compress, truncate));
 	toRet.push_back(new impartial(compress, truncate));
 	toRet.push_back(new dirichlet(compress, truncate));
+	toRet.push_back(new iac(compress, false)); // truncation not supported
 	toRet.push_back(new uniform_generator(compress, truncate));
 
 	return(toRet);
