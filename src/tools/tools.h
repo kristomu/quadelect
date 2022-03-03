@@ -65,6 +65,13 @@ std::string lltos_hex(long long source);
 std::string itos_hex(int source, unsigned int minlen);
 std::string lltos_hex(long long source, unsigned int minlen);
 
+template<typename T> std::string ntos_hex(T source) {
+	std::ostringstream q;
+	q.flags(std::ios::hex);
+	q << source;
+	return (q.str());
+}
+
 // String to integer.
 
 // For comparison purposes

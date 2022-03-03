@@ -10,7 +10,6 @@
 #include "../singlewinner/pairwise/simple_methods.h"
 
 #include <fstream>
-#include <openssl/sha.h>
 
 // The methods here are a bit out of order because this used to be in
 // combined.cc. Use search to find the functions you want.
@@ -336,40 +335,25 @@ vector<vector<double> > yee::get_candidate_colors(int numcands,
 	return(candidate_RGB);
 }
 
-string yee::get_sha_code(const election_method & in, int bytes) const {
+std::string yee::get_codename(const election_method & in, int bytes) const {
 
-	string method_name = in.name();
-
-	unsigned char * input = (unsigned char *)calloc(method_name.size() + 1,
-			sizeof(char));
-
-	if (input == NULL)
-		return("");
-
-	unsigned char * output = (unsigned char *)calloc(256/8, sizeof(char));
-
-	if (output == NULL) {
-		free(input);
-		return("");
+	if (bytes > 16) {
+		throw std::logic_error("yee::get_codename: "
+			"Asking for more bytes than the hash provides");
 	}
 
-	copy(method_name.begin(), method_name.end(), input);
+	std::string method_name = in.name();
+	uint64_t hash_val[2] = {0, 0};
 
-	if (SHA256(input, method_name.size(), output) == NULL) {
-		free(input);
-		free(output);
-		return("");
-	}
+	SpookyHash::Hash128(method_name.c_str(), method_name.size(),
+		&hash_val[0], &hash_val[1]);
 
-	// For however many bytes we want, use itos_hex to construct a string.
-	string outstr;
-	for (int counter = 0; counter < min(bytes, 256/8); ++counter)
-		outstr += itos_hex(output[counter], 2);
+	std::string outstr = ntos_hex(hash_val[0]) + ntos_hex(hash_val[1]);
 
-	// Free input and output and return string.
-	free(input);
-	free(output);
-	return(outstr);
+	// Resize to the required byte count.
+	outstr.resize(2 * bytes);
+
+	return outstr;
 }
 
 // Public!
@@ -591,7 +575,7 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 
 		++cur_round;
 
-		string code = get_sha_code(*e_methods[method_no], code_length);
+		string code = get_codename(*e_methods[method_no], code_length);
 
 		output = "Yee: " + e_methods[method_no]->name() + " has code "
 			+ code + ". Drawing...";

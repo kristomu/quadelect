@@ -16,7 +16,6 @@
 
 #include <vector>
 #include <string>
-#include <openssl/sha.h>
 
 using namespace std;
 
@@ -39,7 +38,7 @@ class barycentric : public mode {
 		vector<vector<double> > get_candidate_colors(int numcands,
 		                bool debug) const;
 
-		string get_sha_code(const election_method & in,
+		string get_codename(const election_method & in,
 				size_t bytes) const;
 
 		bool inited;

@@ -70,7 +70,7 @@ class constraint_set {
 		void add(const constraint_set & other);
 
 		void print() const {
-			for (const constraint x: constraints) {
+			for (const constraint & x: constraints) {
 				x.print();
 			}
 		}

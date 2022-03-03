@@ -1,4 +1,5 @@
 #include "gen_custom_function.h"
+#include <limits>
 
 size_t gen_custom_function::get_num_referential_atoms(
 	size_t numcands) const {

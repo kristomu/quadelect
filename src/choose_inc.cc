@@ -1,5 +1,6 @@
 // c antilamer
 
+#include <limits>
 #include <vector>
 #include <iostream>
 #include <stdexcept>

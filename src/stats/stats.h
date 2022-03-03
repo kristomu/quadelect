@@ -6,6 +6,7 @@
 #include "confidence/confidence.h"
 #include <iostream>
 #include <numeric>
+#include <limits>
 
 // A statistics class for storing results (usually from voting methods, or
 // "best of"/"worst of"). 

@@ -5,6 +5,8 @@
 #include "../ballots.h"
 #include "../singlewinner/method.h"
 
+#include "../spookyhash/SpookyV2.h"
+
 ordering strict_ballot(string input) {
 
 	ordering output;
@@ -125,40 +127,25 @@ vector<vector<double> > barycentric::get_candidate_colors(int numcands,
 }
 
 
-string barycentric::get_sha_code(const election_method & in, size_t bytes) const {
+std::string barycentric::get_codename(const election_method & in, size_t bytes) const {
 
-        string method_name = in.name();
+	if (bytes > 16) {
+		throw std::logic_error("yee::get_codename: "
+			"Asking for more bytes than the hash provides");
+	}
 
-        unsigned char * input = (unsigned char *)calloc(method_name.size() + 1,
-                        sizeof(char));
+	std::string method_name = in.name();
+	uint64_t hash_val[2] = {0, 0};
 
-        if (input == NULL)
-                return("");
+	SpookyHash::Hash128(method_name.c_str(), method_name.size(),
+		&hash_val[0], &hash_val[1]);
 
-        unsigned char * output = (unsigned char *)calloc(256/8, sizeof(char));
+	std::string outstr = ntos_hex(hash_val[0]) + ntos_hex(hash_val[1]);
 
-        if (output == NULL) {
-                free(input);
-                return("");
-        }
+	// Resize to the required byte count.
+	outstr.resize(2 * bytes);
 
-        copy(method_name.begin(), method_name.end(), input);
-
-        if (SHA256(input, method_name.size(), output) == NULL) {
-                free(input);
-                free(output);
-                return("");
-        }
-
-        // For however many bytes we want, use itos_hex to construct a string.
-        string outstr;
-        for (size_t counter = 0; counter < min(bytes, size_t(256/8)); ++counter)
-                outstr += itos_hex(output[counter], 2);
-
-        // Free input and output and return string.
-        free(input);
-        free(output);
-        return(outstr);
+	return outstr;
 }
 
 
@@ -219,7 +206,7 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 
 	double numvoters = 100;
 
-	string code = get_sha_code(*our_method, code_length);
+	string code = get_codename(*our_method, code_length);
 	string status = "Barycentric: " + our_method->name() + " has code "
 		+ code + ". Drawing...";
 

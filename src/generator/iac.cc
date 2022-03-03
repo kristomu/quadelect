@@ -6,7 +6,7 @@
 // add 0 to the beginning and |V| to the end, and then take the differences to get
 // the counts per ballot.
 
-std::list<ballot_group> imp_anon_culture::generate_ballots_int(
+std::list<ballot_group> iac::generate_ballots_int(
 	int num_voters, int numcands, bool do_truncate,
 	rng & random_source) const {
 

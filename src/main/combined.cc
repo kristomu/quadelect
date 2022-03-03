@@ -49,7 +49,6 @@
 
 // Headers for the Yee mode:
 #include "../images/color/color.h"
-#include <openssl/sha.h>
 
 // Barycentric characterization mode
 #include "../modes/barycentric.h"

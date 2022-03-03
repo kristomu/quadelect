@@ -23,7 +23,9 @@ list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 	to_add.weight = 1;
 
 	// Equal rank has been disabled and truncation is a hack. Implement
-	// them properly once I know how.
+	// them properly once I know how. (Truncation: perhaps by choosing a
+	// subset of candidates uniformly at random and then ranking them in
+	// random order?)
 	vector<bool> equal_rank(numcands);
 
 	double total_weight = 0;

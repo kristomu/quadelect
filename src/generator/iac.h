@@ -14,7 +14,7 @@
 #include <list>
 #include <stdexcept>
 
-class imp_anon_culture : public pure_ballot_generator {
+class iac : public pure_ballot_generator {
 	protected:
 		std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate, rng & random_source) const;
@@ -24,8 +24,8 @@ class imp_anon_culture : public pure_ballot_generator {
 			return ("Impartial Anonymous Culture");
 		}
 
-		imp_anon_culture(bool compress_in) :
+		iac(bool compress_in) :
 			pure_ballot_generator(compress_in) {}
-		imp_anon_culture(bool compress_in, bool do_truncate) :
+		iac(bool compress_in, bool do_truncate) :
 			pure_ballot_generator(compress_in, do_truncate) {}
 };

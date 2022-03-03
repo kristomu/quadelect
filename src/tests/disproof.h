@@ -26,7 +26,11 @@ class method_test_info {
 		int iters_run;
 		disproof crit_disproof;
 
-		method_test_info() { passes_so_far = true; iters_run = 0; }
+		method_test_info() {
+			passes_so_far = true;
+			iters_run = 0;
+			crit_disproof.complete = false;
+		}
 };
 
 #endif

@@ -13,6 +13,8 @@
 #include "../singlewinner/method.h"
 #include "../generator/spatial/gaussian.h"
 
+#include "../spookyhash/SpookyV2.h"
+
 class yee : public mode {
 	
 	private:
@@ -29,8 +31,8 @@ class yee : public mode {
 		double sigma;     // Desired standard deviation of the Gaussian.
 
 		// Parameters that aren't available to the public.
-                double inner_radius, outer_radius; // for candidate home bases
-                double color_attenuation_factor;   // to make bases stand out.
+		double inner_radius, outer_radius; // for candidate home bases
+		double color_attenuation_factor;   // to make bases stand out.
 
 		// SHA code length for method names, in bytes. If there are 
 		// 2^n methods in all (even those you aren't using), set it
@@ -51,8 +53,8 @@ class yee : public mode {
 
 		// This function generates hex-style "codenames" for each method
 		// so the mode doesn't overwrite pictures when dealing with more
-		// than one method at a time.
-		string get_sha_code(const election_method & in, 
+		// than one method at a time. It's generated from a hash function.
+		string get_codename(const election_method & in,
 				int bytes) const;
 
 		// Produce candidate colors, given the number of candidates.

@@ -16,11 +16,15 @@ set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallt
 
 # External library requirements
 
-find_package(OpenSSL REQUIRED)
 find_package(GLPK REQUIRED)
 find_package(Config++ REQUIRED)
+find_package (Eigen3 REQUIRED)
 
 include_directories(${OPENSSL_INCLUDE_DIR})
+
+if (NOT EXISTS "${CONFIG++_INCLUDE_DIR}/libconfig.h++")
+	message(FATAL_ERROR "Could not find libconfig++ header file!")
+endif()
 
 # Internal functionality groupings. Not all programs need all the
 # functionality: in particular, the yee/BR program doesn't need the
@@ -35,8 +39,6 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/singlewinner/brute_force/general_rpn/composition/test_instance_gen.cc
 	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc
 	src/config/general_rpn.cc)
-
-add_library(qe_quick_hash src/spookyhash/SpookyV2.cpp)
 
 add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/elimination.cc
@@ -91,6 +93,7 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/ballots.cc
 	src/cache.cc
 	src/choose_inc.cc
+	src/spookyhash/SpookyV2.cpp
 	src/distances/vivaldi_test.cc
 	src/generator/spatial/gaussian.cc
 	src/generator/iac.cc
@@ -104,7 +107,6 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/pairwise/grad_matrix.cc
 	src/pairwise/matrix.cc
 	src/pairwise/types.cc
-	src/pairwise/unfinished/sha.cc
 	src/random/random.cc
 	src/singlewinner/brute_force/rpn/chaotic_functions.cc
 	src/singlewinner/stats/mode.cc
@@ -161,14 +163,14 @@ add_executable(qe_compositor src/singlewinner/brute_force/general_rpn/compositio
 target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadelect_lib glpk config++)
 
 add_executable(qe_sifter src/singlewinner/brute_force/general_rpn/sifter.cc)
-target_link_libraries(qe_sifter qe_rpn_search qe_quick_hash quadelect_lib)
+target_link_libraries(qe_sifter qe_rpn_search quadelect_lib)
 
 add_executable(qe_invariance_sifter src/singlewinner/brute_force/general_rpn/invariance.cc)
-target_link_libraries(qe_invariance_sifter qe_rpn_search qe_quick_hash quadelect_lib)
+target_link_libraries(qe_invariance_sifter qe_rpn_search quadelect_lib)
 
 # TODO: Better name and description.
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
 target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib glpk)
 
 add_executable(quadelect src/main/combined.cc)
-target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk crypto)
+target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk)

@@ -88,7 +88,7 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 
 	std::map<std::vector<int>, std::vector<std::vector<int> > > out;
 
-	for (const std::pair<std::vector<int>, std::vector<std::vector<int> > > &
+	for (const std::pair<std::vector<int>, std::vector<std::vector<int> > >
 		kv : in) {
 
 		for (const std::vector<int> & in_sec_entry: kv.second) {
@@ -172,7 +172,7 @@ constraint_set direct_relative_criterion_const::get_before_constraints(const
 
 	std::vector<constraint> before_consts;
 
-	for (const std::pair<std::vector<int>, std::vector<std::vector<int> > > &
+	for (const std::pair<std::vector<int>, std::vector<std::vector<int> > >
 		before_and_after : before_to_after_transitions) {
 
 		std::string from_before = constraint_tools::permutation_to_str(
