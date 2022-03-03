@@ -15,15 +15,15 @@ std::list<ballot_group> iac::generate_ballots_int(
 	}
 
 	size_t num_permutations = factorial(numcands);
-	std::vector<int> interval_source(num_permutations+1);
-	interval_source[0] = 0;
-	interval_source[1] = num_voters;
+	std::vector<int> interval_source(num_permutations-1);
 
 	size_t i;
-	for (i = 0; i < num_permutations; ++i) {
-		interval_source[i+2] = random_source.irand(0, numcands+1);
+	for (i = 0; i < num_permutations-1; ++i) {
+		interval_source[i] = random_source.irand(0, num_voters+1);
 	}
 
+	interval_source.push_back(0);
+	interval_source.push_back(num_voters);
 	std::sort(interval_source.begin(), interval_source.end());
 
 	std::list<ballot_group> ballots;
@@ -33,19 +33,21 @@ std::list<ballot_group> iac::generate_ballots_int(
 	std::iota(candidate_order.begin(), candidate_order.end(), 0);
 
 	// And iterate through them.
-	for (i = 0; std::next_permutation(candidate_order.begin(),
-		candidate_order.end()); ++i) {
+	i = -1; // Pump priming
+
+	do {
+		++i;
 
 		int weight = interval_source[i+1] - interval_source[i];
 		if (weight == 0) { continue; }
 
 		ordering cur_ordering;
 		for (int j = 0; j < numcands; ++j) {
-			cur_ordering.insert(candscore(j, numcands-j));
+			cur_ordering.insert(candscore(candidate_order[j], numcands-j));
 		}
 
 		ballots.push_back(ballot_group(weight, cur_ordering, true, false));
-	}
+	} while (std::next_permutation(candidate_order.begin(), candidate_order.end()));
 
 	return ballots;
 };
