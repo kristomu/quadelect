@@ -28,18 +28,24 @@ class mode_ratings : public election_method {
 	protected:
 
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
-		string determine_name() const { return("Mode-Ratings"); }
+		string determine_name() const {
+			return ("Mode-Ratings");
+		}
 
 	public:
 
-		string name() const { return(cached_name); }
+		string name() const {
+			return (cached_name);
+		}
 
-		mode_ratings() { cached_name = determine_name(); }
+		mode_ratings() {
+			cached_name = determine_name();
+		}
 
 };
 

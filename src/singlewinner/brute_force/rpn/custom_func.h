@@ -8,12 +8,12 @@
 
 // TO NOTE for later: When we construct a function, because it is bottom up,
 // there are three possible ways it can go:
-// 1. Too few outputs (stack underrun error). Then this function can't be 
+// 1. Too few outputs (stack underrun error). Then this function can't be
 //		used.
 // 2. One output: this function can be used.
 // 3. Multiple outputs: this function can be used.
 
-// This then suggests that we can combine smaller functions that we know do 
+// This then suggests that we can combine smaller functions that we know do
 // work into larger functions or pieces of larger functions. More specifically,
 // let the number of outputs be some integer p, and the number of stack inputs
 // needed to be some integer q.
@@ -50,7 +50,7 @@ enum custom_funct_atom {
 	VAL_IN_AbB = 9,		// ABC + ACB + CAB 0 1 4
 	VAL_IN_AbC = 36,	// ABC + ACB + BAC 0 1 2
 	VAL_IN_BbA = 37,	// BAC + BCA + CBA 2 3 5
-	VAL_IN_BbC = 10,	// BCA + BAC + ABC 2 3 0 
+	VAL_IN_BbC = 10,	// BCA + BAC + ABC 2 3 0
 	VAL_IN_CbA = 11,	// CAB + CBA + BCA 3 4 5
 	VAL_IN_CbB = 13,	// CAB + CBA + ACB 3 4 1
 	VAL_IN_ALL = 12,	// num voters
@@ -97,28 +97,32 @@ class custom_function {
 
 		// All negative values are false and non-negative values are true.
 		// This lets neg work as not in a sense (except for a singular point).
-		bool is_true(const double & in) const { return (in >= 0); }
+		bool is_true(const double & in) const {
+			return (in >= 0);
+		}
 		int make_bool(const bool & in) const {
-			if (in) { return(0); }
-			return(-1);
+			if (in) {
+				return (0);
+			}
+			return (-1);
 		}
 
 		void decode_function(unsigned long long function_number,
 			vector<custom_funct_atom> & output) const;
-		double evaluate(vector<double> & stack, 
-			const custom_funct_atom & cur_atom, 
+		double evaluate(vector<double> & stack,
+			const custom_funct_atom & cur_atom,
 			const vector<double> & input_values,
 			bool generous_to_asymptotes) const;
 		double evaluate_function(const vector<custom_funct_atom> & function,
-			const vector<double> & input_values, 
+			const vector<double> & input_values,
 			bool reject_large_stack, bool generous_to_asymptotes) const;
-		bool update_suitability(const custom_function & funct_to_test, 
+		bool update_suitability(const custom_function & funct_to_test,
 			const vector<vector<double> > & test_in_vectors,
 			map<vector<double>, unsigned long long> & results_already_seen) const;
-		bool update_ordinal_suitability(const custom_function & 
+		bool update_ordinal_suitability(const custom_function &
 			funct_to_test, const vector<vector<double> > & test_in_vectors,
 			map<vector<bool>, unsigned long long> & results_already_seen) const;
-		
+
 		string atom_to_word(const custom_funct_atom in) const;
 		unsigned long long our_value;
 
@@ -127,31 +131,35 @@ class custom_function {
 		void set_asymptote_generous(bool generous_in) {
 			is_generous_to_asymptotes = generous_in;
 		}
-		bool is_asymptote_generous() const { 
-			return(is_generous_to_asymptotes); }
+		bool is_asymptote_generous() const {
+			return (is_generous_to_asymptotes);
+		}
 
 		custom_function(unsigned long long function_number, bool generous_in);
 		custom_function(bool generous_in);
-		double evaluate(const vector<double> & input_values, 
+		double evaluate(const vector<double> & input_values,
 			bool reject_large_stack, bool generous_to_asymptotes) const;
-		double evaluate(const vector<double> & input_values, 
+		double evaluate(const vector<double> & input_values,
 			bool reject_large_stack) const;
 
 		// Determine if the function works on the test vectors.
 		bool update_suitability(const vector<vector<double> > & test_in_vectors,
 			map<vector<double>, unsigned long long > & results_already_seen) const {
-			return(update_suitability(*this, test_in_vectors, 
-				results_already_seen));
+			return (update_suitability(*this, test_in_vectors,
+						results_already_seen));
 		}
 
-		bool update_ordinal_suitability(const vector<vector<double> > & test_in_vectors,
+		bool update_ordinal_suitability(const vector<vector<double> > &
+			test_in_vectors,
 			map<vector<bool>, unsigned long long > & results_already_seen) const {
-			return(update_ordinal_suitability(*this, test_in_vectors, 
-				results_already_seen));
+			return (update_ordinal_suitability(*this, test_in_vectors,
+						results_already_seen));
 		}
 
 		vector<string> get_atom_printout() const;
-		unsigned long long get_value() const { return(our_value); }
+		unsigned long long get_value() const {
+			return (our_value);
+		}
 };
 
 #endif

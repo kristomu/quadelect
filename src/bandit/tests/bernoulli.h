@@ -17,15 +17,21 @@ class Bernoulli : public Test {
 
 	public:
 		Bernoulli(double p_in, rseed_t seed) : randomizer(seed) {
-			assert (p_in >= 0 && p_in <= 1);
+			assert(p_in >= 0 && p_in <= 1);
 			p = p_in;
 		}
 
 		double perform_test();
-		std::string name() const { return ("Bernoulli(" + dtos(p) + ")");}
+		std::string name() const {
+			return ("Bernoulli(" + dtos(p) + ")");
+		}
 
-		double get_minimum() const { return(0); }
-		double get_maximum() const { return(1); }
+		double get_minimum() const {
+			return (0);
+		}
+		double get_maximum() const {
+			return (1);
+		}
 };
 
 #endif

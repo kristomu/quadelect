@@ -55,7 +55,7 @@ class color_conv {
 	public:
 
 		vector<double> convert(const vector<double> & in,
-		    color_space from, color_space to) const;
+			color_space from, color_space to) const;
 };
 
 #endif

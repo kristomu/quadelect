@@ -11,7 +11,7 @@
 
 #include "monotonicity.h"
 
-// Other classes will be needed for mono-remove-bottom and "related" property, 
+// Other classes will be needed for mono-remove-bottom and "related" property,
 // Participation.
 
 ///// Mono-add-plump
@@ -19,23 +19,27 @@
 
 class mono_add_plump : public monotonicity {
 
-        private:
+	private:
 		bool add_ballots(const vector<int> & data,
-				rng & randomizer,
-				list<ballot_group> & input,
-				double total_weight, int numcands) const;
+			rng & randomizer,
+			list<ballot_group> & input,
+			double total_weight, int numcands) const;
 
-                string basename() const { return("Mono-add-plump"); }
+		string basename() const {
+			return ("Mono-add-plump");
+		}
 
 		// More strictly true this time.
-                bool allows_lowering() const { return(false); }
+		bool allows_lowering() const {
+			return (false);
+		}
 
-        public:
+	public:
 
-                mono_add_plump(bool winner_only_in, bool permit_ties_in) :
-                        monotonicity(winner_only_in, permit_ties_in) {}
+		mono_add_plump(bool winner_only_in, bool permit_ties_in) :
+			monotonicity(winner_only_in, permit_ties_in) {}
 
-                mono_add_plump() : monotonicity() {}
+		mono_add_plump() : monotonicity() {}
 
 };
 
@@ -47,23 +51,27 @@ class mono_add_plump : public monotonicity {
 
 class mono_add_top : public monotonicity {
 
-        private:
-                bool add_ballots(const vector<int> & data,
-                                rng & randomizer,
-                                list<ballot_group> & input,
-                                double total_weight, int numcands) const;
+	private:
+		bool add_ballots(const vector<int> & data,
+			rng & randomizer,
+			list<ballot_group> & input,
+			double total_weight, int numcands) const;
 
-                string basename() const { return("Mono-add-top"); }
+		string basename() const {
+			return ("Mono-add-top");
+		}
 
-                // More strictly true this time.
-                bool allows_lowering() const { return(false); }
+		// More strictly true this time.
+		bool allows_lowering() const {
+			return (false);
+		}
 
-        public:
+	public:
 
-                mono_add_top(bool winner_only_in, bool permit_ties_in) :
-                        monotonicity(winner_only_in, permit_ties_in) {}
+		mono_add_top(bool winner_only_in, bool permit_ties_in) :
+			monotonicity(winner_only_in, permit_ties_in) {}
 
-                mono_add_top() : monotonicity() {}
+		mono_add_top() : monotonicity() {}
 
 };
 

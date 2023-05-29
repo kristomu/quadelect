@@ -25,17 +25,20 @@
 class randpair : public pairwise_method {
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { return("Random Pair"); }
+		string pw_name() const {
+			return ("Random Pair");
+		}
 
 		// Like Copeland, the type doesn't matter since we're only
 		// looking at whether X beats Y.
 		randpair(pairwise_type def_type_in) :
 			pairwise_method(def_type_in) {
-				type_matters = false;
-				update_name(); }
+			type_matters = false;
+			update_name();
+		}
 };
 
 #endif

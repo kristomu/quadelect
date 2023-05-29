@@ -17,18 +17,26 @@ class Bandit {
 		}
 
 		virtual double pull();
-		int get_num_pulls() const { return(num_pulls); }
+		int get_num_pulls() const {
+			return (num_pulls);
+		}
 		double get_mean() const;
 
 		// Get the range of the random variable. This is required to
 		// calculate the lil'USB variance parameter in absence of actual
 		// variance information.
-		double get_minimum() const { return(arm->get_minimum()); }
-		double get_maximum() const { return(arm->get_maximum()); }
+		double get_minimum() const {
+			return (arm->get_minimum());
+		}
+		double get_maximum() const {
+			return (arm->get_maximum());
+		}
 
 		// Return the name of the arm so we can provide the name of the
 		// winner when we've run MAB.
-		std::string name() const { return(arm->name());}
+		std::string name() const {
+			return (arm->name());
+		}
 };
 
 #endif

@@ -1,7 +1,7 @@
 // Majority Defeat Disqualification set. If A is preferred to B on a majority
-// of the ballots, then B is "disqualified" (in this case, ranked below top). 
-// Our ranking may be slightly different from the usual Majority Defeat 
-// Disqualification concept, since if everybody is thus disqualified, people 
+// of the ballots, then B is "disqualified" (in this case, ranked below top).
+// Our ranking may be slightly different from the usual Majority Defeat
+// Disqualification concept, since if everybody is thus disqualified, people
 // who are disqualified by more than one will still be ranked below those only
 // disqualified by one. Set sum to false if you don't want that.
 
@@ -20,8 +20,8 @@ class mdd_set : public pairwise_method {
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls, 
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
 		mdd_set(bool sum_defeats_in);
 

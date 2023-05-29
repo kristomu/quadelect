@@ -39,15 +39,17 @@
 #include "positional/simple_methods.h"
 
 class first_pref_copeland : public election_method {
-		
+
 	public:
 		std::pair<ordering, bool> elect_inner(
-				const std::list<ballot_group> & papers,
-				const std::vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
-		string name() const { return ("First pref. Copeland"); }
+		string name() const {
+			return ("First pref. Copeland");
+		}
 };
 
 #endif

@@ -30,24 +30,25 @@ class sinkhorn : public pairwise_method {
 		bool add_one;
 
 		sinkhorn_factor get_sinkhorn_factor(int max_iterations, const
-				vector<vector<double > > & input_matrix,
-				bool debug) const;
+			vector<vector<double > > & input_matrix,
+			bool debug) const;
 
 	public:
 		sinkhorn(pairwise_type def_type_in, double tolerance_in,
-				bool add_one_in) : pairwise_method(def_type_in){
+			bool add_one_in) : pairwise_method(def_type_in) {
 			tolerance = tolerance_in; add_one = add_one_in;
 			update_name();
 		}
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
 		string pw_name() const;
 
-		void set_tolerance(double tolerance_in) { 
-			tolerance = tolerance_in; update_name(); }
+		void set_tolerance(double tolerance_in) {
+			tolerance = tolerance_in; update_name();
+		}
 };
 
 #endif

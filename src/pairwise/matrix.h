@@ -26,7 +26,7 @@ using namespace std;
 // This is an implementation of a basic Condorcet matrix. It contains functions
 // to read and write values; however, these values are always concealed behind
 // the type (wv, margins, etc) that the Condorcet matrix has been set to. The
-// concealing is meant to keep election methods from prodding at the raw 
+// concealing is meant to keep election methods from prodding at the raw
 // matrix, so that one can be sure that when one passes a wv modified matrix,
 // that is what the method will use.
 
@@ -35,10 +35,10 @@ using namespace std;
 // in abstract_condmat, so that CPO-STV etc work similarly...)
 
 // TODO: Consider the idea of using +/- to enable summing matrices (as in
-// summability). Maybe also use that along with a virtual individual Condorcet 
-// matrix that derives info from an actual ballot to make ballot counting very 
+// summability). Maybe also use that along with a virtual individual Condorcet
+// matrix that derives info from an actual ballot to make ballot counting very
 // easy, unless that would lead to a performance hit.
-// But not all multiwinner "council matrix" systems are weakly summable. 
+// But not all multiwinner "council matrix" systems are weakly summable.
 // CPO-STV is not, for instance.
 
 // TODO: Make set increase num_voters, or expose set_num_voters. We'll do the
@@ -59,32 +59,36 @@ class condmat : public abstract_condmat {
 	public:
 		condmat(pairwise_type type_in);
 		condmat(const list<ballot_group> & scores, size_t num_candidates,
-				pairwise_type kind);
+			pairwise_type kind);
 		// Should we permit condmat(input, kind)? Does that break
 		// or enhance encapsulation?
 		// Do it for now, then judge later.
 		condmat(const condmat & in, pairwise_type type_in);
-		condmat(size_t num_candidates_in, double num_voters_in, 
-				pairwise_type type_in);
+		condmat(size_t num_candidates_in, double num_voters_in,
+			pairwise_type type_in);
 
 		// Eh, is this bad?
 		bool add(size_t candidate, size_t against, double value) {
-			return(set_internal(candidate, against, 
-					get_internal(candidate, against, true) +
-					value));
+			return (set_internal(candidate, against,
+						get_internal(candidate, against, true) +
+						value));
 		}
 
 		void count_ballots(const list<ballot_group> & scores,
-				size_t num_candidates);
+			size_t num_candidates);
 
 		// Perhaps "expand candidates by one, contract by one" here?
 		// Clear, etc...
 
-		double get_num_candidates() const { return(contents.size()); }
+		double get_num_candidates() const {
+			return (contents.size());
+		}
 
 		void zeroize();
 
-		void set_type(pairwise_type type_in) {type = type_in;}
+		void set_type(pairwise_type type_in) {
+			type = type_in;
+		}
 };
 
 #endif

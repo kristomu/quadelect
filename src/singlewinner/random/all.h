@@ -1,5 +1,5 @@
 
-// All misc stochastic singlewinner methods. Use this if you want to include 
+// All misc stochastic singlewinner methods. Use this if you want to include
 // the whole batch.
 
 #ifndef _VOTE_SW_ARAND

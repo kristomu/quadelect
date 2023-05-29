@@ -9,7 +9,7 @@
 #include <limits>
 
 // A statistics class for storing results (usually from voting methods, or
-// "best of"/"worst of"). 
+// "best of"/"worst of").
 
 // BLUESKY?: Parameter to decide whether to permit sorted_scores. If not,
 // get median is linear time every time, otherwise it's log(n). Doing it in
@@ -18,9 +18,9 @@
 
 // The stats types are:
 // 	MS_UNNORM = Unnormalized (just a plain average)
-// 	MS_INTRAROUND = Each entry is normalized between best and worst: 
+// 	MS_INTRAROUND = Each entry is normalized between best and worst:
 // 			a/b + c/d
-// 	MS_INTERROUND = The sum is normalized between sum of best and sum of 
+// 	MS_INTERROUND = The sum is normalized between sum of best and sum of
 // 			worst: (a+c)/(b+d)
 
 // Since the class is templated, the code has to be in the header. This
@@ -68,7 +68,7 @@ template<typename T> class stats {
 
 	protected:
 		void initialize(stats_type norm_type, string name_in,
-				bool only_sum);
+			bool only_sum);
 
 	public:
 		stats(stats_type norm_type, string name_in, bool only_sum);
@@ -76,33 +76,46 @@ template<typename T> class stats {
 
 		void add_result(T minimum, T result, T maximum);
 
-		void set_normalization(stats_type norm_type) { 
-			normalization = norm_type; }
+		void set_normalization(stats_type norm_type) {
+			normalization = norm_type;
+		}
 
-		stats_type get_normalization() const { return(normalization); }
+		stats_type get_normalization() const {
+			return (normalization);
+		}
 
 		T get_mean(stats_type norm_type) const;
 		T get_variance(stats_type norm_type) const;
 		T get_last(stats_type norm_type) const;
 
-		T get_mean() const {return(get_mean(normalization));}
-		T get_variance() const { return(get_variance(normalization)); }
-		T get_median() const { return(get_median(normalization)); }
-		T get_last() const { return(get_last(normalization)); }
+		T get_mean() const {
+			return (get_mean(normalization));
+		}
+		T get_variance() const {
+			return (get_variance(normalization));
+		}
+		T get_median() const {
+			return (get_median(normalization));
+		}
+		T get_last() const {
+			return (get_last(normalization));
+		}
 
 		string display_stats(bool show_median, double interval) const;
-		virtual string get_name() const { return(name); }
+		virtual string get_name() const {
+			return (name);
+		}
 };
 
 template <typename T> T stats<T>::calc_median(vector<T> in) const {
 
 	// If the number of members isn't divisible by two, then pick the
 	// middle (floor(x/2)+1). Since we index from 0, it's just floor(x/2).
-	// Similarly, if it's even, it's the mean of floor(x/2)-1 and 
+	// Similarly, if it's even, it's the mean of floor(x/2)-1 and
 	// floor(x/2).
-	
+
 	if (in.size() % 2 == 0) {
-		typename vector<T>::iterator fpos = in.begin() + 
+		typename vector<T>::iterator fpos = in.begin() +
 			(in.size() / 2) - 1, spos = fpos + 1;
 
 		nth_element(in.begin(), fpos, in.end());
@@ -110,15 +123,15 @@ template <typename T> T stats<T>::calc_median(vector<T> in) const {
 		return ((*fpos + *spos) * 0.5);
 	}
 
-	typename vector<T>::iterator pos = in.begin() + 
+	typename vector<T>::iterator pos = in.begin() +
 		(int)floor(in.size() * 0.5);
 	nth_element(in.begin(), pos, in.end());
-	return(*pos);
+	return (*pos);
 }
 
 
-template <typename T> void stats<T>::initialize(stats_type norm_type, 
-		string name_in, bool only_sum) {
+template <typename T> void stats<T>::initialize(stats_type norm_type,
+	string name_in, bool only_sum) {
 
 	normalization = norm_type;
 	name = name_in;
@@ -134,14 +147,14 @@ template <typename T> void stats<T>::initialize(stats_type norm_type,
 	// a range of 0...1.
 
 	// To calculate mean and variance in an online manner, we make use of
-	// the following observations: 
+	// the following observations:
 	// scores_sum - sum_min        n     scores[k] - minimum[k]
 	// --------------------  =    SUM    -----------------------
 	//  sum_max - sum_min         k=0       sum_max - sum_min
 	//
 	// and: (scores_sum - sum_min) = SUM (k=0..n) scores[k] - minimum[k]).
 	//
-	// So we add, for each round k, its score minus that round's minimum, 
+	// So we add, for each round k, its score minus that round's minimum,
 	// to sum_normdiff, for calculating the mean, and the square of that,
 	// for calculating the variance, to sq_sum_normdiff.
 
@@ -154,7 +167,7 @@ template <typename T> void stats<T>::initialize(stats_type norm_type,
 
 	// TODO? Perhaps use this insight to make better medians for interround?
 
-	sum_minimum = 0; 
+	sum_minimum = 0;
 	sum_maximum = 0;
 
 	sq_sum_minimum = 0;
@@ -167,26 +180,27 @@ template <typename T> void stats<T>::initialize(stats_type norm_type,
 }
 
 template <typename T> stats<T>::stats(stats_type norm_type,
-		string name_in, bool only_sum) {
+	string name_in, bool only_sum) {
 	initialize(norm_type, name_in, only_sum);
 }
 
-template <typename T> stats<T>::stats(stats_type norm_type, string name_in) {
+template <typename T> stats<T>::stats(stats_type norm_type,
+	string name_in) {
 	initialize(norm_type, name_in, false);
 }
 
-template <typename T> void stats<T>::add_result(T minimum, T result, 
-		T maximum) {
+template <typename T> void stats<T>::add_result(T minimum, T result,
+	T maximum) {
 
 	T normalized = renorm(minimum, maximum, result, (T)0.0, (T)1.0);
 
 	if (!keep_only_sum) {
 		scores.push_back(result);
-		if (get_normalization() == MS_INTRAROUND)
+		if (get_normalization() == MS_INTRAROUND) {
 			normalized_scores.push_back(normalized);
-		else	
-			if (get_normalization() == MS_INTERROUND)
-				normalized_scores.push_back(result - minimum);
+		} else if (get_normalization() == MS_INTERROUND) {
+			normalized_scores.push_back(result - minimum);
+		}
 	}
 
 	++num_scores;
@@ -204,19 +218,19 @@ template <typename T> void stats<T>::add_result(T minimum, T result,
 }
 
 template <typename T> T stats<T>::get_mean(stats_type norm_type) const {
-	
-	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+
+	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
 		norm_type == MS_INTERROUND);
 
-	switch(norm_type) {
+	switch (norm_type) {
 		case MS_UNNORM:
-			return(scores_sum / (T)num_scores);
+			return (scores_sum / (T)num_scores);
 		case MS_INTRAROUND:
-			return(norm_scores_sum / (T)num_scores);
+			return (norm_scores_sum / (T)num_scores);
 		case MS_INTERROUND:
 		default:
 			// For great numerical stability!
-			return(sum_normdiff / (sum_maximum - sum_minimum));
+			return (sum_normdiff / (sum_maximum - sum_minimum));
 	}
 }
 
@@ -225,9 +239,10 @@ template <typename T> T stats<T>::get_mean(stats_type norm_type) const {
 
 // And TODO: Fix the minus zeroes.
 
-template <typename T> T stats<T>::get_variance(stats_type norm_type) const {
+template <typename T> T stats<T>::get_variance(stats_type norm_type)
+const {
 	// Here we make use of the computational algorithm for the sample
-	// variance: 
+	// variance:
 	// (sigma hat)^2 = N / (N-1) * ( 1/N square_sum - square(mean))
 
 	// For interround, if the denominator "denom" is
@@ -237,12 +252,12 @@ template <typename T> T stats<T>::get_variance(stats_type norm_type) const {
 	// is equal to sq_num_normdiff.
 
 	T square_sum, square_mean = square(get_mean(norm_type)),
-		adj_denominator = (sum_maximum - sum_minimum) / (T)num_scores;
+				  adj_denominator = (sum_maximum - sum_minimum) / (T)num_scores;
 
-	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
 		norm_type == MS_INTERROUND);
 
-	switch(norm_type) {
+	switch (norm_type) {
 		case MS_UNNORM:
 			square_sum = scores_sq_sum;
 			break;
@@ -256,7 +271,7 @@ template <typename T> T stats<T>::get_variance(stats_type norm_type) const {
 	}
 
 	// N / (N-1) * ( 1/N square_sum - square(mean))
-	return( num_scores / (T)(num_scores-1) * ( square_sum/(T)num_scores
+	return (num_scores / (T)(num_scores-1) * (square_sum/(T)num_scores
 				- square_mean));
 }
 
@@ -267,22 +282,24 @@ template <typename T> T stats<T>::get_median(stats_type norm_type) const {
 		throw std::invalid_argument("stats: Can't get median if only"
 			" sums are kept.");
 	}
-	if (norm_type != get_normalization()) return(-INFINITY);
+	if (norm_type != get_normalization()) {
+		return (-INFINITY);
+	}
 
-	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
 		norm_type == MS_INTERROUND);
 
-	switch(norm_type) {
+	switch (norm_type) {
 		case MS_UNNORM:
-			return(calc_median(scores));
+			return (calc_median(scores));
 		case MS_INTRAROUND:
-			return(calc_median(normalized_scores));
+			return (calc_median(normalized_scores));
 		default:
 		case MS_INTERROUND:
 			// We now use the new formulation (see the constructor).
-			return(calc_median(normalized_scores) /
+			return (calc_median(normalized_scores) /
 					((sum_maximum - sum_minimum) / (T)
-					 num_scores));
+						num_scores));
 	}
 }
 
@@ -296,20 +313,20 @@ template <typename T> T stats<T>::get_last(stats_type norm_type) const {
 		return std::numeric_limits<T>::quiet_NaN();
 	}
 
-	assert (norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
+	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
 		norm_type == MS_INTERROUND);
 
-	switch(norm_type) {
+	switch (norm_type) {
 		case MS_UNNORM:
-			return(*scores.rbegin());
+			return (*scores.rbegin());
 		case MS_INTRAROUND:
-			return(*normalized_scores.rbegin());
+			return (*normalized_scores.rbegin());
 		default:
 		case MS_INTERROUND:
-			return(renorm(sum_minimum / (T)scores.size(),
+			return (renorm(sum_minimum / (T)scores.size(),
 						sum_maximum/(T)
 						scores.size(),
-						*scores.rbegin(), (T)0.0, 
+						*scores.rbegin(), (T)0.0,
 						(T)1.0));
 	}
 }
@@ -317,30 +334,32 @@ template <typename T> T stats<T>::get_last(stats_type norm_type) const {
 // If show_median is true, we show the mean and median, otherwise we show the
 // mean and its confidence interval.
 template<typename T> string stats<T>::display_stats(bool show_median,
-		double interval) const {
+	double interval) const {
 
 	confidence_int ci;
 
 	string stats;
 	if (show_median)
 		stats = s_padded(dtos(get_mean(), 5), 7) + " med: " +
-				s_padded(dtos(get_median(), 5), 7);
+			s_padded(dtos(get_median(), 5), 7);
 	else {
 		// If the user specified a value greater than 50%, he probably
 		// means a confidence of that value instead of a p, so correct.
 		double uncertainty;
-		if (interval >= 0.5)
+		if (interval >= 0.5) {
 			uncertainty = 1 - interval;
-		else	uncertainty = interval;
+		} else	{
+			uncertainty = interval;
+		}
 
 		double half_width = ci.t_interval_half_width(
-			uncertainty, get_mean(), get_variance(), num_scores);
+				uncertainty, get_mean(), get_variance(), num_scores);
 
 		stats = s_padded(dtos(get_mean(), 5), 7) + "  +/- " +
 			s_padded(dtos(half_width, 5), 7);
 	}
 
-	return(stats + "         " + s_padded(get_name(), 50));
+	return (stats + "         " + s_padded(get_name(), 50));
 }
 
 #endif

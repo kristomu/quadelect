@@ -28,7 +28,7 @@ class test_generator_group {
 		bool no_harm, no_help;
 
 		vector_test_instance sample(test_instance_generator & generator,
-			bool reverse, const std::map<int, fixed_cand_equivalences> & 
+			bool reverse, const std::map<int, fixed_cand_equivalences> &
 			candidate_equivalences) const;
 
 		bool fits_group_directly(
@@ -39,14 +39,18 @@ class test_generator_group {
 
 	public:
 		std::vector<vector_test_instance> sample(
-			size_t desired_samples, 
-			const std::map<int, fixed_cand_equivalences> & 
+			size_t desired_samples,
+			const std::map<int, fixed_cand_equivalences> &
 			candidate_equivalences);
 
 		bool fits_group(const test_instance_generator & candidate) const;
 
-		bool get_no_harm() const { return no_harm; }
-		bool get_no_help() const { return no_help; }
+		bool get_no_harm() const {
+			return no_harm;
+		}
+		bool get_no_help() const {
+			return no_help;
+		}
 
 		void insert(test_instance_generator candidate);
 

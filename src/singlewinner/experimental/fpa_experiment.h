@@ -14,10 +14,10 @@ using namespace std;
 class fpa_experiment : public election_method {
 	public:
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
 		string name() const {
 			return ("EXP:fpA-experiment/Simmons");

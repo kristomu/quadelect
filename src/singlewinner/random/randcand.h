@@ -25,14 +25,16 @@ class random_candidate : public election_method {
 
 	protected:
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls,
-				int num_candidates,
-				cache_map * cache, bool winner_only) const;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates,
+			cache_map * cache, bool winner_only) const;
 
 	public:
 
-		string name() const { return ("Random Candidate"); }
+		string name() const {
+			return ("Random Candidate");
+		}
 };
 
 #endif

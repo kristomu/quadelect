@@ -1,9 +1,9 @@
-// The Hypertext Induced Text Search (HITS) algorithm. 
+// The Hypertext Induced Text Search (HITS) algorithm.
 
 #ifndef _VOTE_P_ODM_HITS
 #define _VOTE_P_ODM_HITS
 
-// HITS works by having two score factors: hub and authority. Hub factors are 
+// HITS works by having two score factors: hub and authority. Hub factors are
 // equal to the sum of authority factors of all pages the hub links to, and so
 // is equivalent to Offense, while Authority factors are equal to the sum of
 // hub factors of all pages that link to the authority, and so is equivalent to
@@ -21,8 +21,8 @@ using namespace std;
 class hits : public odm_gen {
 
 	protected:
-		double nltrans(double pairwise_value, 
-				double opposing_strength) const;
+		double nltrans(double pairwise_value,
+			double opposing_strength) const;
 
 		void ir_norm(vector<double> & factors) const;
 
@@ -32,7 +32,9 @@ class hits : public odm_gen {
 
 	public:
 		hits(pairwise_type def_type_in, double tolerance_in) :
-			odm_gen(def_type_in, tolerance_in) { update_name(); }
+			odm_gen(def_type_in, tolerance_in) {
+			update_name();
+		}
 };
 
 #endif

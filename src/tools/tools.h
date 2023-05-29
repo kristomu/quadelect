@@ -32,12 +32,14 @@ int factorial(int x);
 // care less about maps from candidate names to ints, but the printout part
 // could use maps from candidate ints to names.
 
-template<typename T, typename Q> std::map<Q, T> invert(const std::map<T, Q> & in) {
+template<typename T, typename Q> std::map<Q, T> invert(
+	const std::map<T, Q> & in) {
 	std::map<Q, T> inverse_mapping;
 
 	for (typename std::map<T, Q>::const_iterator pos = in.begin();
-	    pos != in.end(); ++pos)
+		pos != in.end(); ++pos) {
 		inverse_mapping[pos->second] = pos->first;
+	}
 
 	return (inverse_mapping);
 }
@@ -45,14 +47,14 @@ template<typename T, typename Q> std::map<Q, T> invert(const std::map<T, Q> & in
 double get_abs_time();
 // Distance on the Lp norm (generalized Euclidean).
 double euc_distance(double Lp, const std::vector<double> & a,
-    const std::vector<double> & b);
+	const std::vector<double> & b);
 
 // Integer to string
 
-std::string itos (int source);
+std::string itos(int source);
 std::string lltos(long long source);
-std::string dtos (double source);
-std::string dtos (double source, double precision);
+std::string dtos(double source);
+std::string dtos(double source, double precision);
 std::string s_padded(std::string a, size_t maxlen);
 std::string s_right_padded(std::string a, size_t maxlen);
 std::string itos(int source, unsigned int minlen);
@@ -82,8 +84,9 @@ template<typename T> std::string ntos_hex(T source) {
 
 template<class T> void arch_stoi(T & dest, bool hex, std::string source) {
 	std::stringstream q;
-	if (hex)
+	if (hex) {
 		q.flags(std::ios::hex);
+	}
 	q << source;
 	q >> dest;
 	return;
@@ -107,23 +110,26 @@ std::string remove_path(std::string fn);
 
 // Normalization ops.
 template<typename T> T norm(T min, T cur, T max) {
-	if (max == min) return (0);
+	if (max == min) {
+		return (0);
+	}
 	return ((cur-min)/(max-min));
 }
 
-template<typename T> T renorm(T min_in, T max_in, T cur, T min_out, T max_out) {
+template<typename T> T renorm(T min_in, T max_in, T cur, T min_out,
+	T max_out) {
 	return (norm(min_in, cur, max_in) * (max_out-min_out) + min_out);
 }
 
 // Tokenization
 
 std::vector<std::string> tokenize(const std::string & input_string,
-    const std::string & delimiters, const char comment_marker,
-    bool include_delimiters);
+	const std::string & delimiters, const char comment_marker,
+	bool include_delimiters);
 
 std::string strip_spaces(const std::string & in);
 std::vector<std::string> slurp_file(std::ifstream & source,
-    bool print_while_slurping);
+	bool print_while_slurping);
 
 // Used to read files of the type <number> (space or \t) (other stuff),
 // when we're only interested in the numbers.
@@ -136,11 +142,15 @@ template <typename T> void get_first_token_on_lines(std::ifstream & source,
 
 	while (!source.eof()) {
 		getline(source, next);
-		if (source.eof()) { continue; }
+		if (source.eof()) {
+			continue;
+		}
 
 		std::vector<std::string> tokenized_line = tokenize(
-			next, "\t ", '\n', false);
-		if (tokenized_line.empty()) { continue; }
+				next, "\t ", '\n', false);
+		if (tokenized_line.empty()) {
+			continue;
+		}
 		arch_stoi(next_integer, false, tokenized_line[0]);
 		out.push_back(next_integer);
 	}

@@ -26,7 +26,9 @@ class relation_side {
 		// relation side.
 		std::vector<std::pair<std::string, double> > weights;
 		double constant;
-		relation_side() { constant = 0; }
+		relation_side() {
+			constant = 0;
+		}
 
 		void print() const;
 };

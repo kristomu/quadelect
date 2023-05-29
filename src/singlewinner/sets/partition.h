@@ -26,13 +26,14 @@ class partition_set : public pairwise_method {
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls, 
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
 		void set_random(bool be_random);
 
-		partition_set(bool be_random) : pairwise_method(CM_WV) { 
-			set_random(be_random); }
+		partition_set(bool be_random) : pairwise_method(CM_WV) {
+			set_random(be_random);
+		}
 
 		string pw_name() const;
 };

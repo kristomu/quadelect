@@ -9,7 +9,7 @@
 
 // Perhaps support tie failures and take actual ties into account.
 // Tie failures would be something like (for monotonicity), first A = B = C > D,
-// then we find failures for A > ..., B > ..., C > ..., and so no matter how 
+// then we find failures for A > ..., B > ..., C > ..., and so no matter how
 // the method would break the tie, it can't escape.
 
 #ifndef _VOTE_TWOTEST_TTE
@@ -53,7 +53,7 @@ class twotest_engine {
 
 	public:
 		twotest_engine(unsigned int max_iters, int min_voters,
-				int max_voters, int min_cands, int max_cands);
+			int max_voters, int min_cands, int max_cands);
 		twotest_engine();
 
 		void set_generator(pure_ballot_generator * gen_in);
@@ -63,7 +63,7 @@ class twotest_engine {
 
 		// Setters and getters later.
 		// TODO: Some way of adding methods, duh!
-		
+
 		// TIRED FIX LATER. :p
 		// Should be made const, perhaps - particularly e_m.
 		void add_method(const election_method * method_in);

@@ -7,7 +7,7 @@
 // Cz <= d, Fz = g.
 
 struct equality_reduction {
-	simple_polytope reduced; // (CH, b) 
+	simple_polytope reduced; // (CH, b)
 	Eigen::MatrixXd H;
 	Eigen::VectorXd z_0;
 };
@@ -20,9 +20,9 @@ struct equality_reduction {
 // This is used for sampling from polytopes with equality constraints,
 // since billiard walk does badly under such constraints.
 
-// As far as is possible, the user only interacts with the "extended" 
+// As far as is possible, the user only interacts with the "extended"
 // polytope (the one in terms of z), and the class translates on the fly.
-// In some cases (e.g. billiard sampling), it might be necessary to access 
+// In some cases (e.g. billiard sampling), it might be necessary to access
 // the reduced polytope (the one in terms of x) and convert from x to z;
 // thus, anything that deals with only the polytope base class can access
 // the reduced polytope through get_A and similar.
@@ -47,19 +47,29 @@ class equality_polytope : public polytope {
 				reduction_stale = false;
 			}
 		}
-	
-		void set_C(const Eigen::MatrixXd C_in) { C = C_in; 
-			reduction_stale = true;}
-		void set_d(const Eigen::VectorXd d_in) { d = d_in; 
-			reduction_stale = true;}
-		void set_F(const Eigen::MatrixXd F_in) { F = F_in; 
-			reduction_stale = true;}
-		void set_g(const Eigen::VectorXd g_in) { g = g_in; 
-			reduction_stale = true;}
 
-		equality_polytope() { reduction_stale = true; }
+		void set_C(const Eigen::MatrixXd C_in) {
+			C = C_in;
+			reduction_stale = true;
+		}
+		void set_d(const Eigen::VectorXd d_in) {
+			d = d_in;
+			reduction_stale = true;
+		}
+		void set_F(const Eigen::MatrixXd F_in) {
+			F = F_in;
+			reduction_stale = true;
+		}
+		void set_g(const Eigen::VectorXd g_in) {
+			g = g_in;
+			reduction_stale = true;
+		}
 
-		equality_polytope(const Eigen::MatrixXd C_in, 
+		equality_polytope() {
+			reduction_stale = true;
+		}
+
+		equality_polytope(const Eigen::MatrixXd C_in,
 			const Eigen::VectorXd d_in, const Eigen::MatrixXd F_in,
 			const Eigen::VectorXd g_in) {
 
@@ -70,13 +80,13 @@ class equality_polytope : public polytope {
 			update_reduction();
 		}
 
-		Eigen::VectorXd get_full_coordinates(const Eigen::VectorXd & 
+		Eigen::VectorXd get_full_coordinates(const Eigen::VectorXd &
 			reduced_coordinates) const;
 
 		// TODO: Determine how we should transparently expose both the
 		// "full polytope" (e.g. be able to specify c in terms of all
 		// variables) and the "reduced polytope" (with equalities folded into
-		// inequalities) at the same time. For now, call everything 
+		// inequalities) at the same time. For now, call everything
 		// based around the full one full_poly.
 		virtual std::pair<double, Eigen::VectorXd> full_poly_mixed_program(
 			const Eigen::VectorXd & c, const std::vector<bool> & is_binary,

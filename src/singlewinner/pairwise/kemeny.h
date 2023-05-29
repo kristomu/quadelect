@@ -6,8 +6,8 @@
 // The exact integer program will be given in comments within the pair_elect
 // function itself.
 
-// YOUNG, H. Peyton; LEVENGLICK, Arthur. A consistent extension of 
-// Condorcet’s election principle. SIAM Journal on applied Mathematics, 
+// YOUNG, H. Peyton; LEVENGLICK, Arthur. A consistent extension of
+// Condorcet’s election principle. SIAM Journal on applied Mathematics,
 // 1978, 35.2: 285-300.
 
 #ifndef _VOTE_P_KEMENY
@@ -24,18 +24,20 @@ using namespace std;
 class kemeny : public pairwise_method {
 	private:
 		vector<vector<bool> > solve_kemeny(
-				const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				bool debug) const;
+			const abstract_condmat & input,
+			const vector<bool> & hopefuls,
+			bool debug) const;
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls, 
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { return("Kemeny"); }
+		string pw_name() const {
+			return ("Kemeny");
+		}
 
-		kemeny(pairwise_type def_type_in):pairwise_method(def_type_in){
+		kemeny(pairwise_type def_type_in):pairwise_method(def_type_in) {
 			update_name();
 		}
 };

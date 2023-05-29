@@ -5,7 +5,7 @@
 #include <vector>
 
 // This is a list of results gathered by testing multiple candidate
-// algorithms against a particular test generator or test generator group. 
+// algorithms against a particular test generator or test generator group.
 // As long as the scenarios are the same for each test instance generator,
 // they can be treated as the same test instance generator as far as the
 // test results are concerned.

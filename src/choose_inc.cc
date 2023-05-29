@@ -1,5 +1,3 @@
-// c antilamer
-
 #include <limits>
 #include <vector>
 #include <iostream>
@@ -9,7 +7,11 @@
 
 unsigned long long fact(int n) {
     unsigned long long res=1;
-    while(n>0) res*=n--;
+
+    while(n>0) {
+        res*=n--;
+    }
+
     return res;
 }
 
@@ -17,14 +19,17 @@ unsigned long long fact(int n) {
 // Now uses recursive version, though perhaps somewhat overkill...
 
 unsigned int choose(unsigned int n, unsigned int k) {
-    if (k > n) 
+    if (k > n) {
         return(0);
+    }
     
-    if (k > n-k)
+    if (k > n-k) {
         k = n-k;
+    }
     
-    if (k == 0 || n <= 1)
+    if (k == 0 || n <= 1) {
         return (1);
+    }
 
     long double first_half = choose(n-1, k),
                 second_half = choose(n-1, k-1);

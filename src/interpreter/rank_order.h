@@ -26,8 +26,8 @@ class rank_order_int : public interpreter {
 		bool is_this_format(const vector<string> & inputs) const;
 
 		pair<map<size_t, string>, list<ballot_group> > interpret_ballots(
-		    const vector<string> & inputs,
-		    bool debug) const;
+			const vector<string> & inputs,
+			bool debug) const;
 
 		string name() const {
 			return ("Raw rank-ballot input");

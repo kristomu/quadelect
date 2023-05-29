@@ -83,8 +83,12 @@ class isda_relative_const : public relative_criterion_const {
 		constraint_set relative_constraints(
 			std::string before_suffix, std::string after_suffix) const;
 
-		bool no_harm() const { return inner_criterion->no_harm(); }
-		bool no_help() const { return inner_criterion->no_help(); }
+		bool no_harm() const {
+			return inner_criterion->no_harm();
+		}
+		bool no_help() const {
+			return inner_criterion->no_help();
+		}
 
 		std::string name() const;
 
@@ -94,14 +98,14 @@ class isda_relative_const : public relative_criterion_const {
 		// Refactor later!
 		isda_relative_const(size_t numcands_before_in,
 			size_t numcands_after_in) : relative_criterion_const(
-			numcands_before_in, numcands_after_in), eliminator(
-			numcands_before_in, numcands_after_in) {
+					numcands_before_in, numcands_after_in), eliminator(
+						numcands_before_in, numcands_after_in) {
 
 			throw std::logic_error("not supported");
 		}
 
 		isda_relative_const(size_t numcands) : isda_relative_const(
-			numcands, numcands) {}
+				numcands, numcands) {}
 
 		// due to after_as_before, we must have at least as many after
 		// candidates as befores. Somehow handle the opposite case in a

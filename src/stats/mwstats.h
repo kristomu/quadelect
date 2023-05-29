@@ -18,12 +18,14 @@ class multiwinner_stats : public stats {
 		// We can set name to arbitrary because we don't use it.
 		// A more abstract base class would fix this, but bah.
 		multiwinner_stats(stats_type norm_type, multiwinner_method *
-				method_in, bool only_sum) : stats(norm_type, 
+			method_in, bool only_sum) : stats(norm_type,
 					"MWSTATS", only_sum) {
-					mw_method = method_in;}
+			mw_method = method_in;
+		}
 		multiwinner_stats(stats_type norm_type, multiwinner_method *
-				method_in) : stats(norm_type, "MWSTATS") {
-			mw_method = method_in;}
+			method_in) : stats(norm_type, "MWSTATS") {
+			mw_method = method_in;
+		}
 
 		// No direct add result because that depends on error type.
 		// Perhaps refactor error type to use classes instead of
@@ -31,9 +33,13 @@ class multiwinner_stats : public stats {
 		// checks, so it's still not as useful unless we can cache,
 		// which will have to wait for "clues".
 
-		string get_name() const { return(mw_method->name()); }
+		string get_name() const {
+			return (mw_method->name());
+		}
 
-		const multiwinner_method * method() { return(mw_method); }
+		const multiwinner_method * method() {
+			return (mw_method);
+		}
 };
 
 #endif

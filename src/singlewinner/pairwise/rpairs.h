@@ -1,6 +1,6 @@
 // Ranked Pairs / MAM. The difference between this method and "canonical" MAM
 // is that it doesn't break wv ties by margins - simply because we would want
-// to use it on other things than wv. It doesn't produce a random voter 
+// to use it on other things than wv. It doesn't produce a random voter
 // hierarchy either, yet.
 
 // This thing is slow, somewhere between n^3 log n and n^4. The steps are:
@@ -18,7 +18,7 @@
 
 // Ranked Pairs:
 
-// TIDEMAN, T. Nicolaus. Independence of clones as a criterion for voting 
+// TIDEMAN, T. Nicolaus. Independence of clones as a criterion for voting
 // rules. Social Choice and Welfare, 1987, 4.3: 185-206.
 
 // MAM:		http://alumnus.caltech.edu/~seppley/
@@ -64,21 +64,24 @@ class ranked_pairs : public pairwise_method {
 		bool is_river;
 
 		// Cache *might* make this quicker, but who knows?
-		bool st_connectivity(int source, int dest, 
-				const vector<list<int> > & 
-				adjacency_lists) const;
+		bool st_connectivity(int source, int dest,
+			const vector<list<int> > &
+			adjacency_lists) const;
 		void traverse_tree(vector<int> & places, int node, int depth,
-				const vector<list<int> > & 
-				adjacency_lists) const;
+			const vector<list<int> > &
+			adjacency_lists) const;
 
 	public:
-		ranked_pairs(pairwise_type def_type_in, bool river_in) : 
-			pairwise_method(def_type_in) { is_river = river_in; update_name(); }
+		ranked_pairs(pairwise_type def_type_in, bool river_in) :
+			pairwise_method(def_type_in) {
+			is_river = river_in;
+			update_name();
+		}
 		string pw_name() const;
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & iput,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 };
 
 #endif

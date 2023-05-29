@@ -69,7 +69,7 @@ template<typename T> class billiard_sampler {
 
 			// Set the starting position to the Chebyshev center
 			current_sampler_ray.orig = polytope_center().get_center(
-				polytope_to_sample);
+					polytope_to_sample);
 
 		}
 
@@ -82,7 +82,9 @@ template<typename T> class billiard_sampler {
 		// Defaults as in the paper, and with max_retries = 100.
 		Eigen::VectorXd billiard_walk();
 
-		void set_rng_seed(uint64_t seed) { randomizer.s_rand(seed); }
+		void set_rng_seed(uint64_t seed) {
+			randomizer.s_rand(seed);
+		}
 
 		// Output_full_points: if true, this returns the full points of a
 		// polytope (e.g. x instead of z for equality_polytope) even though
@@ -106,7 +108,7 @@ template<typename T> class billiard_sampler {
 		Eigen::VectorXd get_current_point() const {
 			if (output_extended_points) {
 				return polytope_to_sample.get_full_coordinates(
-					current_sampler_ray.orig);
+						current_sampler_ray.orig);
 			} else {
 				return current_sampler_ray.orig;
 			}
@@ -116,7 +118,8 @@ template<typename T> class billiard_sampler {
 // Since we're using templating, all the functions have to be in the header
 // as well.
 
-template<typename T> Eigen::VectorXd billiard_sampler<T>::random_unit_vector(
+template<typename T> Eigen::VectorXd
+billiard_sampler<T>::random_unit_vector(
 	int dimension) {
 	// Create a ray pointing in a random direction with unit magnitude.
 	// Having unit magnitude makes k the distance to the closest edge in
@@ -158,7 +161,8 @@ template<typename T> Eigen::VectorXd billiard_sampler<T>::random_unit_vector(
 
 // Returns the closest half-plane intersecting the ray, and the distance to
 // it from the ray's origin.
-template<typename T> halfplane_result billiard_sampler<T>::get_closest_halfplane_dist(
+template<typename T> halfplane_result
+billiard_sampler<T>::get_closest_halfplane_dist(
 	const polytope & poly_in, const ray & ray_in) const {
 
 	halfplane_result out;
@@ -178,14 +182,18 @@ template<typename T> halfplane_result billiard_sampler<T>::get_closest_halfplane
 		double travel_magnitude = ray_in.dir.dot(poly_in.get_A().row(i));
 
 		// If the ray direction is parallel to the edge, skip.
-		if (travel_magnitude == 0) { continue; }
+		if (travel_magnitude == 0) {
+			continue;
+		}
 
 		double dist = (poly_in.get_b()[i] - ray_in.orig.dot(poly_in.get_A().
-			row(i))) / travel_magnitude;
+					row(i))) / travel_magnitude;
 
 		// If we're heading away from the half-plane, no need to check
 		// further, so skip.
-		if (dist < 0) { continue; }
+		if (dist < 0) {
+			continue;
+		}
 
 		if (dist < dist_record && dist > dist_epsilon) {
 			dist_record = dist;
@@ -221,7 +229,8 @@ template<typename T> halfplane_result billiard_sampler<T>::get_closest_halfplane
 	return out;
 }
 
-template<typename T> bool billiard_sampler<T>::billiard_walk_internal(const polytope & poly_in, ray & ray_in,
+template<typename T> bool billiard_sampler<T>::billiard_walk_internal(
+	const polytope & poly_in, ray & ray_in,
 	double max_distance, int max_reflections) const {
 
 	double distance_remaining = max_distance;
@@ -244,7 +253,7 @@ template<typename T> bool billiard_sampler<T>::billiard_walk_internal(const poly
 		// we can't travel at all.
 		if (!closest.colliding) {
 			double distance_to_travel = std::min(distance_remaining,
-				closest.distance);
+					closest.distance);
 			current_ray.orig += current_ray.dir * distance_to_travel;
 			distance_remaining -= distance_to_travel;
 
@@ -256,7 +265,7 @@ template<typename T> bool billiard_sampler<T>::billiard_walk_internal(const poly
 
 		// We're at an edge and we need to reflect.
 		Eigen::VectorXd int_normal = -poly_in.get_A().row(closest.
-			halfplane_idx);
+				halfplane_idx);
 		int_normal /= int_normal.norm();
 
 		current_ray.dir -= 2 * current_ray.dir.dot(int_normal) * int_normal;
@@ -281,7 +290,7 @@ template<typename T> ray billiard_sampler<T>::billiard_walk_preserving(
 		double max_distance = -tau_distance * log(randomizer.drand());
 
 		if (billiard_walk_internal(polytope_to_sample, candidate,
-			max_distance, max_reflections)) {
+				max_distance, max_reflections)) {
 
 			return candidate; // it has now been updated.
 		}
@@ -294,11 +303,11 @@ template<typename T> ray billiard_sampler<T>::billiard_walk_preserving(
 template<typename T> Eigen::VectorXd billiard_sampler<T>::billiard_walk() {
 
 	current_sampler_ray = billiard_walk_preserving(current_sampler_ray.orig,
-		diameter, 10 * polytope_to_sample.get_dimension(), 100);
+			diameter, 10 * polytope_to_sample.get_dimension(), 100);
 
 	if (output_extended_points) {
 		return polytope_to_sample.get_full_coordinates(
-			current_sampler_ray.orig);
+				current_sampler_ray.orig);
 	} else {
 		return current_sampler_ray.orig;
 	}

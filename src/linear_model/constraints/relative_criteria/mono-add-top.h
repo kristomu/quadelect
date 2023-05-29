@@ -18,12 +18,14 @@ class mono_add_top_const : public direct_relative_criterion_const {
 	public:
 		mono_add_top_const(int numcands_in, int candidate_to_favor_in) :
 			direct_relative_criterion_const(numcands_in) {
-				candidate_to_favor = candidate_to_favor_in;
+			candidate_to_favor = candidate_to_favor_in;
 		}
 
 		// Default to helping A.
 		mono_add_top_const(int numcands_in) : mono_add_top_const(
-			numcands_in, 0) {}
+				numcands_in, 0) {}
 
-		std::string name() const { return "Mono-add-top"; }
+		std::string name() const {
+			return "Mono-add-top";
+		}
 };

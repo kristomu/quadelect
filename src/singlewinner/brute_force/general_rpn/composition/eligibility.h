@@ -64,7 +64,9 @@ class eligibility_status {
 		algo_t first, second;
 		bool any_strict_inequality;
 
-		eligibility_status() { any_strict_inequality = false; }
+		eligibility_status() {
+			any_strict_inequality = false;
+		}
 };
 
 
@@ -85,7 +87,10 @@ class memoization_entry {
 		int term;
 		double score; // alternately vector<double>...
 
-		memoization_entry() { term = -1; score = -1; }
+		memoization_entry() {
+			term = -1;
+			score = -1;
+		}
 };
 
 #endif

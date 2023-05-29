@@ -10,10 +10,10 @@
 
 class ordering_sorter {
 	public:
-		int compare (const ordering & a, const ordering & b) const;
-		bool operator() (const ordering & a, const ordering & b) const;
-		bool operator() (const ballot_group & a, const 
-				ballot_group & b) const;
+		int compare(const ordering & a, const ordering & b) const;
+		bool operator()(const ordering & a, const ordering & b) const;
+		bool operator()(const ballot_group & a, const
+			ballot_group & b) const;
 };
 
 // Orderings:
@@ -38,27 +38,27 @@ class ordering_tools {
 
 		// Break ties in "tied" according to tiebreaker and return
 		// result.
-		ordering tiebreak(const ordering & tied, 
-				const ordering & tiebreaker,
-				size_t num_candidates) const;
+		ordering tiebreak(const ordering & tied,
+			const ordering & tiebreaker,
+			size_t num_candidates) const;
 
 		// Used for testing. Or should be, anyway.
 		ordering ranked_tiebreak(const ordering & tied,
-				const ordering & tiebreaker,
-				size_t num_candidates) const;
+			const ordering & tiebreaker,
+			size_t num_candidates) const;
 
 		// Returns true if everybody who is ranked is also tied.
 		bool has_equal_rank(const ordering & to_check) const;
 
 		string ordering_to_text(const ordering & rank_ballot,
-				const map<size_t, string> & reverse_cand_lookup,
-				bool numeric) const;
+			const map<size_t, string> & reverse_cand_lookup,
+			bool numeric) const;
 
 		ordering direct_vector_to_ordering(const vector<double> & in,
-				const vector<bool> & hopefuls) const;
+			const vector<bool> & hopefuls) const;
 
 		ordering indirect_vector_to_ordering(const vector<double> & in,
-				const vector<int> & mapping) const;
+			const vector<int> & mapping) const;
 
 };
 
@@ -70,29 +70,29 @@ class ballot_tools {
 
 	public:
 		list<ballot_group> sort_ballots(const list<ballot_group> &
-				to_sort) const;
-		list<ballot_group> compress (const list<ballot_group> & 
-				uncompressed) const;
+			to_sort) const;
+		list<ballot_group> compress(const list<ballot_group> &
+			uncompressed) const;
 
 		string ballot_to_text(const ballot_group & rank_ballot,
-				const map<size_t, string> & reverse_cand_lookup,
-				bool numeric) const;
+			const map<size_t, string> & reverse_cand_lookup,
+			bool numeric) const;
 
-		vector<string> ballots_to_text(string prefix, 
-				const list<ballot_group> & rank_ballots,
-				const map<size_t, string> & reverse_cand_lokoup,
-				bool numeric) const;
+		vector<string> ballots_to_text(string prefix,
+			const list<ballot_group> & rank_ballots,
+			const map<size_t, string> & reverse_cand_lokoup,
+			bool numeric) const;
 
-		vector<string> ballots_to_text(const list<ballot_group> & 
-				rank_ballots, const map<size_t, string> & 
-				reverse_cand_lookup, bool numeric) const;
+		vector<string> ballots_to_text(const list<ballot_group> &
+			rank_ballots, const map<size_t, string> &
+			reverse_cand_lookup, bool numeric) const;
 
-		void print_ranked_ballots(const list<ballot_group> & 
+		void print_ranked_ballots(const list<ballot_group> &
 			rank_ballots) const;
 
 		// Multiply all the weights by factor. Used for covering
 		// methods more thoroughly when doing monotonicity checks etc.
-		std::list<ballot_group> rescale(const list<ballot_group> & ballots, 
+		std::list<ballot_group> rescale(const list<ballot_group> & ballots,
 			double factor) const;
 
 };

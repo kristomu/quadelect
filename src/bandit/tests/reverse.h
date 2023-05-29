@@ -18,13 +18,21 @@ class ReverseTest : public Test {
 			original = original_test;
 		}
 
-		double perform_test() { return(
-			original->get_maximum()-original->perform_test()); }
-		std::string name() const { return ("Rev-" + original->name()); }
+		double perform_test() {
+			return (
+					original->get_maximum()-original->perform_test());
+		}
+		std::string name() const {
+			return ("Rev-" + original->name());
+		}
 
-		double get_minimum() const { return(0); }
-		double get_maximum() const { return(
-			original->get_maximum()-original->get_minimum()); }
+		double get_minimum() const {
+			return (0);
+		}
+		double get_maximum() const {
+			return (
+					original->get_maximum()-original->get_minimum());
+		}
 };
 
 #endif

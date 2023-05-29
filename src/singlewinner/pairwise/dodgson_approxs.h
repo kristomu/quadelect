@@ -16,13 +16,16 @@
 class dquick : public pairwise_method {
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { return("Dodgson-Quick"); }
+		string pw_name() const {
+			return ("Dodgson-Quick");
+		}
 
-		dquick(pairwise_type def_type_in):pairwise_method(def_type_in){
-			update_name(); }
+		dquick(pairwise_type def_type_in):pairwise_method(def_type_in) {
+			update_name();
+		}
 
 };
 

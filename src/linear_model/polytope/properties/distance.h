@@ -41,7 +41,7 @@ class polytope_distance {
 			int n = poly_in.get_A().cols();
 
 			return get_extreme_coords(poly_in,
-				Eigen::MatrixXd::Constant(n, 1, M));
+					Eigen::MatrixXd::Constant(n, 1, M));
 		}
 
 		double get_l1_diameter(const polytope & poly_in,

@@ -25,7 +25,7 @@ using namespace std;
 // that matrix instead of just assuming it's equal to the cached matrix.
 // However, some methods may cache or use derived matrices (which is why we pass
 // cache into the core function), and they will do that regardless of whether
-// you're passing a Condorcet matrix or a list of ballots. Beware that and 
+// you're passing a Condorcet matrix or a list of ballots. Beware that and
 // don't pass the cache if you don't want that behavior.
 
 // Remember to call update_name() once you're done initializing everything in
@@ -52,44 +52,46 @@ class pairwise_method : public election_method {
 		// DONE: Support winner_only by passing it on.
 		// TODO: Refuse if the input matrix is of the wrong type. (??)
 		virtual pair<ordering, bool> pair_elect(
-				const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache,
-				bool winner_only) const = 0;
+			const abstract_condmat & input,
+			const vector<bool> & hopefuls,
+			cache_map * cache,
+			bool winner_only) const = 0;
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				bool winner_only) const {
-			return(pair_elect(input, hopefuls, NULL, winner_only));
+			const vector<bool> & hopefuls,
+			bool winner_only) const {
+			return (pair_elect(input, hopefuls, NULL, winner_only));
 		}
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				cache_map * cache,
-				bool winner_only) const;
+			cache_map * cache,
+			bool winner_only) const;
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				bool winner_only) const {
-			return(pair_elect(input, NULL, winner_only));
+			bool winner_only) const {
+			return (pair_elect(input, NULL, winner_only));
 		}
 
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const list<ballot_group> & papers,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls, 
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
-		pairwise_type get_type() const { return(default_type); }
+		pairwise_type get_type() const {
+			return (default_type);
+		}
 
-		pairwise_method(pairwise_type def_type_in) { 
+		pairwise_method(pairwise_type def_type_in) {
 			default_type = def_type_in; type_matters = true;
 			do_cache_name = true; cached_name = "/ERROR/NOT-SET/";
-	       	}
+		}
 
-		// One often gathers a bunch of pairwise_methods 
+		// One often gathers a bunch of pairwise_methods
 		// (or election_methods, even) in an array of pointers to the
 		// ABC. This ensures the inherited classes' destructors are
 		// called if one performs delete ops on that array.

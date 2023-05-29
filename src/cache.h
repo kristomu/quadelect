@@ -38,18 +38,18 @@ class cache_map {
 		// *a lot*.
 
 		inline void set_outcome(const string & name, bool winner_only,
-				const ordering & outcome);
-		inline void set_outcome(const string & name, 
-				const pair<ordering, bool> & outcome_inf);
+			const ordering & outcome);
+		inline void set_outcome(const string & name,
+			const pair<ordering, bool> & outcome_inf);
 
 		bool has_outcome(const string & name) const;
 		bool has_outcome(const string & name, bool winner_only) const;
 
-		inline pair<ordering, bool> get_outcome(const string & name, 
-				bool winner_only) const;
+		inline pair<ordering, bool> get_outcome(const string & name,
+			bool winner_only) const;
 
 		// Condorcet cache
-		
+
 		bool set_condorcet_matrix(const condmat & input);
 		bool has_condorcet_matrix() const;
 		cache_condmat get_condorcet_cache(pairwise_type kind) const;
@@ -61,42 +61,47 @@ class cache_map {
 // time.
 
 inline void cache_map::set_outcome(const string & name, bool winner_only,
-                const ordering & outcome) {
+	const ordering & outcome) {
 
-        if (winner_only)
-                outcomes[name].second = outcome;
-        else
-                outcomes[name].first = outcome;
+	if (winner_only) {
+		outcomes[name].second = outcome;
+	} else {
+		outcomes[name].first = outcome;
+	}
 }
 
-inline void cache_map::set_outcome(const string & name, const pair<ordering,
-                bool> & outcome_inf) {
+inline void cache_map::set_outcome(const string & name,
+	const pair<ordering,
+	bool> & outcome_inf) {
 
-        set_outcome(name, outcome_inf.second, outcome_inf.first);
+	set_outcome(name, outcome_inf.second, outcome_inf.first);
 }
 
 // If there's no cache, it'll return empty. Otherwise:
 //      - If winner_only is false, it either returns a full ranking or nothing.
 //      - If winner_only is true, it returns a full ranking if it exists,
 //              otherwise a winner-only, otherwise nothing. (We might want
-//              to make it work the opposite way to uncover bugs with 
+//              to make it work the opposite way to uncover bugs with
 //              winner_only, but well.. not yet.)
 inline pair<ordering, bool> cache_map::get_outcome(const string & name,
-                bool winner_only) const {
+	bool winner_only) const {
 
-        unordered_map<string, cache_orderings>::const_iterator lookup =
-                outcomes.find(name);
+	unordered_map<string, cache_orderings>::const_iterator lookup =
+		outcomes.find(name);
 
-        if (lookup == outcomes.end())
-                return (pair<ordering, bool>(ordering(), false));
+	if (lookup == outcomes.end()) {
+		return (pair<ordering, bool>(ordering(), false));
+	}
 
-        if (!lookup->second.first.empty())
-                return(pair<ordering, bool>(lookup->second.first, false));
+	if (!lookup->second.first.empty()) {
+		return (pair<ordering, bool>(lookup->second.first, false));
+	}
 
-        if (winner_only && !lookup->second.second.empty())
-                return(pair<ordering, bool>(lookup->second.second, true));
+	if (winner_only && !lookup->second.second.empty()) {
+		return (pair<ordering, bool>(lookup->second.second, true));
+	}
 
-        return(pair<ordering, bool>(lookup->second.first, false));
+	return (pair<ordering, bool>(lookup->second.first, false));
 }
 
 #endif

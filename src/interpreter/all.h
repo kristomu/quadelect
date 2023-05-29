@@ -11,7 +11,7 @@ list<interpreter *> get_all_interpreters() {
 
 	list<interpreter *> out;
 
-	out.push_back(new rank_order_int ());
+	out.push_back(new rank_order_int());
 
 	return (out);
 }

@@ -55,15 +55,20 @@ class relative_criterion_const {
 		cand_pairs candidate_reordering;
 
 		virtual bool is_valid_numcands_combination() const {
-			return numcands_before == numcands_after; }
+			return numcands_before == numcands_after;
+		}
 
 	public:
 
 		// States whether the criterion requires that A's position is not
 		// harmed (the default for monotonicity), that A's position is not
 		// helped (immunity to teaming) or both (clone independence).
-		virtual bool no_harm() const { return true; }
-		virtual bool no_help() const { return false; }
+		virtual bool no_harm() const {
+			return true;
+		}
+		virtual bool no_help() const {
+			return false;
+		}
 
 		virtual std::string name() const = 0;
 
@@ -74,8 +79,12 @@ class relative_criterion_const {
 			return candidate_reordering;
 		}
 
-		size_t get_numcands_before() const { return numcands_before; }
-		size_t get_numcands_after() const { return numcands_after; }
+		size_t get_numcands_before() const {
+			return numcands_before;
+		}
+		size_t get_numcands_after() const {
+			return numcands_after;
+		}
 
 		relative_criterion_const(size_t numcands_before_in,
 			size_t numcands_after_in) {

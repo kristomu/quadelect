@@ -11,18 +11,21 @@ class condorcet_set : public pairwise_method {
 
 	private:
 		// Returns -1 if none.
-		int get_CW(const abstract_condmat & input, 
-				const vector<bool> & hopefuls) const;
+		int get_CW(const abstract_condmat & input,
+			const vector<bool> & hopefuls) const;
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls, 
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		condorcet_set() : pairwise_method(CM_WV) { 
-			type_matters = false; update_name(); }
+		condorcet_set() : pairwise_method(CM_WV) {
+			type_matters = false; update_name();
+		}
 
-		string pw_name() const { return("Condorcet"); }
+		string pw_name() const {
+			return ("Condorcet");
+		}
 
 };
 

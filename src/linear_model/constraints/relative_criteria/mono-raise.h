@@ -17,5 +17,7 @@ class mono_raise_const : public direct_relative_criterion_const {
 		mono_raise_const(int numcands_in) :
 			direct_relative_criterion_const(numcands_in) {}
 
-		std::string name() const { return "Mono-raise"; }
+		std::string name() const {
+			return "Mono-raise";
+		}
 };

@@ -37,7 +37,8 @@ class elimination_util_const : public direct_relative_criterion_const {
 			const std::vector<int> & after_permutation) const;
 
 		virtual bool is_valid_numcands_combination() const {
-			return numcands_before > numcands_after; }
+			return numcands_before > numcands_after;
+		}
 
 	public:
 		// Throws exception if the input spec doesn't match the numbers of
@@ -53,8 +54,14 @@ class elimination_util_const : public direct_relative_criterion_const {
 
 		// Show that this is a utility class by demanding neither
 		// no-harm nor no-help.
-		bool no_harm() const { return false; }
-		bool no_help() const { return false; }
+		bool no_harm() const {
+			return false;
+		}
+		bool no_help() const {
+			return false;
+		}
 
-		std::string name() const { return "UTIL: Elimination"; }
+		std::string name() const {
+			return "UTIL: Elimination";
+		}
 };

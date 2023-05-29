@@ -22,8 +22,8 @@ class ext_plurality : public positional {
 
 	public:
 		ordering pos_elect(const vector<vector<double> > &
-				positional_matrix, int num_hopefuls,
-				const vector<bool> * hopefuls) const {
+			positional_matrix, int num_hopefuls,
+			const vector<bool> * hopefuls) const {
 
 			// We want to find the permutation x_1..x_n so that
 			// the x_ith row of the positional matrix is always >=
@@ -33,12 +33,12 @@ class ext_plurality : public positional {
 			// and so on.
 
 			std::vector<std::pair<std::vector<double>, int> >
-				scores_per_candidate;
+			scores_per_candidate;
 
 			for (size_t i = 0; i < positional_matrix.size(); ++i) {
 				scores_per_candidate.push_back(
 					std::pair<std::vector<double>, int>(positional_matrix[i],
-					i));
+						i));
 			}
 
 			// Sort ascending
@@ -62,16 +62,18 @@ class ext_plurality : public positional {
 
 				if (hopefuls == NULL || (*hopefuls)[scores_per_candidate[i].second]) {
 					social_order.insert(candscore(scores_per_candidate[i].second,
-						rank_counter));
+							rank_counter));
 				}
 			}
 
-			return(social_order);
+			return (social_order);
 		}
 
 		ext_plurality(positional_type kind_in) : positional(kind_in) {}
 
-		string pos_name() const { return("Ext-Plurality"); }
+		string pos_name() const {
+			return ("Ext-Plurality");
+		}
 };
 
 #endif

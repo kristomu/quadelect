@@ -25,7 +25,7 @@ using namespace std;
 // This produces a social ordering according to the greatest opponent magnitude,
 // negated (so as to keep with the convention that higher score is better).
 
-// If reverse_perspective is true, we do min(candidate above others) 
+// If reverse_perspective is true, we do min(candidate above others)
 // instead of -max(others over candidate). This is mostly intended for
 // debugging with CM_PAIRWISE_OPP; keep it off for standard uses.
 
@@ -36,23 +36,24 @@ class ord_minmax : public pairwise_method {
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls, 
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { 
+		string pw_name() const {
 			if (reverse_perspective) {
 				return ("Minmax (rev. persp.)");
 			} else {
-				return("Minmax");
+				return ("Minmax");
 			}
 		}
-		ord_minmax(pairwise_type def_type_in, bool rev_persp_in) : 
-			pairwise_method(def_type_in) { 
-				reverse_perspective = rev_persp_in;
-				update_name(); }
+		ord_minmax(pairwise_type def_type_in, bool rev_persp_in) :
+			pairwise_method(def_type_in) {
+			reverse_perspective = rev_persp_in;
+			update_name();
+		}
 
-		ord_minmax(pairwise_type def_type_in) : ord_minmax(def_type_in, 
-			false) {}
+		ord_minmax(pairwise_type def_type_in) : ord_minmax(def_type_in,
+				false) {}
 };
 
 
@@ -70,15 +71,22 @@ class ext_minmax : public pairwise_method {
 		bool minmin;
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { 
-			if (minmin)
-				return("Ext-Minmin");
-			else	return("Ext-Minmax"); }
+		string pw_name() const {
+			if (minmin) {
+				return ("Ext-Minmin");
+			} else	{
+				return ("Ext-Minmax");
+			}
+		}
 
-		ext_minmax(pairwise_type def_type_in, bool minmin_in) : pairwise_method(def_type_in) {minmin = minmin_in; update_name(); }
+		ext_minmax(pairwise_type def_type_in,
+			bool minmin_in) : pairwise_method(def_type_in) {
+			minmin = minmin_in;
+			update_name();
+		}
 };
 
 // "Maxmin"
@@ -89,12 +97,16 @@ class maxmin : public pairwise_method {
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { return("Maximin"); }
+		string pw_name() const {
+			return ("Maximin");
+		}
 		maxmin(pairwise_type def_type_in) : pairwise_method(
-				def_type_in) { update_name(); }
+				def_type_in) {
+			update_name();
+		}
 };
 
 // Copeland and n-th order Copeland. WV, Margins, PO doesn't matter.
@@ -107,15 +119,28 @@ class copeland : public pairwise_method {
 	public:
 		// Used for n-th order Copeland
 		vector<double> get_copeland(const abstract_condmat & input,
-				const vector<bool> & hopefuls, 
-				const vector<double> & counterscores) const;
+			const vector<bool> & hopefuls,
+			const vector<double> & counterscores) const;
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
 		string pw_name() const;
-		copeland(pairwise_type def_type_in) : pairwise_method(def_type_in) { win = 1; tie = 0; order = 1; type_matters = false; update_name(); }
-		copeland(pairwise_type def_type_in, unsigned int order_in, double win_in, double tie_in) : pairwise_method(def_type_in) { win = win_in; tie = tie_in; order = order_in; type_matters = false; update_name(); }
+		copeland(pairwise_type def_type_in) : pairwise_method(def_type_in) {
+			win = 1;
+			tie = 0;
+			order = 1;
+			type_matters = false;
+			update_name();
+		}
+		copeland(pairwise_type def_type_in, unsigned int order_in, double win_in,
+			double tie_in) : pairwise_method(def_type_in) {
+			win = win_in;
+			tie = tie_in;
+			order = order_in;
+			type_matters = false;
+			update_name();
+		}
 
 };
 
@@ -125,13 +150,17 @@ class copeland : public pairwise_method {
 class schulze : public pairwise_method {
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const { return("Schulze"); }
-		
+		string pw_name() const {
+			return ("Schulze");
+		}
+
 		schulze(pairwise_type def_type_in) : pairwise_method(
-				def_type_in) { update_name(); }
+				def_type_in) {
+			update_name();
+		}
 };
 
 #endif

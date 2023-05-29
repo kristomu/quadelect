@@ -16,16 +16,16 @@
 #include "../spookyhash/SpookyV2.h"
 
 class yee : public mode {
-	
+
 	private:
 		bool specified_params, inited, manual_cand_positions;
 		int cur_round;
 
 		// Parameters.
 		int min_num_voters, max_num_voters, num_candidates;
-		bool use_autopilot; double autopilot_factor; 
+		bool use_autopilot; double autopilot_factor;
 		int autopilot_history_len;
-		bool draw_binaries; 
+		bool draw_binaries;
 		string run_prefix;// Prefix to give pictures. Keep it short!
 		int x_size, y_size;
 		double sigma;     // Desired standard deviation of the Gaussian.
@@ -34,7 +34,7 @@ class yee : public mode {
 		double inner_radius, outer_radius; // for candidate home bases
 		double color_attenuation_factor;   // to make bases stand out.
 
-		// SHA code length for method names, in bytes. If there are 
+		// SHA code length for method names, in bytes. If there are
 		// 2^n methods in all (even those you aren't using), set it
 		// to (2n)/8 at least (by birthday paradox).
 		int code_length;
@@ -55,56 +55,56 @@ class yee : public mode {
 		// so the mode doesn't overwrite pictures when dealing with more
 		// than one method at a time. It's generated from a hash function.
 		string get_codename(const election_method & in,
-				int bytes) const;
+			int bytes) const;
 
 		// Produce candidate colors, given the number of candidates.
-		vector<vector<double> > get_candidate_colors(int numcands, 
-				bool debug) const;
+		vector<vector<double> > get_candidate_colors(int numcands,
+			bool debug) const;
 
 		// Test a given pixel and update winners arrays. See the .cc
 		// for more information.
-		long long check_pixel(int x, int y, int xsize, int ysize, 
-				const vector<const election_method *> & methods,
-				spatial_generator & ballotgen, 
-				vector<vector<vector<vector<bool > > > > & 
-				am_ac_winners, int min_num_voters_in, 
-				int max_num_voters_in, bool do_use_autopilot,
-				double autopilot_factor_in, 
-				int autopilot_history_in,
-				cache_map * cache, rng & randomizer) const;
+		long long check_pixel(int x, int y, int xsize, int ysize,
+			const vector<const election_method *> & methods,
+			spatial_generator & ballotgen,
+			vector<vector<vector<vector<bool > > > > &
+			am_ac_winners, int min_num_voters_in,
+			int max_num_voters_in, bool do_use_autopilot,
+			double autopilot_factor_in,
+			int autopilot_history_in,
+			cache_map * cache, rng & randomizer) const;
 
 		// Given complete winners arrays, draw the different pictures
 		// that visualize those arrays.
-		bool draw_pictures(string prefix, 
-				const vector<vector<vector<bool > > > &
-				ac_winners, 
-				vector<vector<double> > & cand_colors,
-				vector<vector<double> > & cand_locations,
-				bool draw_binaries, bool ignore_errors,
-				double inner_radius_in, double outer_radius_in,
-				double hue_factor) const;
+		bool draw_pictures(string prefix,
+			const vector<vector<vector<bool > > > &
+			ac_winners,
+			vector<vector<double> > & cand_colors,
+			vector<vector<double> > & cand_locations,
+			bool draw_binaries, bool ignore_errors,
+			double inner_radius_in, double outer_radius_in,
+			double hue_factor) const;
 
 	public:
 
 		yee();
 
 		// For advanced use.
-		bool set_params(int min_voters_in, int max_voters_in, 
-				int num_cands, bool do_use_autopilot, double
-				autopilot_factor_in, int autopilot_history_len,
-				bool do_draw_binaries, string case_prefix, 
-				int xsize_in, int ysize_in, double sigma_in);
+		bool set_params(int min_voters_in, int max_voters_in,
+			int num_cands, bool do_use_autopilot, double
+			autopilot_factor_in, int autopilot_history_len,
+			bool do_draw_binaries, string case_prefix,
+			int xsize_in, int ysize_in, double sigma_in);
 
 		// Reasonable defaults for the technical params.
-		bool set_params(int num_voters, int num_cands, 
-				bool do_use_autopilot, string case_prefix,
-				int picture_size, double sigma_in);
+		bool set_params(int num_voters, int num_cands,
+			bool do_use_autopilot, string case_prefix,
+			int picture_size, double sigma_in);
 
 		// These void init.
 		void set_voter_pdf(spatial_generator * candidate);
 		void set_candidate_pdf(spatial_generator * candidate);
-		bool set_candidate_positions(vector<vector<double> > & 
-				positions);
+		bool set_candidate_positions(vector<vector<double> > &
+			positions);
 		bool randomize_candidate_positions(rng & randomizer);
 
 		void add_method(const election_method * to_add);
@@ -119,19 +119,22 @@ class yee : public mode {
 
 		// If not inited, who knows? If inited, xsize + num_methods.
 		int get_max_rounds() const;
-		int get_current_round() const { return(cur_round); }
+		int get_current_round() const {
+			return (cur_round);
+		}
 
 		// Reseed does nothing here.
-		string do_round(bool give_brief_status, bool reseed, 
-				rng & randomizer);
+		string do_round(bool give_brief_status, bool reseed,
+			rng & randomizer);
 
 		vector<string> provide_status() const;
 };
 
 template<typename T> void yee::add_methods(T start_iter, T end_iter) {
 
-	for (T iterator = start_iter; iterator != end_iter; ++iterator)
+	for (T iterator = start_iter; iterator != end_iter; ++iterator) {
 		add_method(*iterator);
+	}
 }
 
 #endif

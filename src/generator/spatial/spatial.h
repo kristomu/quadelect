@@ -1,11 +1,11 @@
 // N-dimensional Euclidean space. Candidates and voters are random points on
-// [0...1] and rating is equal to 1 / (distance from voter to candidate). 
+// [0...1] and rating is equal to 1 / (distance from voter to candidate).
 
 // TODO: Set dimensions. for now, fixed to n = 2. Also consider partial
 // (correlated) dimensions, eyeing the SVD political compass, and other norms
 // than L2.
 
-// Bluesky: on a sphere? Tideman did this, I think. Or was that Hylland or 
+// Bluesky: on a sphere? Tideman did this, I think. Or was that Hylland or
 // Stensholt?
 
 // Or perhaps a generalization that makes use of "probability distribution"
@@ -46,8 +46,8 @@ class spatial_generator : public pure_ballot_generator {
 		size_t num_dimensions; // Number of axes
 		bool warren_utility;   // Use Warren's utility model?
 
-		double distance(const vector<double> & a, 
-				const vector<double> & b) const;
+		double distance(const vector<double> & a,
+			const vector<double> & b) const;
 
 		// If true, the candidate positions are fixed. This is used
 		// for drawing Yee diagrams (since they'd be fairly useless
@@ -61,7 +61,7 @@ class spatial_generator : public pure_ballot_generator {
 		vector<double> dispersion;
 
 		virtual vector<double> rnd_vector(size_t size, rng &
-				random_source) const = 0;
+			random_source) const = 0;
 		virtual vector<double> max_dim_vector(size_t dimensions) const;
 		// TODO: "get random coordinate" which would be used for
 		// sampling the circle of truncation in a manner consistent with
@@ -69,41 +69,51 @@ class spatial_generator : public pure_ballot_generator {
 
 	protected:
 		list<ballot_group> generate_ballots_int(int num_voters,
-				int numcands, bool do_truncate,
-				rng & random_source) const;
+			int numcands, bool do_truncate,
+			rng & random_source) const;
 
 	public:
 		spatial_generator() : pure_ballot_generator() {
-			set_params(2, true); uses_center = false; 
-			uses_dispersion = false; }
+			set_params(2, true); uses_center = false;
+			uses_dispersion = false;
+		}
 
 		spatial_generator(bool compress_in) :
 			pure_ballot_generator(compress_in) {
-				set_params(2, true); uses_center = false;
-				uses_dispersion = false; fixed = false; }
+			set_params(2, true); uses_center = false;
+			uses_dispersion = false; fixed = false;
+		}
 
 		spatial_generator(bool compress_in, bool do_truncate) :
 			pure_ballot_generator(compress_in, do_truncate) {
-				set_params(2, true); uses_center = false;
-				uses_dispersion = false; fixed = false; }
-			
+			set_params(2, true); uses_center = false;
+			uses_dispersion = false; fixed = false;
+		}
+
 		spatial_generator(bool compress_in, bool do_truncate,
-				size_t num_dimensions_in, bool warren_util_in) :
+			size_t num_dimensions_in, bool warren_util_in) :
 			pure_ballot_generator(compress_in, do_truncate) {
-				num_dimensions = 2;
-				set_params(num_dimensions_in, warren_util_in);
-				uses_center = false; uses_dispersion = false;
-				fixed = false; }
+			num_dimensions = 2;
+			set_params(num_dimensions_in, warren_util_in);
+			uses_center = false; uses_dispersion = false;
+			fixed = false;
+		}
 
 		bool set_params(size_t num_dimensions_in, bool warren_util_in);
 
-		size_t get_num_dimensions() const { return(num_dimensions); }
-		bool uses_warren_utility() const { return(warren_utility); }
+		size_t get_num_dimensions() const {
+			return (num_dimensions);
+		}
+		bool uses_warren_utility() const {
+			return (warren_utility);
+		}
 
 		// For fixing candidate positions.
-		void unfix_candidate_positions() { fixed = false; }
-		bool fix_candidate_positions(int num_cands, 
-				const vector<vector<double> > cand_positions);
+		void unfix_candidate_positions() {
+			fixed = false;
+		}
+		bool fix_candidate_positions(int num_cands,
+			const vector<vector<double> > cand_positions);
 		bool fix_candidate_positions(int num_cands, rng & randomizer);
 		vector<vector<double> > get_fixed_candidate_pos() const;
 
@@ -113,15 +123,15 @@ class spatial_generator : public pure_ballot_generator {
 
 		virtual bool set_center(const vector<double> center_in);
 		virtual bool set_dispersion(const vector<double> dispersion_in);
-		
+
 		bool set_center(double center_in) {
-			return(set_center(vector<double>(num_dimensions, 
-				center_in)));
+			return (set_center(vector<double>(num_dimensions,
+							center_in)));
 		}
 
 		bool set_dispersion(double dispersion_in) {
-			return(set_dispersion(vector<double>(num_dimensions, 
-				dispersion_in)));
+			return (set_dispersion(vector<double>(num_dimensions,
+							dispersion_in)));
 		}
 
 		// Should also return dimensions, etc.

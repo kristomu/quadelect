@@ -16,7 +16,7 @@ class factoradic {
 			const T & permutation, int n, R first_cand);
 
 		static bool test() {
-			return kth_permutation(1, 3) == "ACB" && 
+			return kth_permutation(1, 3) == "ACB" &&
 				kth_permutation(2, 3) == "BAC" &&
 				permutation_number(kth_permutation(10, 4), 4, 'A') == 10;
 		}
@@ -39,7 +39,7 @@ template<typename T, typename R> uint64_t factoradic::permutation_number(
 		size_t element_location;
 		bool found_element = false;
 
-		for (size_t j = 0; j < identity_perm.size() && !found_element; 
+		for (size_t j = 0; j < identity_perm.size() && !found_element;
 			++j) {
 
 			if (identity_perm[j] == element_to_find) {

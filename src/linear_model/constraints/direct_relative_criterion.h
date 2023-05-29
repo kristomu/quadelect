@@ -31,10 +31,10 @@ class direct_relative_criterion_const : public relative_criterion_const {
 			std::string after_suffix,
 			const std::vector<int> & cur_permutation) const;
 		std::map<std::vector<int>, std::vector<std::vector<int> > >
-			get_after_from_before_transitions() const;
+		get_after_from_before_transitions() const;
 		std::map<std::vector<int>, std::vector<std::vector<int> > >
-			reverse_map(const std::map<std::vector<int>,
-				std::vector<std::vector<int> > > & in) const;
+		reverse_map(const std::map<std::vector<int>,
+			std::vector<std::vector<int> > > & in) const;
 		// Get a set of constraints that define the after-ballots in terms
 		// of the before-ballots and transition counts.
 		constraint_set get_after_constraints(const
@@ -61,11 +61,16 @@ class direct_relative_criterion_const : public relative_criterion_const {
 		virtual bool permissible_transition(
 			const std::vector<int> & before_permutation,
 			const std::vector<int> & after_permutation) const {
-			return before_permutation == after_permutation; }
+			return before_permutation == after_permutation;
+		}
 		virtual bool permissible_addition(
-			const std::vector<int> & permutation) const { return false; }
+			const std::vector<int> & permutation) const {
+			return false;
+		}
 		virtual bool permissible_deletion(
-			const std::vector<int> & permutation) const { return false; }
+			const std::vector<int> & permutation) const {
+			return false;
+		}
 
 	public:
 		constraint_set relative_constraints(std::string before_suffix,
@@ -73,7 +78,7 @@ class direct_relative_criterion_const : public relative_criterion_const {
 
 		direct_relative_criterion_const(size_t numcands_before_in,
 			size_t numcands_after_in) : relative_criterion_const(
-			numcands_before_in, numcands_after_in) {}
+					numcands_before_in, numcands_after_in) {}
 
 		direct_relative_criterion_const(size_t numcands_in) :
 			direct_relative_criterion_const(numcands_in, numcands_in) {}

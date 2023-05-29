@@ -17,23 +17,27 @@
 
 class mono_sub_plump : public monotonicity {
 
-        private:
-                bool alter_ballot(const ordering & input,
-                                ordering & output, size_t numcands,
-                                const vector<size_t> & data,
-                                rng & randomizer) const;
+	private:
+		bool alter_ballot(const ordering & input,
+			ordering & output, size_t numcands,
+			const vector<size_t> & data,
+			rng & randomizer) const;
 
-                string basename() const { return("Mono-sub-plump"); }
+		string basename() const {
+			return ("Mono-sub-plump");
+		}
 
 		// Not strictly true, but I'm lazy.
-                bool allows_lowering() const { return(false); }
+		bool allows_lowering() const {
+			return (false);
+		}
 
-        public:
+	public:
 
-                mono_sub_plump(bool winner_only_in, bool permit_ties_in) :
-                        monotonicity(winner_only_in, permit_ties_in) {}
+		mono_sub_plump(bool winner_only_in, bool permit_ties_in) :
+			monotonicity(winner_only_in, permit_ties_in) {}
 
-                mono_sub_plump() : monotonicity() {}
+		mono_sub_plump() : monotonicity() {}
 
 };
 
@@ -42,23 +46,27 @@ class mono_sub_plump : public monotonicity {
 
 class mono_sub_top : public monotonicity {
 
-        private:
-                bool alter_ballot(const ordering & input,
-                                ordering & output, size_t numcands,
-                                const vector<size_t> & data,
-                                rng & randomizer) const;
+	private:
+		bool alter_ballot(const ordering & input,
+			ordering & output, size_t numcands,
+			const vector<size_t> & data,
+			rng & randomizer) const;
 
-                string basename() const { return("Mono-sub-top"); }
+		string basename() const {
+			return ("Mono-sub-top");
+		}
 
-                // Not strictly true, but I'm lazy.
-                bool allows_lowering() const { return(false); }
+		// Not strictly true, but I'm lazy.
+		bool allows_lowering() const {
+			return (false);
+		}
 
-        public:
+	public:
 
-                mono_sub_top(bool winner_only_in, bool permit_ties_in) :
-                        monotonicity(winner_only_in, permit_ties_in) {}
+		mono_sub_top(bool winner_only_in, bool permit_ties_in) :
+			monotonicity(winner_only_in, permit_ties_in) {}
 
-                mono_sub_top() : monotonicity() {}
+		mono_sub_top() : monotonicity() {}
 
 };
 

@@ -8,7 +8,7 @@
 // then derive indiv_ballot_generator from it. Thus we can have barycentric,
 // gaussian, etc, as a non-indiv_ballot generator.
 
-// TODO: Have an option to return both full and truncated ballots. When 
+// TODO: Have an option to return both full and truncated ballots. When
 // calculating social utilities, every voter has a social preference for a
 // candidate, he just doesn't know some of them if he truncates.
 
@@ -29,34 +29,39 @@ class pure_ballot_generator {
 		bool truncate, compress;
 
 		virtual list<ballot_group> generate_ballots_int(int num_voters,
-				int numcands, bool do_truncate, 
-				rng & random_source) const = 0;
+			int numcands, bool do_truncate,
+			rng & random_source) const = 0;
 
 	public:
 		// Inheriting classes will have to set defaults on these
 		// constructors, so that they don't leave the variables in
 		// an undefined state.
-		pure_ballot_generator() { compress = true; truncate = false; }
-		pure_ballot_generator(bool compress_in) { 
-			compress = compress_in; truncate = false; }
-		pure_ballot_generator(bool compress_in, bool do_truncate) { 
-			compress = compress_in; truncate = do_truncate; }
+		pure_ballot_generator() {
+			compress = true;
+			truncate = false;
+		}
+		pure_ballot_generator(bool compress_in) {
+			compress = compress_in; truncate = false;
+		}
+		pure_ballot_generator(bool compress_in, bool do_truncate) {
+			compress = compress_in; truncate = do_truncate;
+		}
 
 		// Provides an empty ballot on error.
-		// We ask for truncation because some criteria, like 
+		// We ask for truncation because some criteria, like
 		// mono-append, make no sense without.
 		list<ballot_group> generate_ballots(int num_voters,
-				int numcands, rng & random_source) const {
+			int numcands, rng & random_source) const {
 			ballot_tools bt;
 			if (compress)
-				return(bt.compress(generate_ballots_int(
+				return (bt.compress(generate_ballots_int(
 								num_voters,
-							       	numcands, 
+								numcands,
 								truncate,
 								random_source
-								)));
+							)));
 			else
-				return(generate_ballots_int(num_voters, 
+				return (generate_ballots_int(num_voters,
 							numcands, truncate,
 							random_source));
 		}
@@ -71,18 +76,18 @@ class pure_ballot_generator {
 class indiv_ballot_generator : public pure_ballot_generator {
 	protected:
 		virtual ordering generate_ordering(int numcands,
-				bool do_truncate, rng & random_source) 
-			const = 0;
+			bool do_truncate, rng & random_source)
+		const = 0;
 
 		list<ballot_group> generate_ballots_int(int num_voters,
-				int numcands, bool do_truncate, 
-				rng & random_source) const;
+			int numcands, bool do_truncate,
+			rng & random_source) const;
 
 	public:
 		indiv_ballot_generator() : pure_ballot_generator() {}
-		indiv_ballot_generator(bool compress_in) : 
+		indiv_ballot_generator(bool compress_in) :
 			pure_ballot_generator(compress_in) {}
-		indiv_ballot_generator(bool compress_in, bool do_truncate) : 
+		indiv_ballot_generator(bool compress_in, bool do_truncate) :
 			pure_ballot_generator(compress_in, do_truncate) {}
 
 };

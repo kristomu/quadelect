@@ -49,7 +49,8 @@ class clone_const : public direct_relative_criterion_const {
 			const std::vector<int> & after_permutation) const;
 
 		virtual bool is_valid_numcands_combination() const {
-			return numcands_before < numcands_after; }
+			return numcands_before < numcands_after;
+		}
 
 	public:
 		// Clones the first candidate into the first and all the new
@@ -73,10 +74,16 @@ class clone_const : public direct_relative_criterion_const {
 		clone_const(std::vector<int> after_as_before_in);
 
 		// If A wins before and loses after cloning A: vote splitting.
-		bool no_harm() const { return true; }
+		bool no_harm() const {
+			return true;
+		}
 
 		// If A loses before and wins after cloning: teaming.
-		bool no_help() const { return true; }
+		bool no_help() const {
+			return true;
+		}
 
-		std::string name() const { return "Clone Independence"; }
+		std::string name() const {
+			return "Clone Independence";
+		}
 };

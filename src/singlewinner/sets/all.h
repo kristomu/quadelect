@@ -1,5 +1,5 @@
 
-// All sets (with possible exception of Copeland, if you consider that a set). 
+// All sets (with possible exception of Copeland, if you consider that a set).
 // Use this if you want to include the whole batch.
 
 #ifndef _VOTE_SW_ASETS

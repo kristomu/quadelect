@@ -38,7 +38,7 @@ class mode {
 		virtual int get_current_round() const = 0;
 
 		virtual string do_round(bool give_brief_status,
-		    bool reseed, rng & randomizer) = 0;
+			bool reseed, rng & randomizer) = 0;
 
 		virtual vector<string> provide_status() const = 0;
 };

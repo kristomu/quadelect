@@ -12,8 +12,9 @@
 
 typedef float test_t;
 
-enum test_election { TYPE_A = 0, TYPE_B = 1, 
-	TYPE_A_PRIME = 2, TYPE_B_PRIME = 3 };
+enum test_election { TYPE_A = 0, TYPE_B = 1,
+	TYPE_A_PRIME = 2, TYPE_B_PRIME = 3
+};
 
 const int NUM_REL_ELECTION_TYPES = 4;
 
@@ -21,7 +22,7 @@ class test_results {
 	private:
 		void set_size_variables();
 
-		size_t get_linear_idx(size_t method_idx, 
+		size_t get_linear_idx(size_t method_idx,
 			size_t test_instance_number, test_election type) const;
 
 		void allocate_space_memory() {
@@ -47,7 +48,7 @@ class test_results {
 		// using the wrong list will produce utter garbage.
 
 		// start_of_type is the start of all data that has to do with
-		// a particular 
+		// a particular
 
 		mutable std::vector<size_t> results_start_position;
 		std::vector<size_t> num_methods, start_of_type;
@@ -59,7 +60,7 @@ class test_results {
 			num_tests = num_tests_in;
 			results_start_position.resize(NUM_REL_ELECTION_TYPES);
 			num_methods = std::vector<size_t>(NUM_REL_ELECTION_TYPES,
-				num_methods_in);
+					num_methods_in);
 			set_size_variables();
 			allocated = false;
 		}
@@ -71,7 +72,9 @@ class test_results {
 			}
 		}
 
-		void allocate_space(std::string fn) { allocate_space_disk(fn); }
+		void allocate_space(std::string fn) {
+			allocate_space_disk(fn);
+		}
 
 		size_t get_bytes_required() const {
 			return sizeof(test_t) * total_num_entries;
@@ -80,13 +83,13 @@ class test_results {
 		void set_result(int method_idx, int test_instance_number,
 			test_election type, test_t result) {
 			results[get_linear_idx(method_idx, test_instance_number,
-				type)] = result;
+											   type)] = result;
 		}
 
 		test_t get_result(int method_idx, int test_instance_number,
 			test_election type) const {
-			return results[get_linear_idx(method_idx, 
-				test_instance_number, type)];
+			return results[get_linear_idx(method_idx,
+						test_instance_number, type)];
 		}
 
 		// Check if a given combination of methods pass all the

@@ -50,9 +50,9 @@ class StrategyTest : public Test {
 
 			total_generation_attempts = 0;
 
-			assert (numvoters_in > 0);
-			assert (numcands_in > 0);
-			assert (strat_attempts_per_try_in > 0);
+			assert(numvoters_in > 0);
+			assert(numcands_in > 0);
+			assert(strat_attempts_per_try_in > 0);
 
 			randomizer = &randomizer_in;
 			method = method_in;
@@ -73,25 +73,32 @@ class StrategyTest : public Test {
 			// (Also should find out how the cancellation method really
 			// worked to see if anything can be salvaged from it.)
 
-			switch(attempt_execute_strategy()) {
+			switch (attempt_execute_strategy()) {
 				case STRAT_SUCCESS:
 				case STRAT_TIE:
-					return(0);
+					return (0);
 				case STRAT_FAILED:
-					return(1);
+					return (1);
 				default:
 					throw invalid_argument(
 						"unknown strategy type");
 			}
 		}
-		std::string name() const { return ("Strategy(multiple/" +
-			method->name() + ")");}
+		std::string name() const {
+			return ("Strategy(multiple/" +
+					method->name() + ")");
+		}
 
 		int get_total_generation_attempts() const {
-			return(total_generation_attempts); }
+			return (total_generation_attempts);
+		}
 
-		double get_minimum() const { return(0); }
-		double get_maximum() const { return(1); }
+		double get_minimum() const {
+			return (0);
+		}
+		double get_maximum() const {
+			return (1);
+		}
 };
 
 #endif

@@ -26,14 +26,14 @@ using namespace std;
 // method. If it has, we just return it, blindly - the caller must make sure
 // the cache is cleared between rounds - but if it isn't, we continue to the
 // appropriate elect_inner function, which is what inherited functions usually
-// specify. Finally, unless a tiebreaker has been used, the public function 
+// specify. Finally, unless a tiebreaker has been used, the public function
 // dumps the output into the cache and also returns that output.
 
 // If elect is called with a hopefuls boolean that is not all-true (i.e. some
 // candidates are excluded), then that is in effect another ballot, and so the
 // public elect functions don't check the cache (which is only used when no
 // candidates are eliminated). This strategy makes elimination methods look in
-// the cache for the first round of the base method, but not for subsequent 
+// the cache for the first round of the base method, but not for subsequent
 // rounds.
 
 // If winner_only is set, that means the caller only needs the first rank
@@ -47,7 +47,7 @@ using namespace std;
 // to be cautious of winner vs full ordering, etc. That would also let us cache
 // Condorcet matrices later.
 
-// Perhaps return ballot_group instead of ordering, so that we can set 
+// Perhaps return ballot_group instead of ordering, so that we can set
 // rated/ranked according to what the method returns... Bluesky.
 
 // BLUESKY: Do something that will make hopefuls obsolete, so that we can
@@ -68,14 +68,14 @@ class election_method {
 		// otherwise false. Upon error, let the bool be undefined and
 		// return an empty ordering.
 		virtual pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const list<ballot_group> & papers,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 		virtual pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls, 
-				int num_candidates, cache_map * cache,
-				bool winner_only) const = 0;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const = 0;
 
 	public:
 		// ElectEx? :p
@@ -83,47 +83,49 @@ class election_method {
 		// used in combination methods that have to know if what they're
 		// returning is winner_only or not.
 		pair<ordering, bool> elect_detailed(const list<ballot_group> &
-				papers, int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			papers, int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
 		pair<ordering, bool> elect_detailed(const list<ballot_group> &
-				papers, const vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			papers, const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
 		// Public wrappers for cache.
-		ordering elect(const list<ballot_group> & papers, 
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+		ordering elect(const list<ballot_group> & papers,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 		// For elimination. Make better, later.
-		ordering elect(const list<ballot_group> & papers, 
-				const vector<bool> & hopefuls, 
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+		ordering elect(const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
 		// Public wrappers for when there is no cache. These just
 		// forward to the appropriate elect method with cache set to
 		// NULL.
 		ordering elect(const list<ballot_group> & papers,
-				int num_candidates, bool winner_only) const {
-			return(elect(papers, num_candidates, NULL, 
-						winner_only)); }
+			int num_candidates, bool winner_only) const {
+			return (elect(papers, num_candidates, NULL,
+						winner_only));
+		}
 
 		ordering elect(const list<ballot_group> & papers,
-				const vector<bool> & hopefuls,
-				int num_candidates, bool winner_only) const {
-			return(elect(papers, hopefuls, num_candidates, 
-						NULL, winner_only)); }
+			const vector<bool> & hopefuls,
+			int num_candidates, bool winner_only) const {
+			return (elect(papers, hopefuls, num_candidates,
+						NULL, winner_only));
+		}
 
 		// Here goes stats stuff like "returns rated vote" (score not
 		// just rank), "returns complete ordering or just winners",
 		// etc. Perhaps better would be to have this set by constructor
 		// so we can make the derived constructors succinct.
-		
+
 		// Perhaps also complexity estimate (so we can determine on-the-
 		// fly whether to include CPO-STV etc), and what criteria the
 		// method is known to fail.
-		
+
 		virtual string name() const = 0;
 
 		// Virtual destructor so delete removes inherited classes' data.

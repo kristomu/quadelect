@@ -23,11 +23,11 @@ class interpreter {
 	public:
 		// Ternary with value for "don't know"?
 		virtual bool is_this_format(const vector<string> &
-		    inputs) const = 0;
+			inputs) const = 0;
 
 		virtual pair<map<size_t, string>, list<ballot_group> >
 		interpret_ballots(const vector<string> & inputs,
-		    bool debug) const = 0;
+			bool debug) const = 0;
 
 		virtual string name() const = 0;
 

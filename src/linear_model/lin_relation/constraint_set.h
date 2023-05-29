@@ -33,7 +33,9 @@ class constraint_set {
 
 		void print_free_variables_gmpl() const;
 		void print_fixed_parameters_gmpl() const;
-		void print_constraints_gmpl() const { print(); }
+		void print_constraints_gmpl() const {
+			print();
+		}
 
 	public:
 		std::vector<constraint> constraints;
@@ -75,10 +77,16 @@ class constraint_set {
 			}
 		}
 
-		bool empty() const { return constraints.empty(); }
+		bool empty() const {
+			return constraints.empty();
+		}
 
-		constraint_set(const std::vector<constraint> in) { add(in); }
-		constraint_set(const constraint in) { add(in); }
+		constraint_set(const std::vector<constraint> in) {
+			add(in);
+		}
+		constraint_set(const constraint in) {
+			add(in);
+		}
 
 		constraint_set() {}
 

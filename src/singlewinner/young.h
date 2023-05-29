@@ -16,9 +16,9 @@
 // for all i, x[i] is integer, 0 >= x[i] >= wt[i], where wt[i] is the weight of
 // the ith ballot,
 
-// where e[i][c*][a] is 1 if the ith voter ranks c* above a, otherwise -1. This 
-// works because if c* is a CW, for any other a, more voters must be voting 
-// c* above a (e[i][c*][a] = 1) than below a (e[i][c*][a] = -1), thus 
+// where e[i][c*][a] is 1 if the ith voter ranks c* above a, otherwise -1. This
+// works because if c* is a CW, for any other a, more voters must be voting
+// c* above a (e[i][c*][a] = 1) than below a (e[i][c*][a] = -1), thus
 // e[i][c*][a] > 0.
 
 // If the candidates are equally ranked, e[i][c*][a] = 0; or we could employ a
@@ -52,22 +52,24 @@ class young : public election_method {
 		// linear programming score. The second is the integer
 		// programming score, or -1 if running relaxed.
 		pair<double, double> get_young_score(
-				const list<ballot_group> & papers,
-				size_t candidate, size_t num_candidates,
-				size_t num_ballots, const vector<bool> & hopefuls,
-				bool relaxed, bool symmetric_completion,
-				bool debug) const;
+			const list<ballot_group> & papers,
+			size_t candidate, size_t num_candidates,
+			size_t num_ballots, const vector<bool> & hopefuls,
+			bool relaxed, bool symmetric_completion,
+			bool debug) const;
 
 		string determine_name() const;
 
 	public:
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
-		string name() const { return (cached_name); }
+		string name() const {
+			return (cached_name);
+		}
 
 		young(bool use_sym_comp, bool use_relax);
 

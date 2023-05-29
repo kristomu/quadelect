@@ -17,7 +17,7 @@
 // It's used for stating what candidates are analogous before and after
 // a transformation by a relative criterion.
 
-// For instance, an independence of clones test might take candidates 
+// For instance, an independence of clones test might take candidates
 // (A, B, C) and turn them into (A, B, C, D) so that D is a clone of B.
 // Then D is analogous to B, so testing if A is vulnerable to teaming
 // could consist of checking if A is ranked above B before cloning and
@@ -62,7 +62,7 @@ class cand_pairs {
 		void set_pair(ssize_t before, ssize_t after) {
 			// Don't count the elimination pseudo-candidate as a real
 			// source candidate.
-			if (pairs.find(before) == pairs.end() && 
+			if (pairs.find(before) == pairs.end() &&
 				before != CP_NONEXISTENT) {
 				++num_source;
 			}
@@ -93,7 +93,9 @@ class cand_pairs {
 		}
 
 		size_t num_after_cands_by_before(ssize_t cand) const {
-			if (pairs.find(cand) == pairs.end()) { return 0; }
+			if (pairs.find(cand) == pairs.end()) {
+				return 0;
+			}
 			return pairs.find(cand)->second.size();
 		}
 

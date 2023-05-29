@@ -32,7 +32,7 @@ class interpreter_mode : public mode {
 
 		string base26(int number) const;
 		void complete_default_lookup(map<size_t, string> & to_complete,
-		    size_t how_many) const;
+			size_t how_many) const;
 		map<size_t, string> gen_default_lookup(size_t how_many) const;
 
 		// Get an upper bound on how many candidates we need to have
@@ -49,16 +49,16 @@ class interpreter_mode : public mode {
 	public:
 		void set_ballots(const list<ballot_group> & ballot_in);
 		bool set_ballots(const list<ballot_group> & ballot_in,
-		    const map<size_t, string> & candidate_names);
+			const map<size_t, string> & candidate_names);
 		// ... set_unparsed_ballots ...
 
 		// Seen this before?
 		void add_method(const election_method * to_add);
 		void add_interpreter(const interpreter * to_add);
 		template<typename T> void add_methods(T start_iter,
-		    T end_iter);
+			T end_iter);
 		template<typename T> void add_interpreters(T start_iter,
-		    T end_iter);
+			T end_iter);
 
 		void clear_methods(bool do_delete);
 		void clear_interpreters(bool do_delete);
@@ -69,13 +69,13 @@ class interpreter_mode : public mode {
 			cur_iter = 0;
 		}
 		interpreter_mode(list<const interpreter *> & interpreters_in,
-		    list<const election_method *> & methods_in,
-		    list<ballot_group> & ballots_in);
+			list<const election_method *> & methods_in,
+			list<ballot_group> & ballots_in);
 		interpreter_mode(list<const interpreter *> & interpreters_in,
-		    list<const election_method *> & methods_in,
-		    vector<string> & ballots_in_unparsed);
+			list<const election_method *> & methods_in,
+			vector<string> & ballots_in_unparsed);
 		interpreter_mode(list<const interpreter *> & interpreters_in,
-		    list<const election_method *> & methods_in);
+			list<const election_method *> & methods_in);
 
 		// There really isn't much to do but init.
 		bool init(rng & randomizer);
@@ -85,31 +85,34 @@ class interpreter_mode : public mode {
 		int get_current_round() const;
 
 		string do_round(bool give_brief_status, bool reseed,
-		    rng & randomizer, cache_map * cache);
+			rng & randomizer, cache_map * cache);
 
 		string do_round(bool give_brief_status, bool reseed,
-		    rng & randomizer);
+			rng & randomizer);
 
 		vector<string> provide_status() const;
 };
 
 template<typename T> void interpreter_mode::add_methods(T start_iter,
-    T end_iter) {
+	T end_iter) {
 
-	for (T pos = start_iter; pos != end_iter; ++pos)
+	for (T pos = start_iter; pos != end_iter; ++pos) {
 		add_method(*pos);
+	}
 
 	inited = false;
 }
 
 template<typename T> void interpreter_mode::add_interpreters(T start_iter,
-    T end_iter) {
+	T end_iter) {
 
-	for (T pos = start_iter; pos != end_iter; ++pos)
+	for (T pos = start_iter; pos != end_iter; ++pos) {
 		add_interpreter(*pos);
+	}
 
-	if (!input_ballots_unparsed.empty() && input_ballots.empty())
+	if (!input_ballots_unparsed.empty() && input_ballots.empty()) {
 		inited = false;
+	}
 }
 
 

@@ -16,15 +16,21 @@ class minmaxy_experimental : public pairwise_method {
 
 	public:
 		// HACK fix later
-		minmaxy_experimental(pairwise_type def_type_in) : 
-			pairwise_method(CM_PAIRWISE_OPP) { update_name(); }
-		minmaxy_experimental() : 
-			pairwise_method(CM_PAIRWISE_OPP) { update_name(); }
-		string pw_name() const { return("Minmaxy-Experimental"); }
+		minmaxy_experimental(pairwise_type def_type_in) :
+			pairwise_method(CM_PAIRWISE_OPP) {
+			update_name();
+		}
+		minmaxy_experimental() :
+			pairwise_method(CM_PAIRWISE_OPP) {
+			update_name();
+		}
+		string pw_name() const {
+			return ("Minmaxy-Experimental");
+		}
 
 		pair<ordering, bool> pair_elect(const abstract_condmat & iput,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 };
 
 #endif

@@ -128,10 +128,12 @@ class copeland_scenario {
 
 		std::vector<std::vector<bool> > get_copeland_matrix() const {
 			return short_form_to_copeland_matrix(get_short_form(),
-				number_of_candidates);
+					number_of_candidates);
 		}
 
-		size_t get_numcands() const { return number_of_candidates; }
+		size_t get_numcands() const {
+			return number_of_candidates;
+		}
 
 		std::string to_string() const;
 
@@ -139,20 +141,20 @@ class copeland_scenario {
 			copeland_matrix) {
 
 			scenario = short_form_to_integer(
-				copeland_matrix_to_short_form(copeland_matrix));
+					copeland_matrix_to_short_form(copeland_matrix));
 			set_numcands(copeland_matrix.size());
 		}
 
 		// From a Condorcet matrix
 		template<typename T> copeland_scenario(const T & condorcet_matrix) :
 			copeland_scenario(condorcet_to_copeland_matrix(condorcet_matrix))
-			{}
+		{}
 
 		// From a ballot set (election)
 		copeland_scenario(const std::list<ballot_group> & election,
 			size_t numcands) :
 			copeland_scenario(election_to_copeland_matrix(election,
-				numcands)) {}
+					numcands)) {}
 
 		copeland_scenario(const std::vector<bool> & short_form,
 			size_t numcands) {
@@ -182,13 +184,13 @@ class copeland_scenario {
 		// need a speedup.
 		void permute_candidates(const std::vector<int> & permutation) {
 			std::vector<bool> short_form = integer_to_short_form(scenario,
-				number_of_candidates);
+					number_of_candidates);
 
 			std::vector<std::vector<bool> > copeland_matrix =
 				short_form_to_copeland_matrix(short_form, number_of_candidates);
 
 			std::vector<bool> new_short_form = copeland_matrix_to_short_form(
-				permute_candidates(copeland_matrix, permutation));
+					permute_candidates(copeland_matrix, permutation));
 
 			scenario = short_form_to_integer(new_short_form);
 		}
@@ -233,12 +235,12 @@ class copeland_scenario {
 				election_to_copeland_matrix(election, get_numcands());
 
 			scenario = short_form_to_integer(
-				copeland_matrix_to_short_form(copeland_matrix));
+					copeland_matrix_to_short_form(copeland_matrix));
 		}
 
 		bool test() {
 			bool a = (short_form_to_integer(integer_to_short_form(59, 4))
-				== 59);
+					== 59);
 
 			std::vector<int> perm(number_of_candidates, 0);
 			std::iota(perm.begin(), perm.end(), 0);

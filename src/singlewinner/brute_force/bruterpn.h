@@ -22,37 +22,37 @@ class cond_brute_rpn : public election_method {
 
 		bool is_abca(const vector<double> & vote_array) const;
 		bool get_scores(const vector<double> & vote_array,
-    		vector<double> & output) const;
+			vector<double> & output) const;
 
 		// TODO later: refactor these out into an overload of the relevant
 		// criterion checkers. Need to implement criterion checkers first.
 		bool check_monotonicity_single_instance(int num_attempts,
-    		const vector<double> & vote_array) const;
+			const vector<double> & vote_array) const;
 		bool check_mono_add_top_single_instance(int num_attempts,
 			const vector<double> & vote_array) const;
 		bool check_liia_single_instance(
 			const vector<double> & vote_array) const;
 		bool check_revsym_single_instance(
-    		const vector<double> & vote_array) const;
+			const vector<double> & vote_array) const;
 		bool check_single_weak_positionally_dominant(
-    		const vector<double> & vote_array) const;
+			const vector<double> & vote_array) const;
 		bool check_dmtbr_single_instance(int num_attempts,
 			const vector<double> & vote_array) const;
 
 	public:
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
 		string name() const {
 			string generosity = "/NG";
 			if (cfunct.is_asymptote_generous()) {
 				generosity = "/G";
 			}
-			return ("Brute " + ext + generosity + "(" + lltos(id) + "," + 
-				get_printable_representation() + ")");
+			return ("Brute " + ext + generosity + "(" + lltos(id) + "," +
+					get_printable_representation() + ")");
 		}
 
 		int check_monotonicity(int num_attempts) const;
@@ -62,7 +62,7 @@ class cond_brute_rpn : public election_method {
 		int check_weak_positional_dominance(int num_attempts) const;
 		int check_dmtbr(int num_attempts) const;
 
-		void set_funct_code(unsigned long long funct_code_in, 
+		void set_funct_code(unsigned long long funct_code_in,
 			bool generosity) {
 
 			id = funct_code_in;
@@ -84,7 +84,7 @@ class cond_brute_rpn : public election_method {
 			for (size_t i = 0; i < functs.size(); ++i) {
 				out = out + functs[i] + " ";
 			}
-			return(out);
+			return (out);
 		}
 };
 

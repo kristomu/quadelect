@@ -12,15 +12,21 @@ class simplex : public polytope {
 		Eigen::VectorXd b;
 
 	public:
-		const Eigen::MatrixXd & get_A() const { return A; }
-		const Eigen::VectorXd & get_b() const { return b; }
+		const Eigen::MatrixXd & get_A() const {
+			return A;
+		}
+		const Eigen::VectorXd & get_b() const {
+			return b;
+		}
 
 		void set_simplex(int dimension) {
 			A = Eigen::MatrixXd::Zero(dimension+1, dimension);
 			b = Eigen::VectorXd(dimension+1);
 			int i;
 
-			for (i = 0; i < dimension; ++i) { b[i] = 0; }
+			for (i = 0; i < dimension; ++i) {
+				b[i] = 0;
+			}
 			b[dimension] = 1;
 
 			for (i = 0; i < dimension; ++i) {
@@ -29,5 +35,7 @@ class simplex : public polytope {
 			}
 		}
 
-		simplex(int dimension) { set_simplex(dimension); }
+		simplex(int dimension) {
+			set_simplex(dimension);
+		}
 };

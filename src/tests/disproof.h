@@ -1,5 +1,5 @@
 // Disproof structure for two-tests. A disproof contains all the required data
-// to show that a particular election method does not pass a particular 
+// to show that a particular election method does not pass a particular
 // two-test criterion. See the two-test code for explanation of what a two-test
 // is.
 

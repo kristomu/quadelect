@@ -1,14 +1,14 @@
-// Woodall's Descending Solid Coalitions method. 
+// Woodall's Descending Solid Coalitions method.
 
-// Every possible set of candidates is given a score equal to the number of 
-// voters who are solidly committed to the candidates in that set. 
+// Every possible set of candidates is given a score equal to the number of
+// voters who are solidly committed to the candidates in that set.
 
-// A voter is solidly committed to a set of candidates if he ranks every 
+// A voter is solidly committed to a set of candidates if he ranks every
 // candidate in this set strictly above every candidate not in the set.
 
-// The sets are then considered in turn, from those with the greatest score to 
-// those with the least. When a set is considered, every candidate not in the 
-// set becomes ineligible to win, unless this would cause all candidates to be 
+// The sets are then considered in turn, from those with the greatest score to
+// those with the least. When a set is considered, every candidate not in the
+// set becomes ineligible to win, unless this would cause all candidates to be
 // ineligible, in which case that set is ignored.
 
 // (Definition from Electowiki)
@@ -26,8 +26,8 @@
 // support for each candidate).
 
 // We strictly speaking need a proof that any candidate X that can win with
-// some tiebreaker for coalitions of the same support, can win if the 
-// tiebreaker consistently favors X, sorting coalitions containing X before 
+// some tiebreaker for coalitions of the same support, can win if the
+// tiebreaker consistently favors X, sorting coalitions containing X before
 // coalitions not containing X, with further order arbitrary.
 
 // WOODALL, Douglas R. Monotonicity of single-seat preferential election rules.
@@ -37,11 +37,11 @@
 // Test vector (to implement later?):
 
 // 16: A > B > C
-// 29: A > C > B 
-// 20: B > A > C 
-// 18: B > C > A 
-// 17: C > A > B 
-// 27: C > B > A 
+// 29: A > C > B
+// 20: B > A > C
+// 18: B > C > A
+// 17: C > A > B
+// 27: C > B > A
 
 // Should return A = C > B
 
@@ -69,7 +69,9 @@ class dsc : public desc_coalition_method {
 			int num_candidates) const;
 
 	public:
-		string name() const { return ("DSC"); }
+		string name() const {
+			return ("DSC");
+		}
 };
 
 #endif

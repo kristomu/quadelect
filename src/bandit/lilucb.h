@@ -5,8 +5,8 @@
 #include <vector>
 #include <queue>
 
-// lil'UCB-Heuristic according to 
-// JAMIESON, Kevin, et al. lil’ucb: An optimal exploration algorithm for 
+// lil'UCB-Heuristic according to
+// JAMIESON, Kevin, et al. lil’ucb: An optimal exploration algorithm for
 // multi-armed bandits. In: Conference on Learning Theory. 2014. p. 423-439.
 
 class queue_entry {
@@ -20,7 +20,7 @@ class queue_entry {
 			if (score != other.score) {
 				return (score < other.score);
 			}
-			return (bandit_ref->get_num_pulls() >= 
+			return (bandit_ref->get_num_pulls() >=
 					other.bandit_ref->get_num_pulls());
 			//return (score < other.score);
 		}
@@ -36,15 +36,15 @@ class Lil_UCB {
 		double C(int num_plays_this, size_t num_bandits) const;
 
 		double get_score(Bandit & bandit, size_t num_bandits) {
-			return(bandit.get_mean() + C(bandit.get_num_pulls(), 
-				num_bandits));
+			return (bandit.get_mean() + C(bandit.get_num_pulls(),
+						num_bandits));
 		}
 
 		queue_entry create_queue_entry(Bandit * bandit, size_t num_bandits) {
 			queue_entry out;
 			out.bandit_ref = bandit;
 			out.score = get_score(*bandit, num_bandits);
-			return(out);
+			return (out);
 		}
 
 	public:
@@ -74,7 +74,7 @@ class Lil_UCB {
 		double pull_bandit_arms(int maxiters);
 
 		const Bandit * get_best_bandit_so_far() const {
-			return(bandit_queue.top().bandit_ref);
+			return (bandit_queue.top().bandit_ref);
 		}
 };
 

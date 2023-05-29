@@ -38,7 +38,7 @@ class strong_um : public relative_criterion_const {
 			std::string after_suffix) const;
 
 		constraint_set majority_pairwise_beat(std::string before_suffix)
-			const;
+		const;
 
 	protected:
 		constraint_set relative_constraints(std::string before_suffix,
@@ -48,5 +48,7 @@ class strong_um : public relative_criterion_const {
 		strong_um(size_t numcands_in, size_t manipulator_in);
 		strong_um(size_t numcands) : strong_um(numcands, 1) {}
 
-		std::string name() const { return "Strong Unmanipulable Majority"; }
+		std::string name() const {
+			return "Strong Unmanipulable Majority";
+		}
 };

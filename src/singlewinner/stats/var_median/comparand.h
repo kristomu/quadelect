@@ -18,16 +18,20 @@ class gf_comparand {
 			ref = ref_in;
 		}
 
-		bool operator()(const pair<double, int> & a, 
-				const pair<double, int> & b) const {
-			if (a.first != b.first) return(a.first < b.first);
-			return(ref->get_score(a.second) < 
+		bool operator()(const pair<double, int> & a,
+			const pair<double, int> & b) const {
+			if (a.first != b.first) {
+				return (a.first < b.first);
+			}
+			return (ref->get_score(a.second) <
 					ref->get_score(b.second));
 		}
 
 		bool equals(const pair<double, int> & a,
-				const pair<double, int> & b) const {
-			if (a.first != b.first) return(a.first == b.first);
+			const pair<double, int> & b) const {
+			if (a.first != b.first) {
+				return (a.first == b.first);
+			}
 			return (ref->get_score(a.second) == ref->get_score(
 						b.second));
 		}

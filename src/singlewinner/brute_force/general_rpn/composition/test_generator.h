@@ -55,7 +55,9 @@ class test_generator {
 			copeland_scenario after, int max_numvoters,
 			const relative_criterion_const & rel_criterion);
 
-		void set_rng_seed(uint64_t seed) { sampler.set_rng_seed(seed);}
+		void set_rng_seed(uint64_t seed) {
+			sampler.set_rng_seed(seed);
+		}
 
 		test_generator(uint64_t rng_seed_in) : sampler(rng_seed_in) {
 			rng_seed = rng_seed_in;

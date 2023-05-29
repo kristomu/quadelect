@@ -1,5 +1,5 @@
 // Median ratings, the median version of Cardinal Ratings (range). We also
-// suport the "gradual relaxation" tiebreak specified in 
+// suport the "gradual relaxation" tiebreak specified in
 // http://wiki.electorama.com/wiki/Median_Ratings.
 
 // Maybe we should move normalization elsewhere. Hm.
@@ -30,30 +30,32 @@ class median_ratings : public election_method {
 		int range_minimum, range_maximum;
 
 		double get_trunc_mean_destructively(
-				vector<pair<double, double> > & array,
-				double num_voters, bool already_sorted,
-				double distance) const;
+			vector<pair<double, double> > & array,
+			double num_voters, bool already_sorted,
+			double distance) const;
 
 		vector<double> aggregate_ratings(const list<ballot_group> &
-				papers, int num_candidates, const vector<bool> &
-				hopefuls) const;
+			papers, int num_candidates, const vector<bool> &
+			hopefuls) const;
 
 	protected:
 
 		pair<ordering, bool> elect_inner(
-				const list<ballot_group> & papers,
-				const vector<bool> & hopefuls,
-				int num_candidates,
-				cache_map * cache, bool winner_only) const;
+			const list<ballot_group> & papers,
+			const vector<bool> & hopefuls,
+			int num_candidates,
+			cache_map * cache, bool winner_only) const;
 
 		string determine_name() const;
 
 	public:
 
-		string name() const { return(cached_name); }
+		string name() const {
+			return (cached_name);
+		}
 
-		median_ratings(int min_in, int max_in, bool norm_in, 
-				bool tiebreak_in);
+		median_ratings(int min_in, int max_in, bool norm_in,
+			bool tiebreak_in);
 
 };
 

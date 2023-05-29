@@ -26,34 +26,36 @@ class barycentric : public mode {
 		vector<vector<double> > cand_colors;
 
 		list<ballot_group>  generate_ballot_set(double x, double y,
-				double maxvoters, string first_group,
-				string sec_group, string third_group,
-				double x_1, double y_1, double x_2,
-				double y_2, double x_3, double y_3) const;
+			double maxvoters, string first_group,
+			string sec_group, string third_group,
+			double x_1, double y_1, double x_2,
+			double y_2, double x_3, double y_3) const;
 
 		// Returns empty list if it's not inside the triangle.
 		list<ballot_group> generate_ballot_set(double x, double y,
-				double maxvoters) const;
+			double maxvoters) const;
 
 		vector<vector<double> > get_candidate_colors(int numcands,
-		                bool debug) const;
+			bool debug) const;
 
 		string get_codename(const election_method & in,
-				size_t bytes) const;
+			size_t bytes) const;
 
 		bool inited;
 		int max_rounds, cur_round;
 
 	public:
 
-		barycentric() { inited = false; }
+		barycentric() {
+			inited = false;
+		}
 
 		bool init(rng & randomizer);
 		int get_max_rounds() const;
 		int get_current_round() const;
 
 		string do_round(bool give_brief_status, bool reseed,
-				rng & randomizer);
+			rng & randomizer);
 
 		vector<string> provide_status() const;
 
@@ -62,8 +64,10 @@ class barycentric : public mode {
 		template<typename T> void add_methods(T start_iter, T end_iter);
 };
 
-template<typename T> void barycentric::add_methods(T start_iter, T end_iter) {
+template<typename T> void barycentric::add_methods(T start_iter,
+	T end_iter) {
 
-	for (T iterator = start_iter; iterator != end_iter; ++iterator)
+	for (T iterator = start_iter; iterator != end_iter; ++iterator) {
 		add_method(*iterator);
+	}
 }

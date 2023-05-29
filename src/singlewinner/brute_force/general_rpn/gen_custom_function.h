@@ -143,7 +143,7 @@ class gen_custom_function {
 	public:
 		double evaluate(const std::vector<double> & input_values) const {
 			return evaluate(current_algorithm, input_values,
-				number_candidates);
+					number_candidates);
 		}
 
 		std::string to_string() const;
@@ -153,12 +153,14 @@ class gen_custom_function {
 		void set_num_candidates(size_t number_candidates_in) {
 			number_candidates = number_candidates_in;
 			positional_matrix_indices = get_positional_matrix_indices(
-				number_candidates);
+					number_candidates);
 			pairwise_matrix_indices = get_pairwise_matrix_indices(
-				number_candidates);
+					number_candidates);
 		}
 
-		size_t get_num_candidates() const { return number_candidates; }
+		size_t get_num_candidates() const {
+			return number_candidates;
+		}
 
 		gen_custom_function(size_t number_candidates_in) {
 			// Since force_set_algorithm checks if the algorithm to set is the
@@ -173,7 +175,7 @@ class gen_custom_function {
 
 		gen_custom_function(size_t number_candidates_in, algo_t algorithm) :
 			gen_custom_function(number_candidates_in) {
-				force_set_algorithm(algorithm);
+			force_set_algorithm(algorithm);
 		}
 
 		bool test_positional_linear_combination();

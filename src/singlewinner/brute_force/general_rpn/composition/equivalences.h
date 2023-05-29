@@ -27,7 +27,7 @@ class fixed_cand_equivalences {
 		// that can in some sense be reduced to one scenario when testing
 		// gen_custom_functs.
 		std::map<copeland_scenario, isomorphism>
-			noncanonical_scenario_reductions;
+		noncanonical_scenario_reductions;
 
 		// candidate_remappings[x][scenario] gives what scenarios we can
 		// turn the input scenario into (and how) if we want the xth candidate
@@ -42,14 +42,14 @@ class fixed_cand_equivalences {
 		// candidate_remappings[x][scenario]. Note that only canonical
 		// scenarios are represented.
 		std::vector<std::map<copeland_scenario, isomorphism> >
-			candidate_remappings;
+		candidate_remappings;
 
 		// This map gives the equivalence relation between scenarios under
 		// no constraint, i.e. we don't care about how the candidates are
 		// relabeled. The set contains the scenarios that can be reached
 		// by permuting the candidates in an election with the input scenario.
 		std::map<copeland_scenario, std::set<copeland_scenario> >
-			scenario_equivalences;
+		scenario_equivalences;
 
 		size_t num_candidates;
 
@@ -58,7 +58,7 @@ class fixed_cand_equivalences {
 			size_t numcands) const;
 
 		std::map<copeland_scenario, isomorphism>
-			get_noncanonical_scenario_reductions(size_t numcands,
+		get_noncanonical_scenario_reductions(size_t numcands,
 			bool verbose) const;
 
 		std::map<copeland_scenario, isomorphism> get_one_candidate_remapping(
@@ -67,12 +67,12 @@ class fixed_cand_equivalences {
 			canonical_reductions) const;
 
 		std::vector<std::map<copeland_scenario, isomorphism> >
-			get_all_candidate_remappings(size_t numcands,
+		get_all_candidate_remappings(size_t numcands,
 			const std::map<copeland_scenario, isomorphism> &
 			derived_reductions) const;
 
 		std::map<copeland_scenario, std::set<copeland_scenario> >
-			get_scenario_equivalences(const
+		get_scenario_equivalences(const
 			std::vector<std::map<copeland_scenario, isomorphism> > &
 			candidate_remappings_in) const;
 
@@ -82,10 +82,10 @@ class fixed_cand_equivalences {
 					false);
 
 			candidate_remappings = get_all_candidate_remappings(
-				num_candidates, noncanonical_scenario_reductions);
+					num_candidates, noncanonical_scenario_reductions);
 
 			scenario_equivalences = get_scenario_equivalences(
-				candidate_remappings);
+					candidate_remappings);
 
 		}
 
@@ -95,7 +95,9 @@ class fixed_cand_equivalences {
 			initialize(num_candidates);
 		}
 
-		size_t get_num_candidates() const { return num_candidates; }
+		size_t get_num_candidates() const {
+			return num_candidates;
+		}
 
 		fixed_cand_equivalences(size_t numcands) {
 			set_num_candidates(numcands);
@@ -113,10 +115,10 @@ class fixed_cand_equivalences {
 			assert(num_candidates == source_scenario.get_numcands());
 
 			if (candidate_remappings[candidate_to_become_A].find(
-				source_scenario) == candidate_remappings[
-				candidate_to_become_A].end()) {
-			throw std::runtime_error(
-				"get_candidate_remapping: could not find source scenario!");
+					source_scenario) == candidate_remappings[
+			candidate_to_become_A].end()) {
+				throw std::runtime_error(
+					"get_candidate_remapping: could not find source scenario!");
 			}
 
 			return candidate_remappings[candidate_to_become_A].
@@ -131,7 +133,9 @@ class fixed_cand_equivalences {
 			const copeland_scenario & b) const {
 
 			if (scenario_equivalences.find(a) ==
-				scenario_equivalences.end()) { return false; }
+				scenario_equivalences.end()) {
+				return false;
+			}
 
 			return scenario_equivalences.find(a)->second.find(b) !=
 				scenario_equivalences.find(a)->second.end();
@@ -139,15 +143,16 @@ class fixed_cand_equivalences {
 
 		// To remove later: need to figure out how iterators work first.
 
-		const std::map<copeland_scenario, isomorphism> & get_noncanonical_scenarios() const {
+		const std::map<copeland_scenario, isomorphism> &
+		get_noncanonical_scenarios() const {
 			return noncanonical_scenario_reductions;
 		}
 
 		// Ditto, these are scaffolds.
 		const std::vector<std::map<copeland_scenario, isomorphism> > &
-			get_cand_remaps() const {
-				return candidate_remappings;
-			}
+		get_cand_remaps() const {
+			return candidate_remappings;
+		}
 };
 
 // election scenario pair. I need to refactor these things to put the

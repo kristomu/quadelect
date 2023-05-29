@@ -26,9 +26,9 @@ class slash : public election_method {
 
 	protected:
 		pair<ordering, bool> elect_inner(const list<ballot_group> &
-				papers, const vector<bool> & hopefuls,
-				int num_candidates, cache_map * cache,
-				bool winner_only) const;
+			papers, const vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const;
 
 		string determine_name() const;
 
@@ -37,12 +37,15 @@ class slash : public election_method {
 		// A bit unintuitively, the constructor has the specific method
 		// first and the set second, but eh, backwards compatibility!
 		slash(const election_method * specific_method_in,
-				const election_method * set_in) {
-			set_method = set_in; 
+			const election_method * set_in) {
+			set_method = set_in;
 			specific_method = specific_method_in;
-			cached_name = determine_name(); }
+			cached_name = determine_name();
+		}
 
-		string name() const { return(cached_name); }
+		string name() const {
+			return (cached_name);
+		}
 };
 
 #endif

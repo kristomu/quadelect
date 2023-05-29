@@ -33,25 +33,29 @@ class sdom_set : public pairwise_method, private det_sets_relation {
 
 		// 1 = dominates, -1 = dominated, 0 = nondominated
 		int strongly_dominates(int dominator, int dominated,
-				const abstract_condmat & input,
-				const vector<bool> & hopefuls) const;
+			const abstract_condmat & input,
+			const vector<bool> & hopefuls) const;
 
-		// Relation is the same as for the Smith set, but on a 
+		// Relation is the same as for the Smith set, but on a
 		// different matrix.
 		bool relation(const abstract_condmat & input, int a,
-				int b, const vector<bool> & hopefuls) const {
-			return(input.get_magnitude(a, b, hopefuls) >=
+			int b, const vector<bool> & hopefuls) const {
+			return (input.get_magnitude(a, b, hopefuls) >=
 					input.get_magnitude(b, a, hopefuls));
 		}
 
 	public:
 		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-				const vector<bool> & hopefuls,
-				cache_map * cache, bool winner_only) const;
+			const vector<bool> & hopefuls,
+			cache_map * cache, bool winner_only) const;
 
-		sdom_set() : pairwise_method(CM_WV) { update_name(); }
+		sdom_set() : pairwise_method(CM_WV) {
+			update_name();
+		}
 
-		string pw_name() const { return("SDom"); }
+		string pw_name() const {
+			return ("SDom");
+		}
 
 };
 

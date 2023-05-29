@@ -19,8 +19,8 @@ class ext_antiplurality : public positional {
 
 	public:
 		ordering pos_elect(const vector<vector<double> > &
-				positional_matrix, int num_hopefuls,
-				const vector<bool> * hopefuls) const {
+			positional_matrix, int num_hopefuls,
+			const vector<bool> * hopefuls) const {
 
 			// We can get Antiplurality from Plurality by reversing all the
 			// ballots, running Plurality, and reversing the result. In this
@@ -32,32 +32,34 @@ class ext_antiplurality : public positional {
 
 			for (size_t i = 0; i < positional_matrix.size(); ++i) {
 				rev_pos_matrix.push_back(vector<double>(
-					positional_matrix[i].rbegin(),
-					positional_matrix[i].rend()));
+						positional_matrix[i].rbegin(),
+						positional_matrix[i].rend()));
 			}
 
 			ordering rev_plurality_ordering = inner_method.pos_elect(
-				rev_pos_matrix, num_hopefuls, hopefuls), social_order;
+					rev_pos_matrix, num_hopefuls, hopefuls), social_order;
 
 			for (ordering::const_iterator pos = rev_plurality_ordering.begin();
-					pos != rev_plurality_ordering.end(); ++pos) {
+				pos != rev_plurality_ordering.end(); ++pos) {
 
 				int curcand = pos->get_candidate_num();
 				if (hopefuls != NULL && !(*hopefuls)[curcand]) {
 					social_order.insert(candscore(curcand, -numcands-1));
 				} else {
-					social_order.insert(candscore(curcand, 
-						-pos->get_score()));
+					social_order.insert(candscore(curcand,
+							-pos->get_score()));
 				}
 			}
 
-			return(social_order);
+			return (social_order);
 		}
 
-		ext_antiplurality(positional_type 
+		ext_antiplurality(positional_type
 			kind_in) : positional(kind_in), inner_method(kind_in) {}
 
-		string pos_name() const { return("Ext-Antiplurality"); }
+		string pos_name() const {
+			return ("Ext-Antiplurality");
+		}
 };
 
 #endif

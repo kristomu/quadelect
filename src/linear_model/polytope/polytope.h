@@ -21,8 +21,11 @@ class polytope {
 		virtual const Eigen::VectorXd & get_b() const = 0;
 
 		virtual size_t get_num_halfplanes() const {
-			return get_A().rows(); }
-		virtual size_t get_dimension() const { return get_A().cols(); }
+			return get_A().rows();
+		}
+		virtual size_t get_dimension() const {
+			return get_A().cols();
+		}
 
 		// Solves a mixed integer program
 		// min cTx s.t. Ax <= b
@@ -54,7 +57,8 @@ class polytope {
 		// coordinates). A bit of a hack but oh well...
 		virtual Eigen::VectorXd get_full_coordinates(
 			const Eigen::VectorXd & reduced_coordinates) const {
-			return reduced_coordinates; }
+			return reduced_coordinates;
+		}
 
 		bool is_inside(const Eigen::VectorXd & x) const;
 

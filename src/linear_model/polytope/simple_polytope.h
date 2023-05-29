@@ -12,13 +12,21 @@ class simple_polytope : public polytope {
 		Eigen::VectorXd b;
 
 	public:
-		const Eigen::MatrixXd & get_A() const { return A; }
-		const Eigen::VectorXd & get_b() const { return b; }
-	
-		void set_A(const Eigen::MatrixXd A_in) { A = A_in; }
-		void set_b(const Eigen::VectorXd b_in) { b = b_in; }
+		const Eigen::MatrixXd & get_A() const {
+			return A;
+		}
+		const Eigen::VectorXd & get_b() const {
+			return b;
+		}
 
-		simple_polytope(const Eigen::MatrixXd A_in, 
+		void set_A(const Eigen::MatrixXd A_in) {
+			A = A_in;
+		}
+		void set_b(const Eigen::VectorXd b_in) {
+			b = b_in;
+		}
+
+		simple_polytope(const Eigen::MatrixXd A_in,
 			const Eigen::VectorXd b_in) {
 			set_A(A_in);
 			set_b(b_in);

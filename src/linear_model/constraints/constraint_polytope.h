@@ -37,12 +37,12 @@ class constraint_polytope : public equality_polytope {
 
 		int get_variable_index(std::string variable_name) const;
 
-		// For getting indices corresponding to e.g. 
+		// For getting indices corresponding to e.g.
 		// ABCDbefore ... DCBAbefore or ABCDafter ... DCBAafter.
 		std::vector<int> get_variable_indices(
-			const std::vector<std::string> & variable_prefixes, 
+			const std::vector<std::string> & variable_prefixes,
 			const std::string suffix) const;
 
-		std::vector<int> get_all_permutations_indices(int numcands, 
+		std::vector<int> get_all_permutations_indices(int numcands,
 			const std::string suffix) const;
 };

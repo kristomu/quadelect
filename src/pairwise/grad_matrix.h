@@ -25,8 +25,8 @@ class cond_borda_matrix : public abstract_condmat {
 	protected:
 		// Aborts if not prepared. Remember to reinit after all
 		// set/add!
-		double get_internal(size_t candidate, size_t against, 
-				bool raw) const;
+		double get_internal(size_t candidate, size_t against,
+			bool raw) const;
 
 		// add_internal adds the specified (weight, value) vote to the
 		// gradual relaxation curve that we draw the truncated median
@@ -34,31 +34,33 @@ class cond_borda_matrix : public abstract_condmat {
 		// before.
 
 		bool add_internal(size_t candidate, size_t against, double weight,
-				double value);
+			double value);
 		bool set_internal(size_t candidate, size_t against, double weight,
-				double value);
+			double value);
 
 		bool set_internal(size_t candidate, size_t against, double value);
 
 	public:
 
-		cond_borda_matrix(pairwise_type type_in) : 
+		cond_borda_matrix(pairwise_type type_in) :
 			abstract_condmat(type_in) {}
-		cond_borda_matrix(const list<ballot_group> & scores, 
-				size_t num_candidates_in, pairwise_type kind,
-				bool cardinal, completion_type completion_in);
+		cond_borda_matrix(const list<ballot_group> & scores,
+			size_t num_candidates_in, pairwise_type kind,
+			bool cardinal, completion_type completion_in);
 		cond_borda_matrix(const cond_borda_matrix & in,
-				pairwise_type type_in);
+			pairwise_type type_in);
 
 		// set_num_cands - realloc when called??
 
-		double get_num_candidates() const { return(num_candidates); }
+		double get_num_candidates() const {
+			return (num_candidates);
+		}
 		void set_num_candidates(size_t candidates);
 
 		// Add Range (cardinal distances) here later?
 		void count_ballots(const list<ballot_group> & scores,
-				size_t num_candidates_in, bool cardinal,
-				completion_type completion);
+			size_t num_candidates_in, bool cardinal,
+			completion_type completion);
 
 		void zeroize();
 
