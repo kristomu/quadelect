@@ -178,6 +178,8 @@ target_link_libraries(bandit_search qe_singlewinner_methods quadelect_lib glpk)
 add_executable(fixed_strategy src/main/test_strategy_fixed.cc)
 target_link_libraries(fixed_strategy qe_singlewinner_methods quadelect_lib glpk)
 
+add_executable(criterion_test src/main/ttetest_cache.cc)
+target_link_libraries(criterion_test qe_singlewinner_methods quadelect_lib glpk)
 
 add_executable(quadelect src/main/combined.cc)
 target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk)

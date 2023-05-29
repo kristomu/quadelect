@@ -41,7 +41,6 @@
 #ifndef _VOTE_TWOTEST
 #define _VOTE_TWOTEST
 
-//#include "../multiwinner/methods.cc"
 #include "../tools/ballot_tools.h"
 #include "../singlewinner/method.h"
 #include <iterator>
@@ -52,8 +51,6 @@
 // INAPP if it's not possible to do a check using that ballot set or disproof.
 enum ternary {TFALSE = -1, TINAPP = 0, TTRUE = 1};
 
-using namespace std;
-
 class twotest {
 	private:
 		ordering synthesize_single_winner(const list<int> &
@@ -63,10 +60,10 @@ class twotest {
 
 		// Pick a candidate to move for mono-raise, a ranking to add
 		// for mono-add-top, etc., and then seed for random raising.
-		virtual vector<int> generate_aux_data(
+		virtual vector<size_t> generate_aux_data(
 			const list<ballot_group> & input,
-			int numcands) const {
-			return (vector<int>(0));
+			size_t numcands) const {
+			return (vector<size_t>(0));
 		}
 
 		// Always provides the same modification with the same data.
@@ -74,26 +71,26 @@ class twotest {
 		// according to the data (i.e. symmetric ballots in reversal).
 		virtual pair<bool, list<ballot_group> > rearrange_ballots(
 			const list<ballot_group> & input,
-			int numcands,
-			const vector<int> & data) const = 0;
+			size_t numcands,
+			const vector<size_t> & data) const = 0;
 
 		// We give access to data so that mono-raise with a given
 		// candidate to raise and only winners considered can return
 		// false if the candidate in question isn't ranked top in
 		// the social ordering.
 		virtual bool applicable(const ordering & check,
-			const vector<int> & data, bool orig) const = 0;
+			const vector<size_t> & data, bool orig) const = 0;
 
 		virtual bool pass_internal(const ordering & original,
 			const ordering & modified,
-			const vector<int> & data,
-			int numcands) const = 0;
+			const vector<size_t> & data,
+			size_t numcands) const = 0;
 
 		// For disproof.
 		disproof disproof_out;
 
-		virtual string explain_change_int(const vector<int> & data,
-			const map<int, string> & cand_names) const = 0;
+		virtual string explain_change_int(const vector<size_t> & data,
+			const map<size_t, string> & cand_names) const = 0;
 
 	public:
 
@@ -167,7 +164,7 @@ class twotest {
 		// are, otherwise false.
 		virtual bool winner_only() const = 0;
 
-		string explain_last_change(const map<int, string> &
+		string explain_last_change(const map<size_t, string> &
 			cand_names) const {
 			return (explain_change_int(disproof_out.
 						modification_data,
@@ -175,7 +172,7 @@ class twotest {
 		}
 
 		string explain_change(const disproof & disproof_in,
-			const map<int, string> & cand_names) const {
+			const map<size_t, string> & cand_names) const {
 			return (explain_change_int(disproof_in.
 						modification_data,
 						cand_names));

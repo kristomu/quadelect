@@ -38,6 +38,9 @@
 
 int main() {
 
+	std::cout << "BEWARE: This program is experimental and "
+		<< "currently doesn't work!\n\n";
+
 	cardinal_ratings cr(0, 10, true);
 	plurality plur(PT_WHOLE);
 	ext_minmax eminmax(CM_MARGINS,
@@ -63,7 +66,7 @@ int main() {
 
 	string f = "!";
 	size_t counter;
-	map<int, string> fakecand;
+	map<size_t, string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
 		f[0] = (char)('A' + counter);
@@ -96,7 +99,7 @@ int main() {
 
 	// -------------------- //
 
-	// Look for mono-raise errors on a method we know fails it (IRV).
+	// Look for mono-raise and mono-add-top errors
 	mono_raise mrtest(true, true);
 	mono_add_top mattest(true, true);
 
@@ -105,7 +108,8 @@ int main() {
 
 	// TODO: Either make iter matter here or take it out.
 	twotest_engine tte(10, 2, 30, 2, 6);
-	//tte.add_test(&mrtest); // might flake out if in opposite order. Todo, check that.
+	tte.add_test(
+		&mrtest); // might flake out if in opposite order. Todo, check that.
 	tte.add_test(&mattest);
 
 	// Try to make it maximally cache-useful by having a bunch of sets

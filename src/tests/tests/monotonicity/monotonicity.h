@@ -23,8 +23,6 @@
 #include <iterator>
 #include <vector>
 
-using namespace std;
-
 // Abstract class for monotonicity type criteria. The only virtual and complex
 // alterable function is the one that modifies a given ballot.
 

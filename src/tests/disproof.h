@@ -16,7 +16,7 @@ using namespace std;
 struct disproof {
 	list<ballot_group> unmodified_ballots, modified_ballots;
 	ordering unmodified_ordering, modified_ordering;
-	vector<int> modification_data;
+	vector<size_t> modification_data;
 	bool complete;
 };
 

@@ -69,7 +69,7 @@ int main() {
 
 	string f = "!";
 	size_t counter, sec;
-	map<int, string> fakecand;
+	map<size_t, string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
 		f[0] = (char)('A' + counter);
@@ -97,7 +97,8 @@ int main() {
 
 	// -------------------- //
 
-	// Look for mono-raise errors on a method we know fails it (IRV).
+	// Look for mono-add-top errors on Condorcet methods (that can't pass)
+	// TODO: Check mono-raise against IRV to see where things are slowing down.
 	//mono_raise mrtest(true, true);
 	mono_add_top mattest(true, true);
 
