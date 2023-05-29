@@ -54,6 +54,9 @@ class ordering_tools {
 			const map<size_t, string> & reverse_cand_lookup,
 			bool numeric) const;
 
+		string ordering_to_text(const ordering & rank_ballot,
+			bool numeric) const;
+
 		ordering direct_vector_to_ordering(const vector<double> & in,
 			const vector<bool> & hopefuls) const;
 

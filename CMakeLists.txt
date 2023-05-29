@@ -12,7 +12,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # The unused-parameter warning suggests some refactoring, but is yet too
 # spammy, so I've disabled it. I've also disabled the implict fallthrough
 # warning as it falsely triggers on SpookyHash.
-set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -ggdb")
+set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -ggdb")
 
 # External library requirements
 
@@ -172,5 +172,15 @@ target_link_libraries(qe_invariance_sifter qe_rpn_search quadelect_lib)
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
 target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib glpk)
 
+add_executable(bandit_search src/main/test_strategy_linbrute_bandit.cc)
+target_link_libraries(bandit_search qe_singlewinner_methods quadelect_lib glpk)
+
+add_executable(fixed_strategy src/main/test_strategy_fixed.cc)
+target_link_libraries(fixed_strategy qe_singlewinner_methods quadelect_lib glpk)
+
+
 add_executable(quadelect src/main/combined.cc)
 target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk)
+
+add_executable(qe_dim src/main/dimensionality.cc)
+target_link_libraries(qe_dim qe_singlewinner_methods quadelect_lib)

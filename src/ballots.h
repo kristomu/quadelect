@@ -4,6 +4,7 @@
 #include <assert.h>
 
 #include <unordered_map>
+#include <stdexcept>
 #include <vector>
 #include <string>
 #include <math.h>
@@ -91,6 +92,34 @@ class ballot_group {
 
 		bool operator!=(const ballot_group & other) const {
 			return (!(*this == other));
+		}
+
+		double get_max_score() const {
+			return contents.begin()->get_score();
+		}
+
+		double get_min_score() const {
+			return contents.rbegin()->get_score();
+		}
+
+		void replace_score(size_t candidate_number, double new_score) {
+			candscore this_cddt(-1, -1);
+			bool found_candidate = false;
+			for (candscore cs: contents) {
+				if (cs.get_candidate_num() == candidate_number) {
+					found_candidate = true;
+					this_cddt = cs;
+				}
+			}
+			if (!found_candidate) {
+				throw std::logic_error("replace_score: Could not find "
+					"candidate!");
+			}
+			// Remove the old candscore...
+			contents.erase(this_cddt);
+			// Set its score and reinsert.
+			this_cddt.set_score(new_score);
+			contents.insert(this_cddt);
 		}
 };
 

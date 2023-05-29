@@ -97,14 +97,23 @@ void test_with_bandits(vector<election_method *> & to_test,
 	vector<StrategyTest> sts;
 	vector<ReverseTest> reverse_sts;
 
-	int numvoters = 5000; // was 37
-	int initial_numcands = 3/*4*/, numcands = initial_numcands;
+	int numvoters = 97;
+	int initial_numcands = 3, numcands = initial_numcands;
+
+	std::cout << "Number of candidates = " << numcands << std::endl;
 
 	size_t i;
 
 	for (i = 0; i < to_test.size(); ++i) {
+		// Use lower values to more quickly identify the best method.
+		// Use higher values to get more accurate strategy
+		// susceptibility values (i.e. succumbs to strategy 10% of
+		// the time).
+		int tries_to_get_strat = 2053; // was 4096
+
 		sts.push_back(StrategyTest(ballotgens, strat_generator,
-				numvoters, numcands, randomizer, to_test[i], 0));
+				numvoters, numcands, numcands, randomizer, to_test[i], 0,
+				tries_to_get_strat));
 	}
 
 	// Needs to be done this way because inserting stuff into sts can
@@ -204,8 +213,6 @@ int main(int argc, const char ** argv) {
 
 	int counter;
 
-	//int got_this_far_last_time = 0;
-
 	int radix=9;
 
 	for (int j = 0; j < pow(radix, 6); ++j) {
@@ -238,12 +245,13 @@ int main(int argc, const char ** argv) {
 	}
 
 	vector<pure_ballot_generator *> ballotgens;
-	int dimensions = 4;
 	ballotgens.push_back(new impartial(true, false));
-	// Something is wrong with this one. Check later.
+	// Something is wrong with this one. TODO: Check later.
 	//ballotgens.push_back(new dirichlet(false));
-	ballotgens.push_back(new gaussian_generator(true, false, dimensions,
-			false));
+	// And this one; it trips num_prefers_challenger - cumul. Determine why.
+	// int dimensions = 4;
+	//ballotgens.push_back(new gaussian_generator(true, false, dimensions,
+	//		false));
 
 	test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0],
 		false);

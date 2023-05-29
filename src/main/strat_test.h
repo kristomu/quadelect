@@ -23,11 +23,15 @@
 
 enum strategy_result { STRAT_FAILED, STRAT_SUCCESS, STRAT_TIE };
 
+enum basic_strategy {ST_NONE = -1, ST_BURIAL = 0, ST_COMPROMISING = 1,
+	ST_TWOSIDED = 2, ST_REVERSE = 3, ST_OTHER = 4
+};
+
 class StrategyTest : public Test {
 	private:
 		rng * randomizer;
 		int numvoters;
-		size_t numcands;
+		size_t numcands_min, numcands_max;
 		int total_generation_attempts;
 		election_method * method;
 		list<ballot_group> ballots;
@@ -44,20 +48,22 @@ class StrategyTest : public Test {
 
 		StrategyTest(vector<pure_ballot_generator *> ballot_gens_in,
 			pure_ballot_generator * strat_generator_in,
-			int numvoters_in, int numcands_in, rng & randomizer_in,
-			election_method * method_in, int index,
+			int numvoters_in, int numcands_in_min, int numcands_in_max,
+			rng & randomizer_in, election_method * method_in, int index,
 			int strat_attempts_per_try_in) {
 
 			total_generation_attempts = 0;
 
 			assert(numvoters_in > 0);
-			assert(numcands_in > 0);
+			assert(numcands_in_min > 0);
+			assert(numcands_in_max >= 0);
 			assert(strat_attempts_per_try_in > 0);
 
 			randomizer = &randomizer_in;
 			method = method_in;
 			numvoters = numvoters_in;
-			numcands = numcands_in;
+			numcands_min = numcands_in_min;
+			numcands_max = numcands_in_max;
 			ballot_gens = ballot_gens_in;
 			strat_generator = strat_generator_in;
 			too_many_ties = false;
@@ -66,6 +72,21 @@ class StrategyTest : public Test {
 			// Was 384
 			strategy_attempts_per_try = strat_attempts_per_try_in;
 		}
+
+		StrategyTest(vector<pure_ballot_generator *> ballot_gens_in,
+			pure_ballot_generator * strat_generator_in,
+			int numvoters_in, int numcands_in,
+			rng & randomizer_in, election_method * method_in, int index,
+			int strat_attempts_per_try_in) : StrategyTest(ballot_gens_in,
+					strat_generator_in, numvoters_in, numcands_in, numcands_in,
+					randomizer_in, method_in, index, strat_attempts_per_try_in) {}
+
+		// Used mostly for debugging, maybe clean up later. This returns
+		// true if it's possible to make someone besides the winner win.
+		// XXX: UB may happen if there's a tie.
+		basic_strategy strategize_for_election(const list<ballot_group> & ballots,
+			ordering honest_outcome, size_t numcands,
+			bool verbose) const;
 
 		double perform_test() {
 			// We need to make a theoretically coherent system for handling

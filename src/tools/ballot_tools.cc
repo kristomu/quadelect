@@ -7,6 +7,20 @@
 
 using namespace std;
 
+// TODO: Handle more than 26 candidates??
+map<size_t, string> get_default_candidate_labeling() {
+	map<size_t, string> fakecand;
+
+	string f = "!";
+
+	for (int counter = 0; counter < 26; ++counter) {
+		f[0] = (char)('A' + counter);
+		fakecand[counter] = f;
+	}
+
+	return fakecand;
+}
+
 // Ordering sorter
 int ordering_sorter::compare(const ordering & a,
 	const ordering & b) const {
@@ -398,6 +412,13 @@ string ordering_tools::ordering_to_text(const ordering & rank_ballot,
 	return (out);
 }
 
+string ordering_tools::ordering_to_text(const ordering & rank_ballot,
+	bool numeric) const {
+
+	return ordering_to_text(rank_ballot,
+			get_default_candidate_labeling(), numeric);
+}
+
 ordering ordering_tools::direct_vector_to_ordering(const vector<double> &
 	in,
 	const vector<bool> & hopefuls) const {
@@ -515,17 +536,10 @@ vector<string> ballot_tools::ballots_to_text(const list<ballot_group> &
 	return (ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
 }
 
-// TODO: Handle more than 26 candidates??
 void ballot_tools::print_ranked_ballots(const list<ballot_group> &
 	rank_ballots) const {
 
-	map<size_t, string> fakecand;
-
-	string f = "!";
-	for (int counter = 0; counter < 26; ++counter) {
-		f[0] = (char)('A' + counter);
-		fakecand[counter] = f;
-	}
+	map<size_t, string> fakecand = get_default_candidate_labeling();
 
 	vector<string> fv = ballots_to_text(rank_ballots, fakecand, false);
 	copy(fv.begin(), fv.end(), ostream_iterator<string>(cout, "\n"));
