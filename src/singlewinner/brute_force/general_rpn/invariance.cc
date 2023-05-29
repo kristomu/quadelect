@@ -55,14 +55,14 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 	size_t numcands = algorithm.get_num_candidates();
 
 	std::vector<double> test_vector_A = get_test_vector(numcands,
-		randomizer);
+			randomizer);
 	std::vector<double> test_vector_B = get_test_vector(numcands,
-		randomizer);
+			randomizer);
 
 	size_t tvlen = test_vector_A.size();
 
 	double tvA_result = algorithm.evaluate(test_vector_A),
-			 tvB_result = algorithm.evaluate(test_vector_B);
+		   tvB_result = algorithm.evaluate(test_vector_B);
 	// Swap test vector A and B around so that the tvA result is always
 	// lesser.
 	if (tvA_result > tvB_result) {
@@ -92,7 +92,7 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 		}
 
 		double scaled_A_result = algorithm.evaluate(scaled_A),
-			scaled_B_result = algorithm.evaluate(scaled_B);
+			   scaled_B_result = algorithm.evaluate(scaled_B);
 
 		if (isnan(scaled_A_result) || isnan(scaled_B_result)) {
 			return false;
@@ -116,7 +116,7 @@ bool invariant(rng & randomizer, const gen_custom_function & algorithm) {
 		}
 
 		double added_A_result = algorithm.evaluate(added_A),
-			added_B_result = algorithm.evaluate(added_B);
+			   added_B_result = algorithm.evaluate(added_B);
 
 		if (isnan(added_A_result) || isnan(added_B_result)) {
 			return false;
@@ -198,7 +198,7 @@ int main(int argc, const char ** argv)  {
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " [file containing past output]"
 			<< std::endl;
-		return(-1);
+		return (-1);
 	}
 
 	std::string filename = argv[1];
@@ -219,7 +219,8 @@ int main(int argc, const char ** argv)  {
 
 	for (algo_t algorithm: prior_algorithm_numbers) {
 		if (!x.set_algorithm(algorithm)) {
-			std::cerr << "Error! " << algorithm << " is not a valid algorithm number!" << std::endl;
+			std::cerr << "Error! " << algorithm << " is not a valid algorithm number!"
+				<< std::endl;
 			throw new std::runtime_error("Error reintroducing algorithms");
 		}
 		if (!invariant(12000, randomizer, x)) {

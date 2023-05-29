@@ -23,7 +23,7 @@ void relation_side::print() const {
 		if (!first && !negative) {
 			std::cout << " + ";
 		}
-		
+
 		if (fabs(var.second) != 1) {
 			std::cout << fabs(var.second) << " * ";
 		}
@@ -43,7 +43,7 @@ void relation_side::print() const {
 void lin_relation::print() const {
 
 	lhs.print();
-	switch(type) {
+	switch (type) {
 		case LREL_LE: std::cout << " <= "; break;
 		case LREL_GE: std::cout << " >= "; break;
 		case LREL_EQ: std::cout << " = "; break;

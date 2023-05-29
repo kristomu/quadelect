@@ -58,7 +58,8 @@
 
 
 // This should really be put into a file associated with all.h
-list<pure_ballot_generator *> get_all_generators(bool compress, bool truncate) {
+list<pure_ballot_generator *> get_all_generators(bool compress,
+	bool truncate) {
 
 	list<pure_ballot_generator *> toRet;
 
@@ -69,13 +70,13 @@ list<pure_ballot_generator *> get_all_generators(bool compress, bool truncate) {
 	toRet.push_back(new iac(compress, false)); // truncation not supported
 	toRet.push_back(new uniform_generator(compress, truncate));
 
-	return(toRet);
+	return (toRet);
 }
 
 bayesian_regret setup_regret(list<election_method *> & methods,
-		list<pure_ballot_generator *> & generators,
-		int maxiters, int min_candidates, int max_candidates,
-		int min_voters, int max_voters, rng & randomizer) {
+	list<pure_ballot_generator *> & generators,
+	int maxiters, int min_candidates, int max_candidates,
+	int min_voters, int max_voters, rng & randomizer) {
 
 	// Do something with Bayesian regret here. DONE: Move over
 	// to modes.
@@ -84,28 +85,29 @@ bayesian_regret setup_regret(list<election_method *> & methods,
 	copy(methods.begin(), methods.end(), back_inserter(rtmethods));
 
 	bayesian_regret br(maxiters, min_candidates, max_candidates,
-			min_voters, max_voters, false, MS_INTRAROUND,
-			generators, rtmethods);
+		min_voters, max_voters, false, MS_INTRAROUND,
+		generators, rtmethods);
 
 	// TODO: Throw the exception inside the bayesian regret code instead.
 	if (!br.init(randomizer)) {
 		throw std::runtime_error("Bayesian Regret: could not initialize!");
 	}
 
-	return(br);
+	return (br);
 }
 
 // The hack with the generators is required so that C++ doesn't delete them
 // once the function is done.
-yee setup_yee(list<election_method *> & methods, int num_voters, int num_cands,
-		bool do_use_autopilot, string case_prefix, int picture_size,
-		double sigma, gaussian_generator & gaussian,
-		uniform_generator & uniform, rng & randomizer) {
+yee setup_yee(list<election_method *> & methods, int num_voters,
+	int num_cands,
+	bool do_use_autopilot, string case_prefix, int picture_size,
+	double sigma, gaussian_generator & gaussian,
+	uniform_generator & uniform, rng & randomizer) {
 
 	yee to_output;
 
 	if (!to_output.set_params(num_voters, num_cands, do_use_autopilot,
-				case_prefix, picture_size, sigma)) {
+			case_prefix, picture_size, sigma)) {
 		throw std::runtime_error("Yee diagram: Could not set parameters!");
 	}
 
@@ -118,7 +120,7 @@ yee setup_yee(list<election_method *> & methods, int num_voters, int num_cands,
 		throw std::runtime_error("Yee diagram: Could not initialize!");
 	}
 
-	return(to_output);
+	return (to_output);
 }
 
 barycentric setup_bary(list<election_method *> & methods,
@@ -132,13 +134,13 @@ barycentric setup_bary(list<election_method *> & methods,
 		throw std::runtime_error("Barycentric: Could not initialize!");
 	}
 
-	return(to_output);
+	return (to_output);
 }
 
 pair<bool, interpreter_mode> setup_interpreter(
-		list<election_method *> & methods,
-		list<const interpreter *> & interpreters,
-		vector<string> & unparsed, rng & randomizer) {
+	list<election_method *> & methods,
+	list<const interpreter *> & interpreters,
+	vector<string> & unparsed, rng & randomizer) {
 
 	// Kludge, again!
 	list<const election_method *> methods_const;
@@ -151,23 +153,23 @@ pair<bool, interpreter_mode> setup_interpreter(
 	if (!inited) {
 		cerr << "Interpreter mode error: Cannot parse ballot data!"
 			<< endl;
-		return(pair<bool, interpreter_mode>(false, toRet));
+		return (pair<bool, interpreter_mode>(false, toRet));
 	}
 
-	return(pair<bool, interpreter_mode>(true, toRet));
+	return (pair<bool, interpreter_mode>(true, toRet));
 }
 
 pair<bool, interpreter_mode> setup_interpreter_from_file(
-		list<election_method *> & methods,
-		list<const interpreter *> & interpreters,
-		string file_name, rng & randomizer) {
+	list<election_method *> & methods,
+	list<const interpreter *> & interpreters,
+	string file_name, rng & randomizer) {
 
-	ifstream inf (file_name.c_str());
+	ifstream inf(file_name.c_str());
 
 	if (!inf) {
 		cerr << "Interpreter mode error: Could not open " <<
 			file_name << " for reading!" << endl;
-		return(pair<bool, interpreter_mode>(false, interpreter_mode()));
+		return (pair<bool, interpreter_mode>(false, interpreter_mode()));
 	}
 
 	// Slurp the contents. Note, will crash the program if you feed it
@@ -176,7 +178,7 @@ pair<bool, interpreter_mode> setup_interpreter_from_file(
 	vector<string> unparsed = slurp_file(inf, false);
 	inf.close();
 
-	return(setup_interpreter(methods, interpreters, unparsed, randomizer));
+	return (setup_interpreter(methods, interpreters, unparsed, randomizer));
 }
 
 /// --- ///
@@ -184,8 +186,9 @@ pair<bool, interpreter_mode> setup_interpreter_from_file(
 template<typename T> void list_names(const T & container) {
 
 	for (typename T::const_iterator pos = container.begin(); pos !=
-			container.end(); ++pos)
+		container.end(); ++pos) {
 		cout << (*pos)->name() << endl;
+	}
 }
 
 // Get only those that appear on the list.
@@ -195,15 +198,16 @@ string ignore_spaces_np(const string & a) {
 	string toRet;
 
 	for (size_t counter = 0; counter < a.size(); ++counter) {
-		if (isprint(a[counter]) && a[counter] != ' ')
+		if (isprint(a[counter]) && a[counter] != ' ') {
 			toRet.push_back(a[counter]);
+		}
 	}
 
-	return(toRet);
+	return (toRet);
 }
 
 template</*typename T,*/typename Q> list<Q> get_name_intersection(
-		const list<Q> & container, const vector<string> accepted) {
+	const list<Q> & container, const vector<string> accepted) {
 
 	// We do this by first building a map of Q (it's presumed that T is
 	// vector or list or something of Q), with Q's name as index. Then we
@@ -212,25 +216,27 @@ template</*typename T,*/typename Q> list<Q> get_name_intersection(
 	map<string, Q> codebook;
 
 	for (typename list<Q>::const_iterator pos = container.begin(); pos !=
-			container.end(); ++pos)
+		container.end(); ++pos) {
 		codebook[ignore_spaces_np((*pos)->name())] = *pos;
+	}
 
 	list<Q> to_return;
 
 	for (vector<string>::const_iterator spos = accepted.begin(); spos !=
-			accepted.end(); ++spos) {
+		accepted.end(); ++spos) {
 		typename map<string, Q>::const_iterator search =
 			codebook.find(ignore_spaces_np(*spos));
 
-		if (search != codebook.end())
+		if (search != codebook.end()) {
 			to_return.push_back(search->second);
+		}
 	}
 
-	return(to_return);
+	return (to_return);
 }
 
 template<typename Q> list<Q> intersect_by_file(
-		const list<Q> & container, string filename) {
+	const list<Q> & container, string filename) {
 
 	// Returns a container of NULL if we can't open.
 
@@ -238,13 +244,13 @@ template<typename Q> list<Q> intersect_by_file(
 
 	if (!infile) {
 		cerr << "Cannot open " << filename << " for reading!" << endl;
-		return(list<Q>(1, NULL));
+		return (list<Q>(1, NULL));
 	}
 
 	vector<string> accepted = slurp_file(infile, true);
 	infile.close();
 
-	return(get_name_intersection(container, accepted));
+	return (get_name_intersection(container, accepted));
 }
 
 void print_usage_info(string program_name) {
@@ -264,7 +270,8 @@ void print_usage_info(string program_name) {
 	cout << "\t-r [seed]\t Set the random number generator seed to [seed]."
 		<< endl << endl;
 	cout << "Constraint options: " << endl;
-	cout << "\t-e\t\tEnable experimental methods. These are not intended for" <<
+	cout << "\t-e\t\tEnable experimental methods. These are not intended for"
+		<<
 		"\n\t\t\tordinary use!" << endl;
 	cout << "\t-g [file]\tUse the generators listed in [file]. The " <<
 		"program will\n\t\t\tabort if that implies no generators " <<
@@ -332,15 +339,15 @@ int main(int argc, char * * argv) {
 	string yee_prefix = "default";
 
 	int breg_rounds = 20000, breg_min_cands = 3, breg_max_cands = 20,
-	    breg_min_voters = 4, breg_max_voters = 200, breg_report_freq = 100;
+		breg_min_voters = 4, breg_max_voters = 200, breg_report_freq = 100;
 
 	bool run_yee = false, run_breg = false, run_int = false, run_bary = false,
-	     list_methods = false, list_gen = false, list_int = false,
-	     use_exp_averaging = false;
+		 list_methods = false, list_gen = false, list_int = false,
+		 use_exp_averaging = false;
 	int run_how_many = 0;
 
 	bool constrain_methods = false, constrain_generators = false,
-	     constrain_ints = false;
+		 constrain_ints = false;
 
 	bool include_experimental = false;
 
@@ -383,25 +390,27 @@ int main(int argc, char * * argv) {
 	int c, option_index = 0, opt_flag;
 
 	while ((c = getopt_long_only(argc, argv, "ebycMGIim:g:r:",
-				long_options, &option_index)) != -1) {
+					long_options, &option_index)) != -1) {
 
-		if (option_index != 0)
-			c = 0; // Access the long options!
+		if (option_index != 0) {
+			c = 0;    // Access the long options!
+		}
 
-		if (optarg)
+		if (optarg) {
 			ext = optarg;
+		}
 
-		switch(c) {
+		switch (c) {
 			case 0:
 				opt_flag = long_options[option_index].val;
 				option_index = 0; // Don't confuse later params.
 
 				// We go here if it's one of the long options.
-				switch(opt_flag) {
+				switch (opt_flag) {
 					case 'a': // -bi
 						breg_rounds = str_toi(ext);
 						if (breg_rounds <= 0) {
-							std::cerr << "You must specify at least one round." 
+							std::cerr << "You must specify at least one round."
 								<< std::endl;
 							return -1;
 						}
@@ -440,7 +449,7 @@ int main(int argc, char * * argv) {
 						break;
 					case 'g': // -brf  report_freq
 						breg_report_freq = str_toi(ext);
-						assert (breg_report_freq > 0);
+						assert(breg_report_freq > 0);
 						break;
 					case 'h': // -ys   sigma
 						yee_sigma = str_tod(ext);
@@ -524,21 +533,21 @@ int main(int argc, char * * argv) {
 				++run_how_many;
 				break;
 			case 'm':
-				 constrain_methods = true;
-				 method_constraint_fn = ext;
-				 break;
+				constrain_methods = true;
+				method_constraint_fn = ext;
+				break;
 			case 'g':
-				 constrain_generators = true;
-				 generator_constraint_fn = ext;
-				 break;
+				constrain_generators = true;
+				generator_constraint_fn = ext;
+				break;
 			case 'r': // -r: set random seed.
-				 seed = str_toull(ext);
-				 break;
+				seed = str_toull(ext);
+				break;
 			default:
 				// If it's a long option, don't bother with it.
-				if (option_index != 0)
+				if (option_index != 0) {
 					option_index = 0;
-				else {
+				} else {
 					/*cout << "I pity the foo. " << (char)c
 						<< endl;*/
 					success = false;
@@ -549,14 +558,14 @@ int main(int argc, char * * argv) {
 	if (run_how_many > 1) {
 		cerr << argv[0] << ": more than one action specified. Please "
 			<< "be more specific." << endl;
-		return(-1);
+		return (-1);
 	}
 
 	// If he made a booboo with the parameters or if he didn't specify
 	// anything to do, print usage information and get outta here.
 	if (!success || run_how_many == 0) {
 		print_usage_info(argv[0]);
-		return(-1);
+		return (-1);
 	}
 
 	// Actions ahoy!
@@ -565,7 +574,7 @@ int main(int argc, char * * argv) {
 	// something that's slapped on.
 
 	list<election_method *> methods = get_singlewinner_methods(false,
-		include_experimental);
+			include_experimental);
 	list<election_method *>::const_iterator pos;
 
 	list<pure_ballot_generator *> generators = get_all_generators(true,
@@ -585,17 +594,17 @@ int main(int argc, char * * argv) {
 
 	if (list_gen) {
 		list_names(generators);
-		return(0);
+		return (0);
 	}
 
 	if (list_methods) {
 		list_names(methods); // Aint templating grand?
-		return(0);
+		return (0);
 	}
 
 	if (list_int) {
 		list_names(interpreters);
-		return(0);
+		return (0);
 	}
 
 	// Constraining goes here.
@@ -605,10 +614,11 @@ int main(int argc, char * * argv) {
 		if (methods.empty()) {
 			cerr << argv[0] << ": Found no eligible method names in"
 				<< " " << method_constraint_fn << endl;
-			return(-1);
+			return (-1);
 		}
-		if (*(methods.begin()) == NULL)
-			return(-1); // couldn't open file.
+		if (*(methods.begin()) == NULL) {
+			return (-1);    // couldn't open file.
+		}
 
 		cout << "Method constraint: loaded " << methods.size()
 			<< " methods." << endl;
@@ -620,7 +630,7 @@ int main(int argc, char * * argv) {
 		if (generators.empty() || *generators.begin() == NULL) {
 			cerr << argv[0] << ": Found no eligible method names in"
 				<< " " << generator_constraint_fn << endl;
-			return(-1);
+			return (-1);
 		}
 
 		// If we get here, we have constrained, so se the default breg.
@@ -639,7 +649,7 @@ int main(int argc, char * * argv) {
 		if (interpreters.empty() || *interpreters.begin() == NULL) {
 			cerr << argv[0] << ": Found no eligible interpreter " <<
 				"names in " << int_constraint_fn << endl;
-			return(-1);
+			return (-1);
 		}
 
 		cout << "Interpreter constraint: loaded " << interpreters.size()
@@ -670,9 +680,11 @@ int main(int argc, char * * argv) {
 		cout << "\t\t- max number of voters: " << yee_voters << endl;
 		cout << "\t\t- number of candidates: " << yee_candidates << endl;
 		cout << "\t\t- autopilot: ";
-		if (yee_autopilot)
+		if (yee_autopilot) {
 			cout << "yes" << endl;
-		else	cout << "no" << endl;
+		} else	{
+			cout << "no" << endl;
+		}
 		cout << "\t\t- picture prefix: " << yee_prefix << endl;
 
 		if (methods.size() > 10) {
@@ -738,14 +750,16 @@ int main(int argc, char * * argv) {
 		list<const interpreter *> int_temp; // yay conversion!
 		for (list<interpreter *>::const_iterator cpos =
 				interpreters.begin();
-				cpos != interpreters.end(); ++cpos)
+			cpos != interpreters.end(); ++cpos) {
 			int_temp.push_back(*cpos);
+		}
 
 		int_mode = setup_interpreter_from_file(methods, int_temp,
 				int_source_file, randomizer);
 
-		if (!int_mode.first)
-			return(-1); // Something wrong, outta here.
+		if (!int_mode.first) {
+			return (-1);    // Something wrong, outta here.
+		}
 
 		mode_running = &int_mode.second;
 
@@ -753,11 +767,11 @@ int main(int argc, char * * argv) {
 	}
 
 	string progress;
-        double start_time = get_abs_time(), cur_checkpoint = start_time,
-	       cur_disp_checkpoint = start_time;
+	double start_time = get_abs_time(), cur_checkpoint = start_time,
+		   cur_disp_checkpoint = start_time;
 	double per_round = -1;
 
-    while ( (progress = mode_running->do_round(true, false, randomizer))
+	while ((progress = mode_running->do_round(true, false, randomizer))
 		!= "") {
 		cout << progress << endl;
 
@@ -786,8 +800,8 @@ int main(int argc, char * * argv) {
 
 			cout << "\t [Has run for " << elapsed_time
 				<< "s. ETA: " << per_round * (mode_running->
-						get_max_rounds()-mode_running->
-						get_current_round()) << "s, "<<
+					get_max_rounds()-mode_running->
+					get_current_round()) << "s, "<<
 				" for a total of " <<
 				per_round * mode_running->get_max_rounds() <<
 				" s. ]" << endl;
@@ -800,16 +814,16 @@ int main(int argc, char * * argv) {
 		// Bayesian regret, report.
 
 		if (mode_running->get_current_round() ==
-				mode_running->get_max_rounds())
+			mode_running->get_max_rounds()) {
 			should_display_stats = true;
-		else	should_display_stats = run_breg &&
+		} else	should_display_stats = run_breg &&
 				mode_running->get_current_round() %
 				breg_report_freq == (breg_report_freq-1);
 
 		if (should_display_stats) {
 			vector<string> report = mode_running->provide_status();
 			copy(report.begin(), report.end(), ostream_iterator<
-					string>(cout, "\n"));
+				string>(cout, "\n"));
 			cout << endl;
 		}
 	}

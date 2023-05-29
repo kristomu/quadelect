@@ -9,12 +9,12 @@ void direct_relative_criterion_const::add_addition_removal_terms(
 	const std::vector<int> & cur_permutation) const {
 
 	std::string perm_string = constraint_tools::permutation_to_str(
-		cur_permutation, after_suffix);
+			cur_permutation, after_suffix);
 
 	if (permissible_addition(cur_permutation)) {
 		std::string increase_count_name = "inc_" + perm_string;
 		add_where.weights.push_back(std::pair<std::string, double>(
-			increase_count_name, 1));
+				increase_count_name, 1));
 	}
 
 	if (permissible_deletion(cur_permutation)) {
@@ -28,21 +28,22 @@ constraint direct_relative_criterion_const::get_before_after_equality(
 	std::string before_suffix, std::string after_suffix) const {
 
 	constraint out;
-	out.description = "before_after_equality__" + before_suffix + "__" + after_suffix;
+	out.description = "before_after_equality__" + before_suffix + "__" +
+		after_suffix;
 	out.constraint_rel.type = LREL_EQ;
 	out.constraint_rel.lhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::all_permutations(numcands_before), "",
-		before_suffix);
+			constraint_tools::all_permutations(numcands_before), "",
+			before_suffix);
 	out.constraint_rel.rhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::all_permutations(numcands_after), "",
-		after_suffix);
+			constraint_tools::all_permutations(numcands_after), "",
+			after_suffix);
 
 	// If we're adding or deleting anything, these terms have to be on the
 	// left hand side, otherwise we can't add or delete anything at all.
 	// So fix that. TODO? Relabel this function?
 
 	for (std::vector<int> perm : constraint_tools::all_permutations(
-		numcands_after)) {
+			numcands_after)) {
 		add_addition_removal_terms(out.constraint_rel.lhs, after_suffix,
 			perm);
 	}
@@ -56,13 +57,14 @@ constraint direct_relative_criterion_const::get_before_after_equality(
 // is a sum of before ABC, before BAC, and before BCA.)
 
 std::map<std::vector<int>, std::vector<std::vector<int> > >
-	direct_relative_criterion_const::get_after_from_before_transitions() const {
+direct_relative_criterion_const::get_after_from_before_transitions()
+const {
 
 	std::vector<int> after_perm(numcands_after);
 	std::iota(after_perm.begin(), after_perm.end(), 0);
 
 	std::map<std::vector<int>, std::vector<std::vector<int> > >
-		transitions;
+	transitions;
 
 	do {
 		std::vector<int> before_perm(numcands_before);
@@ -73,9 +75,9 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 				transitions[after_perm].push_back(before_perm);
 			}
 		} while (std::next_permutation(before_perm.begin(),
-			before_perm.end()));
+				before_perm.end()));
 	} while (std::next_permutation(after_perm.begin(),
-		after_perm.end()));
+			after_perm.end()));
 
 	return transitions;
 }
@@ -83,7 +85,8 @@ std::map<std::vector<int>, std::vector<std::vector<int> > >
 // Reverses the map produced by the above function in case we need a map
 // of before-ballots contributing to a particular after-ballot.
 std::map<std::vector<int>, std::vector<std::vector<int> > >
-	direct_relative_criterion_const::reverse_map(const std::map<std::vector<int>,
+direct_relative_criterion_const::reverse_map(const
+	std::map<std::vector<int>,
 	std::vector<std::vector<int> > > & in) const {
 
 	std::map<std::vector<int>, std::vector<std::vector<int> > > out;
@@ -130,7 +133,7 @@ constraint_set direct_relative_criterion_const::get_after_constraints(const
 		constraint_tools::all_permutations(numcands_after)) {
 
 		std::string to_after = constraint_tools::permutation_to_str(
-			permutation, after_suffix);
+				permutation, after_suffix);
 
 		constraint out;
 		out.description = "permitted_transitions_after_" + to_after;
@@ -146,8 +149,8 @@ constraint_set direct_relative_criterion_const::get_after_constraints(const
 			after_from_before_transitions.end()) {
 			after_equals_befores.rhs =
 				constraint_tools::permutations_to_relation_side(
-				after_from_before_transitions.find(permutation)->second, "",
-				before_suffix + "_" + to_after);
+					after_from_before_transitions.find(permutation)->second, "",
+					before_suffix + "_" + to_after);
 		}
 
 		// Add additions and deletions if the current permutation is one
@@ -165,7 +168,8 @@ constraint_set direct_relative_criterion_const::get_after_constraints(const
 }
 
 // Is this necessary?
-constraint_set direct_relative_criterion_const::get_before_constraints(const
+constraint_set direct_relative_criterion_const::get_before_constraints(
+	const
 	std::map<std::vector<int>, std::vector<std::vector<int> > > &
 	before_to_after_transitions, std::string before_suffix,
 	std::string after_suffix) const {
@@ -176,7 +180,7 @@ constraint_set direct_relative_criterion_const::get_before_constraints(const
 		before_and_after : before_to_after_transitions) {
 
 		std::string from_before = constraint_tools::permutation_to_str(
-			before_and_after.first, before_suffix);
+				before_and_after.first, before_suffix);
 
 		constraint out;
 		out.description = "conservation_of_voters_" + from_before + "__" +
@@ -188,7 +192,7 @@ constraint_set direct_relative_criterion_const::get_before_constraints(const
 			double>(from_before, 1));
 		before_equals_afters.rhs =
 			constraint_tools::permutations_to_relation_side(
-			before_and_after.second, from_before + "_", after_suffix);
+				before_and_after.second, from_before + "_", after_suffix);
 		out.constraint_rel = before_equals_afters;
 
 		before_consts.push_back(out);
@@ -205,8 +209,8 @@ constraint_set direct_relative_criterion_const::relative_constraints(
 
 	if (!is_valid_numcands_combination()) {
 		throw std::runtime_error("relative criterion: invalid "
-		 "numcands combination: " + itos(numcands_before) + ", " +
-		 itos(numcands_after));
+			"numcands combination: " + itos(numcands_before) + ", " +
+			itos(numcands_after));
 	}
 
 	// Okay, good to go.
@@ -217,13 +221,13 @@ constraint_set direct_relative_criterion_const::relative_constraints(
 	out_set.add(get_before_after_equality(before_suffix, after_suffix));
 
 	std::map<std::vector<int>, std::vector<std::vector<int> > >
-		after_before = get_after_from_before_transitions();
+	after_before = get_after_from_before_transitions();
 
 	out_set.add(get_after_constraints(after_before, before_suffix,
-		after_suffix));
+			after_suffix));
 
 	out_set.add(get_before_constraints(reverse_map(after_before),
-		before_suffix, after_suffix));
+			before_suffix, after_suffix));
 
 	return out_set;
 }

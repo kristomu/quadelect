@@ -4,7 +4,7 @@
 #include <iostream>
 
 std::pair<Eigen::VectorXd, Eigen::VectorXd> polytope_bounding_box::
-	get_bounding_box(const polytope & poly_in) const {
+get_bounding_box(const polytope & poly_in) const {
 
 	int dimension = poly_in.get_dimension();
 
@@ -52,7 +52,7 @@ Eigen::VectorXd polytope_bounding_box::get_axis_lengths(
 	const polytope & poly_in) const {
 
 	std::pair<Eigen::VectorXd, Eigen::VectorXd> box = get_bounding_box(
-		poly_in);
+			poly_in);
 
 	return box.second - box.first;
 }

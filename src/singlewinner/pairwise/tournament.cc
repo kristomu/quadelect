@@ -4,7 +4,7 @@
 // Election method: Single elimination tournament. First seed the candidates
 // according to the ordering given. Then pair up candidates, best against
 // worst. The system is recursive, so that if you have 16 candidates, the 8
-// that proceed are treated as the inputs to an 8-candidate method. 
+// that proceed are treated as the inputs to an 8-candidate method.
 
 // Since a single run through the tournament structure provides exponentially
 // many ties at each level (those who lasted until that level), we need to run
@@ -27,31 +27,38 @@
 
 using namespace std;
 
-int cond_tournament::a_beats_b(int a, int b, const condmat & to_check) const {
+int cond_tournament::a_beats_b(int a, int b,
+	const condmat & to_check) const {
 
 	// First check if we're dealing with byes
-	if (a >= to_check.get_num_candidates() || 
-			b >= to_check.get_num_candidates()) {
+	if (a >= to_check.get_num_candidates() ||
+		b >= to_check.get_num_candidates()) {
 		if (a >= to_check.get_num_candidates() &&
-				b >= to_check.get_num_candidates())
-			return(0); // tie - shouldn't happen
-		if (a >= to_check.get_num_candidates())
-			return(-1); // b wins
-		return(1); // a wins
+			b >= to_check.get_num_candidates()) {
+			return (0);    // tie - shouldn't happen
+		}
+		if (a >= to_check.get_num_candidates()) {
+			return (-1);    // b wins
+		}
+		return (1); // a wins
 	}
 
-	if (to_check.get_magnitude(a, b) > 0) return(1);
-	if (to_check.get_magnitude(b, a) > 0) return(-1);
-	return(0);
+	if (to_check.get_magnitude(a, b) > 0) {
+		return (1);
+	}
+	if (to_check.get_magnitude(b, a) > 0) {
+		return (-1);
+	}
+	return (0);
 }
 
 int cond_tournament::get_victor(int check_a, int check_b, int level, int
-		numcands, const vector<int> & seed_order, const condmat & 
-		to_check, vector<int> & lasted_how_long) const {
+	numcands, const vector<int> & seed_order, const condmat &
+	to_check, vector<int> & lasted_how_long) const {
 	// If we're at the level so that 2^level >= numcands, then we do a
 	// simple Condorcet check to determine which candidate wins. Otherwise,
 	// we recurse down to the next level.
-	
+
 	cout << "level " << level << ": " << check_a << " vs " << check_b << endl;
 
 	int num_at_level = (2 << level);
@@ -69,8 +76,12 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 
 		cout << "entering test level" << endl;
 
-		if (resolv_a < numcands) resolv_a = seed_order[check_a];
-		if (resolv_b < numcands) resolv_b = seed_order[check_b];
+		if (resolv_a < numcands) {
+			resolv_a = seed_order[check_a];
+		}
+		if (resolv_b < numcands) {
+			resolv_b = seed_order[check_b];
+		}
 
 		cout << check_a << "(" << resolv_a << ")\t" <<
 			check_b << "(" << resolv_b << ")" << endl;
@@ -92,63 +103,68 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 				lasted_how_long);
 	}
 
-	cout << "level " << level << ": " << "Checking who wins of " << resolv_a << " vs " << resolv_b << endl;
+	cout << "level " << level << ": " << "Checking who wins of " << resolv_a <<
+		" vs " << resolv_b << endl;
 
-	switch(a_beats_b(resolv_a, resolv_b, to_check)) {
+	switch (a_beats_b(resolv_a, resolv_b, to_check)) {
 		default:
 		case 0: cout << "Tie." << endl;
-			assert (1 != 1); // dunno what to do here
+			assert(1 != 1);  // dunno what to do here
 			break;
 		case 1: cout << "First guy won. " << endl;
-			if (resolv_b < numcands) 
+			if (resolv_b < numcands) {
 				lasted_how_long[resolv_b] = level;
-			return(resolv_a);
+			}
+			return (resolv_a);
 		case -1: cout << "Second guy won." << endl;
-			if (resolv_a < numcands)
+			if (resolv_a < numcands) {
 				lasted_how_long[resolv_a] = level;
-		       	return(resolv_b);
+			}
+			return (resolv_b);
 	}
 }
 
 ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
-		const condmat &	matrix, const ordering & seed, 
-		const vector<bool> & hopefuls, int num_candidates,
-		bool winner_only) const {
+	const condmat &	matrix, const ordering & seed,
+	const vector<bool> & hopefuls, int num_candidates,
+	bool winner_only) const {
 
 	// First determine the candidates that are still in the running, and
 	// sort them in seed order. Then ask who wins of 0 against 1. This
-	// provides a vector that tells at what level each candidate was 
+	// provides a vector that tells at what level each candidate was
 	// removed. Finally, turn that into an ordering.
-	
-	vector<int> seed_order(num_candidates, -1), 
-		lasted_how_long(num_candidates, -2);
+
+	vector<int> seed_order(num_candidates, -1),
+		   lasted_how_long(num_candidates, -2);
 	size_t counter = 0;
- 	double old_cand_score = 0;
+	double old_cand_score = 0;
 
 	// Count the number of hopefuls
 	size_t num_hopefuls = 0;
 	for (counter = 0; counter < hopefuls.size(); ++counter)
-		if (hopefuls[counter])
+		if (hopefuls[counter]) {
 			++num_hopefuls;
+		}
 	counter = 0;
 
 	// TODO: interleave this. If the base method returns A > B > C > D,
 	// then we should pit A against D and B against C, not A against B
 	// and C against D.
 	for (ordering::const_iterator pos = seed.begin(); pos != seed.end();
-			++pos) {
-		if (hopefuls[pos->get_candidate_num()])
+		++pos) {
+		if (hopefuls[pos->get_candidate_num()]) {
 			seed_order[counter++] = pos->get_candidate_num();
+		}
 
 		// If equal rank, break on assert
-		assert (pos->get_score() != old_cand_score || counter == 0);
+		assert(pos->get_score() != old_cand_score || counter == 0);
 		old_cand_score = pos->get_score();
 	}
 
 	// truncated orderings are not permitted either.
 	// But note when only some are hopeful!
 	cout << counter << "\t" << num_hopefuls << endl;
-	assert (counter == num_hopefuls);
+	assert(counter == num_hopefuls);
 
 	// SIDE EFFECT
 	int victor = get_victor(0, 1, 0, num_hopefuls, seed_order, matrix,
@@ -159,22 +175,23 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 	// is better, which is opposite what an ordering wants. We fix that by
 	// simply inverting the numbers. (Note that we can't do this if we go
 	// recursive - but we'll fix that when we get to it).
-	
+
 	for (counter = 0; counter < (size_t)num_candidates; ++counter)
 		if (hopefuls[counter])
-			return_order.insert(candscore(counter, 
-						-lasted_how_long[counter] + 
-						 num_hopefuls - 1));
+			return_order.insert(candscore(counter,
+					-lasted_how_long[counter] +
+					num_hopefuls - 1));
 
 	// If we're only interested in the winner, then we're all done!
-	if (winner_only)
-		return(return_order);
+	if (winner_only) {
+		return (return_order);
+	}
 
 	// Determine runs and recurse so we can find out their order.
 	// We use a list to store the candidate numbers since we know there
-	// can be no ties. At the end we just spool the candidates back into 
+	// can be no ties. At the end we just spool the candidates back into
 	// order.
-	
+
 	double oldscore = INFINITY;
 	ordering::const_iterator pos = return_order.begin();
 	ordering combined_order;
@@ -189,12 +206,12 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 			--first;
 			vector<bool> hopefuls_recur(num_candidates, false);
 			while (first != return_order.end() && first->get_score()
-					== oldscore)
-				hopefuls_recur[(first++)->get_candidate_num()] 
+				== oldscore)
+				hopefuls_recur[(first++)->get_candidate_num()]
 					= true;
 
 			pos = first;
-			ordering subordering = internal_elect(papers, matrix, 
+			ordering subordering = internal_elect(papers, matrix,
 					seed, hopefuls_recur, num_candidates,
 					winner_only);
 			cout << "----- END RECURSION -----" << endl;
@@ -208,73 +225,74 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 			double s_oldscore = INFINITY;
 			for (ordering::const_iterator spos = subordering.
 					begin(); spos != subordering.end();
-					++spos) {
+				++spos) {
 				if (spos->get_score() != s_oldscore || spos
-						== subordering.begin())
+					== subordering.begin()) {
 					--norm_score;
+				}
 				combined_order.insert(candscore(spos->
-							get_candidate_num(),
-							norm_score));
+						get_candidate_num(),
+						norm_score));
 
 				s_oldscore = spos->get_score();
 			}
 			--norm_score;
 		} else {
 			combined_order.insert(candscore(pos->
-						get_candidate_num(),
-						norm_score--));
+					get_candidate_num(),
+					norm_score--));
 			oldscore = pos->get_score();
 			++pos;
 		}
 	}
 
-	return(combined_order);
+	return (combined_order);
 }
 
-cond_tournament::cond_tournament(election_method * base_method, 
-		bool single_round) {
+cond_tournament::cond_tournament(election_method * base_method,
+	bool single_round) {
 	base = base_method;
 	//one_round_only = single_round;
 }
 
 pair<ordering, bool> cond_tournament::elect_inner(
-		const list<ballot_group> & papers, const ordering & seed, 
-		const condmat & matrix, bool winner_only) const {
+	const list<ballot_group> & papers, const ordering & seed,
+	const condmat & matrix, bool winner_only) const {
 
 	vector<bool> all_hopeful(matrix.get_num_candidates(), true);
 
-	return(pair<ordering, bool>(internal_elect(papers, matrix, seed, 
-					all_hopeful, 
-					matrix.get_num_candidates(), 
+	return (pair<ordering, bool>(internal_elect(papers, matrix, seed,
+					all_hopeful,
+					matrix.get_num_candidates(),
 					winner_only), winner_only));
 }
 
 pair<ordering, bool> cond_tournament::elect_inner(
-		const list<ballot_group> & papers, 
-		const vector<bool> & hopefuls, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+	const list<ballot_group> & papers,
+	const vector<bool> & hopefuls, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
 	// Use implied Condorcet matrix with winning-votes. It really
 	// doesn't matter whether we use WV or margins, since we only use
 	// one bit of information (does A beat B) which is the same for WV
 	// and margins.
-	
+
 	ordering seed = base->elect(papers, num_candidates, cache, false);
 	condmat matrix(papers, num_candidates, CM_WV);
 
-	return(pair<ordering, bool>(internal_elect(papers, matrix, seed, 
+	return (pair<ordering, bool>(internal_elect(papers, matrix, seed,
 					hopefuls, num_candidates, winner_only),
 				winner_only));
 }
 
 pair<ordering, bool> cond_tournament::elect_inner(
-		const list<ballot_group> & papers, 
-		int num_candidates, cache_map * cache,
-		bool winner_only) const {
+	const list<ballot_group> & papers,
+	int num_candidates, cache_map * cache,
+	bool winner_only) const {
 
 	vector<bool> all_hopeful(num_candidates, true);
 
-	return(elect_inner(papers, all_hopeful, num_candidates, cache,
+	return (elect_inner(papers, all_hopeful, num_candidates, cache,
 				winner_only));
 }
 

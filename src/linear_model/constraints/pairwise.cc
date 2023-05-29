@@ -6,7 +6,8 @@
 // [b beats a permutations], otherwise the other way around. margin is used
 // to turn > into >=, since the polytopes don't support strict inequality.
 
-lin_relation pairwise_constraints::get_beat_equation(bool a_beats_b, size_t a,
+lin_relation pairwise_constraints::get_beat_equation(bool a_beats_b,
+	size_t a,
 	size_t b, std::string suffix, size_t numcands) const {
 
 	lin_relation out;
@@ -14,11 +15,11 @@ lin_relation pairwise_constraints::get_beat_equation(bool a_beats_b, size_t a,
 
 	// Assume A beats B
 	out.lhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::get_permutations_beating(
-		a, b, numcands), "", suffix);
+			constraint_tools::get_permutations_beating(
+				a, b, numcands), "", suffix);
 	out.rhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::get_permutations_beating(
-		b, a, numcands), "", suffix);
+			constraint_tools::get_permutations_beating(
+				b, a, numcands), "", suffix);
 
 	// If B beats A, swap the two sides.
 	if (!a_beats_b) {
@@ -36,7 +37,7 @@ constraint pairwise_constraints::beat_constraint(bool a_beats_b, size_t a,
 	size_t numcands) const {
 
 	lin_relation beats = get_beat_equation(a_beats_b, a, b, ballot_suffix,
-		numcands);
+			numcands);
 
 	constraint beat_const;
 	beat_const.constraint_rel = beats;
@@ -65,7 +66,7 @@ constraint_set pairwise_constraints::beat_constraints(
 			bool a_beats_b = short_form_copeland[linear_count++];
 
 			constraints.push_back(beat_constraint(a_beats_b, a, b,
-				suffix, suffix, numcands));
+					suffix, suffix, numcands));
 		}
 	}
 

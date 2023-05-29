@@ -25,7 +25,7 @@ cand_pairs cp_tools::compose(const cand_pairs & first,
 		// If it's (something, eliminated), that stays. We don't want
 		// (3 is eliminated, 4 is created) to turn into (3, 4).
 		if (y == CP_NONEXISTENT) {
-			assert (x != CP_NONEXISTENT); // Shouldn't happen.
+			assert(x != CP_NONEXISTENT);  // Shouldn't happen.
 			out_pair.set_pair(x, y);
 			continue;
 		}
@@ -34,7 +34,7 @@ cand_pairs cp_tools::compose(const cand_pairs & first,
 
 		if (second.num_after_cands_by_before(y) == 0) {
 			if (!accept_dangling_links) {
-				throw std::logic_error("cp_tools: Dangling link (" + 
+				throw std::logic_error("cp_tools: Dangling link (" +
 					itos(x) + ", " + itos(y) + ") detected!");
 			}
 			continue;

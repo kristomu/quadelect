@@ -8,13 +8,13 @@
 #include <list>
 
 pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache,
-		bool winner_only) const {
+	const vector<bool> & hopefuls, cache_map * cache,
+	bool winner_only) const {
 
 	bool debug = false;
 
 	// Here we keep a list of hopeful candidates. As a candidate is
-	// added to the output ordering, it is moved to the beginning and 
+	// added to the output ordering, it is moved to the beginning and
 	// the num_handled counter is incremented. Thus the first pair is
 	// drawn randomly from [0..n], the next pair from [1..n] and so on.
 	vector<int> candidates;
@@ -22,8 +22,9 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 
 	size_t counter;
 	for (counter = 0; counter < hopefuls.size(); ++counter)
-		if (hopefuls[counter])
+		if (hopefuls[counter]) {
 			candidates.push_back(counter);
+		}
 
 	ordering toRet;
 	int first, second, left, winner;
@@ -31,35 +32,37 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 	while (num_handled < candidates.size()) {
 		left = candidates.size() - num_handled;
 		// If there's just a single candidate left, admit it.
-		if (left == 1)
+		if (left == 1) {
 			winner = num_handled;
-		else {
+		} else {
 			// If not, we have to find the pair randomly.
 			first = num_handled + (random() % left);
-			do 
+			do {
 				second = num_handled + (random() % left);
-			while (first == second);
+			} while (first == second);
 
 			// Then the winner is, well, whoever wins. If equal,
 			// just do a coin flip, here handled by giving the
 			// victory to the first; since both are picked randomly,
 			// that is unbiased.
 			if (debug)
-				cout << "Checking " << candidates[first] 
+				cout << "Checking " << candidates[first]
 					<< " vs " << candidates[second] << endl;
 
-			if (input.get_magnitude(candidates[first], 
-						candidates[second], hopefuls) >=
-					input.get_magnitude(candidates[second], 
-						candidates[first], 
-						hopefuls))
+			if (input.get_magnitude(candidates[first],
+					candidates[second], hopefuls) >=
+				input.get_magnitude(candidates[second],
+					candidates[first],
+					hopefuls)) {
 				winner = first;
-			else	winner = second;
+			} else	{
+				winner = second;
+			}
 		}
 
 		// Admit our winner to the ordering...
 		if (debug)
-			cout << "Winner is " << candidates[winner] 
+			cout << "Winner is " << candidates[winner]
 				<< " and gets " << left << " points." << endl;
 
 		toRet.insert(candscore(candidates[winner], left));
@@ -71,19 +74,22 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 		// and get outta here.
 		if (winner_only) {
 			for (counter = num_handled; counter < candidates.size();
-					++counter)
+				++counter) {
 				toRet.insert(candscore(candidates[counter], 0));
+			}
 
-			if (debug)
+			if (debug) {
 				cout << "All done(TRUE)" << endl;
+			}
 
-			return(pair<ordering, bool>(toRet, true));
+			return (pair<ordering, bool>(toRet, true));
 		}
 	}
 
-	if (debug)
+	if (debug) {
 		cout << "All done(FALSE)" << endl;
+	}
 
-	return(pair<ordering, bool>(toRet, false));
+	return (pair<ordering, bool>(toRet, false));
 }
 

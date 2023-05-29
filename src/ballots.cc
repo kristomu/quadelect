@@ -53,7 +53,7 @@ ballot_group::ballot_group(double weight_in) {
 }
 
 ballot_group::ballot_group(double weight_in, const ordering & cont,
-		bool complete_in, bool rated_in) {
+	bool complete_in, bool rated_in) {
 	weight = weight_in;
 	contents = cont;
 	complete = complete_in;

@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <iterator> 
-#include <iostream> 
+#include <iterator>
+#include <iostream>
 #include <fstream>
 #include <list>
 #include <set>
@@ -54,7 +54,7 @@ int main() {
 	vector<string> printable = btools.ballots_to_text(btools.compress(
 				ballots), fakecand, true);
 	copy(printable.begin(), printable.end(), ostream_iterator<string>(cout,
-				"\n"));
+			"\n"));
 
 	cache_map cache;
 
@@ -71,7 +71,7 @@ int main() {
 	cout << otools.ordering_to_text(out, fakecand, true) << endl;
 
 	// -------------------- //
-	
+
 	// Look for mono-raise errors on a method we know fails it (IRV).
 	mono_raise mrtest(true, true);
 
@@ -81,12 +81,18 @@ int main() {
 		list<ballot_group> orig = ic.generate_ballots(
 				random() % 17 + 2, numcand, randomizer);
 
-		if (mrtest.pass(&le_plur, orig, numcand/*, cache, *(cache_map *)NULL*/) == TFALSE)
-			cout << "Found IRV failure with " << numcand << " cands, counter = " << counter << endl;
+		if (mrtest.pass(&le_plur, orig,
+				numcand/*, cache, *(cache_map *)NULL*/) == TFALSE) {
+			cout << "Found IRV failure with " << numcand << " cands, counter = " <<
+				counter << endl;
+		}
 		//cout << "After that: " << cache.size() << endl;
-		if (mrtest.pass(&plur, orig, numcand/*, cache, *(cache_map *)NULL*/) == TFALSE)
-			cout << "Found Plurality failure with " << numcand << " cands, counter = " << counter << endl;
+		if (mrtest.pass(&plur, orig,
+				numcand/*, cache, *(cache_map *)NULL*/) == TFALSE) {
+			cout << "Found Plurality failure with " << numcand << " cands, counter = "
+				<< counter << endl;
+		}
 	}
-	return(0);
+	return (0);
 }
 

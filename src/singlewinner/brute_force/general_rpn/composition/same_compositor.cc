@@ -64,7 +64,7 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 	const copeland_scenario & desired_scenario, int desired_candidate,
 	bool consider_A,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
-		candidate_remappings) {
+	candidate_remappings) {
 
 	if (cur.scenario == desired_scenario && desired_candidate == 0) {
 		return cur;
@@ -73,31 +73,34 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 	size_t numcands = cur.scenario.get_numcands();
 
 	for (size_t i = 0; i < numcands; ++i) {
-		if (desired_candidate != -1 && i != (size_t)desired_candidate) { 
-			continue; 
+		if (desired_candidate != -1 && i != (size_t)desired_candidate) {
+			continue;
 		}
-		if (i == 0 && !consider_A) { continue; }
+		if (i == 0 && !consider_A) {
+			continue;
+		}
 
 		if (candidate_remappings[i].find(cur.scenario) ==
 			candidate_remappings[i].end()) {
 			throw std::runtime_error(
-					"permute_to_desired: could not find source scenario!");
+				"permute_to_desired: could not find source scenario!");
 		}
 
 		isomorphism dest_isomorphism = candidate_remappings[i].find(
-			cur.scenario)->second;
+				cur.scenario)->second;
 
 		if (dest_isomorphism.to_scenario != desired_scenario) {
 			continue;
 		}
 
 		cur.election = permute_election_candidates(cur.election,
-			*dest_isomorphism.cand_permutations.begin());
+				*dest_isomorphism.cand_permutations.begin());
 
 		cur.scenario = dest_isomorphism.to_scenario;
 		cur.from_perspective_of = i;
 
-		assert (cur.from_perspective_of == desired_candidate || desired_candidate == -1);
+		assert(cur.from_perspective_of == desired_candidate
+			|| desired_candidate == -1);
 
 		return cur;
 	}
@@ -120,8 +123,9 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
 	candidate_remappings) {
 
-	if (desired_candidate == 0)
+	if (desired_candidate == 0) {
 		return cur;
+	}
 
 	if (cur.from_perspective_of != 0) {
 		throw std::runtime_error(
@@ -139,7 +143,7 @@ election_scenario_pair permute_to_desired(election_scenario_pair cur,
 		find(cur.scenario)->second;
 
 	cur.election = permute_election_candidates(cur.election,
-		*dest_isomorphism.cand_permutations.begin());
+			*dest_isomorphism.cand_permutations.begin());
 
 	cur.scenario = dest_isomorphism.to_scenario;
 	cur.from_perspective_of = desired_candidate;
@@ -156,7 +160,9 @@ election_scenario_pair apply_ISDA(const election_scenario_pair & in) {
 	// full Smith set), just directly return the input.
 
 	size_t reduced_numcands = ISDA_reduction.to_scenario.get_numcands();
-	if (reduced_numcands == in.scenario.get_numcands()) { return in; }
+	if (reduced_numcands == in.scenario.get_numcands()) {
+		return in;
+	}
 
 	// Otherwise, reduce.
 
@@ -166,7 +172,7 @@ election_scenario_pair apply_ISDA(const election_scenario_pair & in) {
 	// out.scenario = ISDA_reduction.to_scenario;
 
 	out.election = relabel_election_candidates(in.election,
-		ISDA_reduction.cand_relabeling, false);
+			ISDA_reduction.cand_relabeling, false);
 	// From_perspective_of is relative to the original election, which
 	// hasn't been altered (or if it has, we don't know it). So keep the
 	// from_perspective_of.
@@ -180,7 +186,7 @@ election_scenario_pair apply_ISDA(const election_scenario_pair & in) {
 	// election should be -infinity from the point of view of A).
 
 	assert(find(ISDA_reduction.cand_relabeling.begin(),
-		ISDA_reduction.cand_relabeling.end(), 0) !=
+			ISDA_reduction.cand_relabeling.end(), 0) !=
 		ISDA_reduction.cand_relabeling.end());
 
 	return out;
@@ -219,7 +225,7 @@ copeland_scenario get_B_prime_scenario(
 	const copeland_scenario & B_scenario, int B_candidate,
 	const copeland_scenario & A_prime_scenario,
 	const std::vector<std::map<copeland_scenario, isomorphism> > &
-		candidate_remappings) {
+	candidate_remappings) {
 
 	// Make a phantom election_scenario_pair corresponding to A.
 	election_scenario_pair A;
@@ -227,15 +233,15 @@ copeland_scenario get_B_prime_scenario(
 	A.from_perspective_of = 0;
 
 	// This gives us the candidate that corresponds to the B scenario.
-	election_scenario_pair B = permute_to_desired(A, B_scenario, 
-		B_candidate, false, candidate_remappings);
+	election_scenario_pair B = permute_to_desired(A, B_scenario,
+			B_candidate, false, candidate_remappings);
 
 	// Now permute A' to the same candidate...
 	election_scenario_pair A_prime = A;
 	A_prime.scenario = A_prime_scenario;
 
 	election_scenario_pair B_prime = permute_to_desired(A_prime,
-		B.from_perspective_of, candidate_remappings);
+			B.from_perspective_of, candidate_remappings);
 
 	// and get the corresponding scenario.
 	return B_prime.scenario;
@@ -305,8 +311,8 @@ impartial ic(false);
 
 // Hotspot.
 bool get_test_instance(const copeland_scenario * desired_A_scenario,
-	const copeland_scenario * desired_B_scenario, 
-	int desired_B_candidate, 
+	const copeland_scenario * desired_B_scenario,
+	int desired_B_candidate,
 	const copeland_scenario * desired_Aprime_scenario,
 	const fixed_cand_equivalences & equivalences,
 	const std::map<int, fixed_cand_equivalences> & other_equivalences,
@@ -327,8 +333,8 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 
 	// Get the B prime scenario.
 	copeland_scenario B_prime = get_B_prime_scenario(
-		*desired_A_scenario, *desired_B_scenario, desired_B_candidate, 
-		*desired_Aprime_scenario, equivalences.get_cand_remaps());
+			*desired_A_scenario, *desired_B_scenario, desired_B_candidate,
+			*desired_Aprime_scenario, equivalences.get_cand_remaps());
 
 	const copeland_scenario * desired_Bprime_scenario = &B_prime;
 
@@ -359,14 +365,14 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 		// Use an odd number of voters to avoid ties.
 		num_ballots = 2 * randomizer.lrand(5, 50) + 1;
 		before.election = ic.generate_ballots(num_ballots, numcands,
-			randomizer);
+				randomizer);
 		before.scenario = copeland_scenario(before.election, numcands);
 	} while (!equivalences.is_transformable_into(before.scenario,
-		*desired_A_scenario));
+			*desired_A_scenario));
 
 	// Permute into the A_scenario we want.
 	before = permute_to_desired(before, *desired_A_scenario, -1, true,
-		equivalences.get_cand_remaps());
+			equivalences.get_cand_remaps());
 	// Whatever the permutation is, what we end up with is A's perspective
 	// (by definition, because it has desired_A_scenario as scenario). So
 	// make that clear.
@@ -380,7 +386,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	bool found_improved = false;
 	for (int i = 0; i < 10 && !found_improved; ++i) {
 		std::vector<int> mono_data = mono_test->generate_aux_data(
-			before.election, numcands);
+				before.election, numcands);
 
 		// TODO: Really need to rename this function...
 		mono_data = mono_test->set_candidate_to_alter(mono_data, 0);
@@ -428,7 +434,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	out.before_A = before;
 	out.after_A = after;
 	out.before_B = permute_to_desired(out.before_A, *desired_B_scenario,
-		desired_B_candidate, false, equivalences.get_cand_remaps());
+			desired_B_candidate, false, equivalences.get_cand_remaps());
 
 	// We need to do it this way to preserve the candidate number. Using
 	// the other permute_to_desire may fail to do so, e.g. suppose after_A
@@ -436,7 +442,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 	// perspective is also a three-cycle, but only one of those perspectives
 	// is what we want to have the same perspective as in after_A.
 	out.after_B = permute_to_desired(out.after_A,
-		out.before_B.from_perspective_of, equivalences.get_cand_remaps());
+			out.before_B.from_perspective_of, equivalences.get_cand_remaps());
 
 	// Make sure we have the proper scenarios and perspectives.
 	assert(out.before_A.scenario == *desired_A_scenario);
@@ -469,7 +475,7 @@ typedef float result_t;
 
 struct test_results {
 	copeland_scenario A_scenario, B_scenario, Aprime_scenario,
-		Bprime_scenario;
+					  Bprime_scenario;
 	std::vector<std::vector<result_t> > A_before_results;
 	std::vector<std::vector<result_t> > A_after_results;
 	std::vector<std::vector<result_t> > B_before_results;
@@ -502,9 +508,9 @@ void test_many_one_scenario(int numiters, size_t & global_iter_count,
 		}
 
 		while (!get_test_instance(&desired_scenario, &desired_scenario,
-			desired_B_candidate, &desired_scenario, equivalences, 
-			other_equivalences, numcands, randomizer, mono_test, false,
-			true, test_instance));
+				desired_B_candidate, &desired_scenario, equivalences,
+				other_equivalences, numcands, randomizer, mono_test, false,
+				true, test_instance));
 
 		std::vector<std::vector<double> > ballot_vectors = {
 			get_ballot_vector(test_instance.before_A),
@@ -528,11 +534,13 @@ void test_many_one_scenario(int numiters, size_t & global_iter_count,
 
 		passes = 0;
 
-		for (size_t funct_idx = 0; funct_idx < functions_to_test.size(); 
+		for (size_t funct_idx = 0; funct_idx < functions_to_test.size();
 			++funct_idx) {
 
 			// If we already know this method is unsuitable, skip.
-			if (!passes_so_far[funct_idx]) { continue; }
+			if (!passes_so_far[funct_idx]) {
+				continue;
+			}
 
 			algo_t to_test = functions_to_test[funct_idx];
 
@@ -548,13 +556,14 @@ void test_many_one_scenario(int numiters, size_t & global_iter_count,
 			}
 
 			double result_A = evaluator.evaluate(ballot_vectors[0]),
-					result_B = evaluator.evaluate(ballot_vectors[1]),
-					result_Ap = evaluator.evaluate(ballot_vectors[2]),
-					result_Bp = evaluator.evaluate(ballot_vectors[3]);
+				   result_B = evaluator.evaluate(ballot_vectors[1]),
+				   result_Ap = evaluator.evaluate(ballot_vectors[2]),
+				   result_Bp = evaluator.evaluate(ballot_vectors[3]);
 
-			if (result_A - result_B > 0 && result_Ap - result_Bp < 0 ) {
+			if (result_A - result_B > 0 && result_Ap - result_Bp < 0) {
 				passes_so_far[funct_idx] = false;
-				std::cout << "Disqualified " << to_test << " at iteration " << global_iter_count << "\n";
+				std::cout << "Disqualified " << to_test << " at iteration " <<
+					global_iter_count << "\n";
 			} else {
 				++passes;
 			}
@@ -588,9 +597,10 @@ int main(int argc, char ** argv) {
 	std::cout << "Reading file... " << std::endl;
 
 	if (argc < 3) {
-		std::cerr << "Usage: " << argv[0] << " [file containing sifter output, 3 cands] [output file]" <<
+		std::cerr << "Usage: " << argv[0] <<
+			" [file containing sifter output, 3 cands] [output file]" <<
 			std::endl;
-		return(-1);
+		return (-1);
 	}
 
 	std::string filename = argv[1];
@@ -606,7 +616,7 @@ int main(int argc, char ** argv) {
 
 	sifter_file.close();
 
-	std::cout << "... done (read " << prospective_functions.size() 
+	std::cout << "... done (read " << prospective_functions.size()
 		<<  " functions)." << std::endl;
 
 	std::cout << "Initializing equivalences..." << std::endl;
@@ -616,11 +626,13 @@ int main(int argc, char ** argv) {
 	fixed_cand_equivalences three_equivalences(3);
 
 	std::map<int, fixed_cand_equivalences> other_equivs;
-	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(4, fixed_cand_equivalences(4)));;
-	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(3, fixed_cand_equivalences(3)));;
+	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(4,
+			fixed_cand_equivalences(4)));;
+	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(3,
+			fixed_cand_equivalences(3)));;
 
 	std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(3,
-		three_equivalences);
+			three_equivalences);
 
 	std::vector<copeland_scenario> canonical_full_v;
 	std::copy(canonical_full.begin(), canonical_full.end(),
@@ -646,12 +658,15 @@ int main(int argc, char ** argv) {
 
 	int who = 1;
 
-	for(;;) {
-		if (who > 2) {who = 1;}
+	for (;;) {
+		if (who > 2) {
+			who = 1;
+		}
 
 		std::cout << "From the perspective of " << who << std::endl;
 
-		test_many_one_scenario(200, global_iter_count, passes_so_far, canonical_full_v[0], who++,
+		test_many_one_scenario(200, global_iter_count, passes_so_far,
+			canonical_full_v[0], who++,
 			numcands, three_equivalences, other_equivs, prospective_functions[3],
 			randomizer);
 
@@ -660,7 +675,7 @@ int main(int argc, char ** argv) {
 		for (size_t i = 0; i < prospective_functions[3].size(); ++i) {
 			if (passes_so_far[i]) {
 				evaluator.force_set_algorithm(prospective_functions[3][i]);
-				out_file << prospective_functions[3][i] << "\t" 
+				out_file << prospective_functions[3][i] << "\t"
 					<< evaluator.to_string() << "\n";
 			}
 		}

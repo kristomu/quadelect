@@ -3,7 +3,8 @@
 // The first item is the position of cand_to_raise in the permutation.
 // The second item is the position of every other candidate if we pretend
 //	cand_to_raise is not in the permutation.
-std::pair<int, std::vector<int> > mono_raise_const::get_monotonicity_indices(
+std::pair<int, std::vector<int> >
+mono_raise_const::get_monotonicity_indices(
 	const std::vector<int> & permutation, int cand_to_raise) const {
 
 	size_t numcands = permutation.size(), count_not_ctr = 0;
@@ -36,7 +37,7 @@ bool mono_raise_const::permissible_transition(
 
 	std::pair<int, std::vector<int> > before_indices =
 		get_monotonicity_indices(before_permutation, 0), after_indices =
-		get_monotonicity_indices(after_permutation, 0);
+			get_monotonicity_indices(after_permutation, 0);
 
 	return after_indices.first <= before_indices.first &&
 		after_indices.second == before_indices.second;

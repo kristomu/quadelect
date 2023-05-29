@@ -11,24 +11,26 @@
 using namespace std;
 
 long double dist(const coord & a, const coord & b,
-                 double Lp) {
+	double Lp) {
 
 	long double error = 0;
 
 	int dimension = min(a.size(), b.size());
 
-	for (int counter = 0; counter < dimension; ++counter)
+	for (int counter = 0; counter < dimension; ++counter) {
 		error += (a[counter]-b[counter])*(a[counter]-b[counter]);
+	}
 
 	// Most common. Perhaps make a quicker nth root function later.
-	if (Lp == 2)
+	if (Lp == 2) {
 		return (sqrt(error));
+	}
 
 	return (pow(error, 1.0/Lp));
 }
 
 void rotate_by(long double & x, long double & y,
-               long double cos_angle, long double sin_angle) {
+	long double cos_angle, long double sin_angle) {
 	double xnew;
 	xnew = x * cos_angle - y * sin_angle;
 	y = x * sin_angle + y * cos_angle;
@@ -36,17 +38,17 @@ void rotate_by(long double & x, long double & y,
 }
 
 double sq_hack_error(const vector<coord> & coordinates,
-                     const vector<vector<double> > & supposed_distances) {
+	const vector<vector<double> > & supposed_distances) {
 
 	double error = 0;
 	int ctr = 0;
 
 	for (int counter = 0; counter < supposed_distances.size(); ++counter)
 		for (int sec = counter+1; sec < supposed_distances.size();
-		        ++sec) {
+			++sec) {
 			error += square(supposed_distances[counter][sec] -
-			                dist(coordinates[counter], coordinates[sec],
-			                     2));
+					dist(coordinates[counter], coordinates[sec],
+						2));
 			++ctr;
 		}
 
@@ -62,21 +64,25 @@ double sq_hack_error(const vector<coord> & coordinates,
 // Determine all but a single point.
 
 double sq_hack_preload(const vector<coord> & coordinates,
-                       const vector<vector<double> > & supposed_distances,
-                       int exclude_this) {
+	const vector<vector<double> > & supposed_distances,
+	int exclude_this) {
 
 	double error = 0;
 
 	for (int counter = 0; counter < supposed_distances.size(); ++counter) {
-		if (counter == exclude_this) continue;
+		if (counter == exclude_this) {
+			continue;
+		}
 
 		for (int sec = counter+1; sec < supposed_distances.size();
-		        ++sec) {
-			if (sec == exclude_this) continue;
+			++sec) {
+			if (sec == exclude_this) {
+				continue;
+			}
 
 			error += square(supposed_distances[counter][sec] -
-			                dist(coordinates[counter],
-			                     coordinates[sec], 2));
+					dist(coordinates[counter],
+						coordinates[sec], 2));
 		}
 	}
 
@@ -86,8 +92,8 @@ double sq_hack_preload(const vector<coord> & coordinates,
 // Determine the missing term for the point we may be changing.
 
 double sq_hack_complete(const vector<coord> & coordinates,
-                        const vector<vector<double> > & supposed_distances,
-                        int point_to_check) {
+	const vector<vector<double> > & supposed_distances,
+	int point_to_check) {
 
 	double error = 0;
 
@@ -96,9 +102,9 @@ double sq_hack_complete(const vector<coord> & coordinates,
 	for (int counter = 0; counter < supposed_distances.size(); ++counter)
 		if (counter != point_to_check)
 			error += square(supposed_distances[counter]
-			                [point_to_check] - dist(
-			                    coordinates[counter],
-			                    coordinates[point_to_check], 2));
+					[point_to_check] - dist(
+						coordinates[counter],
+						coordinates[point_to_check], 2));
 
 	return (error);
 }
@@ -106,32 +112,46 @@ double sq_hack_complete(const vector<coord> & coordinates,
 main() {
 	vector<pair<string, string> > kv_methods;
 
-	kv_methods.push_back(pair<string, string>("FPP", "AAAAAAAAAAAAAAAAAAAAAAAAAAA"));
-	kv_methods.push_back(pair<string, string>("IRV", "ABAABAABAABAABAABAABAABAABA"));
-	kv_methods.push_back(pair<string, string>("CIRV", "ABAABAABAABAABAABAABAABACCC"));
-	kv_methods.push_back(pair<string, string>("DSC", "AAAAAAABAAAAAAAABAAAAAAAACA"));
-	kv_methods.push_back(pair<string, string>("DAC", "AAAABAABCAAAABBABBAAAACCACC"));
-	kv_methods.push_back(pair<string, string>("Buck", "AAAABAABCABABBBBBBAAAACCCCC"));
-	kv_methods.push_back(pair<string, string>("WV", "ABAABACBCABAABAABBAAAACACCC"));
-	kv_methods.push_back(pair<string, string>("CA", "ABAABAABCABAABABBBAAAACACCC"));
-	kv_methods.push_back(pair<string, string>("QR", "ABAABAABAABAABAABAACAACAACA"));
-	kv_methods.push_back(pair<string, string>("BV", "AAAABAABCAAAABAABBAAAACAACC"));
-	kv_methods.push_back(pair<string, string>("CKH", "ABAABAABCABAABAABCABAABACCC"));
-	kv_methods.push_back(pair<string, string>("KH", "ABAABAABCABAABAABCABAABAABC"));
-	kv_methods.push_back(pair<string, string>("WrI", "AAAAAACCCAAAAAACCCAAAAAACCC"));
+	kv_methods.push_back(pair<string, string>("FPP",
+			"AAAAAAAAAAAAAAAAAAAAAAAAAAA"));
+	kv_methods.push_back(pair<string, string>("IRV",
+			"ABAABAABAABAABAABAABAABAABA"));
+	kv_methods.push_back(pair<string, string>("CIRV",
+			"ABAABAABAABAABAABAABAABACCC"));
+	kv_methods.push_back(pair<string, string>("DSC",
+			"AAAAAAABAAAAAAAABAAAAAAAACA"));
+	kv_methods.push_back(pair<string, string>("DAC",
+			"AAAABAABCAAAABBABBAAAACCACC"));
+	kv_methods.push_back(pair<string, string>("Buck",
+			"AAAABAABCABABBBBBBAAAACCCCC"));
+	kv_methods.push_back(pair<string, string>("WV",
+			"ABAABACBCABAABAABBAAAACACCC"));
+	kv_methods.push_back(pair<string, string>("CA",
+			"ABAABAABCABAABABBBAAAACACCC"));
+	kv_methods.push_back(pair<string, string>("QR",
+			"ABAABAABAABAABAABAACAACAACA"));
+	kv_methods.push_back(pair<string, string>("BV",
+			"AAAABAABCAAAABAABBAAAACAACC"));
+	kv_methods.push_back(pair<string, string>("CKH",
+			"ABAABAABCABAABAABCABAABACCC"));
+	kv_methods.push_back(pair<string, string>("KH",
+			"ABAABAABCABAABAABCABAABAABC"));
+	kv_methods.push_back(pair<string, string>("WrI",
+			"AAAAAACCCAAAAAACCCAAAAAACCC"));
 
 	vector<vector<double> > distances(kv_methods.size(), vector<double>(
-	                                      kv_methods.size(), 0));
+			kv_methods.size(), 0));
 
 	int counter, sec, tri;
 	for (counter = 0; counter < distances.size(); ++counter) {
 		for (sec = counter+1; sec < distances.size(); ++sec) {
 			int hamming = 0;
 			for (tri = 0; tri < kv_methods[counter].second.size();
-			        ++tri)
+				++tri)
 				if (kv_methods[counter].second[tri] !=
-				        kv_methods[sec].second[tri])
+					kv_methods[sec].second[tri]) {
 					++hamming;
+				}
 
 			distances[counter][sec] = hamming;
 			distances[sec][counter] = hamming;
@@ -141,31 +161,33 @@ main() {
 	synth_coordinates revealer;
 	vector<coord> coords, prosp_coords;
 	double record = INFINITY, record_err_sq = INFINITY, worst = -INFINITY,
-	       mean = 0;
+		   mean = 0;
 
 	int rounds = 400;
 	for (counter = 0; counter < rounds; ++counter) {
 		prosp_coords = revealer.generate_random_coords(
-		                   distances.size(), 2);
+				distances.size(), 2);
 
 		double err = revealer.recover_coords(prosp_coords, 2,
-		                                     0.0105 + 0.02 - drand48() * 0.04,
-		                                     1.0, 0.015 + 0.02 - drand48() * 0.04,
-		                                     1000, distances, false);
+				0.0105 + 0.02 - drand48() * 0.04,
+				1.0, 0.015 + 0.02 - drand48() * 0.04,
+				1000, distances, false);
 		double err_sq = sq_hack_error(prosp_coords, distances);
 
 		double test_a = sq_hack_preload(prosp_coords, distances, -1);
 		double test_b = sq_hack_preload(prosp_coords, distances, 0);
 		double test_c = sq_hack_complete(prosp_coords, distances, 0);
 
-		cout << "TEST: " << test_a << " vs " << test_b << ", " << test_c << ", " << test_b + test_c << endl;
+		cout << "TEST: " << test_a << " vs " << test_b << ", " << test_c << ", " <<
+			test_b + test_c << endl;
 
-		if (err > worst)
+		if (err > worst) {
 			worst = err;
+		}
 		mean += err;
 
 		if (err < record) {
-			assert (err_sq < record_err_sq);
+			assert(err_sq < record_err_sq);
 			cout << "New record: " << err << endl;
 			coords = prosp_coords;
 			record = err;
@@ -178,12 +200,16 @@ main() {
 					int j = random() % 2;
 					prosp_coords = coords;
 					coord orig = prosp_coords[i];
-					cout << "iter ORIG " << counter << ": " << sq_hack_error(prosp_coords, distances) << endl;
-					for (prosp_coords[i][j] = orig[j] * 0.15; prosp_coords[i][j] < orig[j] * 2.5; prosp_coords[i][j] += orig[j] * 0.001) {
+					cout << "iter ORIG " << counter << ": " << sq_hack_error(prosp_coords,
+							distances) << endl;
+					for (prosp_coords[i][j] = orig[j] * 0.15;
+						prosp_coords[i][j] < orig[j] * 2.5;
+						prosp_coords[i][j] += orig[j] * 0.001) {
 						double modified = sq_hack_error(prosp_coords,
-						                                distances);
+								distances);
 						if (modified < err_sq) {
-							cout << "iter " << counter << ": " << sq_hack_error(prosp_coords, distances) << endl;
+							cout << "iter " << counter << ": " << sq_hack_error(prosp_coords,
+									distances) << endl;
 							coords = prosp_coords;
 							record = modified;
 							record_err_sq = modified;
@@ -196,7 +222,8 @@ main() {
 		}
 	}
 
-	cout << "After all that, the record is " << record << " and mean was " << mean/(double)rounds << " with worst " << worst << endl;
+	cout << "After all that, the record is " << record << " and mean was " <<
+		mean/(double)rounds << " with worst " << worst << endl;
 
 	vector<coord> unnorm = coords;
 
@@ -225,18 +252,21 @@ main() {
 				recordholder.second = sec;
 			}
 		}
-	cout << "Longest distance is between " << recordholder.first << "(" << kv_methods[recordholder.first].first << ") and " << recordholder.second << "(" << kv_methods[recordholder.second].first << ") at " << len_record << endl;
+	cout << "Longest distance is between " << recordholder.first << "(" <<
+		kv_methods[recordholder.first].first << ") and " << recordholder.second <<
+		"(" << kv_methods[recordholder.second].first << ") at " << len_record <<
+		endl;
 	cout << endl;
 
 	coord pos_rec = unnorm[recordholder.first],
-	      adv_rec = unnorm[recordholder.second];
+		  adv_rec = unnorm[recordholder.second];
 
 	double angle = atan2(adv_rec[1] - pos_rec[1],
-	                     adv_rec[0] - pos_rec[0]);
+			adv_rec[0] - pos_rec[0]);
 
 	for (counter = 0; counter < unnorm.size(); ++counter)
 		rotate_by(unnorm[counter][0], unnorm[counter][1], cos(-angle),
-		          sin(-angle));
+			sin(-angle));
 
 	coords = unnorm;
 
@@ -258,7 +288,7 @@ main() {
 	for (counter = 0; counter < distances.size(); ++counter) {
 		for (sec = 0; sec < distances[counter].size(); ++sec)
 			cout << s_right_padded(dtos(distances[counter][sec]),
-			                       2) << " ";
+					2) << " ";
 		cout << endl;
 	}
 	cout << endl;
@@ -273,9 +303,9 @@ main() {
 			string full = dtos(round(recdst*10)/10.0);
 			int pos = full.find('.');
 			string before, after;
-			if (pos == -1)
+			if (pos == -1) {
 				before = full;
-			else {
+			} else {
 				before = full.substr(0, pos);
 				after = full.substr(pos, full.size());
 			}
@@ -288,14 +318,14 @@ main() {
 	cout << "Normalized coordinates: " << endl;
 	for (counter = 0; counter < coords.size(); ++counter) {
 		copy(coords[counter].begin(), coords[counter].end(),
-		     ostream_iterator<double>(cout, " "));
+			ostream_iterator<double>(cout, " "));
 		cout << "\t" << kv_methods[counter].first << endl;
 	}
 
 	cout << "Raw coordinates: " << endl;
 	for (counter = 0; counter < coords.size(); ++counter) {
 		copy(unnorm[counter].begin(), unnorm[counter].end(),
-		     ostream_iterator<double>(cout, " "));
+			ostream_iterator<double>(cout, " "));
 		cout << "\t" << kv_methods[counter].first << endl;
 	}
 }

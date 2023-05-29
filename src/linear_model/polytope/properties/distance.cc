@@ -72,7 +72,7 @@ diameter_coords polytope_distance::get_extreme_coords(
 
 	int n = poly_in.get_A().cols(), m = poly_in.get_A().rows();
 
-	if(M_vec.rows() != n) {
+	if (M_vec.rows() != n) {
 		throw std::invalid_argument("get_extreme_coords: M_vec length"
 			" differs from number of columns of A!");
 	}
@@ -123,7 +123,9 @@ diameter_coords polytope_distance::get_extreme_coords(
 
 	// ind_abs are all binary
 	std::vector<bool> binaries(prog_cols, false);
-	for (int i = prog_cols-n; i < prog_cols; ++i) { binaries[i] = true;}
+	for (int i = prog_cols-n; i < prog_cols; ++i) {
+		binaries[i] = true;
+	}
 
 	simple_polytope diameter_prog_polytope(diam_prog, diam_b);
 
@@ -132,7 +134,7 @@ diameter_coords polytope_distance::get_extreme_coords(
 	std::pair<double, Eigen::VectorXd> output;
 
 	if (linear_relaxation) {
-		 output = diameter_prog_polytope.linear_program(diam_c, false);
+		output = diameter_prog_polytope.linear_program(diam_c, false);
 	} else {
 		output = diameter_prog_polytope.mixed_program(diam_c, binaries, true);
 	}
@@ -200,7 +202,7 @@ double polytope_distance::get_l1_diameter(
 	// run the LP relaxation only), we use that instead.
 
 	Eigen::VectorXd M_vec = 2 * polytope_bounding_box().get_axis_lengths(
-		poly_in);
+			poly_in);
 
 	double box_estimate = M_vec.maxCoeff();
 
@@ -211,7 +213,7 @@ double polytope_distance::get_l2_diameter_lb(
 	const polytope & poly_in) const {
 
 	Eigen::VectorXd M_vec = 2 * polytope_bounding_box().get_axis_lengths(
-		poly_in);
+			poly_in);
 
 	double box_estimate = M_vec.maxCoeff();
 

@@ -2,16 +2,19 @@
 
 #include "odm.h"
 
-double odm::nltrans(double pairwise_value, double opposing_strength) const {
+double odm::nltrans(double pairwise_value,
+	double opposing_strength) const {
 	return (pairwise_value / opposing_strength);
 }
 
 double odm::get_score(double offense, double defense) const {
-	if (offense == 0 && defense == 0) { return 0; } // hack
+	if (offense == 0 && defense == 0) {
+		return 0;    // hack
+	}
 
 	return (offense / defense);
 }
 
 string odm::odm_name() const {
-	return("ODM");
+	return ("ODM");
 }

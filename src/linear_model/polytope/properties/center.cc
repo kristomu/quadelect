@@ -61,18 +61,19 @@ Eigen::MatrixXd polytope_center::chebyshev_augment(
 simple_polytope polytope_center::chebyshev_augment(
 	const polytope & poly_in) const {
 
-	return simple_polytope(chebyshev_augment(poly_in.get_A()), poly_in.get_b());
+	return simple_polytope(chebyshev_augment(poly_in.get_A()),
+			poly_in.get_b());
 }
 
 std::pair<double, Eigen::VectorXd>
-	polytope_center::get_chebyshev_center_w_radius(
+polytope_center::get_chebyshev_center_w_radius(
 	const polytope & poly_in) const {
 
 	// maximize r, i.e. minimize 0 0 0 0 ... -1, since r is the last
 	// variable.
 
 	Eigen::VectorXd c = Eigen::VectorXd::Zero(poly_in.get_A().
-		cols()+1);
+			cols()+1);
 	c[poly_in.get_A().cols()] = -1;
 
 	std::pair<double, Eigen::VectorXd> out =
@@ -85,7 +86,7 @@ std::pair<double, Eigen::VectorXd>
 
 	if (!poly_in.is_inside(out.second)) {
 		throw std::out_of_range(
-			"polytope_center: Error finding center, possible numerical " 
+			"polytope_center: Error finding center, possible numerical "
 			"precision\nproblem. Is your polytope matrix full rank?");
 	}
 

@@ -33,7 +33,7 @@ uint64_t copeland_scenario::short_form_to_integer(const
 
 
 std::vector<std::vector<bool> >
-	copeland_scenario::short_form_to_copeland_matrix(const
+copeland_scenario::short_form_to_copeland_matrix(const
 	std::vector<bool> & short_form, size_t numcands) const {
 
 	std::vector<std::vector<bool> > copeland_matrix(numcands,
@@ -52,7 +52,7 @@ std::vector<std::vector<bool> >
 }
 
 std::vector<std::vector<bool> >
-	copeland_scenario::condorcet_to_copeland_matrix(const
+copeland_scenario::condorcet_to_copeland_matrix(const
 	abstract_condmat * condorcet_matrix) const {
 
 	size_t numcands = condorcet_matrix->get_num_candidates();
@@ -67,9 +67,9 @@ std::vector<std::vector<bool> >
 				// Perhaps return 0-candidate scenario instead?
 				throw std::runtime_error(
 					"Copeland_scenario: pairwise ties not supported!");
-				}
+			}
 			copeland_matrix[i][j] = (condorcet_matrix->get_magnitude(
-				i, j) > condorcet_matrix->get_magnitude(j, i));
+						i, j) > condorcet_matrix->get_magnitude(j, i));
 			copeland_matrix[j][i] = !copeland_matrix[i][j];
 		}
 	}
@@ -78,7 +78,7 @@ std::vector<std::vector<bool> >
 }
 
 std::vector<std::vector<bool> >
-	copeland_scenario::election_to_copeland_matrix(const
+copeland_scenario::election_to_copeland_matrix(const
 	std::list<ballot_group> & election, size_t numcands) const {
 
 	// TODO: Move to mutable.
@@ -90,7 +90,7 @@ std::vector<std::vector<bool> >
 }
 
 std::vector<bool> copeland_scenario::copeland_matrix_to_short_form(const
-	std::vector<std::vector<bool> > & copeland_matrix) const{
+	std::vector<std::vector<bool> > & copeland_matrix) const {
 
 	size_t numcands = copeland_matrix.size();
 

@@ -1,8 +1,8 @@
 #include "get_methods.h"
 
 std::list<pairwise_method *> get_pairwise_methods(
-		const std::list<pairwise_type> & types,
-		bool include_experimental) {
+	const std::list<pairwise_type> & types,
+	bool include_experimental) {
 
 	// For each type, and for each pairwise method, dump that combination
 	// to the output. Possible feature request: have the method determine
@@ -12,7 +12,7 @@ std::list<pairwise_method *> get_pairwise_methods(
 	std::list<pairwise_method *> out;
 
 	for (std::list<pairwise_type>::const_iterator pos = types.begin(); pos !=
-			types.end(); ++pos) {
+		types.end(); ++pos) {
 		out.push_back(new dquick(*pos));
 		out.push_back(new kemeny(*pos));
 		out.push_back(new maxmin(*pos));
@@ -59,7 +59,7 @@ std::list<pairwise_method *> get_pairwise_methods(
 	out.push_back(new copeland(CM_WV, 2, 1, 0));
 	out.push_back(new randpair(CM_WV));
 
-	return(out);
+	return (out);
 }
 
 // Positional methods.
@@ -68,15 +68,18 @@ std::list<positional *> get_positional_methods(bool truncate) {
 	// Put that elsewhere?
 	std::list<positional_type> types;
 	if (truncate)
-		for (int p = PT_FIRST; p <= PT_LAST; ++p)
+		for (int p = PT_FIRST; p <= PT_LAST; ++p) {
 			types.push_back(positional_type(p));
+		}
 	// No point in using both if you aren't going to truncate.
-	else	types.push_back(positional_type(PT_FRACTIONAL));
+	else	{
+		types.push_back(positional_type(PT_FRACTIONAL));
+	}
 
 	std::list<positional *> out;
 
 	for (std::list<positional_type>::const_iterator pos = types.begin(); pos !=
-			types.end(); ++pos) {
+		types.end(); ++pos) {
 		out.push_back(new plurality(*pos));
 		out.push_back(new ext_plurality(*pos));
 		out.push_back(new borda(*pos));
@@ -93,7 +96,7 @@ std::list<positional *> get_positional_methods(bool truncate) {
 		out.push_back(new worstborda(*pos));
 	}
 
-	return(out);
+	return (out);
 }
 
 std::list<pairwise_method *> get_sets() {
@@ -115,7 +118,7 @@ std::list<pairwise_method *> get_sets() {
 
 	out.push_back(new copeland(CM_WV)); // Nudge nudge.
 
-	return(out);
+	return (out);
 }
 
 std::list<election_method *> get_singlewinner_methods(bool truncate,
@@ -135,7 +138,8 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 
 	// We have to do it in this clumsy manner because of possible bugs in
 	// handling methods with some candidates excluded.
-	std::list<election_method *> posnl_expanded = expand_meta(positional_methods,
+	std::list<election_method *> posnl_expanded = expand_meta(
+			positional_methods,
 			pairwise_sets, true);
 
 	// Now add other methods here...
@@ -188,11 +192,11 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	// and
 
 	copy(positional_methods.begin(), positional_methods.end(),
-			back_inserter(toRet));
+		back_inserter(toRet));
 	copy(posnl_expanded.begin(), posnl_expanded.end(),
-			back_inserter(toRet));
+		back_inserter(toRet));
 	copy(expanded.begin(), expanded.end(), back_inserter(toRet));
 
 	// Done!
-	return(toRet);
+	return (toRet);
 }

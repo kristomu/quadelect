@@ -9,20 +9,24 @@
 #include "../pairwise/simple_methods.h"
 
 pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache,
-		bool winner_only) const {
+	const vector<bool> & hopefuls, cache_map * cache,
+	bool winner_only) const {
 
 	ordering out;
 
-	assert (input.get_num_candidates() <= 3);
+	assert(input.get_num_candidates() <= 3);
 
 	int num_hopefuls = 0;
-	for (bool hopeful : hopefuls) { if (hopeful) { ++num_hopefuls; } }
+	for (bool hopeful : hopefuls) {
+		if (hopeful) {
+			++num_hopefuls;
+		}
+	}
 
 	// If two candidates or less, just hand off to a method that does a majority vote.
 	if (num_hopefuls < 3) {
 		return ord_minmax(default_type).pair_elect(
-			input, hopefuls, cache, winner_only);
+				input, hopefuls, cache, winner_only);
 	}
 
 	for (int counter = 0; counter < 3; ++counter) {
@@ -37,12 +41,15 @@ pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
 		// (B>C) / (C>A)
 
 		for (int sec = 0; sec < 3; ++sec) {
-			if (counter == sec) continue;
+			if (counter == sec) {
+				continue;
+			}
 
 			int third_party = -1;
 			for (int tet = 0; tet < 3 && third_party == -1; ++tet)
-				if (counter != tet && sec != tet)
+				if (counter != tet && sec != tet) {
 					third_party = tet;
+				}
 			// Now suppose we're A and the cycle is A>B>C>A.
 			double ab = input.get_magnitude(counter, sec);
 			double bc = input.get_magnitude(sec, third_party);
@@ -50,8 +57,8 @@ pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
 			double eps = 1e-9;
 
 			if (input.get_magnitude(counter, sec) >=
-					input.get_magnitude(sec, counter)) {
-				switch(type) {
+				input.get_magnitude(sec, counter)) {
+				switch (type) {
 					case TUP_TUP:
 						score += bc;
 						break;
@@ -78,21 +85,23 @@ pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
 						break;
 					case TUP_ALT_6:
 						score += pow(ab+eps, 3.9) + pow(bc+eps, 0.9);
-						if (isnan(score)) { score = -1e9; }
+						if (isnan(score)) {
+							score = -1e9;
+						}
 						break;
 					default:
 						throw -1;
 						break;
 				}
-/*				if (type == TUP_TUP)
-					score += input.get_magnitude(sec, third_party);
-				else
-					score += (double)(input.get_magnitude(sec, third_party))/(1e-6 + input.get_magnitude(third_party, counter));*/
+				/*				if (type == TUP_TUP)
+									score += input.get_magnitude(sec, third_party);
+								else
+									score += (double)(input.get_magnitude(sec, third_party))/(1e-6 + input.get_magnitude(third_party, counter));*/
 			}
 		}
 
 		out.insert(candscore(counter, score));
 	}
 
-	return(pair<ordering, bool>(out, false));
+	return (pair<ordering, bool>(out, false));
 }

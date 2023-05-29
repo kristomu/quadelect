@@ -68,8 +68,8 @@ constraint_set isda_relative_const::smith_loser_constraints(
 	for (size_t winner: non_losers) {
 		for (size_t loser: losers) {
 			loser_constraints.add(pwconst.beat_constraint(true,
-				winner, loser, ballot_suffix, description_suffix,
-				numcands));
+					winner, loser, ballot_suffix, description_suffix,
+					numcands));
 		}
 	}
 
@@ -91,31 +91,31 @@ constraint_set isda_relative_const::relative_constraints(
 
 		// Pairwise constraints on before_suffix
 		isda_linkage.add(smith_loser_constraints(
-			"inner_" + before_suffix,
-			"inner_" + before_suffix + "_isda_loser"));
+				"inner_" + before_suffix,
+				"inner_" + before_suffix + "_isda_loser"));
 
 		// elimination
 		isda_linkage.add(eliminator.relative_constraints(
-			"inner_" + before_suffix, before_suffix));
+				"inner_" + before_suffix, before_suffix));
 
 		// Inner criterion
 		isda_linkage.add(inner_criterion->relative_constraints(
-			"inner_" + before_suffix, after_suffix));
+				"inner_" + before_suffix, after_suffix));
 	} else {
 		// before ballot -> inner criterion -> pairwise constraints ->
 		// elimination by the given schedule -> after ballot.
 
 		// Inner criterion
 		isda_linkage.add(inner_criterion->relative_constraints(
-			before_suffix, before_suffix + "_isda"));
+				before_suffix, before_suffix + "_isda"));
 
 		// Pairwise constraints on before_suffix + _isda go here
 		isda_linkage.add(smith_loser_constraints(before_suffix + "_isda",
-			before_suffix + "_isda_isda_loser"));
+				before_suffix + "_isda_isda_loser"));
 
 		// Elimination
 		isda_linkage.add(eliminator.relative_constraints(
-			before_suffix + "_isda", after_suffix));
+				before_suffix + "_isda", after_suffix));
 	}
 
 	return isda_linkage; // Now wasn't that easy?
@@ -156,8 +156,8 @@ isda_relative_const::isda_relative_const(bool elimination_first,
 		// candidate index matching between B and B' is the composition of
 		// the elimination, reversed, and the inner criterion.
 		candidate_reordering = cp_tools::compose(cp_tools::reverse(
-			eliminator.get_candidate_reordering()),
-			inner_criterion_in->get_candidate_reordering(), true);
+					eliminator.get_candidate_reordering()),
+				inner_criterion_in->get_candidate_reordering(), true);
 	} else {
 		assert(numcands_before == inner_criterion->get_numcands_before());
 		assert(numcands_after == eliminator.get_numcands_after());
@@ -166,14 +166,14 @@ isda_relative_const::isda_relative_const(bool elimination_first,
 			elimination_spec.size()) {
 
 			throw std::runtime_error("ISDA: candidate number mismatch"
-				" in criterion composition!");	
+				" in criterion composition!");
 		}
 
 		// The proper candidate index matching between B and B' is the
 		// composition of the rearrangement performed by the inner
 		// criterion (since it is called first),and the elimination.
 		candidate_reordering = cp_tools::compose(
-			inner_criterion_in->get_candidate_reordering(),
-			eliminator.get_candidate_reordering(), true);
+				inner_criterion_in->get_candidate_reordering(),
+				eliminator.get_candidate_reordering(), true);
 	}
 }

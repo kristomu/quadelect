@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <iterator> 
-#include <iostream> 
+#include <iterator>
+#include <iostream>
 #include <fstream>
 #include <list>
 #include <set>
@@ -19,7 +19,7 @@
 
 #include "../tests/tests/monotonicity/mono_raise.h"
 
-// TODO, split these. Do that after improving pairwise and implementing tte, 
+// TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
 #include "../singlewinner/pairwise/simple_methods.h"
 
@@ -55,7 +55,7 @@ int main() {
 	vector<string> printable = btools.ballots_to_text(btools.compress(
 				ballots), fakecand, false);
 	copy(printable.begin(), printable.end(), ostream_iterator<string>(cout,
-				"\n"));
+			"\n"));
 
 	cache_map cache;
 
@@ -65,10 +65,11 @@ int main() {
 	for (counter = 0; counter < 400000; ++counter) {
 		out = eminmax.elect(ballots, 4, &cache, false);
 	}
-	
-	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p)
+
+	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p) {
 		cout << (char)('A' + p->get_candidate_num()) << "\t";
+	}
 	cout << endl;
 
-	return(0);
+	return (0);
 }

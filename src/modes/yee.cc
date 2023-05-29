@@ -21,7 +21,7 @@
 // use_autopilot_in enables an IEVS-style "autopilot". This starts at a relatively
 // low number of voters, scaling up until the autopilot_history_in last all have
 // the same number of winners or we exceed max_num_voters_in. Doing this with
-// cache is kinda tricky. If use_autopilot_in is false, we always use 
+// cache is kinda tricky. If use_autopilot_in is false, we always use
 // max_num_voters_in.
 // (To get the maximum possible out of the autopilot history if we never
 //  converge, we feed the output orderings to a meta-method and pick a winner
@@ -35,20 +35,20 @@
 // TODO: Give this one access to the winners. After having calculated who won,
 // check if the square around us (except those that have no -1 and at least one
 // +1, because we don't know those yet) agree. If not, check further. That
-// should diminish salt-and-pepper noise. BLUESKY: Render using PNG 
+// should diminish salt-and-pepper noise. BLUESKY: Render using PNG
 // interpolation order to maximize effect.
 
-long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in, 
-		const vector<const election_method *> & methods, 
-		spatial_generator & ballotgen,
-		vector<vector<vector<vector<bool > > > > & am_ac_winners,
-		int min_num_voters_in, int max_num_voters_in, 
-		bool use_autopilot_in, double autopilot_factor_in, 
-		int autopilot_history_in, cache_map * cache, 
-		rng & randomizer) const {
+long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
+	const vector<const election_method *> & methods,
+	spatial_generator & ballotgen,
+	vector<vector<vector<vector<bool > > > > & am_ac_winners,
+	int min_num_voters_in, int max_num_voters_in,
+	bool use_autopilot_in, double autopilot_factor_in,
+	int autopilot_history_in, cache_map * cache,
+	rng & randomizer) const {
 
-	size_t num_cands = am_ac_winners[0].size(), 
-	       num_methods = am_ac_winners.size();
+	size_t num_cands = am_ac_winners[0].size(),
+		   num_methods = am_ac_winners.size();
 
 	vector<list<ballot_group> > autopilot_am(num_methods);
 	vector<int> num_identical(num_methods, 0);
@@ -59,13 +59,15 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	relative[0] = x / (double) xsize_in;
 	relative[1] = y / (double) ysize_in;
 
-	if (!ballotgen.set_center(relative))
-		return(-1);
+	if (!ballotgen.set_center(relative)) {
+		return (-1);
+	}
 
 	double cur_num_voters = min_num_voters_in;
 
-	if (!use_autopilot_in)
+	if (!use_autopilot_in) {
 		cur_num_voters = max_num_voters_in;
+	}
 
 	size_t method;
 	long long bottom_line = 0;
@@ -78,23 +80,24 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 
 	double def_autopilot_factor = 1.01;
 
-	while ((int)round(cur_num_voters) <= max_num_voters_in && 
-			cleared < num_methods) {
+	while ((int)round(cur_num_voters) <= max_num_voters_in &&
+		cleared < num_methods) {
 
 		// Sample the voter distribution at our pixel.
 		// Note: generate_ballots is quite expensive. Consider the value
 		// of using autopilot...
-		ballots = ballotgen.generate_ballots(round(cur_num_voters), 
+		ballots = ballotgen.generate_ballots(round(cur_num_voters),
 				num_cands, randomizer);
 
 		cache->clear();
 
 		for (method = 0; method < num_methods && cleared < num_methods;
-				++method) {
-			// If we've already got enough data to say who this 
+			++method) {
+			// If we've already got enough data to say who this
 			// method elects, ignore it.
-			if (num_identical[method] >= autopilot_history_in)
+			if (num_identical[method] >= autopilot_history_in) {
 				continue;
+			}
 
 			out = methods[method]->elect(ballots, num_cands, cache,
 					true);
@@ -105,31 +108,33 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 			// it. Also check if we've passed the threshold; if so,
 			// add to cleared with hope of getting out early.
 			if (autopilot_am[method].empty() || otools.winner_only(
-						rank_out) == 
-					otools.winner_only(autopilot_am[method].rbegin()->
+					rank_out) ==
+				otools.winner_only(autopilot_am[method].rbegin()->
 					contents)) {
 				++num_identical[method];
-				if (num_identical[method] >= autopilot_history_in)
+				if (num_identical[method] >= autopilot_history_in) {
 					++cleared;
+				}
+			} else	{
+				num_identical[method] = 0;
 			}
-			else	num_identical[method] = 0;
 
 			// In either case, add it to the list so we can use it
 			// to find out who won, later.
 			autopilot_am[method].push_back(ballot_group(
-						round(cur_num_voters), rank_out,
-						true, false));
+					round(cur_num_voters), rank_out,
+					true, false));
 
 			bottom_line += cur_num_voters;
 		}
 
 		if (cur_num_voters != max_num_voters)
-			cur_num_voters = min((double)max_num_voters, 
+			cur_num_voters = min((double)max_num_voters,
 					cur_num_voters * max(def_autopilot_factor,
-					autopilot_factor_in));
+						autopilot_factor_in));
 		else
-			cur_num_voters *= max(def_autopilot_factor, 
-				autopilot_factor_in);
+			cur_num_voters *= max(def_autopilot_factor,
+					autopilot_factor_in);
 	}
 
 	// Now simply paint the appropriate pixels depending on who won.
@@ -145,56 +150,59 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 		// For all the winners, paint his boolean true.
 
 		for (ordering::const_iterator opos = meta.begin(); opos !=
-				meta.end() && opos->get_score() == 
-				meta.begin()->get_score(); ++opos)
+			meta.end() && opos->get_score() ==
+			meta.begin()->get_score(); ++opos)
 			am_ac_winners[method][opos->get_candidate_num()][x][y]
 				= true;
 	}
 
-	return(bottom_line);
+	return (bottom_line);
 }
 
-bool yee::draw_pictures(string prefix, const vector<vector<vector<bool > > > &
-		ac_winners, vector<vector<double> > & cand_colors, 
-		vector<vector<double> > & cand_locations,
-		bool draw_binaries_in, bool ignore_errors_in, 
-		double inner_radius_in, double outer_radius_in, 
-		double hue_factor) const {
+bool yee::draw_pictures(string prefix,
+	const vector<vector<vector<bool > > > &
+	ac_winners, vector<vector<double> > & cand_colors,
+	vector<vector<double> > & cand_locations,
+	bool draw_binaries_in, bool ignore_errors_in,
+	double inner_radius_in, double outer_radius_in,
+	double hue_factor) const {
 
 	// First draw all the binary pictures (if so requested).
 	// TODO: PNG yada yada. Don't have time for it now.
 
 	size_t numcands = cand_colors.size(), counter, x, y,
-	       xsize_in = ac_winners[0].size(), ysize_in = ac_winners[0][0].size();
+		   xsize_in = ac_winners[0].size(), ysize_in = ac_winners[0][0].size();
 
 	bool okay_so_far = true;
 	string outfn;
 
 	for (counter = 0; counter < numcands && draw_binaries_in; ++counter) {
 		outfn = prefix + "_bin_c" + dtos(counter) + "won.pgm";
-		ofstream outfile (outfn.c_str());
+		ofstream outfile(outfn.c_str());
 
 		if (!outfile) {
 			okay_so_far = false;
 			if (!ignore_errors_in && !okay_so_far) {
 				cerr << "Couldn't open binary picture file "
 					<< outfn << " for writing." << endl;
-				return(false);
+				return (false);
 			}
 
 			continue;
 		}
 
 		// Header!
-		outfile << "P5 " << endl << xsize_in << " " << ysize_in << endl 
+		outfile << "P5 " << endl << xsize_in << " " << ysize_in << endl
 			<< 255 << endl;
 
 		// Dump the boolean.
 		for (y = 0; y < ysize_in; ++y)
 			for (x = 0; x < xsize_in; ++x) {
-				if (ac_winners[counter][x][y])
+				if (ac_winners[counter][x][y]) {
 					outfile << (char) 255;
-				else	outfile << (char) 0;
+				} else	{
+					outfile << (char) 0;
+				}
 			}
 
 		outfile.close(); // And all done.
@@ -207,15 +215,15 @@ bool yee::draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 
 	if (!color_pic) {
 		// Couldn't open that file.
-		cerr << "Couldn't open color picture file " << outfn << 
+		cerr << "Couldn't open color picture file " << outfn <<
 			" for writing." << endl;
 		// Since we've got nothing more to do, we can just return false
 		// no matter what here.
-		return(false);
+		return (false);
 	}
 
 	// Write the header.
-	color_pic << "P6 " << endl << xsize_in << " " << ysize_in << endl << 255 
+	color_pic << "P6 " << endl << xsize_in << " " << ysize_in << endl << 255
 		<< endl;
 
 	vector<double> adj_coords(2);
@@ -243,8 +251,8 @@ bool yee::draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 			int copier;
 
 			for (unsigned int cand = 0; cand < numcands && !is_home;
-					++cand) {
-				double dist = euc_distance(2.0, adj_coords, 
+				++cand) {
+				double dist = euc_distance(2.0, adj_coords,
 						cand_locations[cand]);
 
 				if (dist < adj_outer_radius) {
@@ -252,12 +260,14 @@ bool yee::draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 					is_home = true;
 				}
 
-				if (dist < adj_inner_radius)
+				if (dist < adj_inner_radius) {
 					inner_border_of = cand;
+				}
 
-				if (!ac_winners[cand][x][y] || is_home) 
+				if (!ac_winners[cand][x][y] || is_home) {
 					continue;
-	
+				}
+
 				for (copier = 0; copier < 3; ++copier)
 					prosp_RGB[copier] += cand_colors[cand]
 						[copier] * hue_factor;
@@ -269,12 +279,13 @@ bool yee::draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 			// inner). If not, go ahead and plunk down our pixel.
 
 			if (is_home) {
-				if (inner_border_of != -1) 
+				if (inner_border_of != -1)
 					prosp_RGB = cand_colors[
-						inner_border_of];
+							inner_border_of];
 				else
-					for (copier = 0; copier < 3; ++copier)
+					for (copier = 0; copier < 3; ++copier) {
 						prosp_RGB[copier] = 0;
+					}
 
 				num_winners = 1; // all of that OVER 1. -KA :p
 			}
@@ -291,20 +302,21 @@ bool yee::draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 	}
 
 	color_pic.close();
-	return(okay_so_far);
+	return (okay_so_far);
 
 }
 
-vector<vector<double> > yee::get_candidate_colors(int numcands, 
-		bool debug) const {
+vector<vector<double> > yee::get_candidate_colors(int numcands,
+	bool debug) const {
 
-	if (numcands <= 0)
-		return(vector<vector<double> >());
+	if (numcands <= 0) {
+		return (vector<vector<double> >());
+	}
 
 	vector<vector<double> > candidate_RGB(numcands);
 
 	// The candidates are each given colors at hues spaced equally from
-	// each other, and with full saturation and value. If you want 
+	// each other, and with full saturation and value. If you want
 	// IEVS-style sphere packing, feel free to alter (call a class), but
 	// it might be better in LAB color space -- if I could get LAB to work.
 
@@ -318,9 +330,9 @@ vector<vector<double> > yee::get_candidate_colors(int numcands,
 
 		if (debug) {
 			cout << "RGB values for " << cand << ": ";
-			copy(candidate_RGB[cand].begin(), 
-					candidate_RGB[cand].end(),
-					ostream_iterator<double>(cout, "\t"));
+			copy(candidate_RGB[cand].begin(),
+				candidate_RGB[cand].end(),
+				ostream_iterator<double>(cout, "\t"));
 
 			cout << endl;
 		}
@@ -332,10 +344,11 @@ vector<vector<double> > yee::get_candidate_colors(int numcands,
 		HSV[0] += 1 / (double)(numcands+1);
 	}
 
-	return(candidate_RGB);
+	return (candidate_RGB);
 }
 
-std::string yee::get_codename(const election_method & in, int bytes) const {
+std::string yee::get_codename(const election_method & in,
+	int bytes) const {
 
 	if (bytes > 16) {
 		throw std::logic_error("yee::get_codename: "
@@ -375,29 +388,39 @@ yee::yee() {
 };
 
 bool yee::set_params(int min_voters_in, int max_voters_in,
-		int num_cands, bool do_use_autopilot, 
-		double autopilot_factor_in, int autopilot_history_in,
-		bool do_draw_binaries, string case_prefix, int xsize_in,
-		int ysize_in, double sigma_in) {
+	int num_cands, bool do_use_autopilot,
+	double autopilot_factor_in, int autopilot_history_in,
+	bool do_draw_binaries, string case_prefix, int xsize_in,
+	int ysize_in, double sigma_in) {
 
 	// Do some sanity checks. Bail if the user is giving us silly values.
-	if (max_voters_in < min_voters_in || min_voters_in < 1)
-		return(false);
-	if (num_cands < 1)
-		return(false);
+	if (max_voters_in < min_voters_in || min_voters_in < 1) {
+		return (false);
+	}
+	if (num_cands < 1) {
+		return (false);
+	}
 
 	// A value less than 1 means it would try with fewer voters each time,
 	// which makes no sense. Nor does 1 (stagnation) make sense.
-	if (autopilot_factor_in <= 1) return(false);
+	if (autopilot_factor_in <= 1) {
+		return (false);
+	}
 
 	// A value of 1 here would mean that it accepts whatever the early
 	// samples tell it.
 	// Bluesky: Also, if greater than the maximum number of steps until
 	// maxvoters, it makes no sense because that means it'll never fire.
-	if (autopilot_history_in < 2) return(false);
+	if (autopilot_history_in < 2) {
+		return (false);
+	}
 
-	if (xsize_in < 1 || ysize_in < 1) return(false);
-	if (sigma_in <= 0) return(false);
+	if (xsize_in < 1 || ysize_in < 1) {
+		return (false);
+	}
+	if (sigma_in <= 0) {
+		return (false);
+	}
 
 	// Okay, that seems reasonable enough - at least at first glance. Set.
 	min_num_voters = min_voters_in;
@@ -408,7 +431,7 @@ bool yee::set_params(int min_voters_in, int max_voters_in,
 	autopilot_history_len = autopilot_history_in;
 	draw_binaries = do_draw_binaries;
 
-	// ?? Remove things like .. and / or nonprintables. Hm. Nah, the user 
+	// ?? Remove things like .. and / or nonprintables. Hm. Nah, the user
 	// should do that himself if he makes this part of a web service.
 	run_prefix = case_prefix;
 
@@ -416,18 +439,18 @@ bool yee::set_params(int min_voters_in, int max_voters_in,
 	sigma = sigma_in;
 
 	specified_params = true;
-	return(true);
+	return (true);
 }
 
-bool yee::set_params(int num_voters, int num_cands, bool do_use_autopilot, 
-		string case_prefix, int picture_size, double sigma_in) {
+bool yee::set_params(int num_voters, int num_cands, bool do_use_autopilot,
+	string case_prefix, int picture_size, double sigma_in) {
 
 	// These parameters seem to work well: min_voters = min(24,
 	// maxvoters), autopilot_factor 1.3, history length 4 (needs 4 in a
 	// row with same winners before it accepts early), don't draw binaries,
 	// xsize = ysize.
 
-	return(set_params(min(24, num_voters), num_voters, num_cands,
+	return (set_params(min(24, num_voters), num_voters, num_cands,
 				do_use_autopilot, 1.3, 4, false, case_prefix,
 				picture_size, picture_size, sigma_in));
 }
@@ -444,37 +467,41 @@ void yee::set_candidate_pdf(spatial_generator * input_gen) {
 
 bool yee::set_candidate_positions(vector<vector<double> > & positions) {
 
-	if (!specified_params)
-		return(false);
+	if (!specified_params) {
+		return (false);
+	}
 
 	// See if the voter pdf accepts it.
 	voter_pdf->set_params(2, true);
-	bool accepted = voter_pdf->fix_candidate_positions(num_candidates, 
+	bool accepted = voter_pdf->fix_candidate_positions(num_candidates,
 			positions);
 
-	if (!accepted)
-		return(false);
+	if (!accepted) {
+		return (false);
+	}
 
 	inited = false;
 	manual_cand_positions = true;
-	return(true);
+	return (true);
 }
 
 bool yee::randomize_candidate_positions(rng & randomizer) {
 
 	// If the user hasn't specified any parameters, it's impossible to know
 	// how many candidate positions to randomize!
-	if (!specified_params)
-		return(false);
+	if (!specified_params) {
+		return (false);
+	}
 
 	inited = false;
 	voter_pdf->unfix_candidate_positions();
-	if (!candidate_pdf->fix_candidate_positions(num_candidates, randomizer))
-		return(false);
+	if (!candidate_pdf->fix_candidate_positions(num_candidates, randomizer)) {
+		return (false);
+	}
 	// ???: Also do the move-to-voter-pdf thing here?
 
 	manual_cand_positions = false;
-	return(true);
+	return (true);
 }
 
 void yee::add_method(const election_method * to_add) {
@@ -490,19 +517,22 @@ void yee::clear_methods() {
 bool yee::init(rng & randomizer) {
 
 	//  If the user hasn't specified any parameters, no go.
-	if (!specified_params) return(false);
+	if (!specified_params) {
+		return (false);
+	}
 
 	// If there are no voting methods or generators, we have nothing
 	// to work with.
-	if (voter_pdf == NULL || candidate_pdf == NULL || e_methods.empty())
-		return(false);
+	if (voter_pdf == NULL || candidate_pdf == NULL || e_methods.empty()) {
+		return (false);
+	}
 
 	// Alright. Reset the winner arrays, get candidate colors, and
 	// reset cur_round.
 	winners_all_m_all_cand = vector<vector<vector<vector<bool> > > >(
 			e_methods.size(), vector<vector<vector<bool> > >(
 				num_candidates, vector<vector<bool> >(
-					x_size, vector<bool>(y_size, 
+					x_size, vector<bool>(y_size,
 						false))));
 
 	candidate_colors = get_candidate_colors(num_candidates, false);
@@ -521,7 +551,7 @@ bool yee::init(rng & randomizer) {
 	// Port candidate positions over to the voter PDF.
 	voter_pdf->set_params(2, true);
 	if (!voter_pdf->fix_candidate_positions(num_candidates,
-				candidate_pdf->get_fixed_candidate_pos())) {
+			candidate_pdf->get_fixed_candidate_pos())) {
 		throw std::logic_error("Yee diagram: Could not fix "
 			"candidate positions!");
 	}
@@ -533,18 +563,21 @@ bool yee::init(rng & randomizer) {
 	}
 
 	inited = true;
-	return(true);
+	return (true);
 }
 
 // If we've inited, there's one round for each column as well as one round for
 // each method at the end (to plot).
 int yee::get_max_rounds() const {
-	if (!inited) return(0);
+	if (!inited) {
+		return (0);
+	}
 
-	return(x_size + e_methods.size());
+	return (x_size + e_methods.size());
 }
 
-string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
+string yee::do_round(bool give_brief_status, bool reseed,
+	rng & randomizer) {
 
 	if (!inited) {
 		throw std::runtime_error("Yee diagram: Needs to be "
@@ -561,17 +594,17 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 
 		for (int y = 0; y < y_size; ++y) {
 			long long contrib = check_pixel(cur_round, y, x_size, y_size,
-					e_methods, *voter_pdf, 
+					e_methods, *voter_pdf,
 					winners_all_m_all_cand,
 					min_num_voters, max_num_voters,
 					use_autopilot, autopilot_factor,
-					autopilot_history_len, &cmap, 
+					autopilot_history_len, &cmap,
 					randomizer);
 
 			if (contrib == -1) {
-				cerr << "Yee: error at x " << cur_round << 
+				cerr << "Yee: error at x " << cur_round <<
 					", y " << y << endl;
-				return("");
+				return ("");
 			}
 
 			grand_sum += contrib;
@@ -583,8 +616,9 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 		// No, draw the next picture.
 		size_t method_no = cur_round - x_size;
 
-		if (method_no >= e_methods.size())
-			return(""); // All done!
+		if (method_no >= e_methods.size()) {
+			return ("");    // All done!
+		}
 
 		++cur_round;
 
@@ -599,25 +633,27 @@ string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 		vector<vector<double> > candidate_posns = candidate_pdf->
 			get_fixed_candidate_pos();
 
-		if (draw_pictures(run_prefix + "_" + code, 
-					winners_all_m_all_cand[method_no], 
-					candidate_colors, candidate_posns, 
-					draw_binaries, ignore_file_errors, 
-					inner_radius, outer_radius, 
-					color_attenuation_factor))
+		if (draw_pictures(run_prefix + "_" + code,
+				winners_all_m_all_cand[method_no],
+				candidate_colors, candidate_posns,
+				draw_binaries, ignore_file_errors,
+				inner_radius, outer_radius,
+				color_attenuation_factor)) {
 			output += "OK.";
-		else	return(""); // Error. Should really be pair as these are really uninformative.
+		} else	{
+			return ("");    // Error. Should really be pair as these are really uninformative.
+		}
 	}
 
-	return(output);
+	return (output);
 }
 
 vector<string> yee::provide_status() const {
 
-	string out = "Yee: Done " + itos(cur_round) + " of " + itos(x_size + 
-			e_methods.size()) + " rounds, or " + dtos(100.0 * 
+	string out = "Yee: Done " + itos(cur_round) + " of " + itos(x_size +
+			e_methods.size()) + " rounds, or " + dtos(100.0 *
 			cur_round/(x_size + e_methods.size())) + "%";
 
-	return(vector<string>(1, out));
+	return (vector<string>(1, out));
 }
 

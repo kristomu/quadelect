@@ -126,10 +126,12 @@ class backtracker {
 		void set_test_reporting(int group_idx) {
 			record_failures_for_group_idx = group_idx;
 
-			if (group_idx == -1) { return; }
+			if (group_idx == -1) {
+				return;
+			}
 
 			failures_per_test = std::vector<size_t>(
-				tests_and_results[group_idx].group_results.num_tests, 0);
+					tests_and_results[group_idx].group_results.num_tests, 0);
 		}
 
 		void set_algorithms(const std::vector<vector<algo_t> > & algos_in);
@@ -158,7 +160,7 @@ class backtracker {
 			// time gives a progress number of 2.
 			if (progress_at_exit == 0) {
 				progress_at_exit = std::max(1.0,
-					time_limit/secs_elapsed(start_time, get_now()));
+						time_limit/secs_elapsed(start_time, get_now()));
 			}
 
 			return progress_at_exit;
@@ -198,11 +200,13 @@ double backtracker::get_progress() const {
 	for (size_t r_idx = 1; r_idx <= algorithm_used.size(); ++r_idx) {
 		size_t idx = algorithm_used.size() - r_idx;
 
-		if (algorithm_used[idx] == -1) { continue; }
+		if (algorithm_used[idx] == -1) {
+			continue;
+		}
 
 		progress += algorithm_used[idx];
 		progress /= (double)prospective_algorithms[
-			numcands_per_scenario_idx[idx]].size();
+		 numcands_per_scenario_idx[idx]].size();
 	}
 
 	return progress;
@@ -241,12 +245,12 @@ void backtracker::init_algorithms_used() {
 	algorithm_used_idx_for_scenario.clear();
 
 	algorithm_used_idx_for_test = std::vector<std::vector<int> >(
-		tests_and_results.size(), std::vector<int>(NUM_REL_ELECTION_TYPES,
-			0));
+			tests_and_results.size(), std::vector<int>(NUM_REL_ELECTION_TYPES,
+				0));
 
 	max_num_algorithms = std::vector<std::vector<int> >(
-		tests_and_results.size(), std::vector<int>(NUM_REL_ELECTION_TYPES,
-			0));
+			tests_and_results.size(), std::vector<int>(NUM_REL_ELECTION_TYPES,
+				0));
 
 	// Map scenarios to indices and (test_group, current_election) pairs
 	// to the same indices through their scenarios.
@@ -262,8 +266,8 @@ void backtracker::init_algorithms_used() {
 			NUM_REL_ELECTION_TYPES; ++current_election_setting) {
 
 			copeland_scenario current_scenario = tests_and_results[
-				test_group_idx].test_group.get_scenario(
-				(test_election)current_election_setting);
+			test_group_idx].test_group.get_scenario(
+					(test_election)current_election_setting);
 
 			if (algorithm_used_idx_for_scenario.find(current_scenario) ==
 				algorithm_used_idx_for_scenario.end()) {
@@ -277,7 +281,7 @@ void backtracker::init_algorithms_used() {
 			}
 
 			algorithm_used_idx_for_test[test_group_idx]
-				[current_election_setting] =
+			[current_election_setting] =
 				algorithm_used_idx_for_scenario[current_scenario];
 
 			// Set the denominator for the progress indicator.
@@ -299,17 +303,21 @@ void backtracker::try_algorithms(size_t test_group_idx,
 	if (test_group_idx == num_groups) {
 		++iteration_count[test_group_idx];
 
-		if (!show_reports) { return; }
+		if (!show_reports) {
+			return;
+		}
 
 		do_printout = true;
 
 		std::cout << "Reached the end." << std::endl;
 	}
 
-	if (show_reports && test_group_idx >= std::max((size_t)7, greatest_idx_reached) &&
+	if (show_reports
+		&& test_group_idx >= std::max((size_t)7, greatest_idx_reached) &&
 		show_partially_complying_methods) {
 
-		std::cout << "Found another best-so-far at idx " << test_group_idx << std::endl;
+		std::cout << "Found another best-so-far at idx " << test_group_idx <<
+			std::endl;
 		std::cout << "Printing it to get partial method information." << std::endl;
 
 		do_printout = true;
@@ -363,7 +371,7 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		// Go through every possible algorithm. For each, recurse back with
 		// the current position the same so we'll fall through next time.
 
-		for (i = 0; i < prospective_algorithms[numcands].size(); ++i){
+		for (i = 0; i < prospective_algorithms[numcands].size(); ++i) {
 			algorithm_used[current_scenario_idx] = i;
 			try_algorithms(test_group_idx, current_election_setting);
 		}
@@ -437,7 +445,9 @@ void backtracker::try_algorithms(size_t test_group_idx,
 		}
 
 		// Abort early if no pass.
-		if (!pass) { return; }
+		if (!pass) {
+			return;
+		}
 	}
 
 	// Recurse either to the next group or to the next election setting.
@@ -469,7 +479,7 @@ void backtracker::set_tests_and_results(
 			std::vector<int>(NUM_REL_ELECTION_TYPES, -1));
 
 	max_num_algorithms = std::vector<std::vector<int> >(
-		tests_and_results.size(),
+			tests_and_results.size(),
 			std::vector<int>(NUM_REL_ELECTION_TYPES, -1));
 
 	iteration_count =
@@ -509,7 +519,9 @@ class group_score_pair {
 		bool beginning;
 
 		bool operator>(const group_score_pair & other) const {
-			if (score != other.score) { return score < other.score; }
+			if (score != other.score) {
+				return score < other.score;
+			}
 			return group_idx >= other.group_idx;
 		}
 
@@ -643,7 +655,7 @@ std::vector<std::vector<algo_t> > reduce_num_algorithms(
 				num_algorithms_per_candidate) {
 
 			out_this_candidate.push_back(algorithms_one_cand[(int)
-				round(source_index)]);
+					round(source_index)]);
 		}
 
 		out.push_back(out_this_candidate);
@@ -691,7 +703,8 @@ std::vector<std::vector<algo_t> > get_function_sample(double time_limit,
 
 		progress = get_progress(time_limit, tester);
 
-		std::cout << "iter " << iter << ", progress " << progress << " mid " << mid << std::endl;
+		std::cout << "iter " << iter << ", progress " << progress << " mid " << mid
+			<< std::endl;
 
 		// We want progress to be 1. Bisection search finds the root, i.e.
 		// where y = 0, so we subtract to adjust.
@@ -775,7 +788,7 @@ int main(int argc, char ** argv) {
 		std::cerr << "Usage: " << argv[0]
 			<< " [general_rpn_tools config file] "
 			<< std::endl;
-		return(-1);
+		return (-1);
 	}
 
 	// Read configuration file.
@@ -815,7 +828,7 @@ int main(int argc, char ** argv) {
 	for (i = min_numcands; i <= max_numcands; ++i) {
 
 		std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
-			i, cand_equivs.find(i)->second);
+				i, cand_equivs.find(i)->second);
 
 		std::copy(canonical_full.begin(), canonical_full.end(),
 			std::back_inserter(canonical_full_v));
@@ -825,11 +838,11 @@ int main(int argc, char ** argv) {
 	// allocate them here.
 
 	std::vector<std::shared_ptr<relative_criterion_const> >
-		relative_constraints;
+	relative_constraints;
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
 	relative_constraints = relative_criterion_producer().get_criteria(
-		min_numcands, max_numcands, true, settings.desired_criteria);
+			min_numcands, max_numcands, true, settings.desired_criteria);
 
 	// Create all the groups
 	// There seem to be some bugs where the same group is being added
@@ -859,7 +872,7 @@ int main(int argc, char ** argv) {
 	size_t max_num_functions = 0;
 	for (i = min_numcands; i <= max_numcands; ++i) {
 		max_num_functions = std::max(max_num_functions,
-			functions_to_test[i].size());
+				functions_to_test[i].size());
 	}
 
 
@@ -893,7 +906,7 @@ int main(int argc, char ** argv) {
 		std::cout << "Group order not specified. Generating...\n";
 		std::cout << "Step one:" << std::endl;
 		group_order = get_group_order(time_limit, grps, all_results,
-			verifier, true);
+				verifier, true);
 
 		function_sample =
 			get_function_sample(time_limit, verifier, functions_to_test);
@@ -903,7 +916,7 @@ int main(int argc, char ** argv) {
 
 		std::cout << "Step two:" << std::endl;
 		group_order = get_group_order(time_limit, grps, all_results,
-			verifier, true);
+				verifier, true);
 
 		std::cout << "Insert the following into the config file " <<
 			"to skip this step the next time:\n";
@@ -918,29 +931,29 @@ int main(int argc, char ** argv) {
 
 		// TEST! Very quick, very dirty.
 
-/*		size_t group_idx = 0;
-		for (size_t group : group_order) {
-			bool gradient_loss = false;
-			for (size_t tests_to_skip = 0; tests_to_skip <
-				verifier.failures_per_test.size() && !gradient_loss;
-				++tests_to_skip) {
+		/*		size_t group_idx = 0;
+				for (size_t group : group_order) {
+					bool gradient_loss = false;
+					for (size_t tests_to_skip = 0; tests_to_skip <
+						verifier.failures_per_test.size() && !gradient_loss;
+						++tests_to_skip) {
 
-				double most_disc = get_most_discriminating_group(verifier,
-					group_idx, tests_to_skip);
-				all_results[group].swap(most_disc, tests_to_skip);
+						double most_disc = get_most_discriminating_group(verifier,
+							group_idx, tests_to_skip);
+						all_results[group].swap(most_disc, tests_to_skip);
 
-				size_t discgroup = get_most_discriminating_group(verifier,
-					group_idx, tests_to_skip);
-				std::cout << discgroup << " ";
-				if (discgroup != tests_to_skip) {gradient_loss = true; }
-			}
-			std::cout << std::endl;
+						size_t discgroup = get_most_discriminating_group(verifier,
+							group_idx, tests_to_skip);
+						std::cout << discgroup << " ";
+						if (discgroup != tests_to_skip) {gradient_loss = true; }
+					}
+					std::cout << std::endl;
 
-			group_idx++;
-		}
+					group_idx++;
+				}
 
-		std::cout << "\tAfter: " << get_progress(time_limit, verifier)
-			<< std::endl;*/
+				std::cout << "\tAfter: " << get_progress(time_limit, verifier)
+					<< std::endl;*/
 	}
 
 	// Print the order we decided upon.

@@ -1,5 +1,5 @@
 // Median ratings, the median version of Cardinal Ratings (range). We also
-// suport the "gradual relaxation" tiebreak specified in 
+// suport the "gradual relaxation" tiebreak specified in
 // http://wiki.electorama.com/wiki/Median_Ratings.
 
 // Maybe we should move normalization elsewhere. Hm.
@@ -12,25 +12,26 @@
 // the median is included. If 0.1, we include from 0.4 times numvoters to 0.6.
 
 double median_ratings::get_trunc_mean_destructively(
-		vector<pair<double, double> > & array, 
-		double num_voters, bool already_sorted, double distance) const {
+	vector<pair<double, double> > & array,
+	double num_voters, bool already_sorted, double distance) const {
 
 	// This has side effects, namely that we sort. Our strategy, because
 	// we can't use nth element with weighted ballots, is to sort the array
 	// and then go down until our count is >= num_voters/2. If it's exactly
-	// num_voters/2, the weighted mean of this and the next is the median, 
+	// num_voters/2, the weighted mean of this and the next is the median,
 	// otherwise we're at the median.
 
-	if (!already_sorted)
+	if (!already_sorted) {
 		sort(array.begin(), array.end());
+	}
 
 	double wt_count = 0;
 
-	vector<pair<double, double> >::const_iterator lower = array.end(), 
-		upper = array.end();
+	vector<pair<double, double> >::const_iterator lower = array.end(),
+												  upper = array.end();
 
 	for (vector<pair<double, double> >::const_iterator pos = array.begin();
-			pos != array.end() && lower == array.end(); ++pos) {
+		pos != array.end() && lower == array.end(); ++pos) {
 		//cout << pos->first << "\t" << wt_count << " of " << num_voters << " ( linear: count " << pos - array.begin() << " of " << array.end() - array.begin() << ")" << endl;
 		wt_count += pos->second;
 
@@ -45,28 +46,29 @@ double median_ratings::get_trunc_mean_destructively(
 		}
 	}
 
-	cout << "DEBUG: " << lower - array.begin() << " " << upper - array.begin() << " vs " << endl;
+	cout << "DEBUG: " << lower - array.begin() << " " << upper - array.begin()
+		<< " vs " << endl;
 	cout << floor(num_voters * 0.5) << " " << ceil(num_voters * 0.5) << endl;
 
-	assert (lower != array.end()); // shouldn't happen. 
+	assert(lower != array.end());  // shouldn't happen.
 
 	// First calculate the median (or average of bimedians).
 
-	double median = (lower->first * lower->second + 
-		upper->first * upper->second) / (lower->second + upper->second);
+	double median = (lower->first * lower->second +
+			upper->first * upper->second) / (lower->second + upper->second);
 
 	// Add mean of values just above and below (TEST).
 	median += ((lower-1)->first + (upper+1)->first) * 0.00005;
 	//median += ((lower-2)->first + (upper+2)->first) * 0.0005;
 
-	return(median);
+	return (median);
 }
 
 // Like in Cardinal Ratings, this determines each candidate's rating. Ratings
 // for candidates not defined as hopeful will be zero.
 vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
-		papers, int num_candidates, 
-		const vector<bool> & hopefuls) const {
+	papers, int num_candidates,
+	const vector<bool> & hopefuls) const {
 
 	// Because the median isn't summable, we have to store a v<v<double> >
 	// where one dimension is the candidates and the other the voters. We
@@ -77,7 +79,7 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 	// median calc can find the weighted median instead of the unweighted
 	// one. The first double of the pair is the value, the second is the
 	// weight.
-	
+
 	vector<vector<pair<double, double> > > ratings_block(num_candidates);
 
 	ordering::const_iterator sec;
@@ -90,7 +92,7 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 	double global_max = -INFINITY, global_min = INFINITY;
 
 	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
-			papers.end(); ++pos) {
+		papers.end(); ++pos) {
 
 		// Do we need to normalize? If so, find the max and min hopeful
 		// candidate so we have our range.
@@ -98,22 +100,26 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 
 		if (normalize) {
 			for (sec = pos->contents.begin(); sec != pos->contents.
-					end(); ++sec) {
-				if (!hopefuls[sec->get_candidate_num()])
+				end(); ++sec) {
+				if (!hopefuls[sec->get_candidate_num()]) {
 					continue;
+				}
 
-				if (sec->get_score() > local_max)
+				if (sec->get_score() > local_max) {
 					local_max = sec->get_score();
+				}
 
-				if (sec->get_score() < local_min)
+				if (sec->get_score() < local_min) {
 					local_min = sec->get_score();
+				}
 			}
 		}
 
 		for (sec = pos->contents.begin(); sec != pos->contents.end();
-				++sec) {
-			if (!hopefuls[sec->get_candidate_num()])
+			++sec) {
+			if (!hopefuls[sec->get_candidate_num()]) {
 				continue;
+			}
 
 			num_voters[sec->get_candidate_num()] += pos->weight;
 
@@ -126,7 +132,9 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 							sec->get_score(),
 							(double)range_minimum,
 							(double)range_maximum));
-			else	score = sec->get_score();
+			else	{
+				score = sec->get_score();
+			}
 
 			score = min((double)range_maximum, max((double)
 						range_minimum, score));
@@ -135,8 +143,8 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 			global_max = max(global_max, score);
 
 			ratings_block[sec->get_candidate_num()].push_back(
-					pair<double, double>(score, 
-						pos->weight));
+				pair<double, double>(score,
+					pos->weight));
 		}
 
 	}
@@ -148,21 +156,21 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 
 	for (int counter = 0; counter < num_candidates; ++counter)
 		if (hopefuls[counter]) {
-			if (ratings_block[counter].empty())
+			if (ratings_block[counter].empty()) {
 				retval[counter] = global_min;
-			else
+			} else
 				retval[counter] = get_trunc_mean_destructively(
-					ratings_block[counter], 
-					num_voters[counter], false, 0);
+						ratings_block[counter],
+						num_voters[counter], false, 0);
 		}
 
-	return(retval);
+	return (retval);
 }
 
 pair<ordering, bool> median_ratings::elect_inner(
-		const list<ballot_group> & papers, 
-		const vector<bool> & hopefuls, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+	const list<ballot_group> & papers,
+	const vector<bool> & hopefuls, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
 	// Get everybody's score. We don't know who's going to be the winner
 	// ahead of time (*might* be possible through sorted structs but bleh),
@@ -178,25 +186,31 @@ pair<ordering, bool> median_ratings::elect_inner(
 	for (int counter = 0; counter < scores.size(); ++counter)
 		if (hopefuls[counter])
 			medians.first.insert(candscore(counter,
-						scores[counter]));
+					scores[counter]));
 
-	return(medians);
+	return (medians);
 }
 
 string median_ratings::determine_name() const {
 	string base = "Median-" + itos(range_maximum - range_minimum) + "(";
-	if (normalize) { base += "norm";
-		if (tiebreak) base += ", ";
+	if (normalize) {
+		base += "norm";
+		if (tiebreak) {
+			base += ", ";
+		}
 	}
-	if (tiebreak) base += "tiebreak)";
-	else	base += ")";
+	if (tiebreak) {
+		base += "tiebreak)";
+	} else	{
+		base += ")";
+	}
 
-	return(base);
+	return (base);
 }
 
 median_ratings::median_ratings(int min_in, int max_in, bool norm_in,
-		bool tiebreak_in) {
-	assert (min_in < max_in);
+	bool tiebreak_in) {
+	assert(min_in < max_in);
 
 	range_minimum = min_in;
 	range_maximum = max_in;

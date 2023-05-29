@@ -1,6 +1,6 @@
 // Comma - meta-method with which to build methods like Smith,IRV.
 // The meta-method first calculates the outcome of the first method (which is
-// usually a set, like Smith), and then breaks the "ties" - tiers of set 
+// usually a set, like Smith), and then breaks the "ties" - tiers of set
 // membership - according to the second method.
 
 #include "../method.h"
@@ -10,14 +10,14 @@
 #include "comma.h"
 
 pair<ordering, bool> comma::elect_inner(const list<ballot_group> & papers,
-		const vector<bool> & hopefuls, int num_candidates, cache_map *
-		cache, bool winner_only) const {
+	const vector<bool> & hopefuls, int num_candidates, cache_map *
+	cache, bool winner_only) const {
 
 	// First get the orderings for the two base methods. Note the power of
 	// cache: if we've calculated either before, that base method will
 	// reduce to a simple lookup and so be very fast.
-	
-	pair<ordering, bool> set_result = set_method->elect_detailed(papers, 
+
+	pair<ordering, bool> set_result = set_method->elect_detailed(papers,
 			hopefuls, num_candidates, cache, winner_only);
 
 	pair<ordering, bool> spec_result = specific_method->elect_detailed(
@@ -32,14 +32,14 @@ pair<ordering, bool> comma::elect_inner(const list<ballot_group> & papers,
 
 	ordering_tools otools;
 	// TODO: Fix tiebreak and use it instead.
-	toRet.first = otools.ranked_tiebreak(set_result.first, 
+	toRet.first = otools.ranked_tiebreak(set_result.first,
 			spec_result.first, num_candidates);
 
-	return(toRet);
+	return (toRet);
 }
 
 string comma::determine_name() const {
-	return("[" + set_method->name() + "],[" + specific_method->name() 
+	return ("[" + set_method->name() + "],[" + specific_method->name()
 			+ "]");
 }
 

@@ -81,59 +81,59 @@
 // of the set wins, then the method is vulnerable. Assume the exact member is
 // found using backroom dealing or whatnot.
 
-void test_with_bandits(vector<election_method *> & to_test, 
+void test_with_bandits(vector<election_method *> & to_test,
 	rng & randomizer, vector<pure_ballot_generator *> & ballotgens,
 	pure_ballot_generator * strat_generator, bool find_most_susceptible) {
 
 	vector<BinomialBandit> bandits;
 
-    // sts: Tests that count how many times we find a strategy
-    // reverse_sts: Tests that count how many times we fail.
+	// sts: Tests that count how many times we find a strategy
+	// reverse_sts: Tests that count how many times we fail.
 
-    // Since bandits try to maximize the proportion (reward), using sts
-    // will find the methods that resist strategy best, while using
-    // reverse_sts will find those that are most susceptible.
+	// Since bandits try to maximize the proportion (reward), using sts
+	// will find the methods that resist strategy best, while using
+	// reverse_sts will find those that are most susceptible.
 
 	vector<StrategyTest> sts;
-    vector<ReverseTest> reverse_sts;
+	vector<ReverseTest> reverse_sts;
 
 	int numvoters = 5000; // was 37
-    int initial_numcands = 3/*4*/, numcands = initial_numcands;
+	int initial_numcands = 3/*4*/, numcands = initial_numcands;
 
-    size_t i;
+	size_t i;
 
 	for (i = 0; i < to_test.size(); ++i) {
-        sts.push_back(StrategyTest(ballotgens, strat_generator,
-            numvoters, numcands, randomizer, to_test[i], 0));
+		sts.push_back(StrategyTest(ballotgens, strat_generator,
+				numvoters, numcands, randomizer, to_test[i], 0));
 	}
 
-    // Needs to be done this way because inserting stuff into sts can
-    // alter pointers.
-    for (i = 0; i < sts.size(); ++i) {
-        reverse_sts.push_back(ReverseTest(&sts[i]));
-    }
+	// Needs to be done this way because inserting stuff into sts can
+	// alter pointers.
+	for (i = 0; i < sts.size(); ++i) {
+		reverse_sts.push_back(ReverseTest(&sts[i]));
+	}
 
 	for (i = 0; i < to_test.size(); ++i) {
-        if (find_most_susceptible) {
-            bandits.push_back(BinomialBandit(&reverse_sts[i]));
-        } else {
-            bandits.push_back(BinomialBandit(&sts[i]));
-        }
+		if (find_most_susceptible) {
+			bandits.push_back(BinomialBandit(&reverse_sts[i]));
+		} else {
+			bandits.push_back(BinomialBandit(&sts[i]));
+		}
 	}
 
 	Lil_UCB lil_ucb;
-    lil_ucb.load_bandits(bandits);
+	lil_ucb.load_bandits(bandits);
 
 	bool confident = false;
 
 	double num_methods = sts.size();
-    double report_significance = 0.05;
-    // Bonferroni correction
-    double corrected_significance = report_significance/num_methods;
-    //double zv = ppnd7(1-report_significance/num_methods);
+	double report_significance = 0.05;
+	// Bonferroni correction
+	double corrected_significance = report_significance/num_methods;
+	//double zv = ppnd7(1-report_significance/num_methods);
 
-    time_t startpt = time(NULL);
-    confidence_int ci;
+	time_t startpt = time(NULL);
+	confidence_int ci;
 
 	for (int j = 1; j < 1000000 && !confident; ++j) {
 		// Bleh, why is min a macro?
@@ -143,7 +143,7 @@ void test_with_bandits(vector<election_method *> & to_test,
 		//num_tries = min(40000, num_tries);
 		double progress = lil_ucb.pull_bandit_arms(num_tries);
 		if (progress == 1) {
-			std::cout << "Managed in fewer than " << j * num_tries << 
+			std::cout << "Managed in fewer than " << j * num_tries <<
 				" tries." << std::endl;
 			confident = true;
 		} else {
@@ -159,7 +159,7 @@ void test_with_bandits(vector<election_method *> & to_test,
 			startpt = time(NULL);
 			// Warning: No guarantee that this will contain the best until
 			// the method is finished; and no guarantee that it will contain
-			// the best m even when the method is finished for m>1. (We 
+			// the best m even when the method is finished for m>1. (We
 			// should really have it work for m>1 somehow.)
 			size_t k;
 			for (k = 0; k < bandits.size(); ++k) {
@@ -174,11 +174,11 @@ void test_with_bandits(vector<election_method *> & to_test,
 			for (k = 0; k < min(how_many, sts.size()); ++k) {
 				double mean = bandits[so_far[k].second].get_mean();
 
-                int num_pulls = bandits[so_far[k].second].get_num_pulls();
-                int num_successes = bandits[so_far[k].second].get_num_successes();
+				int num_pulls = bandits[so_far[k].second].get_num_pulls();
+				int num_successes = bandits[so_far[k].second].get_num_successes();
 
 				pair<double, double> c_i = ci.bin_prop_interval(
-                    corrected_significance, num_successes, num_pulls);
+						corrected_significance, num_successes, num_pulls);
 				double lower = round((1 - c_i.second) * 1000)/1000.0;
 				double middle = round((1 - mean) * 1000)/1000.0;
 				double upper = round((1 - c_i.first) * 1000)/1000.0;
@@ -189,61 +189,64 @@ void test_with_bandits(vector<election_method *> & to_test,
 
 		}
 	}
-	
+
 	const Bandit * results = lil_ucb.get_best_bandit_so_far();
 
-	cout << "Best so far is " << results->name() << std::endl; //<< " with CB of " << results.second << std::endl;
+	cout << "Best so far is " << results->name() <<
+		std::endl; //<< " with CB of " << results.second << std::endl;
 	cout << "It has a mean of " << results->get_mean() << endl;
 
 }
 
 int main(int argc, const char ** argv) {
-    vector<election_method *> condorcets;
-    vector<election_method *> condorcetsrc;
+	vector<election_method *> condorcets;
+	vector<election_method *> condorcetsrc;
 
-    int counter;
+	int counter;
 
-    //int got_this_far_last_time = 0;
+	//int got_this_far_last_time = 0;
 
-    int radix=9;
+	int radix=9;
 
-    for (int j = 0; j < pow(radix, 6); ++j) {
-    	cond_brute cbp(j, radix);
+	for (int j = 0; j < pow(radix, 6); ++j) {
+		cond_brute cbp(j, radix);
 
-        if (cbp.is_monotone() && cbp.passes_mat() /*&& cbp.reversal_symmetric()*/) {
-            condorcetsrc.push_back(new cond_brute(j, radix));
-            cout << "Adding " << j << endl;
-	   }
-    }
+		if (cbp.is_monotone()
+			&& cbp.passes_mat() /*&& cbp.reversal_symmetric()*/) {
+			condorcetsrc.push_back(new cond_brute(j, radix));
+			cout << "Adding " << j << endl;
+		}
+	}
 
-    condorcet_set xd;
+	condorcet_set xd;
 
-    for (counter = condorcetsrc.size()-1; counter >= 0; --counter) {
-        condorcets.push_back(new comma(condorcetsrc[counter], &xd));
-    }
+	for (counter = condorcetsrc.size()-1; counter >= 0; --counter) {
+		condorcets.push_back(new comma(condorcetsrc[counter], &xd));
+	}
 
-    reverse(condorcets.begin(), condorcets.end());
+	reverse(condorcets.begin(), condorcets.end());
 
-    cout << "There are " << condorcets.size() << " methods." << endl;
+	cout << "There are " << condorcets.size() << " methods." << endl;
 
-    // Generate separate RNGs for each thread.
-    const int numthreads = 16;
-    vector<rng> randomizers;
+	// Generate separate RNGs for each thread.
+	const int numthreads = 16;
+	vector<rng> randomizers;
 	time_t startpt = time(NULL);    // randomize timer
 
-    for (counter = 0; counter < numthreads; ++counter) {
-        randomizers.push_back(rng(startpt + counter));
-    }
+	for (counter = 0; counter < numthreads; ++counter) {
+		randomizers.push_back(rng(startpt + counter));
+	}
 
-    vector<pure_ballot_generator *> ballotgens;
-    int dimensions = 4;
-    ballotgens.push_back(new impartial(true, false));
-    // Something is wrong with this one. Check later.
-    //ballotgens.push_back(new dirichlet(false));
-    ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
+	vector<pure_ballot_generator *> ballotgens;
+	int dimensions = 4;
+	ballotgens.push_back(new impartial(true, false));
+	// Something is wrong with this one. Check later.
+	//ballotgens.push_back(new dirichlet(false));
+	ballotgens.push_back(new gaussian_generator(true, false, dimensions,
+			false));
 
-    test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0],
-    	false);
+	test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0],
+		false);
 
-    return(0);
+	return (0);
 }

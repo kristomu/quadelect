@@ -20,12 +20,15 @@ vector<double> color_conv::HSV_to_RGB(const vector<double> HSV) const {
 
 	h *= 6;
 
-	if (s == 0)
-		return (vector<double>(3, v)); // No color, so it's all value.
+	if (s == 0) {
+		return (vector<double>(3, v));    // No color, so it's all value.
+	}
 
 	i = floor(h);
 	f = h - i;
-	if ( !(i&1) ) f = 1 - f; // if i is even
+	if (!(i&1)) {
+		f = 1 - f;    // if i is even
+	}
 	m = v * (1 - s);
 	n = v * (1 - s * f);
 
@@ -94,19 +97,23 @@ vector<double> color_conv::RGB_to_HSV(const vector<double> RGB) const {
 		HSV[0] = (RGB[1] - RGB[2]) / delta; // between yellow & magenta
 	} else if (RGB[1] == maxval) {
 		HSV[0] = 2 + (RGB[2] - RGB[0]) / delta; // between cyan & yellow
-	} else
-		HSV[0] = 4 + (RGB[0] - RGB[1]) / delta; // between mag. and cyan
+	} else {
+		HSV[0] = 4 + (RGB[0] - RGB[1]) / delta;    // between mag. and cyan
+	}
 
 	HSV[0] /= 6.0; // 0...1
 
-	if (HSV[0] < 0)
+	if (HSV[0] < 0) {
 		++HSV[0];
+	}
 
 	return (HSV);
 }
 
 double color_conv::labgamma(double x, double kappa, double eps) const {
-	if (x > eps) return (pow(x, 1/3.0));
+	if (x > eps) {
+		return (pow(x, 1/3.0));
+	}
 
 	return ((kappa*x + 16)/116.0);
 }
@@ -127,9 +134,11 @@ vector<double> color_conv::XYZ_to_RGB(const vector<double> XYZ) const {
 	// De-linearize. See RGB_to_XYZ.
 
 	for (int lin = 0; lin < 3; ++lin)
-		if (RGB[lin] > 0.0031308)
+		if (RGB[lin] > 0.0031308) {
 			RGB[lin] = 1.055 * pow(RGB[lin], 1/2.4) - 0.055;
-		else	RGB[lin] *= 12.92;
+		} else	{
+			RGB[lin] *= 12.92;
+		}
 
 	return (RGB);
 }
@@ -142,9 +151,11 @@ vector<double> color_conv::RGB_to_XYZ(vector<double> RGB) const {
 	// the sRGB gamma function.
 
 	for (int lin = 0; lin < 3; ++lin) {
-		if (RGB[lin] > 0.04045)
-			RGB[lin] = pow( (RGB[lin] + 0.055 ) / 1.055, 2.4);
-		else	RGB[lin] /= 12.92;
+		if (RGB[lin] > 0.04045) {
+			RGB[lin] = pow((RGB[lin] + 0.055) / 1.055, 2.4);
+		} else	{
+			RGB[lin] /= 12.92;
+		}
 	}
 
 	XYZ[0] =  0.4124564 * RGB[0] + 0.3575761 * RGB[1] + 0.1804375 * RGB[2];
@@ -158,8 +169,8 @@ vector<double> color_conv::XYZ_to_LAB(const vector<double> XYZ) const {
 	// D65 reference white. Perhaps I should use D50 instead.
 
 	double xadj = XYZ[0] / 0.95047,
-	       yadj = XYZ[1],
-	       zadj = XYZ[2] / 1.08883;
+		   yadj = XYZ[1],
+		   zadj = XYZ[2] / 1.08883;
 
 	double kappa = 24389/27.0, eps = 216/24389.0;
 
@@ -197,18 +208,27 @@ vector<double> color_conv::LAB_to_XYZ(const vector<double> LAB) const {
 	cLAB[1] *= 110.0;
 	cLAB[2] *= 110.0;
 
-	double var_Y = ( cLAB[0] + 16 ) / 116;
+	double var_Y = (cLAB[0] + 16) / 116;
 	double var_X = cLAB[1] / 500 + var_Y;
 	double var_Z = var_Y - cLAB[2] / 200;
 
 	double X, Y, Z;
 
-	if ( pow(var_Y, 3) > 0.008856 ) Y = pow(var_Y, 3);
-	else                      Y = ( var_Y - 16 / 116 ) / 7.787;
-	if ( pow(var_X, 3) > 0.008856 ) X = pow(var_X, 3);
-	else                      X = ( var_X - 16 / 116 ) / 7.787;
-	if ( pow(var_Z, 3) > 0.008856 ) Z = pow(var_Z, 3);
-	else                      Z = ( var_Z - 16 / 116 ) / 7.787;
+	if (pow(var_Y, 3) > 0.008856) {
+		Y = pow(var_Y, 3);
+	} else {
+		Y = (var_Y - 16 / 116) / 7.787;
+	}
+	if (pow(var_X, 3) > 0.008856) {
+		X = pow(var_X, 3);
+	} else {
+		X = (var_X - 16 / 116) / 7.787;
+	}
+	if (pow(var_Z, 3) > 0.008856) {
+		Z = pow(var_Z, 3);
+	} else {
+		Z = (var_Z - 16 / 116) / 7.787;
+	}
 
 	vector<double> XYZ(3);
 
@@ -221,9 +241,11 @@ vector<double> color_conv::LAB_to_XYZ(const vector<double> LAB) const {
 }
 
 vector<double> color_conv::convert(const vector<double> & in,
-                                   color_space from, color_space to) const {
+	color_space from, color_space to) const {
 
-	if (from == to) return (in);
+	if (from == to) {
+		return (in);
+	}
 
 	vector<double> translator;
 
@@ -276,12 +298,12 @@ main() {
 
 	vector<double> XYZ = conversion.convert(RGB, CS_RGB, CS_XYZ);
 	cout << "XYZ: ";
-	copy (XYZ.begin(), XYZ.end(), ostream_iterator<double>(cout, " "));
+	copy(XYZ.begin(), XYZ.end(), ostream_iterator<double>(cout, " "));
 	cout << endl;
 
 	vector<double> LAB = conversion.convert(RGB, CS_RGB, CS_LAB);
 	cout << "LAB: ";
-	copy (LAB.begin(), LAB.end(), ostream_iterator<double>(cout, " "));
+	copy(LAB.begin(), LAB.end(), ostream_iterator<double>(cout, " "));
 	cout << endl;
 
 	LAB[0] = 0.6;

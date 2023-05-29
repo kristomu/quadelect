@@ -18,12 +18,12 @@ double nrem::gauss(size_t curcand, size_t num_cands) const {
 
 	double alpha = 0.375;
 
-	return(ppnd16((curcand - alpha)/(num_cands - 2.0*alpha + 1)));
+	return (ppnd16((curcand - alpha)/(num_cands - 2.0*alpha + 1)));
 }
 
 double nrem::pos_weight(size_t position, size_t last_position) const {
 
 	int numcands = last_position + 1;
 
-	return(gauss(numcands - position, numcands)); // I think?
+	return (gauss(numcands - position, numcands)); // I think?
 }

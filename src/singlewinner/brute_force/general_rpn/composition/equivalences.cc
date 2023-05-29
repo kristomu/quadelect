@@ -80,7 +80,7 @@
 // Gives every permutation where candidate cand is relabeled to the first
 // candidate.
 std::vector<std::vector<int> >
-	fixed_cand_equivalences::all_permutations_centered_on(int cand,
+fixed_cand_equivalences::all_permutations_centered_on(int cand,
 	size_t numcands) const {
 
 	// Create the first such permutation
@@ -101,7 +101,7 @@ std::vector<std::vector<int> >
 }
 
 std::map<copeland_scenario, isomorphism>
-	fixed_cand_equivalences::get_noncanonical_scenario_reductions(
+fixed_cand_equivalences::get_noncanonical_scenario_reductions(
 	size_t numcands, bool verbose) const {
 
 	// Note that we go through the scenarios in reverse order. The
@@ -145,7 +145,7 @@ std::map<copeland_scenario, isomorphism>
 
 			// Ensure my transitivity hunch is correct. (Also works as a
 			// bug check.)
-			assert (!has_populated_isomorphism ||
+			assert(!has_populated_isomorphism ||
 				reductions.find(permuted)->second.to_scenario ==
 				cur_reduction.to_scenario);
 
@@ -202,7 +202,7 @@ std::map<copeland_scenario, isomorphism>
 // in the function above.
 
 std::map<copeland_scenario, isomorphism>
-	fixed_cand_equivalences::get_one_candidate_remapping(
+fixed_cand_equivalences::get_one_candidate_remapping(
 	size_t numcands, int current_candidate,
 	const std::map<copeland_scenario, isomorphism> &
 	noncanonical_reductions) const {
@@ -237,7 +237,7 @@ std::map<copeland_scenario, isomorphism>
 				continue;
 			}
 
-			assert (!has_populated_isomorphism ||
+			assert(!has_populated_isomorphism ||
 				noncanonical_reductions.find(permuted)->second.to_scenario ==
 				cur_reduction.to_scenario);
 
@@ -263,7 +263,7 @@ std::map<copeland_scenario, isomorphism>
 }
 
 std::vector<std::map<copeland_scenario, isomorphism> >
-	fixed_cand_equivalences::get_all_candidate_remappings(size_t numcands,
+fixed_cand_equivalences::get_all_candidate_remappings(size_t numcands,
 	const std::map<copeland_scenario, isomorphism> &
 	noncanonical_reductions) const {
 
@@ -274,14 +274,14 @@ std::vector<std::map<copeland_scenario, isomorphism> >
 
 	for (size_t i = 1; i < numcands; ++i) {
 		remappings.push_back(get_one_candidate_remapping(numcands, i,
-			noncanonical_reductions));
+				noncanonical_reductions));
 	}
 
 	return remappings;
 }
 
 std::map<copeland_scenario, std::set<copeland_scenario> >
-	fixed_cand_equivalences::get_scenario_equivalences(const
+fixed_cand_equivalences::get_scenario_equivalences(const
 	std::vector<std::map<copeland_scenario, isomorphism> > &
 	candidate_remappings_in) const {
 
@@ -310,7 +310,7 @@ std::map<int, fixed_cand_equivalences> get_cand_equivalences(
 
 	for (int i = 3; i <= max_numcands; ++i) {
 		other_equivs.insert(std::pair<int, fixed_cand_equivalences>(i,
-			fixed_cand_equivalences(i)));
+				fixed_cand_equivalences(i)));
 	}
 
 	return other_equivs;

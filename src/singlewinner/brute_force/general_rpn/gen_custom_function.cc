@@ -9,7 +9,7 @@ size_t gen_custom_function::get_num_referential_atoms(
 	// Then there are n * (n-1) pairwise values (diagonal removed)
 
 	return (factorial(numcands) + numcands * numcands +
-		numcands * (numcands-1));
+			numcands * (numcands-1));
 }
 
 atom_bundle gen_custom_function::get_atom_bundle(
@@ -26,7 +26,7 @@ atom_bundle gen_custom_function::get_atom_bundle(
 		if (atom_encoding < (algo_t)factorial(numcands)) {
 			out.is_direct_reference = true;
 			out.idx = atom_encoding;
-			return(out);
+			return (out);
 		}
 
 		atom_encoding -= factorial(numcands);
@@ -36,7 +36,7 @@ atom_bundle gen_custom_function::get_atom_bundle(
 			out.is_positional_reference = true;
 			out.place = atom_encoding % numcands;
 			out.cand = atom_encoding / numcands;
-			return(out);
+			return (out);
 		}
 
 		atom_encoding -= numcands * numcands;
@@ -54,18 +54,18 @@ atom_bundle gen_custom_function::get_atom_bundle(
 			if (out.challenger >= out.incumbent) {
 				++out.challenger;
 			}
-			return(out);
+			return (out);
 		}
 
 		// This shouldn't happen; if we get here, there's an error in
 		// get_num_referential_atoms.
-		assert (1 != 1);
+		assert(1 != 1);
 	}
 
 	out.function = (gen_custom_funct_atom)(atom_encoding -
-		num_referential_atoms);
+			num_referential_atoms);
 
-	return(out);
+	return (out);
 }
 
 // Point of CPU use. Allocating the vectors takes time.
@@ -80,7 +80,9 @@ std::vector<atom_bundle> gen_custom_function::decode_algorithm(
 	// because not all places have the same radix, we must then do it
 	// most significant digit first style.
 
-	if (algorithm_encoding == 0) { return (std::vector<atom_bundle>()); }
+	if (algorithm_encoding == 0) {
+		return (std::vector<atom_bundle>());
+	}
 
 	// First count how many digits we have.
 
@@ -112,7 +114,7 @@ std::vector<atom_bundle> gen_custom_function::decode_algorithm(
 		out.push_back(get_atom_bundle(digit, numcands));
 	}
 
-	return(out);
+	return (out);
 }
 
 
@@ -150,17 +152,21 @@ matrix_indices gen_custom_function::get_positional_matrix_indices(
 		}
 		++perm_count;
 	} while (std::next_permutation(ballot_permutation.begin(),
-		ballot_permutation.end()));
+			ballot_permutation.end()));
 
-	return(pos_indices);
+	return (pos_indices);
 }
 
 bool gen_custom_function::does_a_beat_b(int a, int b,
 	const std::vector<int> & ballot_permutation) const {
 
 	for (int v: ballot_permutation) {
-		if (v == a) return(true);
-		if (v == b) return(false);
+		if (v == a) {
+			return (true);
+		}
+		if (v == b) {
+			return (false);
+		}
 	}
 
 	throw std::runtime_error(
@@ -191,7 +197,9 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 	do {
 		for (incumbent = 0; incumbent < numcands; ++incumbent) {
 			for (challenger = 0; challenger < numcands; ++challenger) {
-				if (incumbent == challenger) continue;
+				if (incumbent == challenger) {
+					continue;
+				}
 
 				// This could be reduced to constant time by inverting the
 				// permutation, but eh, can't be bothered.
@@ -204,12 +212,13 @@ matrix_indices gen_custom_function::get_pairwise_matrix_indices(
 		}
 		++perm_count;
 	} while (std::next_permutation(ballot_permutation.begin(),
-		ballot_permutation.end()));
+			ballot_permutation.end()));
 
-	return(pair_indices);
+	return (pair_indices);
 }
 
-double gen_custom_function::linear_combination(const std::vector<int> & indices,
+double gen_custom_function::linear_combination(const std::vector<int> &
+	indices,
 	const std::vector<double> & weights) const {
 
 	double sum = 0;
@@ -218,7 +227,7 @@ double gen_custom_function::linear_combination(const std::vector<int> & indices,
 		sum += weights[idx];
 	}
 
-	return(sum);
+	return (sum);
 }
 
 // XXX: We could make this quicker by offloading the linear combination
@@ -243,17 +252,17 @@ double gen_custom_function::evaluate_ref(const atom_bundle & cur_alias,
 		return input_values[cur_alias.idx];
 	}
 
-		// Is it a positional reference?
+	// Is it a positional reference?
 	if (cur_alias.is_positional_reference) {
 		return linear_combination(positional_matrix_indices
-			[cur_alias.cand][cur_alias.place], input_values);
+				[cur_alias.cand][cur_alias.place], input_values);
 	}
 
 	// Is it a pairwise reference?
 
 	if (cur_alias.is_pairwise_reference) {
 		return linear_combination(pairwise_matrix_indices
-			[cur_alias.incumbent][cur_alias.challenger], input_values);
+				[cur_alias.incumbent][cur_alias.challenger], input_values);
 	}
 
 	throw std::runtime_error("Evaluate_ref: atom is inconsistent!");
@@ -285,20 +294,20 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 
 	// Constants:
 
-	switch(cur_atom) {
+	switch (cur_atom) {
 		case VAL_IN_ALL:
 			return std::accumulate(input_values.begin(),
-				input_values.end(), 0.0);
+					input_values.end(), 0.0);
 
-		case VAL_ZERO: return(0);
-		case VAL_ONE: return(1);
-		case VAL_TWO: return(2);
+		case VAL_ZERO: return (0);
+		case VAL_ONE: return (1);
+		case VAL_TWO: return (2);
 		default: break;
 	}
 
 	// Unary and multi-value functions require at least one value on the stack.
 	if (stack.empty()) {
-		return(std::numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 		//throw runtime_error("stack error");
 	}
 
@@ -315,39 +324,43 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 	// ones first:
 
 	double right_arg = *(stack.rbegin());
-	if (isnan(right_arg)) return(right_arg); // NaNs propagate automatically
+	if (isnan(right_arg)) {
+		return (right_arg);    // NaNs propagate automatically
+	}
 	stack.pop_back();
 
-	switch(cur_atom) {
+	switch (cur_atom) {
 		case UNARY_FUNC_INFRMAP: return (1/(1 + exp(-right_arg)));
-		case UNARY_FUNC_INFRMAPINV: return(log(-right_arg/(right_arg-1)));
-		case UNARY_FUNC_SQUARE: return(right_arg*right_arg);
-		case UNARY_FUNC_SQRT: return(sqrt(right_arg));
+		case UNARY_FUNC_INFRMAPINV: return (log(-right_arg/(right_arg-1)));
+		case UNARY_FUNC_SQUARE: return (right_arg*right_arg);
+		case UNARY_FUNC_SQRT: return (sqrt(right_arg));
 		case UNARY_FUNC_LOG:
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
 					// intend limit towards 0 so that 0 log 0 = 0, e.g
 					return (-1e9);
 				}
-				return(-INFINITY);
+				return (-INFINITY);
 			}
-			return(log(right_arg));
-		case UNARY_FUNC_EXP: return(exp(right_arg));
-		case UNARY_FUNC_NEG: return(-right_arg);
-		case UNARY_FUNC_BLANCMANGE: return(blancmange(blancmange_order,
-			right_arg));
-		case UNARY_FUNC_MINKOWSKIQ: return(minkowski_q(right_arg));
+			return (log(right_arg));
+		case UNARY_FUNC_EXP: return (exp(right_arg));
+		case UNARY_FUNC_NEG: return (-right_arg);
+		case UNARY_FUNC_BLANCMANGE: return (blancmange(blancmange_order,
+						right_arg));
+		case UNARY_FUNC_MINKOWSKIQ: return (minkowski_q(right_arg));
 		default: break;
 	}
 
 	// Binary functions require at least two values on the stack.
 	if (stack.empty()) {
-		return(std::numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 		//throw runtime_error("stack error");
 	}
 
 	double middle_arg = *(stack.rbegin());
-	if (isnan(middle_arg)) return(middle_arg); // NaN propagate automatically
+	if (isnan(middle_arg)) {
+		return (middle_arg);    // NaN propagate automatically
+	}
 	stack.pop_back();
 
 	// See above for why ALL_FUNC_PLUS is here.
@@ -364,34 +377,34 @@ double gen_custom_function::evaluate(std::vector<double> & stack,
 	// "fpA - fpC", as is intuitive, and as dc does it, we need to do
 	// middle_arg - right_arg, not the other way around.
 
-	switch(cur_atom) {
-		case BINARY_FUNC_PLUS: return(middle_arg + right_arg);
-		case BINARY_FUNC_MINUS: return(middle_arg - right_arg);
-		case BINARY_FUNC_MUL: return(middle_arg * right_arg);
+	switch (cur_atom) {
+		case BINARY_FUNC_PLUS: return (middle_arg + right_arg);
+		case BINARY_FUNC_MINUS: return (middle_arg - right_arg);
+		case BINARY_FUNC_MUL: return (middle_arg * right_arg);
 		case BINARY_FUNC_DIVIDE:
 			if (!finite(middle_arg) && finite(right_arg) && right_arg != 0) {
-				return(middle_arg);
+				return (middle_arg);
 			}
 			// lim x->inf 3/x = 0
 			if (finite(middle_arg) && !finite(right_arg)) {
-				return(0);
+				return (0);
 			}
 			// Perhaps we should let x/inf = 0? And inf/x = inf,
 			// except when x = 0, in which case it's undefined.
 			// inf/inf is also similarly undefined.
 			if (!finite(middle_arg) && !finite(right_arg)) {
-				return(std::numeric_limits<double>::quiet_NaN());
+				return (std::numeric_limits<double>::quiet_NaN());
 			}
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
 					return (middle_arg/(right_arg+1e-9));
 				}
 				//return(std::numeric_limits<double>::quiet_NaN());
-				return(INFINITY); // could also be -infty
+				return (INFINITY); // could also be -infty
 			}
-			return(middle_arg/right_arg);
-		case BINARY_FUNC_MAX: return(std::max(middle_arg, right_arg));
-		case BINARY_FUNC_MIN: return(std::min(middle_arg, right_arg));
+			return (middle_arg/right_arg);
+		case BINARY_FUNC_MAX: return (std::max(middle_arg, right_arg));
+		case BINARY_FUNC_MIN: return (std::min(middle_arg, right_arg));
 		default: break;
 	}
 
@@ -407,18 +420,20 @@ double gen_custom_function::evaluate(
 
 	algorithm_stack.clear();
 
-	for(const atom_bundle & atom: algorithm) {
+	for (const atom_bundle & atom: algorithm) {
 		double output = evaluate(algorithm_stack, atom, input_values,
-			numcands);
+				numcands);
 
-		if (isnan(output)) return(output);
+		if (isnan(output)) {
+			return (output);
+		}
 
 		algorithm_stack.push_back(output);
 	}
 
 	// Don't permit more than one value to remain on the stack.
 	if (algorithm_stack.size() != 1) {
-		return(std::numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 	}
 
 	// Otherwise, return the one value.
@@ -447,28 +462,28 @@ std::string gen_custom_function::get_atom_name(
 	// Okay, it's not a reference, so find out what kind of atom it is.
 	assert(!cur_atom.is_reference);
 
-	switch(cur_atom.function) {
+	switch (cur_atom.function) {
 		case VAL_IN_ALL: return "|V|";
 		case VAL_ZERO: return "0";
 		case VAL_ONE: return "1";
 		case VAL_TWO: return "2";
-		case UNARY_FUNC_INFRMAP: return("INFRMAP");
-		case UNARY_FUNC_INFRMAPINV: return("INFRMAP^-1");
-		case UNARY_FUNC_SQUARE: return("SQUARE");
-		case UNARY_FUNC_SQRT: return("SQRT");
-		case UNARY_FUNC_LOG: return("LOG");
-		case UNARY_FUNC_EXP: return("EXP");
-		case UNARY_FUNC_NEG: return("NEG");
-		case UNARY_FUNC_BLANCMANGE: return("BLANCMANGE");
-		case UNARY_FUNC_MINKOWSKIQ: return("MINK?");
-		case BINARY_FUNC_PLUS: return("+");
-		case BINARY_FUNC_MINUS: return("-");
-		case BINARY_FUNC_MUL: return("*");
-		case BINARY_FUNC_DIVIDE: return("/");
-		case BINARY_FUNC_MIN: return("MIN");
-		case BINARY_FUNC_MAX: return("MAX");
-		case ALL_FUNC_PLUS: return("v+");
-		default: return("???");
+		case UNARY_FUNC_INFRMAP: return ("INFRMAP");
+		case UNARY_FUNC_INFRMAPINV: return ("INFRMAP^-1");
+		case UNARY_FUNC_SQUARE: return ("SQUARE");
+		case UNARY_FUNC_SQRT: return ("SQRT");
+		case UNARY_FUNC_LOG: return ("LOG");
+		case UNARY_FUNC_EXP: return ("EXP");
+		case UNARY_FUNC_NEG: return ("NEG");
+		case UNARY_FUNC_BLANCMANGE: return ("BLANCMANGE");
+		case UNARY_FUNC_MINKOWSKIQ: return ("MINK?");
+		case BINARY_FUNC_PLUS: return ("+");
+		case BINARY_FUNC_MINUS: return ("-");
+		case BINARY_FUNC_MUL: return ("*");
+		case BINARY_FUNC_DIVIDE: return ("/");
+		case BINARY_FUNC_MIN: return ("MIN");
+		case BINARY_FUNC_MAX: return ("MAX");
+		case ALL_FUNC_PLUS: return ("v+");
+		default: return ("???");
 	}
 }
 
@@ -507,22 +522,22 @@ bool gen_custom_function::set_algorithm(algo_t algorithm_encoding) {
 	}
 
 	std::vector<atom_bundle> proposed_algorithm = decode_algorithm(
-		algorithm_encoding, number_candidates);
+			algorithm_encoding, number_candidates);
 
 	// Now test this with a standard array (all zeroes) to see if we get a
 	// NaN.
 
 	std::vector<double> fake_input(factorial(number_candidates), 0);
 	double result = evaluate(proposed_algorithm, fake_input,
-		number_candidates);
+			number_candidates);
 
 	if (isnan(result)) {
-		return(false);
+		return (false);
 	}
 
 	current_algorithm = proposed_algorithm;
 	current_algorithm_num = algorithm_encoding;
-	return(true);
+	return (true);
 }
 
 void gen_custom_function::force_set_algorithm(algo_t algorithm_encoding) {
@@ -531,7 +546,7 @@ void gen_custom_function::force_set_algorithm(algo_t algorithm_encoding) {
 	}
 
 	current_algorithm = decode_algorithm(algorithm_encoding,
-		number_candidates);
+			number_candidates);
 	current_algorithm_num = algorithm_encoding;
 }
 
@@ -565,7 +580,8 @@ bool gen_custom_function::test_pairwise_inference() {
 	set_num_candidates(4);
 
 	std::vector<double> input = {1,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,
-		2,0,0,0,0,0};
+							2,0,0,0,0,0
+						};
 
 	atom_bundle a_over_d;
 	a_over_d.is_reference = true;

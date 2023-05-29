@@ -10,36 +10,41 @@ using namespace std;
 
 string gradual_cond_borda::determine_name() const {
 	string base = "Gradual-[" + base_method->name() + "](";
-	switch(completion) {
+	switch (completion) {
 		case GF_NONE: base += "None";
-			      break;
+			break;
 		case GF_LEAST: base += "Least";
-			       break;
+			break;
 		case GF_GREATEST: base += "Greatest";
-				  break;
+			break;
 		case GF_BOTH: base += "Both";
-			      break;
+			break;
 		default: base = "???";
-			 break;
+			break;
 	}
-	if (cardinal) base += ", cardinal";
-	else base += ", ordinal";
+	if (cardinal) {
+		base += ", cardinal";
+	} else {
+		base += ", ordinal";
+	}
 
-	return(base + ")");
+	return (base + ")");
 }
 
 pair<ordering, bool> gradual_cond_borda::elect_inner(const
-		list<ballot_group> & papers, const vector<bool> & hopefuls,
-		int num_candidates, cache_map * cache, bool winner_only) const {
+	list<ballot_group> & papers, const vector<bool> & hopefuls,
+	int num_candidates, cache_map * cache, bool winner_only) const {
 
 	size_t num_hopefuls = 0;
 
 	for (bool x: hopefuls) {
-		if (x) {++num_hopefuls;}
+		if (x) {
+			++num_hopefuls;
+		}
 	}
 
 	cond_borda_matrix gcb(papers, num_candidates, CM_PAIRWISE_OPP,
-			cardinal, completion);
+		cardinal, completion);
 	condmat gcond(papers, num_candidates, CM_PAIRWISE_OPP);
 
 	bool debug = false;
@@ -54,14 +59,20 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 		for (counter = 0; counter < num_candidates; ++counter) {
 			for (sec = 0; sec < num_candidates; ++sec) {
 				double favor = gcb.get_magnitude(counter, sec);
-				if (favor > 0) cout << "+";
-				if (favor == 0) cout << " ";
+				if (favor > 0) {
+					cout << "+";
+				}
+				if (favor == 0) {
+					cout << " ";
+				}
 
 				cout << favor;
 				if (gcb.get_magnitude(counter, sec) >
-						gcb.get_magnitude(sec, counter))
+					gcb.get_magnitude(sec, counter)) {
 					cout << "* ";
-				else cout << "  ";
+				} else {
+					cout << "  ";
+				}
 			}
 			cout << endl;
 		}
@@ -73,9 +84,11 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 			for (sec = 0; sec < num_candidates; ++sec) {
 				cout << gcond.get_magnitude(counter, sec);
 				if (gcond.get_magnitude(counter, sec) > gcond.
-						get_magnitude(sec, counter))
+					get_magnitude(sec, counter)) {
 					cout << "* ";
-				else cout << "  ";
+				} else {
+					cout << "  ";
+				}
 			}
 			cout << endl;
 		}
@@ -86,7 +99,7 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 	// Remember, comma is suspect (no longer).
 	// Also consider early abort, particularly if winner_only is true.
 	ordering base = base_method->pair_elect(gcb, hopefuls, false).first,
-		 current;
+			 current;
 	bool can_advance = true;
 
 	ordering_tools otools;
@@ -97,11 +110,11 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 		base = otools.ranked_tiebreak(base, current, num_candidates);
 	}
 
-	return(pair<ordering, bool>(base, false));
+	return (pair<ordering, bool>(base, false));
 }
 
 gradual_cond_borda::gradual_cond_borda(pairwise_method * base_method_in,
-		bool cardinal_in, completion_type completion_in) {
+	bool cardinal_in, completion_type completion_in) {
 	base_method = base_method_in;
 	completion = completion_in;
 	cardinal = cardinal_in;

@@ -84,11 +84,11 @@
 // Bonferroni, but eh.
 pair<double, double> confidence_interval(int n, double p_mean, double z) {
 
-    double p_mark = (p_mean * n + 0.5 * z * z) / (n + z * z);
+	double p_mark = (p_mean * n + 0.5 * z * z) / (n + z * z);
 
-    double W = sqrt(p_mark * (1 - p_mark) / (n + z * z));
+	double W = sqrt(p_mark * (1 - p_mark) / (n + z * z));
 
-    return (pair<double, double>(p_mark - W, p_mark + W));
+	return (pair<double, double>(p_mark - W, p_mark + W));
 }
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
@@ -105,222 +105,228 @@ pair<double, double> confidence_interval(int n, double p_mean, double z) {
 // found using backroom dealing or whatnot.
 
 void test_strategy(election_method * to_test, rng & randomizer,
-                   int num_methods, pure_ballot_generator * ballot_gen,
-                   int numvoters, int numcands, int num_iterations,
-                   int num_strategy_attempts_per_iter) {
+	int num_methods, pure_ballot_generator * ballot_gen,
+	int numvoters, int numcands, int num_iterations,
+	int num_strategy_attempts_per_iter) {
 
-    // Generate a random ballot set.
-    // First should be true: compress the ballots. Second, that's
-    // whether truncation is permitted.
-    // TODO later: fix last-rank problem with gradual-cond-borda.
-    // Also fix memory-hogging loop of doom in positional if this is set on.
-    //impartial ballot_gen(/*true, true*/true, true);
-    //spatial_generator ballot_gen(true, false, 4, false);
+	// Generate a random ballot set.
+	// First should be true: compress the ballots. Second, that's
+	// whether truncation is permitted.
+	// TODO later: fix last-rank problem with gradual-cond-borda.
+	// Also fix memory-hogging loop of doom in positional if this is set on.
+	//impartial ballot_gen(/*true, true*/true, true);
+	//spatial_generator ballot_gen(true, false, 4, false);
 
-    //int dimensions = 4;
+	//int dimensions = 4;
 
-    //gaussian_generator ballot_gen(true, false, dimensions, false);
-    //spatial_generator spatial(true, false);
-    impartial ic(true, false);
-    //impartial ballot_gen(true, false);
+	//gaussian_generator ballot_gen(true, false, dimensions, false);
+	//spatial_generator spatial(true, false);
+	impartial ic(true, false);
+	//impartial ballot_gen(true, false);
 
-    list<ballot_group> ballots;
+	list<ballot_group> ballots;
 
-    // A bunch of times, generate ballots and clear the cache. Then try
-    // these ballots against numerous Condorcet methods. If we have
-    // cached the Condorcet data, that should be faster than if we haven't,
-    // but one probably needs Valgrind to see the difference.
+	// A bunch of times, generate ballots and clear the cache. Then try
+	// these ballots against numerous Condorcet methods. If we have
+	// cached the Condorcet data, that should be faster than if we haven't,
+	// but one probably needs Valgrind to see the difference.
 
-    int counter;
+	int counter;
 
-    cerr << "Now trying " << to_test->name() << endl;
+	cerr << "Now trying " << to_test->name() << endl;
 
-    cache_map cache;
+	cache_map cache;
 
-    map<int, string> rcl;
-    for (counter = 0; counter < 26; ++counter) {
-        string foo = "A";
-        foo[0] = 'A' + counter;
-        rcl[counter] = foo;
-    }
+	map<int, string> rcl;
+	for (counter = 0; counter < 26; ++counter) {
+		string foo = "A";
+		foo[0] = 'A' + counter;
+		rcl[counter] = foo;
+	}
 
-    // --- //
+	// --- //
 
-    vector<pure_ballot_generator *> ballotgens;
-    ballotgens.push_back(ballot_gen);
-    ///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
-   /* ballotgens.push_back(new dirichlet(true));*/
+	vector<pure_ballot_generator *> ballotgens;
+	ballotgens.push_back(ballot_gen);
+	///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
+	/* ballotgens.push_back(new dirichlet(true));*/
 
 	StrategyTest st(ballotgens, &ic, numvoters, numcands, randomizer,
 		to_test, 0, num_strategy_attempts_per_iter);
 
-    int strategy_worked = 0, strategy_failed = 0;
-    int i;
-    int total_test_attempts = 0;
+	int strategy_worked = 0, strategy_failed = 0;
+	int i;
+	int total_test_attempts = 0;
 
-    for (i = 0; i < num_iterations; ++i) {
-        // Perform_test may do more than one test if there's a tie, so that
-        // such ties do not make the method look artificially susceptible
-        // or resistant to strategy.
+	for (i = 0; i < num_iterations; ++i) {
+		// Perform_test may do more than one test if there's a tie, so that
+		// such ties do not make the method look artificially susceptible
+		// or resistant to strategy.
 
-        // The total number of tests actually performed is retrieved later.
-        if (st.perform_test() == 0) {
-            ++strategy_worked;
-        } else {
-            ++strategy_failed;
-        }
+		// The total number of tests actually performed is retrieved later.
+		if (st.perform_test() == 0) {
+			++strategy_worked;
+		} else {
+			++strategy_failed;
+		}
 
 		if ((i & 63) == 63) {
-            cerr << "." << flush;
-            if ((i & 4095) == 4095)
-                cerr << i/(double)num_iterations << flush;
-        }
-    }
+			cerr << "." << flush;
+			if ((i & 4095) == 4095) {
+				cerr << i/(double)num_iterations << flush;
+			}
+		}
+	}
 
-    total_test_attempts = st.get_total_generation_attempts();
-    int ties = total_test_attempts - num_iterations;
+	total_test_attempts = st.get_total_generation_attempts();
+	int ties = total_test_attempts - num_iterations;
 
-    // Do a simple proportions test
-    double prop = strategy_worked/(double)num_iterations;
+	// Do a simple proportions test
+	double prop = strategy_worked/(double)num_iterations;
 
-    double significance = 0.05;
-    double zv = ppnd7(1-significance/num_methods);
+	double significance = 0.05;
+	double zv = ppnd7(1-significance/num_methods);
 
-    pair<double, double> c_i = confidence_interval(num_iterations, prop, zv);
+	pair<double, double> c_i = confidence_interval(num_iterations, prop, zv);
 
-    double lower_bound = c_i.first;
-    double upper_bound = c_i.second;
+	double lower_bound = c_i.first;
+	double upper_bound = c_i.second;
 
-    lower_bound = round(lower_bound*10000)/10000.0;
-    upper_bound = round(upper_bound*10000)/10000.0;
+	lower_bound = round(lower_bound*10000)/10000.0;
+	upper_bound = round(upper_bound*10000)/10000.0;
 
-    double tiefreq = ties/(double)total_test_attempts;
-    tiefreq = round(tiefreq*1000)/1000.0;
+	double tiefreq = ties/(double)total_test_attempts;
+	tiefreq = round(tiefreq*1000)/1000.0;
 
-    //#pragma omp critical
-    {
-        std::cout << "Worked in " << strategy_worked << " ("<< lower_bound
-            << ", " << upper_bound << ") out of " << num_iterations
-            << " for " << to_test->name() << " ties: "
-            << ties << " (" << tiefreq << ")" << endl;
-        cout << "strat;" << numvoters << ";" << numcands << ";"
-            << ballot_gen->name() << ";" << to_test->name() << ";"
-            << lower_bound << ";" << prop << ";" << upper_bound
-            << ";" << tiefreq << endl;
-    }
+	//#pragma omp critical
+	{
+		std::cout << "Worked in " << strategy_worked << " ("<< lower_bound
+			<< ", " << upper_bound << ") out of " << num_iterations
+			<< " for " << to_test->name() << " ties: "
+			<< ties << " (" << tiefreq << ")" << endl;
+		cout << "strat;" << numvoters << ";" << numcands << ";"
+			<< ballot_gen->name() << ";" << to_test->name() << ";"
+			<< lower_bound << ";" << prop << ";" << upper_bound
+			<< ";" << tiefreq << endl;
+	}
 }
 
 int main(int argc, const char ** argv) {
-    vector<election_method *> condorcets; // Although they aren't.
-    vector<election_method *> condorcetsrc;
+	vector<election_method *> condorcets; // Although they aren't.
+	vector<election_method *> condorcetsrc;
 
-    size_t counter;
+	size_t counter;
 
-    vector<pairwise_ident> types;
-    types.push_back(CM_WV);
+	vector<pairwise_ident> types;
+	types.push_back(CM_WV);
 
-    if (argc < 3) {
-        cerr << "Usage: " << argv[0] << " [num voters]"
-            << " [num candidates]" << endl;
-        return(-1);
-    }
+	if (argc < 3) {
+		cerr << "Usage: " << argv[0] << " [num voters]"
+			<< " [num candidates]" << endl;
+		return (-1);
+	}
 
-    int numvoters = atoi(argv[1]), numcands = atoi(argv[2]);
+	int numvoters = atoi(argv[1]), numcands = atoi(argv[2]);
 
-    //string name = argv[1];
-    //ifstream tests_in(argv[1]);
-    vector<unsigned long long> tests;
+	//string name = argv[1];
+	//ifstream tests_in(argv[1]);
+	vector<unsigned long long> tests;
 
-    /*while (!tests_in.eof()) {
-        unsigned long long tin;
-        tests_in >> tin;
-        if (incounter >= got_this_far_last_time &&
-                incounter % numprocs == thisproc) {
-            condorcetsrc.push_back(new cond_brute(tin));
-        }
-        ++incounter;
-    }*/
+	/*while (!tests_in.eof()) {
+	    unsigned long long tin;
+	    tests_in >> tin;
+	    if (incounter >= got_this_far_last_time &&
+	            incounter % numprocs == thisproc) {
+	        condorcetsrc.push_back(new cond_brute(tin));
+	    }
+	    ++incounter;
+	}*/
 
-    // This is why you shouldn't rely entirely on IC. Antiplurality does
-    // extremely well on IC alone, for some reason. (Maybe something to
-    // keep in mind for bandits...)
-    // condorcets.push_back(new comma(new antiplurality(PT_WHOLE), new smith_set()));
-    // Sinkhorn and Keener all have around 0.85 IC susceptibility.
-    // MMPO fails to impress. 0.78 IC susceptibility
-    //condorcets.push_back(new ext_minmax(CM_PAIRWISE_OPP, false));
-    // Smith,FPP also fails to impress. 0.78 IC susceptibility
-    //condorcets.push_back(new comma(new plurality(PT_WHOLE), new smith_set()));
-    // And alas. With 4 cddts, Smith-IRV does much better than fpA-fpC.
-    /*condorcetsrc.push_back(new fpa_experiment());
-    condorcetsrc.push_back(new minmaxy_experimental());
-    condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
-    condorcetsrc.push_back(new loser_elimination(new antiplurality(PT_WHOLE), false, true));
-    condorcetsrc.push_back(new antiplurality(PT_WHOLE));
-    condorcetsrc.push_back(new schulze(CM_WV));*/
+	// This is why you shouldn't rely entirely on IC. Antiplurality does
+	// extremely well on IC alone, for some reason. (Maybe something to
+	// keep in mind for bandits...)
+	// condorcets.push_back(new comma(new antiplurality(PT_WHOLE), new smith_set()));
+	// Sinkhorn and Keener all have around 0.85 IC susceptibility.
+	// MMPO fails to impress. 0.78 IC susceptibility
+	//condorcets.push_back(new ext_minmax(CM_PAIRWISE_OPP, false));
+	// Smith,FPP also fails to impress. 0.78 IC susceptibility
+	//condorcets.push_back(new comma(new plurality(PT_WHOLE), new smith_set()));
+	// And alas. With 4 cddts, Smith-IRV does much better than fpA-fpC.
+	/*condorcetsrc.push_back(new fpa_experiment());
+	condorcetsrc.push_back(new minmaxy_experimental());
+	condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
+	condorcetsrc.push_back(new loser_elimination(new antiplurality(PT_WHOLE), false, true));
+	condorcetsrc.push_back(new antiplurality(PT_WHOLE));
+	condorcetsrc.push_back(new schulze(CM_WV));*/
 
-    //cout << "Test time!" << endl;
-    //cout << "Thy name is " << name << endl;
+	//cout << "Test time!" << endl;
+	//cout << "Thy name is " << name << endl;
 
-    condorcet_set cond;
-    smith_set smith;
-    schwartz_set schwartz;
-    landau_set landau;
-    copeland cope(CM_WV);
+	condorcet_set cond;
+	smith_set smith;
+	schwartz_set schwartz;
+	landau_set landau;
+	copeland cope(CM_WV);
 
-    condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
-    condorcetsrc.push_back(new fpa_experiment());
+	condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE),
+			false, true));
+	condorcetsrc.push_back(new fpa_experiment());
 
 	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
 		if (numcands < 4) {
 			// faster
-            condorcets.push_back(new slash(condorcetsrc[counter], &cond));
+			condorcets.push_back(new slash(condorcetsrc[counter], &cond));
 			condorcets.push_back(new comma(condorcetsrc[counter], &cond));
 		} else {
 			// more general
-            condorcets.push_back(new slash(condorcetsrc[counter], &smith));
+			condorcets.push_back(new slash(condorcetsrc[counter], &smith));
 			condorcets.push_back(new comma(condorcetsrc[counter], &smith));
-            condorcets.push_back(new slash(condorcetsrc[counter], &schwartz));
-            condorcets.push_back(new comma(condorcetsrc[counter], &schwartz));
+			condorcets.push_back(new slash(condorcetsrc[counter], &schwartz));
+			condorcets.push_back(new comma(condorcetsrc[counter], &schwartz));
 		}
-    }
+	}
 
-    // Landau
-    for (counter = 0; counter < condorcetsrc.size(); ++counter) {
-        condorcets.push_back(new comma(condorcetsrc[counter], &cope));
-        condorcets.push_back(new slash(condorcetsrc[counter], &cope));
-        condorcets.push_back(new comma(condorcetsrc[counter], &landau));
-        condorcets.push_back(new slash(condorcetsrc[counter], &landau));
-    }
+	// Landau
+	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
+		condorcets.push_back(new comma(condorcetsrc[counter], &cope));
+		condorcets.push_back(new slash(condorcetsrc[counter], &cope));
+		condorcets.push_back(new comma(condorcetsrc[counter], &landau));
+		condorcets.push_back(new slash(condorcetsrc[counter], &landau));
+	}
 
-    // For comparison purposes, even though it isn't a Condorcet.
-    condorcets.push_back(new loser_elimination(new plurality(PT_WHOLE), true, true));
-    condorcets.push_back(new schulze(CM_WV));
+	// For comparison purposes, even though it isn't a Condorcet.
+	condorcets.push_back(new loser_elimination(new plurality(PT_WHOLE), true,
+			true));
+	condorcets.push_back(new schulze(CM_WV));
 
-    std::list<election_method *> condorcetsl = get_singlewinner_methods(true, false);
-    condorcets.clear();
-    std::copy(condorcetsl.begin(), condorcetsl.end(), std::back_inserter(condorcets));
-    cout << "There are " << condorcets.size() << " methods." << endl;
+	std::list<election_method *> condorcetsl = get_singlewinner_methods(true,
+			false);
+	condorcets.clear();
+	std::copy(condorcetsl.begin(), condorcetsl.end(),
+		std::back_inserter(condorcets));
+	cout << "There are " << condorcets.size() << " methods." << endl;
 
-    vector<rng> randomizers;
-    randomizers.push_back(rng(0));
+	vector<rng> randomizers;
+	randomizers.push_back(rng(0));
 
-    vector<pure_ballot_generator *> ballotgens;
-    int dimensions = 4;
-    // Something is wrong with this one. Check later.
-    //ballotgens.push_back(new dirichlet(false));
-    ballotgens.push_back(new impartial(true, false));
-    ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
+	vector<pure_ballot_generator *> ballotgens;
+	int dimensions = 4;
+	// Something is wrong with this one. Check later.
+	//ballotgens.push_back(new dirichlet(false));
+	ballotgens.push_back(new impartial(true, false));
+	ballotgens.push_back(new gaussian_generator(true, false, dimensions,
+			false));
 
-    int num_iterations = 5000; //100000;
-    int num_strategy_attempts_per_iter = 3*768; // must have 3 as a factor!
+	int num_iterations = 5000; //100000;
+	int num_strategy_attempts_per_iter = 3*768; // must have 3 as a factor!
 
-    for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
-	cout << "Using ballot domain " << ballotgens[bg]->name() << endl;
-	for (counter = 0; counter < condorcets.size(); counter ++) {
-            	cout << "\t" << counter << ": " << flush;
-		test_strategy(condorcets[counter], randomizers[0],
-			condorcets.size(), ballotgens[bg], numvoters, numcands,
-            num_iterations, num_strategy_attempts_per_iter);
-        }
-    }
+	for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
+		cout << "Using ballot domain " << ballotgens[bg]->name() << endl;
+		for (counter = 0; counter < condorcets.size(); counter ++) {
+			cout << "\t" << counter << ": " << flush;
+			test_strategy(condorcets[counter], randomizers[0],
+				condorcets.size(), ballotgens[bg], numvoters, numcands,
+				num_iterations, num_strategy_attempts_per_iter);
+		}
+	}
 }

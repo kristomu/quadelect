@@ -40,7 +40,7 @@ std::pair<glp_prob *, bool> polytope::create_mixed_program(
 		rowname = "b_" + itos(i);
 
 		glp_set_row_name(mip, i+1, rowname.c_str());
-  		glp_set_row_bnds(mip, i+1, GLP_UP, 0.0, get_b()(i));
+		glp_set_row_bnds(mip, i+1, GLP_UP, 0.0, get_b()(i));
 	}
 
 	// set x
@@ -149,7 +149,7 @@ std::pair<double, Eigen::VectorXd> polytope::mixed_program(
 	std::pair<glp_prob *, bool> program = create_mixed_program(is_binary);
 
 	std::pair<double, Eigen::VectorXd> result = run_mixed_program(program,
-		c, verbose);
+			c, verbose);
 
 	// Free the memory associated with the problem.
 	glp_delete_prob(program.first);
@@ -187,7 +187,7 @@ std::vector<std::pair<double, Eigen::VectorXd> > polytope::linear_program(
 	bool verbose) const {
 
 	return mixed_program(c_objectives, std::vector<bool>(
-		c_objectives[0].rows(), false), verbose);
+				c_objectives[0].rows(), false), verbose);
 }
 
 
@@ -195,7 +195,7 @@ bool polytope::is_inside(const Eigen::VectorXd & x) const {
 	Eigen::VectorXd signed_distance = get_A() * x - get_b();
 
 	for (int i = 0; i < signed_distance.rows(); ++i) {
-		if(signed_distance(i) > 0) {
+		if (signed_distance(i) > 0) {
 			return false;
 		}
 	}

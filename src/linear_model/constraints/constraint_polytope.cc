@@ -59,7 +59,7 @@ void constraint_polytope::add_relation(
 	// vector so we need to take the transpose when we add it into the
 	// matrix afterwards.
 	Eigen::VectorXd this_constraint_in_matrix = Eigen::VectorXd::Zero(
-		num_variables);
+			num_variables);
 
 	double rhs_constant = in.rhs.constant, lhs_constant = in.lhs.constant;
 
@@ -126,8 +126,8 @@ void constraint_polytope::add_relations(const constraint_set & in) {
 // columns as there are variables, we can use their number of columns
 // to get the number of variables. Note that we could also have used F.
 int constraint_polytope::get_num_variables() const {
- 	return C.cols();
- }
+	return C.cols();
+}
 
 int constraint_polytope::get_variable_index(
 	std::string variable_name) const {
@@ -159,10 +159,10 @@ std::vector<int> constraint_polytope::get_all_permutations_indices(
 	std::vector<int> out;
 
 	for (std::vector<int> permutation : constraint_tools::all_permutations(
-		numcands)) {
+			numcands)) {
 
 		out.push_back(get_variable_index(
-			constraint_tools::permutation_to_str(permutation, suffix)));
+				constraint_tools::permutation_to_str(permutation, suffix)));
 	}
 
 	return out;

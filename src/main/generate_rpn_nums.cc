@@ -27,26 +27,27 @@ vector<vector<double> > create_test_vectors(int how_many) {
 }
 
 void get_digits_msb(list<int> & output, unsigned long long number,
-    int radix) {
+	int radix) {
 
-    if (number == 0)
-        return;
+	if (number == 0) {
+		return;
+	}
 
-    output.push_front(number%radix);
-    get_digits_msb(output, number/radix, radix);
+	output.push_front(number%radix);
+	get_digits_msb(output, number/radix, radix);
 }
 
 unsigned long long digits_to_number(const list<int> & input, int radix) {
 
-    unsigned long long num_out = 0;
+	unsigned long long num_out = 0;
 
-    for (list<int>::const_iterator pos = input.begin(); 
-        pos != input.end(); ++pos) {
+	for (list<int>::const_iterator pos = input.begin();
+		pos != input.end(); ++pos) {
 
-        num_out = num_out * radix + *pos;
-    }
+		num_out = num_out * radix + *pos;
+	}
 
-    return(num_out);
+	return (num_out);
 }
 
 // takes the input number as an index into a list of all possible methods
@@ -54,25 +55,25 @@ unsigned long long digits_to_number(const list<int> & input, int radix) {
 // transform it into a bruterpn number that obeys that constraint.
 // (Explain better later)
 unsigned long long transform_rpn_number_only_these(unsigned long long idx,
-    const vector<custom_funct_atom> & permitted) {
+	const vector<custom_funct_atom> & permitted) {
 
-    list<int> digits;
+	list<int> digits;
 
-    get_digits_msb(digits, idx, permitted.size());
+	get_digits_msb(digits, idx, permitted.size());
 
-    for (list<int>::iterator pos = digits.begin(); pos != digits.end();
-        ++pos) {
+	for (list<int>::iterator pos = digits.begin(); pos != digits.end();
+		++pos) {
 
-        *pos = (int)permitted[*pos];
-    }
+		*pos = (int)permitted[*pos];
+	}
 
-    return(digits_to_number(digits, (int)TOTAL_NUM_ATOMS));
+	return (digits_to_number(digits, (int)TOTAL_NUM_ATOMS));
 
 }
 
 
 int main() {
-	vector<double> initvalues={1, 2, 3, 4, 5, 6};
+	vector<double> initvalues= {1, 2, 3, 4, 5, 6};
 	map<vector<double>, unsigned long long> already_seen;
 	map<vector<bool>, unsigned long long> already_seen_ordinal;
 
@@ -80,25 +81,26 @@ int main() {
 	int numtests_ordinal = 128;
 
 	vector<vector<double> > test_vectors = create_test_vectors(numtests);
-	vector<vector<double> > test_vectors_ordinal = 
+	vector<vector<double> > test_vectors_ordinal =
 		create_test_vectors(numtests_ordinal);
 
 	custom_function cf(8469866259);
-    cond_brute_rpn cbp(8469866259);
+	cond_brute_rpn cbp(8469866259);
 
 	unsigned long long funct_id;
 	unsigned long long start_at = 0;
 
-    vector<custom_funct_atom> permitted = {VAL_IN_ABC, VAL_IN_ACB,
-        VAL_IN_BAC, VAL_IN_BCA, VAL_IN_CAB, VAL_IN_CBA, VAL_IN_FPA,
-        VAL_IN_FPB, VAL_IN_FPC, VAL_IN_AbB, VAL_IN_AbC, VAL_IN_BbA, 
-        VAL_IN_BbC, VAL_IN_CbB, VAL_IN_CbA,
-        VAL_IN_ALL, VAL_ZERO, VAL_ONE, VAL_TWO, UNARY_FUNC_NEG,
-        BINARY_FUNC_PLUS, BINARY_FUNC_MINUS, BINARY_FUNC_MAX,
-        BINARY_FUNC_MIN};
+	vector<custom_funct_atom> permitted = {VAL_IN_ABC, VAL_IN_ACB,
+								  VAL_IN_BAC, VAL_IN_BCA, VAL_IN_CAB, VAL_IN_CBA, VAL_IN_FPA,
+								  VAL_IN_FPB, VAL_IN_FPC, VAL_IN_AbB, VAL_IN_AbC, VAL_IN_BbA,
+								  VAL_IN_BbC, VAL_IN_CbB, VAL_IN_CbA,
+								  VAL_IN_ALL, VAL_ZERO, VAL_ONE, VAL_TWO, UNARY_FUNC_NEG,
+								  BINARY_FUNC_PLUS, BINARY_FUNC_MINUS, BINARY_FUNC_MAX,
+								  BINARY_FUNC_MIN
+							  };
 
-    bool use_only_permitted_tokens = false;
-    bool require_monotone = false;
+	bool use_only_permitted_tokens = false;
+	bool require_monotone = false;
 
 	for (unsigned long long i = start_at; i >= 0; ++i) {
 		if ((i & 8388607) == 0)
@@ -108,23 +110,23 @@ int main() {
 		if (use_only_permitted_tokens) {
 			funct_id = transform_rpn_number_only_these(i, permitted);
 		} else {
-        	funct_id = i;
-        }
+			funct_id = i;
+		}
 
 		cf.set_id(funct_id);
-        cbp.set_funct_code(funct_id, false);
+		cbp.set_funct_code(funct_id, false);
 
-        /*cout << "Function " << funct_id << ": ";
-        vector<string> printout = cf.get_atom_printout();
-            copy(printout.begin(), printout.end(),
-                ostream_iterator<string>(cout, " "));*/
+		/*cout << "Function " << funct_id << ": ";
+		vector<string> printout = cf.get_atom_printout();
+		    copy(printout.begin(), printout.end(),
+		        ostream_iterator<string>(cout, " "));*/
 		if (cf.update_suitability(test_vectors, already_seen)) {
 			if (require_monotone && cbp.check_monotonicity(40000) > 0) {
 				//cout << "Not monotone" << endl;
 				continue;
 			}
-			if (!cf.update_ordinal_suitability(test_vectors_ordinal, 
-				already_seen_ordinal)) {
+			if (!cf.update_ordinal_suitability(test_vectors_ordinal,
+					already_seen_ordinal)) {
 				//cout << "(fail ordinal)" << endl;
 				continue;
 			}
@@ -139,5 +141,5 @@ int main() {
 		}
 	}
 
-	return(0);
+	return (0);
 }

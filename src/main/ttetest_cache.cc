@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <iterator> 
-#include <iostream> 
+#include <iterator>
+#include <iostream>
 #include <fstream>
 #include <list>
 #include <set>
@@ -24,7 +24,7 @@
 
 #include "../tests/engine/twotest.h"
 
-// TODO, split these. Do that after improving pairwise and implementing tte, 
+// TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
 #include "../singlewinner/pairwise/simple_methods.h"
 #include "../singlewinner/pairwise/least_rev.h"
@@ -40,9 +40,11 @@ int main() {
 
 	cardinal_ratings cr(0, 10, true);
 	plurality plur(PT_WHOLE);
-	ext_minmax eminmax(CM_MARGINS, false); // Will pass mat. We need Smith. TODO: Move that over, and comma, of course.
+	ext_minmax eminmax(CM_MARGINS,
+		false); // Will pass mat. We need Smith. TODO: Move that over, and comma, of course.
 	ext_minmax eminmin(CM_MARGINS, true);
-	least_rev cor(CM_MARGINS);			// TODO: Absolve it of this, as the type doesn't matter. That requires a criterion compliance thing and then caching will take care of it.
+	least_rev cor(
+		CM_MARGINS);			// TODO: Absolve it of this, as the type doesn't matter. That requires a criterion compliance thing and then caching will take care of it.
 	copeland cpl(CM_MARGINS);
 	rng randomizer(1);
 
@@ -71,7 +73,7 @@ int main() {
 	vector<string> printable = btools.ballots_to_text(btools.compress(
 				ballots), fakecand, true);
 	copy(printable.begin(), printable.end(), ostream_iterator<string>(cout,
-				"\n"));
+			"\n"));
 
 	cache_map cache;
 
@@ -93,7 +95,7 @@ int main() {
 	cout << otools.ordering_to_text(out, fakecand, true) << endl;
 
 	// -------------------- //
-	
+
 	// Look for mono-raise errors on a method we know fails it (IRV).
 	mono_raise mrtest(true, true);
 	mono_add_top mattest(true, true);
@@ -105,13 +107,13 @@ int main() {
 	twotest_engine tte(10, 2, 30, 2, 6);
 	//tte.add_test(&mrtest); // might flake out if in opposite order. Todo, check that.
 	tte.add_test(&mattest);
-	
+
 	// Try to make it maximally cache-useful by having a bunch of sets
 	// and copies of the same methods for all of them. Ideally, then, the
 	// cache should just do a quick lookup for all the derived methods and
 	// so should be much quicker than the non-cache case. If not, something
 	// is wrong.
-	
+
 	vector<election_method *> sets, methods;
 	methods.push_back(&plur);
 	methods.push_back(&cpl);
@@ -120,18 +122,18 @@ int main() {
 	methods.push_back(&cor);
 	methods.push_back(&le_plur);
 
-	sets.push_back (new smith_set);
-	sets.push_back (new landau_set);
-	sets.push_back (new cdtt_set);
-	sets.push_back (new schwartz_set);
+	sets.push_back(new smith_set);
+	sets.push_back(new landau_set);
+	sets.push_back(new cdtt_set);
+	sets.push_back(new schwartz_set);
 
 	tte.set_generator(&ic);
 	for (size_t sec = 0; sec < methods.size(); ++sec) {
 		for (counter = 0; counter < sets.size(); ++counter) {
 
-			if (counter == sets.size())
+			if (counter == sets.size()) {
 				tte.add_method(methods[sec]);
-			else	tte.add_method(new comma(methods[sec],
+			} else	tte.add_method(new comma(methods[sec],
 						sets[counter]));
 		}
 	}
@@ -144,9 +146,9 @@ int main() {
 		//tte.run_tests(2); // <-- internal?
 		// TODO, test that this returns false for IRV/mono-raise only
 		// after the violation has been found.
-		assert (tte.run_tests(20, randomizer));
+		assert(tte.run_tests(20, randomizer));
 	}
 
-	return(0);
+	return (0);
 }
 

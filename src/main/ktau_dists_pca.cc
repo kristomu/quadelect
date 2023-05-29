@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <iterator> 
-#include <iostream> 
+#include <iterator>
+#include <iostream>
 #include <fstream>
 #include <list>
 #include <set>
@@ -33,7 +33,7 @@
 
 #include "../distances/vivaldi_test.h"
 
-// TODO, split these. Do that after improving pairwise and implementing tte, 
+// TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
 #include "../singlewinner/pairwise/method.h"
 #include "../singlewinner/pairwise/simple_methods.h"
@@ -75,33 +75,35 @@ vector<vector<bool> > get_impromptu_cm(const ordering & a, int numcands) {
 		while (++sec != a.end())
 			if (pos->get_score() > sec->get_score())
 				toRet[pos->get_candidate_num()]
-					[sec->get_candidate_num()] = true;
+				[sec->get_candidate_num()] = true;
 	}
 
-	return(toRet);
+	return (toRet);
 }
 
-void ktau(const vector<ordering> & orderings, 
-		vector<vector<double> > & distances, int numcands) {
+void ktau(const vector<ordering> & orderings,
+	vector<vector<double> > & distances, int numcands) {
 
 	// Make CMs
 	int num_methods = orderings.size();
 
-	vector<vector<vector<bool> > > cms (num_methods);
+	vector<vector<vector<bool> > > cms(num_methods);
 
 	int counter, sec;
 
-	for (counter = 0; counter < num_methods; ++counter)
+	for (counter = 0; counter < num_methods; ++counter) {
 		cms[counter] = get_impromptu_cm(orderings[counter], numcands);
+	}
 
 	// Get Kendall tau distances.
 	for (counter = 0; counter < num_methods; ++counter)
 		for (sec = counter+1; sec < num_methods; ++sec) {
 			for (int tri = 0; tri < numcands; ++tri)
 				for (int tet = tri+1; tet < numcands; ++tet)
-					if (cms[counter][tri][tet] != 
-							cms[sec][tri][tet])
+					if (cms[counter][tri][tet] !=
+						cms[sec][tri][tet]) {
 						++distances[counter][sec];
+					}
 
 			distances[sec][counter] = distances[counter][sec];
 		}
@@ -115,7 +117,7 @@ void append_pairwise_list_for_results(const vector<ordering> & orderings,
 	// So pairwise_lists is a huge matrix where the rows correspond to
 	// different methods, and the columns correspond to candidate pairs
 	// for different elections. Then candidate pair (A>B) for election 1
-	// for method 1 is true if the social ordering according to method 1 
+	// for method 1 is true if the social ordering according to method 1
 	// ranked A ahead of B in that election.
 
 	// In the absence of ties, the Euclidean distance between two rows is
@@ -126,12 +128,13 @@ void append_pairwise_list_for_results(const vector<ordering> & orderings,
 
 	size_t num_methods = orderings.size();
 
-	vector<vector<vector<bool> > > cms (num_methods);
+	vector<vector<vector<bool> > > cms(num_methods);
 
 	size_t counter, sec;
 
-	for (counter = 0; counter < num_methods; ++counter)
+	for (counter = 0; counter < num_methods; ++counter) {
 		cms[counter] = get_impromptu_cm(orderings[counter], numcands);
+	}
 
 	for (counter = 0; counter < num_methods; ++counter) {
 		for (sec = 0; sec < cms[counter].size(); ++sec) {
@@ -149,39 +152,41 @@ set<int> get_winners(const ordering & a) {
 
 	set<int> winners_a; // You don't like winners. Winners? Yes, winners.
 
-	for (ordering::const_iterator pos = a.begin(); pos != a.end() && 
-			pos->get_score() == a.begin()->get_score(); ++pos)
+	for (ordering::const_iterator pos = a.begin(); pos != a.end() &&
+		pos->get_score() == a.begin()->get_score(); ++pos) {
 		winners_a.insert(pos->get_candidate_num());
+	}
 
-	return(winners_a);
+	return (winners_a);
 }
 
 void winner_check(const vector<ordering> & orderings,
-		vector<vector<double> > & distances, int numcands) {
+	vector<vector<double> > & distances, int numcands) {
 
 	vector<set<int> > winners;
 	vector<int> symdif, unions;
 	size_t counter, sec;
 
-	for (counter = 0; counter < orderings.size(); ++counter)
+	for (counter = 0; counter < orderings.size(); ++counter) {
 		winners.push_back(get_winners(orderings[counter]));
+	}
 
 	for (counter = 0; counter < orderings.size(); ++counter)
 		for (sec = counter+1; sec < orderings.size(); ++sec) {
 			symdif.clear();
 			unions.clear();
 
-			set_symmetric_difference(winners[counter].begin(), 
-					winners[counter].
-					end(), winners[sec].begin(),
-					winners[sec].end(),
-					back_inserter(symdif));
+			set_symmetric_difference(winners[counter].begin(),
+				winners[counter].
+				end(), winners[sec].begin(),
+				winners[sec].end(),
+				back_inserter(symdif));
 
 			set_union(winners[counter].begin(),
-					winners[counter].end(), 
-					winners[sec].begin(),
-					winners[sec].end(),
-					back_inserter(unions));
+				winners[counter].end(),
+				winners[sec].begin(),
+				winners[sec].end(),
+				back_inserter(unions));
 
 			distances[counter][sec] += symdif.size()/(double)unions.size();
 			distances[sec][counter] = distances[counter][sec];
@@ -191,7 +196,7 @@ void winner_check(const vector<ordering> & orderings,
 int main() {
 
 	// Generate a random ballot set.
-	
+
 	uniform_generator spatial(true, false);
 	impartial ic(true, false);
 
@@ -202,12 +207,12 @@ int main() {
 	rng randomizer(seed);
 
 	list<ballot_group> ballots;
-	
+
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
 	// cached the Condorcet data, that should be faster than if we haven't,
 	// but one probably needs Valgrind to see the difference.
-	
+
 	vector<pairwise_ident> types;
 	types.push_back(CM_WV);
 	//types.push_back(CM_LV);
@@ -234,7 +239,8 @@ int main() {
 	//	Second order Copeland 		with 1 points for win and 0 for tie
 	//	Second order Copeland 		with 2 points for win and 1 for tie
 
-	condorcets.push_back(new copeland(CM_PAIRWISE_OPP));	// WV etc doesn't matter
+	condorcets.push_back(new copeland(
+			CM_PAIRWISE_OPP));	// WV etc doesn't matter
 	condorcets.push_back(new copeland(CM_PAIRWISE_OPP, 2, 2, 1));
 	condorcets.push_back(new copeland(CM_PAIRWISE_OPP, 2, 1, 0));
 
@@ -247,7 +253,7 @@ int main() {
 		condorcets.push_back(new ord_minmax(types[counter]));
 
 		//	Least Reversal
-		/*for (double power = power_min; power < power_max; power += 
+		/*for (double power = power_min; power < power_max; power +=
 				powerstep) {
 			condorcets.push_back(new least_rev(types[counter],
 						true, false, power));
@@ -262,13 +268,13 @@ int main() {
 		condorcets.push_back(new schulze(types[counter]));
 		condorcets.push_back(new ranked_pairs(types[counter], false));
 		condorcets.push_back(new dquick(types[counter]));
-		
+
 
 		// Keener and Sinkhorn (not necessarily Condorcet as such)
-		condorcets.push_back(new keener(types[counter], 0.001, true, 
-					false));
-		condorcets.push_back(new keener(types[counter], 0.001, true, 
-					true));
+		condorcets.push_back(new keener(types[counter], 0.001, true,
+				false));
+		condorcets.push_back(new keener(types[counter], 0.001, true,
+				true));
 		condorcets.push_back(new sinkhorn(types[counter], 0.001, true));
 
 		// ODM and HITS
@@ -291,37 +297,37 @@ int main() {
 	// Gradual Mean-Median Condorcet/Borda.
 	for (counter = 0; counter < ct.size(); ++counter) {
 		condorcets.push_back(new gradual_cond_borda(new smith_set,
-					true, ct[counter]));
-	/*	condorcets.push_back(new gradual_cond_borda(new smith_set,
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new schwartz_set,
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new schwartz_set,
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new sdom_set,
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new sdom_set,
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new landau_set, 
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new landau_set,
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new condorcet_set, 
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new condorcet_set,
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV),
-					true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV),
-					false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
-						2, 2, 1), true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
-						2, 2, 1), false, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
-						2, 1, 0), true, ct[counter]));
-		condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
-						2, 1, 0), false, ct[counter]));*/
+				true, ct[counter]));
+		/*	condorcets.push_back(new gradual_cond_borda(new smith_set,
+						false, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new schwartz_set,
+						true, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new schwartz_set,
+						false, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new sdom_set,
+						true, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new sdom_set,
+						false, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new landau_set,
+						true, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new landau_set,
+						false, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new condorcet_set,
+						true, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new condorcet_set,
+						false, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV),
+						true, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV),
+						false, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
+							2, 2, 1), true, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
+							2, 2, 1), false, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
+							2, 1, 0), true, ct[counter]));
+			condorcets.push_back(new gradual_cond_borda(new copeland(CM_WV,
+							2, 1, 0), false, ct[counter]));*/
 	}
 
 	// Non-Condorcets:
@@ -336,13 +342,13 @@ int main() {
 	condorcets.push_back(new cardinal_ratings(0, 10, true));
 	condorcets.push_back(new cardinal_ratings(0, 10, false));
 	condorcets.push_back(new vi_median_ratings(10, true, true));
-    condorcets.push_back(new vi_median_ratings(10, false, true));
+	condorcets.push_back(new vi_median_ratings(10, false, true));
 	condorcets.push_back(new mode_ratings());
 
 	// Young
 	condorcets.push_back(new young(false, true));
 	condorcets.push_back(new young(true, true));
-	
+
 	// Some positional ones and other fun.
 	vector<election_method *> positionals;
 	positionals.push_back(new plurality(PT_WHOLE));
@@ -368,23 +374,23 @@ int main() {
 
 	// Carey
 	condorcets.push_back(new loser_elimination(
-		new plurality(PT_WHOLE), true, true));
+			new plurality(PT_WHOLE), true, true));
 	// IRV
 	condorcets.push_back(new loser_elimination(
-		new plurality(PT_WHOLE), false, true));
+			new plurality(PT_WHOLE), false, true));
 	// Nanson
 	condorcets.push_back(new loser_elimination(
-		new borda(PT_WHOLE), true, true));
+			new borda(PT_WHOLE), true, true));
 	// Baldwin
 	condorcets.push_back(new loser_elimination(
-		new borda(PT_WHOLE), false, true));
-	
+			new borda(PT_WHOLE), false, true));
+
 	// Smith,Carey
 	condorcets.push_back(new comma(new loser_elimination(
-		new plurality(PT_WHOLE), true, true), &xa));
+				new plurality(PT_WHOLE), true, true), &xa));
 	// Smith,IRV
 	condorcets.push_back(new comma(new loser_elimination(
-		new plurality(PT_WHOLE), false, true), &xa));
+				new plurality(PT_WHOLE), false, true), &xa));
 
 	schwartz_set xb;
 	condorcet_set xd;
@@ -398,7 +404,7 @@ int main() {
 	condorcets.push_back(&xb);
 	condorcets.push_back(&xd);
 	condorcets.push_back(&xf);
-	
+
 	// TODO: Really fix comma. DONE, kinda.
 	size_t num_nonmeta_methods = condorcets.size();
 	for (counter = 0; counter < num_nonmeta_methods; ++counter) {
@@ -415,16 +421,16 @@ int main() {
 
 	for (counter = 0; counter < condorcets.size(); ++counter)
 		method_stats.push_back(stats<float>(br_type,
-					condorcets[counter]->name(), false));
+				condorcets[counter]->name(), false));
 
 	for (counter = 0; counter < condorcets.size(); ++counter) {
 		cout << condorcets[counter]->name() << endl;
 	}
-	
+
 	cout << "There are " << condorcets.size() << " methods." << endl;
 
 	vector<vector<double> > distances(condorcets.size(), vector<double>(
-				condorcets.size(), 0));
+			condorcets.size(), 0));
 
 	// 900 times:
 	//	Generate a bunch of ballots using a generator.
@@ -473,18 +479,21 @@ int main() {
 
 		/*numcands = 6;
 		numvoters = 13;*/
-		cout << counter << ": " << numcands << " cands, " << numvoters << " voters" << endl;
+		cout << counter << ": " << numcands << " cands, " << numvoters << " voters"
+			<< endl;
 
-		if (counter % 2 == 0)
+		if (counter % 2 == 0) {
 			ballots = ic.generate_ballots(numvoters, numcands, randomizer);
-		else	ballots = spatial.generate_ballots(numvoters, numcands, randomizer);
+		} else	{
+			ballots = spatial.generate_ballots(numvoters, numcands, randomizer);
+		}
 
 		cache.clear();
 
 		// Get the utility scores, maximum and minimum.
 		out = utility.elect(ballots, numcands, &cache, false);
 		double maxval = out.begin()->get_score(), minval =
-			out.rbegin()->get_score();
+				out.rbegin()->get_score();
 
 		// Finally, put all the candidate scores in a vector format so
 		// we can easily access the utility of the candidate that won
@@ -497,30 +506,30 @@ int main() {
 		size_t sec;
 
 		for (sec = 0; sec < condorcets.size(); ++sec) {
-			/*cout << "Now testing " << condorcets[sec]->name() 
+			/*cout << "Now testing " << condorcets[sec]->name()
 				<< endl;*/
-			outputs[sec] = condorcets[sec]->elect(ballots, 
+			outputs[sec] = condorcets[sec]->elect(ballots,
 					numcands, &cache, false);
 			out = outputs[sec];
 
 			// Add the utility. Since we're talking about
-                        // regret, the minimum value is actually maxval
-                        // and the maximum value is minval.
-                        double nominator = 0, denominator = 0;
-                        for (opos = out.begin(); opos != out.end() &&
-                                        opos->get_score() ==
-                                        out.begin()->get_score(); ++opos) {
-                                ++denominator;
-                                nominator += utilities[opos->
-                                        get_candidate_num()];
-                        }
+			// regret, the minimum value is actually maxval
+			// and the maximum value is minval.
+			double nominator = 0, denominator = 0;
+			for (opos = out.begin(); opos != out.end() &&
+				opos->get_score() ==
+				out.begin()->get_score(); ++opos) {
+				++denominator;
+				nominator += utilities[opos->
+						get_candidate_num()];
+			}
 
-                        method_stats[sec].add_result(maxval, nominator/
-					denominator, minval);
-                        if (counter % report_freq == 0) {
-                                cout << method_stats[sec].display_stats(true, 0.95) 
+			method_stats[sec].add_result(maxval, nominator/
+				denominator, minval);
+			if (counter % report_freq == 0) {
+				cout << method_stats[sec].display_stats(true, 0.95)
 					<< endl;
-                        }
+			}
 		}
 
 		// Kendall tau or winner check or whatnot here. TODO: let the
@@ -537,5 +546,5 @@ int main() {
 		cout << endl;
 	}
 
-	return(0);
+	return (0);
 }

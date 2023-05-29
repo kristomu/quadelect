@@ -35,7 +35,7 @@ void inc_ballot_vector(const ballot_group & ballot_to_add,
 
 	// Increment the relevant index.
 	permutation_count_vector[factoradic().permutation_number(linear_ordering,
-		numcands, 0)] += ballot_to_add.weight;
+			numcands, 0)] += ballot_to_add.weight;
 }
 
 std::vector<double> get_ballot_vector(const list<ballot_group> & election,
@@ -112,6 +112,6 @@ std::list<ballot_group> permute_election_candidates(
 	const std::vector<int> & candidate_permutation) {
 
 	return relabel_election_candidates(election_in, candidate_permutation,
-		true);
+			true);
 }
 

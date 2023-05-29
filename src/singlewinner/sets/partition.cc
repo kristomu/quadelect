@@ -2,9 +2,10 @@
 
 using namespace std;
 
-pair<ordering, bool> partition_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache,
-		bool winner_only) const {
+pair<ordering, bool> partition_set::pair_elect(const abstract_condmat &
+	input,
+	const vector<bool> & hopefuls, cache_map * cache,
+	bool winner_only) const {
 
 	// Start with a candidate schedule that goes 0..n. This means that
 	// unless we randomize, 0 will be compared to 1, 2 to 3, etc.
@@ -15,12 +16,14 @@ pair<ordering, bool> partition_set::pair_elect(const abstract_condmat & input,
 	size_t counter;
 	// I *really* have to do something about hopefuls, it's way too risky.
 	for (counter = 0; counter < input.get_num_candidates(); ++counter)
-		if (hopefuls[counter])
+		if (hopefuls[counter]) {
 			schedule.push_back(counter);
+		}
 
 	// Randomize if required.
-	if (is_random)
+	if (is_random) {
 		random_shuffle(schedule.begin(), schedule.end());
+	}
 
 	pair<ordering, bool> toRet;
 	// Since it's a partition, it gives the same result whether or not
@@ -31,17 +34,19 @@ pair<ordering, bool> partition_set::pair_elect(const abstract_condmat & input,
 	if (schedule.size() % 2 != 0) {
 		toRet.first.insert(candscore(schedule[0], 1));
 		counter = 1;
-	} else
+	} else {
 		counter = 0;
+	}
 
 	while (counter < schedule.size()) {
-		int prosp_winner = schedule[counter], 
-		    prosp_loser = schedule[counter+1];
+		int prosp_winner = schedule[counter],
+			prosp_loser = schedule[counter+1];
 
 		if (input.get_magnitude(prosp_winner, prosp_loser, hopefuls) <
-				input.get_magnitude(prosp_loser, prosp_winner,
-					hopefuls))
+			input.get_magnitude(prosp_loser, prosp_winner,
+				hopefuls)) {
 			swap(prosp_winner, prosp_loser);
+		}
 
 		toRet.first.insert(candscore(prosp_winner, 1));
 		toRet.first.insert(candscore(prosp_loser, 0));
@@ -49,7 +54,7 @@ pair<ordering, bool> partition_set::pair_elect(const abstract_condmat & input,
 		counter += 2;
 	}
 
-	return(toRet);
+	return (toRet);
 }
 
 void partition_set::set_random(bool be_random) {
@@ -59,8 +64,10 @@ void partition_set::set_random(bool be_random) {
 
 string partition_set::pw_name() const {
 
-	if (is_random)
-		return("Partition/rand");
-	else	return("Partition/set");
+	if (is_random) {
+		return ("Partition/rand");
+	} else	{
+		return ("Partition/set");
+	}
 }
 

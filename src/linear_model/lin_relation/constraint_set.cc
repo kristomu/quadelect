@@ -12,15 +12,15 @@ std::vector<std::string> constraint_set::get_free_variables(
 	std::set<std::string> parameters;
 
 	for (const constraint & c: relevant_constraints) {
-		for (const std::pair<std::string, double> & var : 
-				c.constraint_rel.lhs.weights) {
-			if (fixed_params.find(var.first) == 
+		for (const std::pair<std::string, double> & var :
+			c.constraint_rel.lhs.weights) {
+			if (fixed_params.find(var.first) ==
 				fixed_params.end()) {
 				parameters.insert(var.first);
 			}
 		}
-		for (const std::pair<std::string, double> & var : 
-				c.constraint_rel.rhs.weights) {
+		for (const std::pair<std::string, double> & var :
+			c.constraint_rel.rhs.weights) {
 			if (fixed_params.find(var.first) ==
 				fixed_params.end()) {
 				parameters.insert(var.first);
@@ -30,7 +30,7 @@ std::vector<std::string> constraint_set::get_free_variables(
 
 	std::vector<std::string> out;
 	std::copy(parameters.begin(), parameters.end(), std::back_inserter(
-		out));
+			out));
 
 	return out;
 }
@@ -43,7 +43,7 @@ void constraint_set::print_gmpl_program() {
 
 void constraint_set::print_free_variables_gmpl() const {
 	std::vector<std::string> free_vars = get_free_variables(
-		constraints, fixed_parameters);
+			constraints, fixed_parameters);
 
 	for (std::string var: free_vars) {
 		std::cout << "var " << var << ";\n";
@@ -56,7 +56,7 @@ void constraint_set::print_fixed_parameters_gmpl() const {
 		std::cout << "param " << fixed.first << " := " << fixed.second
 			<< ";\n";
 	}
-}		
+}
 
 void constraint_set::add(const constraint_set & other) {
 	// First add the constraints themselves.

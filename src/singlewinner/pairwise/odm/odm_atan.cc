@@ -6,16 +6,18 @@
 using namespace std;
 
 double odm_atan::nltrans(double pairwise_value,
-		double opposing_strength) const {
+	double opposing_strength) const {
 	return (pairwise_value * atan(opposing_strength));
 }
 
 double odm_atan::get_score(double offense, double defense) const {
-	if (offense == 0 && defense == 0) { return 0; } // hack
+	if (offense == 0 && defense == 0) {
+		return 0;    // hack
+	}
 
 	return (offense / defense);
 }
 
 string odm_atan::odm_name() const {
-	return("ODM-arctan");
+	return ("ODM-arctan");
 }

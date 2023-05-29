@@ -7,9 +7,10 @@
 // This determines each candidate's rating. Ratings for candidates that are not
 // defined as hopeful will be zero. [TODO: Something about this when all scores
 // are negative.]
-vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group> &
-		papers, int num_candidates, 
-		const vector<bool> & hopefuls) const {
+vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group>
+	&
+	papers, int num_candidates,
+	const vector<bool> & hopefuls) const {
 
 	vector<double> ratings(num_candidates, 0);
 
@@ -18,7 +19,7 @@ vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group> &
 	double score;
 
 	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
-			papers.end(); ++pos) {
+		papers.end(); ++pos) {
 		// Assert that we're dealing with a rated ballot. Maybe using
 		// a throw would be better, but I don't know those.
 		//assert(pos->rated);
@@ -34,9 +35,10 @@ vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group> &
 
 		if (normalize) {
 			for (sec = pos->contents.begin(); sec != pos->contents.
-					end(); ++sec) {
-				if (!hopefuls[sec->get_candidate_num()])
+				end(); ++sec) {
+				if (!hopefuls[sec->get_candidate_num()]) {
 					continue;
+				}
 
 				if (sec->get_score() > local_max || !set_max) {
 					local_max = sec->get_score();
@@ -50,62 +52,67 @@ vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group> &
 			}
 
 		}
-		
+
 		for (sec = pos->contents.begin(); sec != pos->contents.end();
-				++sec) {
-			if (!hopefuls[sec->get_candidate_num()])
+			++sec) {
+			if (!hopefuls[sec->get_candidate_num()]) {
 				continue;
+			}
 
 			// If local_min == local_max, then that means the voter
-			// equal-ranks everything, and so we should take his 
-			// rating at face value. Therefore, we don't actually 
+			// equal-ranks everything, and so we should take his
+			// rating at face value. Therefore, we don't actually
 			// normalize unless there's a range to normalize.
 			if (normalize && local_min != local_max)
-				score = round(renorm(local_min, local_max, 
-							sec->get_score(), 
-							(double)minimum, 
+				score = round(renorm(local_min, local_max,
+							sec->get_score(),
+							(double)minimum,
 							(double)maximum));
-			else	score = sec->get_score();
+			else	{
+				score = sec->get_score();
+			}
 
 			score = min((double)maximum, max((double)minimum,
 						score));
 
-			ratings[sec->get_candidate_num()] += pos->weight * 
+			ratings[sec->get_candidate_num()] += pos->weight *
 				score;
 		}
 	}
 
-	return(ratings);
+	return (ratings);
 }
 
 pair<ordering, bool> cardinal_ratings::elect_inner(
-		const list<ballot_group> & papers, 
-		const vector<bool> & hopefuls, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+	const list<ballot_group> & papers,
+	const vector<bool> & hopefuls, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
 	// No matter whether it's winner-only or not, return the full ranking
 	// (as we take only a very minor hit for doing so).
-	
+
 	vector<double> rating_totals = aggregate_ratings(papers, num_candidates,
 			hopefuls);
 
 	// Now all we have to do is turn that into an ordering.
 	pair<ordering, bool> toRet;
 	toRet.second = false; // whole rank, not winner
-	
+
 	for (size_t counter = 0; counter < rating_totals.size(); ++counter)
 		if (hopefuls[counter])
-			toRet.first.insert(candscore(counter, 
-						rating_totals[counter]));
+			toRet.first.insert(candscore(counter,
+					rating_totals[counter]));
 
-	return(toRet);
+	return (toRet);
 }
 
 string cardinal_ratings::determine_name() const {
 	string base = "Cardinal-" + dtos(maximum-minimum);
-	if (normalize) base += "(norm)";
+	if (normalize) {
+		base += "(norm)";
+	}
 
-	return(base);
+	return (base);
 }
 
 cardinal_ratings::cardinal_ratings(int min_in, int max_in, bool norm_in) {

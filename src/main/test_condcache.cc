@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <iterator> 
-#include <iostream> 
+#include <iterator>
+#include <iostream>
 #include <fstream>
 #include <list>
 #include <set>
@@ -19,7 +19,7 @@
 
 #include "../tests/tests/monotonicity/mono_raise.h"
 
-// TODO, split these. Do that after improving pairwise and implementing tte, 
+// TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
 #include "../singlewinner/pairwise/simple_methods.h"
 #include "../singlewinner/pairwise/least_rev.h"
@@ -37,14 +37,14 @@ int main() {
 
 	int seed = 999;
 	rng randomizer(seed);
-	
+
 	list<ballot_group> ballots;
-	
+
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
 	// cached the Condorcet data, that should be faster than if we haven't,
 	// but one probably needs Valgrind to see the difference.
-	
+
 	vector<pairwise_type> types;
 	types.push_back(CM_WV);
 	types.push_back(CM_LV);
@@ -67,10 +67,10 @@ int main() {
 		condorcets.push_back(new ext_minmax(types[counter], true));
 		//condorcets.push_back(new minmax(types[counter]));
 		condorcets.push_back(new maxmin(types[counter]));
-		condorcets.push_back(new least_rev(types[counter], true, 
-					false, 1));
+		condorcets.push_back(new least_rev(types[counter], true,
+				false, 1));
 		condorcets.push_back(new least_rev(types[counter], false,
-					true, 1));
+				true, 1));
 		condorcets.push_back(new copeland(types[counter]));
 		condorcets.push_back(new copeland(types[counter], 2, 2, 1));
 		condorcets.push_back(new copeland(types[counter], 2, 1, 0));
@@ -92,10 +92,11 @@ int main() {
 			out = condorcets[sec]->elect(ballots, 4, &cache, false);
 		}
 	}
-	
-	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p)
+
+	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p) {
 		cout << (char)('A' + p->get_candidate_num()) << "\t";
+	}
 	cout << endl;
 
-	return(0);
+	return (0);
 }

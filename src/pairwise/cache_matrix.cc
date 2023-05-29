@@ -4,7 +4,7 @@
 #include "matrix.h"
 #include <stdexcept>
 
-// This is a "cache Condorcet matrix". It appears like any other Condorcet 
+// This is a "cache Condorcet matrix". It appears like any other Condorcet
 // matrix, using any kind of pairwise type, but internally links to a cached
 // pairwise opposition type matrix.
 
@@ -22,44 +22,49 @@ class cache_condmat : public abstract_condmat {
 	public:
 
 		bool set_parameters(const abstract_condmat * reference_in,
-				pairwise_type in);
+			pairwise_type in);
 
 		bool is_loaded() const;
 		double get_num_candidates() const;
 		double get_num_voters() const;
 
 		cache_condmat(const condmat * reference_in,
-				pairwise_type kind);
+			pairwise_type kind);
 		cache_condmat(pairwise_type kind);
 };
 
-double cache_condmat::get_internal(size_t candidate, size_t against, bool raw) const {
-	if (!is_loaded()) return(0);
+double cache_condmat::get_internal(size_t candidate, size_t against,
+	bool raw) const {
+	if (!is_loaded()) {
+		return (0);
+	}
 
-	if (raw)
-		return(reference->get_magnitude(candidate, against));
-	else	return(type.transform(reference->get_magnitude(candidate, 
-					against),
-				reference->get_magnitude(against, candidate),
-				reference->get_num_voters()));
+	if (raw) {
+		return (reference->get_magnitude(candidate, against));
+	} else	return (type.transform(reference->get_magnitude(candidate,
+						against),
+					reference->get_magnitude(against, candidate),
+					reference->get_num_voters()));
 }
 
 // This won't work since the reference is a const. Therefore, we just give up
 // early so the problem will be easily visible.
-bool cache_condmat::set_internal(size_t /*candidate*/, size_t /*against*/, double /*value*/) {
+bool cache_condmat::set_internal(size_t /*candidate*/, size_t /*against*/,
+	double /*value*/) {
 	throw std::domain_error("beatpath: can't directly manipulate"
-				" read-only cache references!");
+		" read-only cache references!");
 }
 
 bool cache_condmat::set_parameters(const abstract_condmat * reference_in,
-		pairwise_type in) {
+	pairwise_type in) {
 	type = in;
-	if (reference_in == NULL || reference_in->get_type().get() != 
-			CM_PAIRWISE_OPP)
-		return(false);
+	if (reference_in == NULL || reference_in->get_type().get() !=
+		CM_PAIRWISE_OPP) {
+		return (false);
+	}
 
 	reference = reference_in;
-	return(true);
+	return (true);
 }
 
 // Returns whether the cache_condmat is linked to anything.
@@ -68,23 +73,23 @@ bool cache_condmat::is_loaded() const {
 }
 
 double cache_condmat::get_num_candidates() const {
-	return(reference->get_num_candidates());
+	return (reference->get_num_candidates());
 }
 
-// We can't simply cache this locally, since the underlying matrix may change 
+// We can't simply cache this locally, since the underlying matrix may change
 // at any time without us knowing.
 double cache_condmat::get_num_voters() const {
-	return(reference->get_num_voters());
+	return (reference->get_num_voters());
 }
 
 cache_condmat::cache_condmat(const condmat * reference_in,
-		pairwise_type kind) : abstract_condmat(kind) {
+	pairwise_type kind) : abstract_condmat(kind) {
 
 	// Caching a matrix that isn't pairwise opposition shouldn't
 	// happen. Doing so is a coding error, and so should be asserted.
 
-	assert (reference_in != NULL && 
-			reference_in->get_type().get() == CM_PAIRWISE_OPP);
+	assert(reference_in != NULL &&
+		reference_in->get_type().get() == CM_PAIRWISE_OPP);
 	reference = reference_in;
 }
 

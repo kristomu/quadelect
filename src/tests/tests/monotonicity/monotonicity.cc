@@ -9,28 +9,30 @@
 // Abstract class for monotonicity type criteria. The only virtual and complex
 // alterable function is the one that modifies a given ballot.
 
-ordering::const_iterator monotonicity::find_cand(const ordering & to_search,
-		size_t candnum) const {
+ordering::const_iterator monotonicity::find_cand(const ordering &
+	to_search,
+	size_t candnum) const {
 	ordering::const_iterator place_cand;
 
-	for (place_cand = to_search.begin(); place_cand != to_search.end() 
-			&& place_cand->get_candidate_num() != candnum;
-			++place_cand);
+	for (place_cand = to_search.begin(); place_cand != to_search.end()
+		&& place_cand->get_candidate_num() != candnum;
+		++place_cand);
 
-	return(place_cand);
+	return (place_cand);
 }
 
 vector<size_t> monotonicity::generate_aux_data(
 	const list<ballot_group> & input, size_t numcands) const {
 
-	assert (!input.empty());
+	assert(!input.empty());
 
 	// Yuck - linear time.
 	size_t num_ballots = input.size();
 	size_t orders_to_modify = 0;
 	// TODO: Use RNG
-	if (num_ballots > 1)
+	if (num_ballots > 1) {
 		orders_to_modify = 1 + random() % (num_ballots-1);
+	}
 
 	vector<bool> to_alter(num_ballots, false);
 
@@ -49,22 +51,24 @@ vector<size_t> monotonicity::generate_aux_data(
 
 	output[0] = random() % numcands;
 
-	if (allows_lowering())
+	if (allows_lowering()) {
 		output[1] = random() % 2;
-	else	output[1] = 1; // always raise
+	} else	{
+		output[1] = 1;    // always raise
+	}
 
 	*(output.rbegin()) = random(); // seed
 
-	return(output);
+	return (output);
 }
 
 // number_to_add < 0 means "find out on your own". It's ugly and
 // it doesn't really belong here but eh...
 
 pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
-		const list<ballot_group> & input,
-		size_t numcands, size_t number_to_add,
-		const vector<size_t> & data) const {
+	const list<ballot_group> & input,
+	size_t numcands, size_t number_to_add,
+	const vector<size_t> & data) const {
 
 	size_t seed = *(data.rbegin());
 
@@ -79,7 +83,7 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 	double total_weight = 0;
 
 	for (list<ballot_group>::const_iterator pos = input.begin(); pos !=
-			input.end(); ++pos) {
+		input.end(); ++pos) {
 		total_weight += pos->weight;
 
 		++counter;
@@ -92,10 +96,11 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 			// NOTE: since the ballots are random, we can choose
 			// to only modify the first p (for some p)! That will
 			// be much quicker! Do that.
-			if (counter > (int)data[ballot_idx + 2] && !output.first)
-				return(output);
+			if (counter > (int)data[ballot_idx + 2] && !output.first) {
+				return (output);
+			}
 			output.second.push_back(*pos);
-		       	continue;
+			continue;
 		}
 
 		// Okay, this one should be changed.
@@ -103,10 +108,10 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 		ordering order_in, order_out;
 		bool raise = (data[1] == 1);
 
-		if (raise) // raise
+		if (raise) { // raise
 			order_in = otools.scrub_scores(pos->contents);
-		else	order_in = otools.scrub_scores(otools.reverse(
-					pos->contents));
+		} else	order_in = otools.scrub_scores(otools.reverse(
+						pos->contents));
 
 		// Determine share of voters that should go to the modified
 		// part in order to handle compressed ballots. This should
@@ -118,7 +123,7 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 			modified += round(drand48() * (pos->weight - 1));
 		}
 
-		bool altered = alter_ballot(order_in, order_out, numcands, 
+		bool altered = alter_ballot(order_in, order_out, numcands,
 				data, randomizer);
 
 		// Reverse back if we did reverse it to collapse lower to
@@ -129,18 +134,19 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 						reverse(order_out));
 
 			output.second.push_back(ballot_group(modified,
-						order_out, pos->complete,
-						false));
+					order_out, pos->complete,
+					false));
 			if (modified < pos->weight)
 				output.second.push_back(ballot_group(
-							pos->weight - modified,
-							pos->contents, 
-							pos->complete,
-							false));
+						pos->weight - modified,
+						pos->contents,
+						pos->complete,
+						false));
 
 			output.first = true;
-		} else 
+		} else {
 			output.second.push_back(*pos);
+		}
 	}
 
 	// Add ballots if it's mono-add-top etc. Or the output.first with the
@@ -149,9 +155,12 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 	if (number_to_add <= 0) {
 		// HACK HACK. TODO, FIX.
 		int fraction = total_weight;
-		while (total_weight/(double)fraction < 1)
+		while (total_weight/(double)fraction < 1) {
 			fraction = round(total_weight * randomizer.drand());
-		if (fraction == 0) ++fraction;
+		}
+		if (fraction == 0) {
+			++fraction;
+		}
 		number_to_add = fraction;
 	}
 
@@ -160,31 +169,35 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 	for (size_t counter = 0; counter < number_to_add; ++counter)
 		output.first |= add_ballots(data, randomizer, output.second,
 				1, numcands);
-	
-	return(output);
+
+	return (output);
 }
 
 pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
-		const list<ballot_group> & input,
-		size_t numcands, const vector<size_t> & data) const {
+	const list<ballot_group> & input,
+	size_t numcands, const vector<size_t> & data) const {
 
 	return rearrange_ballots(input, numcands, -1, data);
 }
 
 bool monotonicity::applicable(const ordering & check,
-		const vector<size_t> & data, bool orig) const {
+	const vector<size_t> & data, bool orig) const {
 
 	ordering::const_iterator pos;
 
 	if (!permit_ties) {
-               // If there's any tie at all, no cookie for you!
-                double delta = check.begin()->get_score();
-                for (pos = check.begin(); pos != check.end(); ++pos) {
-                        if (pos == check.begin()) continue;
-                        if (pos->get_score() == delta) return(false);
-                        delta = pos->get_score();
-                }
-        }
+		// If there's any tie at all, no cookie for you!
+		double delta = check.begin()->get_score();
+		for (pos = check.begin(); pos != check.end(); ++pos) {
+			if (pos == check.begin()) {
+				continue;
+			}
+			if (pos->get_score() == delta) {
+				return (false);
+			}
+			delta = pos->get_score();
+		}
+	}
 
 	// If this is the original ballot, we're raising, and only considering
 	// the winner, then check if the designated candidate is at top. If not,
@@ -195,18 +208,21 @@ bool monotonicity::applicable(const ordering & check,
 		bool found = false;
 
 		for (pos = check.begin(); pos != check.end() && pos->get_score()
-				== check.begin()->get_score() && !found; ++pos)
-			if (pos->get_candidate_num() == cand)
+			== check.begin()->get_score() && !found; ++pos)
+			if (pos->get_candidate_num() == cand) {
 				found = true;
+			}
 
-		if (!found) return(false);
+		if (!found) {
+			return (false);
+		}
 	}
 
-	return(true);
+	return (true);
 }
 
 bool monotonicity::pass_internal(const ordering & original, const ordering &
-		modified, const vector<size_t> & data, size_t numcands) const {
+	modified, const vector<size_t> & data, size_t numcands) const {
 
 	// Get the candidate we have raised/lowered.
 	size_t cand = data[0];
@@ -215,12 +231,12 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 	// Get the scores, normalized so ratings don't affect anything.
 	// (Unnormalized could be interesting, too, for those methods that
 	//  provide ratings!)
-	
+
 	ordering scrub_orig, scrub_mod;
-	
+
 	scrub_orig = otools.scrub_scores_by_cand(original);
 	scrub_mod = otools.scrub_scores_by_cand(modified);
-		
+
 	ordering::const_iterator a_place_cand, b_place_cand;
 
 	// Find the position.
@@ -228,13 +244,14 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 	b_place_cand = find_cand(scrub_mod, cand);
 
 	// This shouldn't happen, but if it does, return true (can't judge)
-	if (a_place_cand == scrub_orig.end() || b_place_cand == scrub_mod.end())
+	if (a_place_cand == scrub_orig.end() || b_place_cand == scrub_mod.end()) {
 		assert(1 != 1);
+	}
 	//	return(true);
 
 	// If we're only interested in the winner, check whether the candidate
 	// in question is in the winner set of each.
-	bool a_winner = a_place_cand->get_score() == 
+	bool a_winner = a_place_cand->get_score() ==
 		scrub_orig.begin()->get_score();
 
 	bool b_winner = b_place_cand->get_score() ==
@@ -256,23 +273,27 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 	//	return(true);
 
 	bool winner_passes;
-	if (raise)
-		winner_passes = !a_winner ||  b_winner; 
-	else	winner_passes =  a_winner || !b_winner;
+	if (raise) {
+		winner_passes = !a_winner ||  b_winner;
+	} else	{
+		winner_passes =  a_winner || !b_winner;
+	}
 
 	// If the winner doesn't pass, we know it's nonmonotonic. Otherwise,
 	// if we're only interested in winners, return the winner_passes
 	// boolean anyhow, but if not, check the rest of the struct.
-	if (!winner_passes)
-		return(false);
-	if (winner_only())
-		return(winner_passes);
+	if (!winner_passes) {
+		return (false);
+	}
+	if (winner_only()) {
+		return (winner_passes);
+	}
 
-	double a_score = a_place_cand->get_score(), 
-	       b_score = b_place_cand->get_score();
+	double a_score = a_place_cand->get_score(),
+		   b_score = b_place_cand->get_score();
 
 	bool preliminary_nonmonotonic = (raise && (a_score > b_score)) ||
-			(!raise && (a_score < b_score));
+		(!raise && (a_score < b_score));
 
 	// Need to find a way of defining "raise" for a social ordering with
 	// ties.
@@ -285,11 +306,11 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 		scrub_mod_rev = otools.scrub_scores_by_cand(otools.reverse(
 					modified));
 
-		ordering::const_iterator arpc = find_cand(scrub_orig_rev, 
+		ordering::const_iterator arpc = find_cand(scrub_orig_rev,
 				cand), brpc = find_cand(scrub_mod_rev, cand);
 
 		a_score = -arpc->get_score();
-	       	b_score = -brpc->get_score();
+		b_score = -brpc->get_score();
 	}
 
 	//if (raise && (a_score > b_score) || !raise && (a_score < b_score) ) {
@@ -308,40 +329,46 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 		if (raise) cout << "R"; else cout << "L";
 		        if (a_winner) cout << "-aw-"; else cout << "-al-";
 			        if (b_winner) cout << "bw" << endl; else cout << "bl" << endl;
-*/
-		return(false);
+		*/
+		return (false);
 	}
 
-	return(true);
+	return (true);
 }
 
 string monotonicity::explain_change_int(const vector<size_t> & data,
-		const map<size_t, string> & cand_names) const {
+	const map<size_t, string> & cand_names) const {
 
 	size_t cand = data[0];
 	bool raise = (data[1] == 1);
 
-	assert (cand_names.find(cand) != cand_names.end());
+	assert(cand_names.find(cand) != cand_names.end());
 
 	string event = cand_names.find(cand)->second + " was ";
 
-	if (raise)
+	if (raise) {
 		event += "raised";
-	else	event += "lowered";
+	} else	{
+		event += "lowered";
+	}
 
-	return(event);
+	return (event);
 }
 
 string monotonicity::name() const {
-        string base = basename() + "(";
+	string base = basename() + "(";
 
-        if (winner_only())
-                base += "winner, ";
-        else    base += "rank, ";
+	if (winner_only()) {
+		base += "winner, ";
+	} else {
+		base += "rank, ";
+	}
 
-        if (permit_ties)
-                base += "ties)";
-        else    base += "pref)";
+	if (permit_ties) {
+		base += "ties)";
+	} else {
+		base += "pref)";
+	}
 
-        return(base);
+	return (base);
 }

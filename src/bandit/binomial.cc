@@ -8,11 +8,13 @@ double BinomialBandit::pull() {
 
 	double reward = arm->perform_test();
 
-	if (reward == 0) return(0);
+	if (reward == 0) {
+		return (0);
+	}
 	if (reward == 1) {
 		++num_successes;
 		++accumulated_reward;
-		return(1);
+		return (1);
 	}
 
 	// Perhaps better to make a BernoulliTest?

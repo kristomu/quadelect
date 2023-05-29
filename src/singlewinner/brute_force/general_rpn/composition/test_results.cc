@@ -29,7 +29,7 @@ void test_results::set_size_variables() {
 		start_of_cur_type = end_of_cur_type; // from previous type
 		end_of_cur_type = start_of_cur_type + num_methods[type] *
 			num_tests,
-		start_of_type[type] = start_of_cur_type;
+			start_of_type[type] = start_of_cur_type;
 	}
 
 	total_num_entries = end_of_cur_type;
@@ -42,9 +42,9 @@ size_t test_results::get_linear_idx(size_t method_idx,
 	// The following checks are assertions so that when not
 	// debugging, we don't slow down the program too much.
 
-	assert (type < NUM_REL_ELECTION_TYPES);
-	assert (method_idx < num_methods[type]);
-	assert (test_instance_number < num_tests);
+	assert(type < NUM_REL_ELECTION_TYPES);
+	assert(method_idx < num_methods[type]);
+	assert(test_instance_number < num_tests);
 
 	// Find the linear index into the results array.
 	// The digit system is like this
@@ -69,7 +69,7 @@ void test_results::allocate_space_disk(std::string filename) {
 	}
 
 	void * mem_map = mmap(NULL, get_bytes_required(),
-		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+			PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
 	if (mem_map == MAP_FAILED) {
 		throw std::runtime_error(
@@ -80,7 +80,7 @@ void test_results::allocate_space_disk(std::string filename) {
 }
 
 void test_results::finish_space_disk() {
-	 if (munmap((void *)results, get_bytes_required()) < 0) {
+	if (munmap((void *)results, get_bytes_required()) < 0) {
 		throw std::runtime_error("test_results: Could not unmap file");
 	}
 }
@@ -102,7 +102,7 @@ bool test_results::passes_tests(
 
 	for (int type = 0; type < NUM_REL_ELECTION_TYPES; ++type) {
 		results_start_position[type] = get_linear_idx(method_indices[type],
-			0,  (test_election)type);
+				0, (test_election)type);
 	}
 
 	// There are three possibilities: either the test is both no-harm and
@@ -129,8 +129,12 @@ bool test_results::passes_tests(
 		bool helped = before_sign < after_sign,
 			 harmed = before_sign > after_sign;
 
-		if (no_harm && harmed) { return false; }
-		if (no_help && helped) { return false; }
+		if (no_harm && harmed) {
+			return false;
+		}
+		if (no_help && helped) {
+			return false;
+		}
 	}
 
 	return true;
@@ -149,7 +153,7 @@ bool test_results::passes_tests(
 
 	for (int type = 0; type < NUM_REL_ELECTION_TYPES; ++type) {
 		results_start_position[type] = get_linear_idx(method_indices[type],
-			0,  (test_election)type);
+				0, (test_election)type);
 	}
 
 	for (size_t i = 0; i < num_tests; ++i) {
@@ -171,7 +175,7 @@ bool test_results::passes_tests(
 				return false;
 			}
 			// Otherwise mark this test as failing.
-			++fail_counts[i]; 
+			++fail_counts[i];
 			fail = true;
 		}
 	}
@@ -182,7 +186,9 @@ bool test_results::passes_tests(
 // Swap all test results at test index first_test with those at
 // index second_test.
 void test_results::swap(size_t first_test, size_t second_test) {
-	if (first_test == second_test) { return; }
+	if (first_test == second_test) {
+		return;
+	}
 	assert(first_test < num_tests && second_test < num_tests);
 
 	// [0..4: type] [0...num_methods: method number]
@@ -190,12 +196,12 @@ void test_results::swap(size_t first_test, size_t second_test) {
 
 	for (size_t type = 0; type < NUM_REL_ELECTION_TYPES; ++type) {
 		for (size_t method = 0; method < num_methods[type]; ++method) {
-			size_t first_loc = get_linear_idx(method, 
-				first_test, (test_election)type);
+			size_t first_loc = get_linear_idx(method,
+					first_test, (test_election)type);
 			size_t second_loc = get_linear_idx(method,
-				second_test, (test_election)type);
-			assert (first_loc < total_num_entries);
-			assert (second_loc < total_num_entries);
+					second_test, (test_election)type);
+			assert(first_loc < total_num_entries);
+			assert(second_loc < total_num_entries);
 			// BEWARE! Using swap() without std:: in front causes a
 			// segfault!
 			std::swap(results[first_loc], results[second_loc]);

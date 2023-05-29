@@ -1,13 +1,16 @@
 #include "elimination.h"
 #include <numeric>
 
-size_t elimination_util_const::get_num_noneliminated(const std::vector<int> &
+size_t elimination_util_const::get_num_noneliminated(
+	const std::vector<int> &
 	elimination_spec_in) const {
 
 	size_t count = 0;
 
 	for (int cand: elimination_spec_in) {
-		if (cand > -1) { ++count; }
+		if (cand > -1) {
+			++count;
+		}
 	}
 
 	return count;
@@ -53,7 +56,7 @@ void elimination_util_const::set_elimination_spec(
 	std::vector<int> & elimination_spec_in) {
 
 	size_t should_be_before = elimination_spec_in.size(),
-		should_be_after = get_num_noneliminated(elimination_spec_in);
+		   should_be_after = get_num_noneliminated(elimination_spec_in);
 
 	if (numcands_before != should_be_before ||
 		numcands_after != should_be_after) {
@@ -63,7 +66,7 @@ void elimination_util_const::set_elimination_spec(
 
 	elimination_spec = elimination_spec_in;
 	candidate_reordering = get_proper_candidate_reordering(
-		elimination_spec);
+			elimination_spec);
 }
 
 elimination_util_const::elimination_util_const(size_t numcands_before_in,
@@ -82,10 +85,10 @@ elimination_util_const::elimination_util_const(
 	std::vector<int> elimination_spec_in) :
 	direct_relative_criterion_const(
 		// Number of candidates before elimination: length of vector
-			elimination_spec_in.size(),
+		elimination_spec_in.size(),
 		// Number of candidates after: number of nonzeroes.
-			get_num_noneliminated(elimination_spec_in)
-		){
+		get_num_noneliminated(elimination_spec_in)
+	) {
 
 	set_elimination_spec(elimination_spec_in);
 }

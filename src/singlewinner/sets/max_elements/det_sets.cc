@@ -6,7 +6,7 @@
 // infinity.
 
 ordering det_sets_relation::nested_sets(const abstract_condmat & input,
-		const vector<bool> & hopefuls, size_t limit) const {
+	const vector<bool> & hopefuls, size_t limit) const {
 
 	// N^3 (Floyd-Warshall)
 	// If we only need the top set, we can do in N^2 (not implemented)
@@ -30,17 +30,22 @@ ordering det_sets_relation::nested_sets(const abstract_condmat & input,
 
 	for (i = 0; i < extent; ++i)
 		for (j = 0; j < extent; ++j)
-			if (i != j && relation(input, hopeful[i], hopeful[j], hopefuls))
+			if (i != j && relation(input, hopeful[i], hopeful[j], hopefuls)) {
 				path_len[i][j] = 1;
+			}
 
 	// Handle intermediate paths
 	for (k = 0; k < extent; ++k)
 		for (i = 0; i < extent; ++i) {
-			if (k == i) continue;
+			if (k == i) {
+				continue;
+			}
 			for (j = 0; j < extent; ++j) {
-				if (k == j || i == j) continue;
+				if (k == j || i == j) {
+					continue;
+				}
 				if (path_len[i][j] > path_len[i][k] +
-						path_len[k][j])
+					path_len[k][j])
 					path_len[i][j] = path_len[i][k] +
 						path_len[k][j];
 			}
@@ -52,14 +57,16 @@ ordering det_sets_relation::nested_sets(const abstract_condmat & input,
 	for (i = 0; i < extent; ++i)
 		for (j = 0; j < extent; ++j)
 			if (i != j)
-				if (path_len[i][j] >= min(extent, limit+1))
+				if (path_len[i][j] >= min(extent, limit+1)) {
 					--path_score[i];
+				}
 
 	// Finally, turn the count into an ordering.
 	ordering toRet;
 
-	for (i = 0; i < extent; ++i)
+	for (i = 0; i < extent; ++i) {
 		toRet.insert(candscore(hopeful[i], path_score[i]));
+	}
 
-	return(toRet);
+	return (toRet);
 }

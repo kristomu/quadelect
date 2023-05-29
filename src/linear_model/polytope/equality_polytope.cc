@@ -27,7 +27,7 @@ equality_reduction equality_polytope::get_equality_reduction() const {
 
 	// To find H and z_0, we observe that if we let z_0 be a solution
 	// (any solution) to Fz = g, and if z = Hx is always a solution to
-	// Fz = 0, then z = Hx + z_0 will also always be a solution to 
+	// Fz = 0, then z = Hx + z_0 will also always be a solution to
 	// Fz = g. Setting H to the kernel of the matrix F thus works
 	// nicely.
 
@@ -69,7 +69,8 @@ Eigen::VectorXd equality_polytope::get_full_coordinates(
 // HACK: Not supported yet because the change of bases interacts badly
 // with is_binary (e.g. x_0 = z_0 + z_1 and z_0 is binary but z_1 isn't;
 // then what is x_0?) So just throw an exception.
-std::pair<double, Eigen::VectorXd> equality_polytope::full_poly_mixed_program(
+std::pair<double, Eigen::VectorXd>
+equality_polytope::full_poly_mixed_program(
 	const Eigen::VectorXd & c, const std::vector<bool> & is_binary,
 	bool verbose) const {
 
@@ -77,7 +78,8 @@ std::pair<double, Eigen::VectorXd> equality_polytope::full_poly_mixed_program(
 		not supported!");
 }
 
-std::pair<double, Eigen::VectorXd> equality_polytope::full_poly_linear_program(
+std::pair<double, Eigen::VectorXd>
+equality_polytope::full_poly_linear_program(
 	const Eigen::VectorXd & c, 	bool verbose) const {
 
 	update_reduction();
@@ -111,8 +113,7 @@ std::pair<double, Eigen::VectorXd> equality_polytope::full_poly_linear_program(
 */
 
 
-int main()
-{
+int main() {
 	typedef Eigen::Matrix<double, 5, 4> Matrix5x4;
 	typedef Eigen::Matrix<double, 3, 4> Matrix3x4;
 	typedef Eigen::Matrix<double, 3, 3> Matrix3x3;
@@ -123,16 +124,16 @@ int main()
 	Eigen::VectorXd d(5);
 
 	C << -1, 0, 0, 0, \
-		 0, -1, 0, 0, \
-		 0, 0, -1, 0, \
-		 0, 0, 0, -1, \
-		 0, 0, 0, 1;
+		0, -1, 0, 0, \
+		0, 0, -1, 0, \
+		0, 0, 0, -1, \
+		0, 0, 0, 1;
 
 	d << 0, 0, 0, 0, 1;
 
 	F << 1, 1, 1, 0, \
-		 2, 3, 4, 0, \
-		 4, 3, 2, 0;
+		2, 3, 4, 0, \
+		4, 3, 2, 0;
 
 	g << 50, 158, 142;
 
@@ -157,26 +158,26 @@ int main()
 	Eigen::Vector4d c;
 	c << 0, -1, 0, 0;
 
-  	std::pair<double, Eigen::VectorXd> opt = 
-  		equality.ext_linear_program(c, true);
-  	
-  	Eigen::VectorXd z_opt = opt.second;
-  	Eigen::Vector4d should_be;
-  	should_be << 0, 42, 8, 0;
+	std::pair<double, Eigen::VectorXd> opt =
+		equality.ext_linear_program(c, true);
 
-  	std::cout << z_opt << std::endl;
+	Eigen::VectorXd z_opt = opt.second;
+	Eigen::Vector4d should_be;
+	should_be << 0, 42, 8, 0;
 
-  	if (z_opt == should_be) {
-  		std::cout << "Test PASS" << std::endl;
-  	} else {
-  		std::cout << "Test FAIL" << std::endl;
-  	}
+	std::cout << z_opt << std::endl;
 
-  	if (F * z_opt == g) {
-  		std::cout << "Test PASS" << std::endl;
-  	} else {
-  		std::cout << "Test FAIL" << std::endl;
-  	}
+	if (z_opt == should_be) {
+		std::cout << "Test PASS" << std::endl;
+	} else {
+		std::cout << "Test FAIL" << std::endl;
+	}
+
+	if (F * z_opt == g) {
+		std::cout << "Test PASS" << std::endl;
+	} else {
+		std::cout << "Test FAIL" << std::endl;
+	}
 }
 
 #endif

@@ -12,28 +12,29 @@
 #include "slash.h"
 
 pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
-		const vector<bool> & hopefuls, int num_candidates, cache_map *
-		cache, bool winner_only) const {
+	const vector<bool> & hopefuls, int num_candidates, cache_map *
+	cache, bool winner_only) const {
 
 	// First get the ordering for the set method, using cache. If we have
 	// cached the set result, this will be very quick.
-	
-	pair<ordering, bool> set_result = set_method->elect_detailed(papers, 
+
+	pair<ordering, bool> set_result = set_method->elect_detailed(papers,
 			hopefuls, num_candidates, cache, winner_only);
 
 	// Adjust hopefuls according to the results from the set. "As long as
 	// the score is different from top rank, exclude that candidate".
 	vector<bool> specified_hopefuls = hopefuls;
 	for (ordering::const_reverse_iterator rpos = set_result.first.rbegin();
-			rpos != set_result.first.rend() && rpos->get_score() !=
-			set_result.first.begin()->get_score(); ++rpos)
+		rpos != set_result.first.rend() && rpos->get_score() !=
+		set_result.first.begin()->get_score(); ++rpos) {
 		specified_hopefuls[rpos->get_candidate_num()] = false;
+	}
 
 	// TODO: Check if there's only one candidate left. If so, just
 	// return the set.
 
 	// Second, get the specific method's ordering, using no cache since we
-	// don't want interference with earlier methods. BLUESKY: Somehow 
+	// don't want interference with earlier methods. BLUESKY: Somehow
 	// indicate (in cache) which candidates are used and which aren't, so
 	// the issue disappears.
 
@@ -42,7 +43,7 @@ pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
 
 	// The rest goes as in comma: we complete one of the ballots with the
 	// other. It doesn't matter which way we do it because, by definition,
-	// the specified method can only have opinions about the candidates 
+	// the specified method can only have opinions about the candidates
 	// that are ranked equal first by the first.
 
 	pair<ordering, bool> toRet;
@@ -54,13 +55,13 @@ pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
 
 	ordering_tools otools;
 	// TODO: Fix tiebreak and use it instead.
-	toRet.first = otools.ranked_tiebreak(set_result.first, 
+	toRet.first = otools.ranked_tiebreak(set_result.first,
 			spec_result.first, num_candidates);
 
-	return(toRet);
+	return (toRet);
 }
 
 string slash::determine_name() const {
-	return("[" + set_method->name() + "]//[" + specific_method->name() 
+	return ("[" + set_method->name() + "]//[" + specific_method->name()
 			+ "]");
 }

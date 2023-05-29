@@ -6,7 +6,7 @@
 std::string format_time(double seconds_total) {
 	// Use doubles to handle extreme values, e.g. 1e+40 seconds.
 
-	assert (seconds_total > 0);
+	assert(seconds_total > 0);
 
 	double secs = fmod(seconds_total, 60);
 	double x = (seconds_total - secs) / 60.0;
@@ -19,7 +19,7 @@ std::string format_time(double seconds_total) {
 	double years = x;
 
 	std::string hstr = itos(round(hrs), 2),
-		mstr = itos(round(mins), 2), sstr = itos(round(secs), 2);
+				mstr = itos(round(mins), 2), sstr = itos(round(secs), 2);
 
 	// Set up time string.
 	std::string time_str;

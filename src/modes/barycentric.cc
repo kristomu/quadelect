@@ -13,15 +13,15 @@ ordering strict_ballot(string input) {
 
 	for (size_t counter = 0; counter < input.size(); ++counter)
 		output.insert(candscore(input[counter] - 'A',
-					input.size() - counter));
+				input.size() - counter));
 
-	return(output);
+	return (output);
 }
 
 list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
-		double maxvoters, string first_group, string sec_group,
-		string third_group, double x_1, double y_1, double x_2,
-		double y_2, double x_3, double y_3) const {
+	double maxvoters, string first_group, string sec_group,
+	string third_group, double x_1, double y_1, double x_2,
+	double y_2, double x_3, double y_3) const {
 
 	// Vertices of the triangle
 	double l_1, l_2, l_3;
@@ -33,22 +33,23 @@ list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
 	l_2 = ((y_3 - y_1) * (x - x_3) + (x_1 - x_3) * (y - y_3)) / determinant;
 	l_3 = 1 - (l_1 + l_2);
 
-	if (l_1 < 0 || l_2 < 0 || l_3 < 0)
+	if (l_1 < 0 || l_2 < 0 || l_3 < 0) {
 		return (list<ballot_group>());
+	}
 
 	list<ballot_group> toRet;
 	toRet.push_back(ballot_group(l_1 * maxvoters, strict_ballot(
-					first_group), true, false));
+				first_group), true, false));
 	toRet.push_back(ballot_group(l_2 * maxvoters, strict_ballot(
-					sec_group), true, false));
+				sec_group), true, false));
 	toRet.push_back(ballot_group(l_3 * maxvoters, strict_ballot(
-					third_group), true, false));
+				third_group), true, false));
 
-	return(toRet);
+	return (toRet);
 }
 
 list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
-		double maxvoters) const {
+	double maxvoters) const {
 
 	// We have four groups:
 	//	#1: (ABC, BCA, CAB): (0, 0) (0.5, 0), (0.25, 0.4)
@@ -71,7 +72,7 @@ list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
 	if (ballots.empty())
 		ballots = generate_ballot_set(x, y, maxvoters, "ABC", "BAC",
 				"CAB", 1, 0.4, 0.75, 0, 0.5, 0.4);
-				//0.5, 0.4, 1, 0.4, 0.75, 0);
+	//0.5, 0.4, 1, 0.4, 0.75, 0);
 
 	if (ballots.empty())
 		ballots = generate_ballot_set(x, y, maxvoters, "ABC", "BAC",
@@ -80,54 +81,56 @@ list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
 	if (ballots.empty())
 		ballots = generate_ballot_set(x, y, maxvoters, "ABC", "BCA",
 				"CBA", 1, 1, 0.75, 0.6, 0.5, 1);
-				//0.5, 1, 1, 1, 0.75, 0.6);
+	//0.5, 1, 1, 1, 0.75, 0.6);
 
-	return(ballots);
+	return (ballots);
 }
 
 vector<vector<double> > barycentric::get_candidate_colors(int numcands,
-                bool debug) const {
+	bool debug) const {
 
-        if (numcands <= 0)
-                return(vector<vector<double> >());
+	if (numcands <= 0) {
+		return (vector<vector<double> >());
+	}
 
-        vector<vector<double> > candidate_RGB(numcands);
+	vector<vector<double> > candidate_RGB(numcands);
 
-        // The candidates are each given colors at hues spaced equally from
-        // each other, and with full saturation and value. If you want
-        // IEVS-style sphere packing, feel free to alter (call a class), but
-        // it might be better in LAB color space -- if I could get LAB to work,
+	// The candidates are each given colors at hues spaced equally from
+	// each other, and with full saturation and value. If you want
+	// IEVS-style sphere packing, feel free to alter (call a class), but
+	// it might be better in LAB color space -- if I could get LAB to work,
 	// and if tone-mapping to limited gamut displays wasn't so hard.
 
-        vector<double> HSV(3, 1);
-        HSV[0] = 0;
+	vector<double> HSV(3, 1);
+	HSV[0] = 0;
 
-        color_conv converter;
+	color_conv converter;
 
-        for (int cand = 0; cand < numcands; ++cand) {
-                candidate_RGB[cand] = converter.convert(HSV, CS_HSV, CS_RGB);
+	for (int cand = 0; cand < numcands; ++cand) {
+		candidate_RGB[cand] = converter.convert(HSV, CS_HSV, CS_RGB);
 
-                if (debug) {
-                        cout << "RGB values for " << cand << ": ";
-                        copy(candidate_RGB[cand].begin(),
-                                        candidate_RGB[cand].end(),
-                                        ostream_iterator<double>(cout, "\t"));
+		if (debug) {
+			cout << "RGB values for " << cand << ": ";
+			copy(candidate_RGB[cand].begin(),
+				candidate_RGB[cand].end(),
+				ostream_iterator<double>(cout, "\t"));
 
-                        cout << endl;
-                }
+			cout << endl;
+		}
 
-                // It must be +1 because the Hue aspect is circular, leaving
-                // just as much space between the last candidate's hue and the
-                // first, as between the first and second's.
+		// It must be +1 because the Hue aspect is circular, leaving
+		// just as much space between the last candidate's hue and the
+		// first, as between the first and second's.
 
-                HSV[0] += 1 / (double)(numcands+1);
-        }
+		HSV[0] += 1 / (double)(numcands+1);
+	}
 
-        return(candidate_RGB);
+	return (candidate_RGB);
 }
 
 
-std::string barycentric::get_codename(const election_method & in, size_t bytes) const {
+std::string barycentric::get_codename(const election_method & in,
+	size_t bytes) const {
 
 	if (bytes > 16) {
 		throw std::logic_error("yee::get_codename: "
@@ -159,8 +162,9 @@ void barycentric::add_method(const election_method * to_add) {
 bool barycentric::init(rng & randomizer) {
 	cout << "INIT 1" << endl;
 	// If there are no methods, there's nothing we can do.
-	if (e_methods.empty())
-		return(false);
+	if (e_methods.empty()) {
+		return (false);
+	}
 
 	cout << "INIT 2" << endl;
 
@@ -169,19 +173,19 @@ bool barycentric::init(rng & randomizer) {
 
 	cur_round = 0;
 	max_rounds = e_methods.size();
-	return(true);
+	return (true);
 }
 
 int barycentric::get_max_rounds() const {
-	return(max_rounds);
+	return (max_rounds);
 }
 
 int barycentric::get_current_round() const {
-	return(cur_round);
+	return (cur_round);
 }
 
 string barycentric::do_round(bool give_brief_status, bool reseed,
-		rng & randomizer) {
+	rng & randomizer) {
 
 	cout << "DO_ROUND" << endl;
 
@@ -192,8 +196,9 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 	//			Otherwise go through the method to find the
 	//			winner/s, and plot them.
 
-	if (cur_round >= max_rounds)
-		return("");
+	if (cur_round >= max_rounds) {
+		return ("");
+	}
 
 	const election_method * our_method = e_methods[cur_round];
 
@@ -220,7 +225,7 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 
 		// Since we've got nothing more to do, we can just return false
 		// no matter what here.
-		return(status + "Error!");
+		return (status + "Error!");
 	}
 
 	// Write the header
@@ -231,8 +236,8 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 		for (int x = 0; x < xsize; ++x) {
 			list<ballot_group> barycentric_ballot =
 				generate_ballot_set(x / (double)xsize,
-						y / (double)ysize,
-						numvoters);
+					y / (double)ysize,
+					numvoters);
 
 			if (barycentric_ballot.empty()) {
 				// Draw white
@@ -252,14 +257,14 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 				for (int i = 0; i < 3; ++i)
 					color_pic << (char)(round(255.4999 *
 								cand_colors[
-								winner][i]));
+									winner][i]));
 			}
 		}
 	}
 
 	++cur_round;
 
-	return(status + "OK");
+	return (status + "OK");
 }
 
 vector<string> barycentric::provide_status() const {
@@ -267,5 +272,5 @@ vector<string> barycentric::provide_status() const {
 		itos(max_rounds) + " rounds, or " +
 		dtos(100.0 * cur_round/(double)max_rounds) + "%";
 
-	return(vector<string>(1, out));
+	return (vector<string>(1, out));
 }

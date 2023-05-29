@@ -63,7 +63,8 @@ void update_results(
 	std::vector<gen_custom_function> evaluator = {
 		gen_custom_function(0), gen_custom_function(1),
 		gen_custom_function(2), gen_custom_function(3),
-		gen_custom_function(4)};
+		gen_custom_function(4)
+	};
 
 	// Linear count for the progress report
 	// TODO, make this actually work.
@@ -99,18 +100,22 @@ void update_results(
 
 				// Quick and dirty.
 				ssize_t from_perspective_of;
-				switch(type) {
+				switch (type) {
 					case TYPE_A:
-						from_perspective_of = elections[test_number].ti.before_A.from_perspective_of;
+						from_perspective_of =
+							elections[test_number].ti.before_A.from_perspective_of;
 						break;
 					case TYPE_B:
-						from_perspective_of = elections[test_number].ti.before_B.from_perspective_of;
+						from_perspective_of =
+							elections[test_number].ti.before_B.from_perspective_of;
 						break;
 					case TYPE_A_PRIME:
-						from_perspective_of = elections[test_number].ti.after_A.from_perspective_of;
+						from_perspective_of =
+							elections[test_number].ti.after_A.from_perspective_of;
 						break;
 					case TYPE_B_PRIME:
-						from_perspective_of = elections[test_number].ti.after_B.from_perspective_of;
+						from_perspective_of =
+							elections[test_number].ti.after_B.from_perspective_of;
 						break;
 				}
 
@@ -120,7 +125,8 @@ void update_results(
 					result = -std::numeric_limits<double>::infinity();
 					std::cout << "inf!" << std::endl;
 				} else {
-					result = evaluator[numcands].evaluate(elections[test_number].ballot_vectors[type]);
+					result = evaluator[numcands].evaluate(
+							elections[test_number].ballot_vectors[type]);
 				}
 
 				results_so_far.set_result(funct_idx, test_number,
@@ -136,7 +142,7 @@ void test(size_t desired_samples,
 	const std::map<int, fixed_cand_equivalences> & candidate_equivalences) {
 
 	update_results(functions_to_test, results_so_far, group.sample(
-		desired_samples, candidate_equivalences));
+			desired_samples, candidate_equivalences));
 }
 
 // And then more testing? No. More features, because who has time for
@@ -164,7 +170,7 @@ int main(int argc, char ** argv) {
 		std::cerr << "Usage: " << argv[0]
 			<< " [general_rpn_tools config file] "
 			<< std::endl;
-		return(-1);
+		return (-1);
 	}
 
 	// Read configuration file.
@@ -209,7 +215,7 @@ int main(int argc, char ** argv) {
 	for (i = min_numcands; i <= max_numcands; ++i) {
 
 		std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
-			i, cand_equivs.find(i)->second);
+				i, cand_equivs.find(i)->second);
 
 		std::copy(canonical_full.begin(), canonical_full.end(),
 			std::back_inserter(canonical_full_v));
@@ -227,7 +233,7 @@ int main(int argc, char ** argv) {
 
 	// Add some relative constraints. (Kinda ugly, but what can you do.)
 	std::vector<std::shared_ptr<relative_criterion_const> >
-		relative_constraints = relative_criterion_producer().get_criteria(
+	relative_constraints = relative_criterion_producer().get_criteria(
 			min_numcands, max_numcands, true, settings.desired_criteria);
 
 	// Perhaps make the constrain generators return the before and after
@@ -280,12 +286,13 @@ int main(int argc, char ** argv) {
 	size_t max_num_functions = 0;
 	for (i = min_numcands; i <= max_numcands; ++i) {
 		max_num_functions = std::max(max_num_functions,
-			functions_to_test[i].size());
+				functions_to_test[i].size());
 	}
 
 	for (size_t group_idx = 0; group_idx < grps.groups.size(); ++group_idx) {
 
-		std::string fn_prefix = settings.test_storage_prefix + itos(group_idx) + ".dat";
+		std::string fn_prefix = settings.test_storage_prefix + itos(
+				group_idx) + ".dat";
 
 		test_generator_group grp = grps.groups[group_idx];
 

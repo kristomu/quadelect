@@ -8,9 +8,9 @@ relative_test_instance test_instance_generator::get_test_instance(
 		after_numcands = after_A.get_numcands();
 
 	relative_test_instance ti = tgen.sample_instance(
-		cand_B_idx_before, cand_B_idx_after,
-		candidate_equivalences.find(before_numcands)->second,
-		candidate_equivalences.find(after_numcands)->second);
+			cand_B_idx_before, cand_B_idx_after,
+			candidate_equivalences.find(before_numcands)->second,
+			candidate_equivalences.find(after_numcands)->second);
 
 	return ti;
 }
@@ -31,23 +31,27 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 	// pair consistent with after_as_before for that criterion.
 
 	size_t numcands_before = relative_criterion.get_numcands_before(),
-		numcands_after = relative_criterion.get_numcands_after();
+		   numcands_after = relative_criterion.get_numcands_after();
 
 	fixed_cand_equivalences before_cand_remapping =
 		cand_equivs.find(numcands_before)->second, after_cand_remapping =
-		cand_equivs.find(numcands_after)->second;
+			cand_equivs.find(numcands_after)->second;
 
 	for (copeland_scenario x: canonical_scenarios) {
-		if (x.get_numcands() != numcands_before) { continue; }
+		if (x.get_numcands() != numcands_before) {
+			continue;
+		}
 
 		for (copeland_scenario y: canonical_scenarios) {
-			if (y.get_numcands() != numcands_after) { continue; }
+			if (y.get_numcands() != numcands_after) {
+				continue;
+			}
 			test_generator cur_test(randomizer.long_rand());
 
 			std::cout << relative_criterion.name() << "\tCombination "
 				<< x.to_string() << ", " << y.to_string() << ":";
 			if (!cur_test.set_scenarios(x, y, max_numvoters,
-				relative_criterion)) {
+					relative_criterion)) {
 				std::cout << "not permitted\n";
 				continue;
 			}
@@ -57,7 +61,7 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 			// Some candidates might be eliminated, which would make
 			// equality fail. Still, we should check that the relative
 			// criterion doesn't ask for more candidates than we have.
-			assert (numcands_before >= relative_criterion.
+			assert(numcands_before >= relative_criterion.
 				get_candidate_reordering().num_source_candidates());
 
 			// For every allowed pair of candidates for this criterion...
@@ -68,7 +72,9 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 				// except A, since we're looking for some other candidate
 				// to compare A to...
 
-				if (pair.first == 0) { continue; }
+				if (pair.first == 0) {
+					continue;
+				}
 
 				// Later, we'll set the "evaluation" of any nonexistent
 				// candidate's score to -infinity. (See [file] for more
@@ -99,7 +105,7 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 					(pair.second == CP_NONEXISTENT || pair.second >= 0));
 
 				ssize_t before_cand_idx = pair.first,
-					after_cand_idx = pair.second;
+						after_cand_idx = pair.second;
 
 				if (after_cand_idx >= 0) {
 					assert((size_t)after_cand_idx < numcands_after);
@@ -118,8 +124,8 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 				// Get the scenarios by sampling once.
 				relative_test_instance ti = to_add.tgen.sample_instance(
-					before_cand_idx, after_cand_idx,
-					before_cand_remapping, after_cand_remapping);
+						before_cand_idx, after_cand_idx,
+						before_cand_remapping, after_cand_remapping);
 
 				to_add.before_A = ti.before_A.scenario;
 				to_add.before_B = ti.before_B.scenario;

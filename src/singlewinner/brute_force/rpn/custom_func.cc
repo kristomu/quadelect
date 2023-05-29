@@ -10,9 +10,9 @@
 // reserving makes reallocation much faster.
 
 void custom_function::decode_function(
-		unsigned long long function_number,
-		vector<custom_funct_atom> & output) const {
-	
+	unsigned long long function_number,
+	vector<custom_funct_atom> & output) const {
+
 	if (function_number == 0) {
 		return;
 	}
@@ -32,48 +32,48 @@ string custom_function::atom_to_word(const custom_funct_atom in) const {
 
 	// we should also have had modulo here, although I could only
 	// conceivably see it being used in some sort of IRVesque system.
-	switch(in) {
-		case VAL_IN_ABC: return("ABC");
-		case VAL_IN_ACB: return("ACB");
-		case VAL_IN_BAC: return("BAC");
-		case VAL_IN_BCA: return("BCA");
-		case VAL_IN_CAB: return("CAB");
-		case VAL_IN_CBA: return("CBA");
-		case VAL_IN_FPA: return("fpA");
-		case VAL_IN_FPB: return("fpB");
-		case VAL_IN_FPC: return("fpC");
-		case VAL_IN_AbB: return("A>B");
-		case VAL_IN_AbC: return("A>C");
-		case VAL_IN_BbA: return("B>A");
-		case VAL_IN_BbC: return("B>C");
-		case VAL_IN_CbA: return("C>A");
-		case VAL_IN_CbB: return("C>B");
-		case VAL_IN_ALL: return("ALL");
-		case VAL_ZERO: return("0");
-		case VAL_ONE: return("1");
-		case VAL_TWO: return("2");
-		case UNARY_FUNC_INFRMAP: return("INFRMAP");
-		case UNARY_FUNC_INFRMAPINV: return("INFRMAP^-1");
-		case UNARY_FUNC_SQUARE: return("SQUARE");
-		case UNARY_FUNC_SQRT: return("SQRT");
-		case UNARY_FUNC_LOG: return("LOG");
-		case UNARY_FUNC_EXP: return("EXP");
-		case UNARY_FUNC_NEG: return("NEG");
-		case UNARY_FUNC_BLANCMANGE: return("BLANCMANGE");
-		case UNARY_FUNC_MINKOWSKIQ: return("MINK?");
-		case BINARY_FUNC_PLUS: return("+");
-		case BINARY_FUNC_MINUS: return("-");
-		case BINARY_FUNC_MUL: return("*");
-		case BINARY_FUNC_DIVIDE: return("/");
-		case BINARY_FUNC_MAX: return("MAX");
-		case BINARY_FUNC_MIN: return("MIN");
-		case BINARY_FUNC_LT: return("<");
-		case BINARY_FUNC_LEQ: return("<=");
-		case BINARY_FUNC_EQ: return("==");
-		case BINARY_FUNC_AND: return("&&");
-		case BINARY_FUNC_OR: return("||");
-		case TERNARY_FUNC_IF: return("IF");
-		default: return("???");
+	switch (in) {
+		case VAL_IN_ABC: return ("ABC");
+		case VAL_IN_ACB: return ("ACB");
+		case VAL_IN_BAC: return ("BAC");
+		case VAL_IN_BCA: return ("BCA");
+		case VAL_IN_CAB: return ("CAB");
+		case VAL_IN_CBA: return ("CBA");
+		case VAL_IN_FPA: return ("fpA");
+		case VAL_IN_FPB: return ("fpB");
+		case VAL_IN_FPC: return ("fpC");
+		case VAL_IN_AbB: return ("A>B");
+		case VAL_IN_AbC: return ("A>C");
+		case VAL_IN_BbA: return ("B>A");
+		case VAL_IN_BbC: return ("B>C");
+		case VAL_IN_CbA: return ("C>A");
+		case VAL_IN_CbB: return ("C>B");
+		case VAL_IN_ALL: return ("ALL");
+		case VAL_ZERO: return ("0");
+		case VAL_ONE: return ("1");
+		case VAL_TWO: return ("2");
+		case UNARY_FUNC_INFRMAP: return ("INFRMAP");
+		case UNARY_FUNC_INFRMAPINV: return ("INFRMAP^-1");
+		case UNARY_FUNC_SQUARE: return ("SQUARE");
+		case UNARY_FUNC_SQRT: return ("SQRT");
+		case UNARY_FUNC_LOG: return ("LOG");
+		case UNARY_FUNC_EXP: return ("EXP");
+		case UNARY_FUNC_NEG: return ("NEG");
+		case UNARY_FUNC_BLANCMANGE: return ("BLANCMANGE");
+		case UNARY_FUNC_MINKOWSKIQ: return ("MINK?");
+		case BINARY_FUNC_PLUS: return ("+");
+		case BINARY_FUNC_MINUS: return ("-");
+		case BINARY_FUNC_MUL: return ("*");
+		case BINARY_FUNC_DIVIDE: return ("/");
+		case BINARY_FUNC_MAX: return ("MAX");
+		case BINARY_FUNC_MIN: return ("MIN");
+		case BINARY_FUNC_LT: return ("<");
+		case BINARY_FUNC_LEQ: return ("<=");
+		case BINARY_FUNC_EQ: return ("==");
+		case BINARY_FUNC_AND: return ("&&");
+		case BINARY_FUNC_OR: return ("||");
+		case TERNARY_FUNC_IF: return ("IF");
+		default: return ("???");
 	}
 }
 
@@ -87,132 +87,139 @@ string custom_function::atom_to_word(const custom_funct_atom in) const {
 // CBA is 0.
 // (However, in practice, this makes very strange methods come in first
 // at the strategy evaluation.)
-double custom_function::evaluate(vector<double> & stack, 
-	const custom_funct_atom & cur_atom, 
+double custom_function::evaluate(vector<double> & stack,
+	const custom_funct_atom & cur_atom,
 	const vector<double> & input_values,
 	bool generous_to_asymptotes) const {
 
-	switch(cur_atom) {
-		case VAL_IN_ABC: return(input_values[0]);
-		case VAL_IN_ACB: return(input_values[1]);
-		case VAL_IN_BAC: return(input_values[2]);
-		case VAL_IN_BCA: return(input_values[3]);
-		case VAL_IN_CAB: return(input_values[4]);
-		case VAL_IN_CBA: return(input_values[5]);
-		case VAL_IN_FPA: return(input_values[0] + input_values[1]);
-		case VAL_IN_FPB: return(input_values[2] + input_values[3]);
-		case VAL_IN_FPC: return(input_values[4] + input_values[5]);
-		case VAL_IN_AbB: return(input_values[0]+input_values[1]+input_values[4]);
-		case VAL_IN_AbC: return(input_values[0]+input_values[1]+input_values[2]);
-		case VAL_IN_BbA: return(input_values[2]+input_values[3]+input_values[5]);
-		case VAL_IN_BbC: return(input_values[2]+input_values[3]+input_values[0]);
-		case VAL_IN_CbA: return(input_values[3]+input_values[4]+input_values[5]);
-		case VAL_IN_CbB: return(input_values[3]+input_values[4]+input_values[1]);
-		case VAL_IN_ALL: return(input_values[0]+input_values[1]+input_values[2]+input_values[3]+input_values[4]+input_values[5]);
-		case VAL_ZERO: return(0);
-		case VAL_ONE: return(1);
-		case VAL_TWO: return(2);
+	switch (cur_atom) {
+		case VAL_IN_ABC: return (input_values[0]);
+		case VAL_IN_ACB: return (input_values[1]);
+		case VAL_IN_BAC: return (input_values[2]);
+		case VAL_IN_BCA: return (input_values[3]);
+		case VAL_IN_CAB: return (input_values[4]);
+		case VAL_IN_CBA: return (input_values[5]);
+		case VAL_IN_FPA: return (input_values[0] + input_values[1]);
+		case VAL_IN_FPB: return (input_values[2] + input_values[3]);
+		case VAL_IN_FPC: return (input_values[4] + input_values[5]);
+		case VAL_IN_AbB: return (input_values[0]+input_values[1]+input_values[4]);
+		case VAL_IN_AbC: return (input_values[0]+input_values[1]+input_values[2]);
+		case VAL_IN_BbA: return (input_values[2]+input_values[3]+input_values[5]);
+		case VAL_IN_BbC: return (input_values[2]+input_values[3]+input_values[0]);
+		case VAL_IN_CbA: return (input_values[3]+input_values[4]+input_values[5]);
+		case VAL_IN_CbB: return (input_values[3]+input_values[4]+input_values[1]);
+		case VAL_IN_ALL: return (input_values[0]+input_values[1]+input_values[2]
+					+input_values[3]+input_values[4]+input_values[5]);
+		case VAL_ZERO: return (0);
+		case VAL_ONE: return (1);
+		case VAL_TWO: return (2);
 		default: break;
 	}
 
 	// Unary functions go here.
 	if (stack.empty()) {
-		return(numeric_limits<double>::quiet_NaN());
+		return (numeric_limits<double>::quiet_NaN());
 		//throw runtime_error("stack error");
 	}
 
 	double right_arg = *(stack.rbegin());
-	if (isnan(right_arg)) return(right_arg); // NaN propagate automatically
+	if (isnan(right_arg)) {
+		return (right_arg);    // NaN propagate automatically
+	}
 	stack.pop_back();
 
-	switch(cur_atom) {
+	switch (cur_atom) {
 		case UNARY_FUNC_INFRMAP: return (1/(1 + exp(-right_arg)));
-		case UNARY_FUNC_INFRMAPINV: return(log(-right_arg/(right_arg-1)));
-		case UNARY_FUNC_SQUARE: return(right_arg*right_arg);
-		case UNARY_FUNC_SQRT: return(sqrt(right_arg));
-		case UNARY_FUNC_LOG: 
+		case UNARY_FUNC_INFRMAPINV: return (log(-right_arg/(right_arg-1)));
+		case UNARY_FUNC_SQUARE: return (right_arg*right_arg);
+		case UNARY_FUNC_SQRT: return (sqrt(right_arg));
+		case UNARY_FUNC_LOG:
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
-					// intend limit towards 0 so that 0 log 0 = 0, e.g	
-					return (-1e9);		
+					// intend limit towards 0 so that 0 log 0 = 0, e.g
+					return (-1e9);
 				}
-				return(-INFINITY);
+				return (-INFINITY);
 			}
-			return(log(right_arg));
-		case UNARY_FUNC_EXP: return(exp(right_arg));
-		case UNARY_FUNC_NEG: return(-right_arg);
-		case UNARY_FUNC_BLANCMANGE: return(blancmange(blancmange_order,
-			right_arg));
-		case UNARY_FUNC_MINKOWSKIQ: return(minkowski_q(right_arg));
+			return (log(right_arg));
+		case UNARY_FUNC_EXP: return (exp(right_arg));
+		case UNARY_FUNC_NEG: return (-right_arg);
+		case UNARY_FUNC_BLANCMANGE: return (blancmange(blancmange_order,
+						right_arg));
+		case UNARY_FUNC_MINKOWSKIQ: return (minkowski_q(right_arg));
 		default: break;
 	}
 
 	// Binary
 	if (stack.empty()) {
-		return(numeric_limits<double>::quiet_NaN());
+		return (numeric_limits<double>::quiet_NaN());
 		//throw runtime_error("stack error");
 	}
 
 	double middle_arg = *(stack.rbegin());
-	if (isnan(middle_arg)) return(middle_arg); // NaN propagate automatically
+	if (isnan(middle_arg)) {
+		return (middle_arg);    // NaN propagate automatically
+	}
 	stack.pop_back();
 
 	// NOTE: The stack has most recently pushed arguments to the right.
-	// This means that if we want, say "fpA fpC -" to resolve to 
+	// This means that if we want, say "fpA fpC -" to resolve to
 	// "fpA - fpC", as is intuitive, and as dc does it, we need to do
 	// middle_arg - right_arg, not the other way around.
 
-	switch(cur_atom) {
-		case BINARY_FUNC_PLUS: return(middle_arg + right_arg);
-		case BINARY_FUNC_MINUS: return(middle_arg - right_arg);
-		case BINARY_FUNC_MUL: return(middle_arg * right_arg);
+	switch (cur_atom) {
+		case BINARY_FUNC_PLUS: return (middle_arg + right_arg);
+		case BINARY_FUNC_MINUS: return (middle_arg - right_arg);
+		case BINARY_FUNC_MUL: return (middle_arg * right_arg);
 		case BINARY_FUNC_DIVIDE:
 			if (!finite(middle_arg) && finite(right_arg) && right_arg != 0) {
-				return(middle_arg);
+				return (middle_arg);
 			}
 			// lim x->inf 3/x = 0
 			if (finite(middle_arg) && !finite(right_arg)) {
-				return(0);
+				return (0);
 			}
 			// Perhaps we should let x/inf = 0? And inf/x = inf,
 			// except when x = 0, in which case it's undefined.
 			// inf/inf is also similarly undefined.
 			if (!finite(middle_arg) && !finite(right_arg)) {
-				return(numeric_limits<double>::quiet_NaN());
-			} 
+				return (numeric_limits<double>::quiet_NaN());
+			}
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
 					return (middle_arg/(right_arg+1e-9));
 				}
 				//return(numeric_limits<double>::quiet_NaN());
-				return(INFINITY); // could also be -infty
+				return (INFINITY); // could also be -infty
 			}
-			return(middle_arg/right_arg);
-		case BINARY_FUNC_MAX: return(max(middle_arg, right_arg));
-		case BINARY_FUNC_MIN: return(min(middle_arg, right_arg));
+			return (middle_arg/right_arg);
+		case BINARY_FUNC_MAX: return (max(middle_arg, right_arg));
+		case BINARY_FUNC_MIN: return (min(middle_arg, right_arg));
 
-		case BINARY_FUNC_LT: return(make_bool(middle_arg < right_arg));
-		case BINARY_FUNC_LEQ: return(make_bool(middle_arg <= right_arg));
-		case BINARY_FUNC_EQ: return(make_bool(middle_arg == right_arg));
-		case BINARY_FUNC_AND: return(is_true(middle_arg) & is_true(right_arg));
-		case BINARY_FUNC_OR: return(is_true(middle_arg) | is_true(right_arg));
+		case BINARY_FUNC_LT: return (make_bool(middle_arg < right_arg));
+		case BINARY_FUNC_LEQ: return (make_bool(middle_arg <= right_arg));
+		case BINARY_FUNC_EQ: return (make_bool(middle_arg == right_arg));
+		case BINARY_FUNC_AND: return (is_true(middle_arg) & is_true(right_arg));
+		case BINARY_FUNC_OR: return (is_true(middle_arg) | is_true(right_arg));
 		default: break;
 	}
 
 	if (stack.empty()) {
-		return(numeric_limits<double>::quiet_NaN());
+		return (numeric_limits<double>::quiet_NaN());
 	}
 
 	double left_arg = *(stack.rbegin());
-	if (isnan(left_arg)) return(left_arg); // NaN propagate automatically
+	if (isnan(left_arg)) {
+		return (left_arg);    // NaN propagate automatically
+	}
 	stack.pop_back();
 
-	switch(cur_atom) {
-		case TERNARY_FUNC_IF: 
+	switch (cur_atom) {
+		case TERNARY_FUNC_IF:
 			if (is_true(left_arg)) {
-				return(middle_arg);
+				return (middle_arg);
 			} else {
-				return(right_arg);
+				return (right_arg);
 			}
 			break;
 		default: break;
@@ -223,7 +230,7 @@ double custom_function::evaluate(vector<double> & stack,
 	// one.
 	throw runtime_error("RPN token not matched anywhere!");
 
-	return(0);
+	return (0);
 }
 
 // if reject_large_stack is true, will throw a runtime error if the
@@ -239,13 +246,13 @@ double custom_function::evaluate_function(
 
 	//assert(funct_stack.empty());	// wouldn't want anything to carry over
 
-	for (vector<custom_funct_atom>::const_iterator pos = function.begin(); 
+	for (vector<custom_funct_atom>::const_iterator pos = function.begin();
 		pos != function.end(); ++pos) {
-		result = evaluate(funct_stack, *pos, input_values, 
-			generous_to_asymptotes);
+		result = evaluate(funct_stack, *pos, input_values,
+				generous_to_asymptotes);
 		if (isnan(result)) {
 			// propagate error
-			return(numeric_limits<double>::quiet_NaN());
+			return (numeric_limits<double>::quiet_NaN());
 		} else {
 			funct_stack.push_back(result);
 		}
@@ -253,15 +260,15 @@ double custom_function::evaluate_function(
 
 	// stack is empty
 	if (funct_stack.empty()) {
-		return(numeric_limits<double>::quiet_NaN());
+		return (numeric_limits<double>::quiet_NaN());
 	}
 
 	// multiple outputs for function
 	if (reject_large_stack && *funct_stack.begin() != *funct_stack.rbegin()) {
-		return(numeric_limits<double>::quiet_NaN());
+		return (numeric_limits<double>::quiet_NaN());
 	}
 
-	return(*funct_stack.rbegin());
+	return (*funct_stack.rbegin());
 }
 
 void custom_function::set_id(unsigned long long function_number) {
@@ -284,15 +291,15 @@ custom_function::custom_function(bool generous_in) {
 double custom_function::evaluate(const vector<double> & input_values,
 	bool reject_large_stack, bool generous_to_asymptotes) const {
 	funct_stack.clear();
-	return(evaluate_function(our_function, input_values, 
-		reject_large_stack, generous_to_asymptotes));
+	return (evaluate_function(our_function, input_values,
+				reject_large_stack, generous_to_asymptotes));
 }
 
 double custom_function::evaluate(const vector<double> & input_values,
 	bool reject_large_stack) const {
 	funct_stack.clear();
-	return(evaluate_function(our_function, input_values, 
-		reject_large_stack, is_generous_to_asymptotes));
+	return (evaluate_function(our_function, input_values,
+				reject_large_stack, is_generous_to_asymptotes));
 }
 
 
@@ -300,10 +307,11 @@ double custom_function::evaluate(const vector<double> & input_values,
 // passes and returns different results on at least one of them, otherwise
 // false.
 
-bool custom_function::update_suitability(const custom_function & funct_to_test, 
+bool custom_function::update_suitability(const custom_function &
+	funct_to_test,
 	const vector<vector<double> > & test_in_vectors,
 	map<vector<double>, unsigned long long> & results_already_seen) const {
-	
+
 	test_results.resize(test_in_vectors.size());
 	size_t i;
 
@@ -313,30 +321,32 @@ bool custom_function::update_suitability(const custom_function & funct_to_test,
 		/*copy(test_in_vectors[i].begin(), test_in_vectors[i].end(),
 			ostream_iterator<double>(cout, " "));
 		cout << " => ";*/
-		test_results[i] = funct_to_test.evaluate(test_in_vectors[i], 
-			true);
+		test_results[i] = funct_to_test.evaluate(test_in_vectors[i],
+				true);
 		//cout << test_results[i] << endl;
 		if (isnan(test_results[i])) {
-			return(false); // error during evaluation
+			return (false); // error during evaluation
 		}
 		//cout << results[results.size()-1] << "\t";
 	}
 
 	bool something_differs = false;
-	for (i = 0; i < test_results.size()-1 && !something_differs; ++i)
+	for (i = 0; i < test_results.size()-1 && !something_differs; ++i) {
 		something_differs |= (test_results[i] != test_results[i+1]);
+	}
 
 	if (something_differs) {
-		if (results_already_seen.find(test_results) != results_already_seen.end()) {
+		if (results_already_seen.find(test_results) !=
+			results_already_seen.end()) {
 			// Ew.
 			// cout << our_value << ": cardinally shadowed by " << results_already_seen.find(test_results)->second << endl;
-			return(false);
+			return (false);
 		}
 		results_already_seen[test_results] = funct_to_test.get_value();
 	}
 
-	return(something_differs);
-	
+	return (something_differs);
+
 }
 
 // Now this is the limiting factor (for memory).
@@ -346,7 +356,7 @@ bool custom_function::update_suitability(const custom_function & funct_to_test,
 // should filter out most matches and then we only need to check a few if we do
 // have a match by hash.
 // Or we could use a Bloomier filter.
-bool custom_function::update_ordinal_suitability(const custom_function & 
+bool custom_function::update_ordinal_suitability(const custom_function &
 	funct_to_test, const vector<vector<double> > & test_in_vectors,
 	map<vector<bool>, unsigned long long> & results_already_seen) const {
 
@@ -369,18 +379,18 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 	size_t i, j;
 
 	for (i = 0; i < num_vectors; ++i) {
-		test_results[i] = funct_to_test.evaluate(test_in_vectors[i], 
-			true);
+		test_results[i] = funct_to_test.evaluate(test_in_vectors[i],
+				true);
 
 		if (isnan(test_results[i])) {
-			return(false);
+			return (false);
 		}
 	}
 
 	for (i = 0; i < num_vectors; ++i) {
 		for (j = 0; j < num_vectors; ++j) {
 			double difference = test_results[i]-test_results[j];
-	
+
 			results_ordinal.push_back(
 				fabs(difference) > tolerance && difference < 0);
 		}
@@ -388,15 +398,15 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 
 	//cout << endl;
 
-	if (results_already_seen.find(results_ordinal) != 
+	if (results_already_seen.find(results_ordinal) !=
 		results_already_seen.end()) {
 		//cout << our_value << ": ordinally shadowed by " << results_already_seen.find(results_ordinal)->second << endl;
-		return(false);
+		return (false);
 	} else {
 		results_already_seen[results_ordinal] = funct_to_test.get_value();
 	}
 
-	return(true);
+	return (true);
 }
 
 vector<string> custom_function::get_atom_printout() const {

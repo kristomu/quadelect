@@ -22,7 +22,9 @@
 
 std::vector<double> get_test_vector(int numcands) {
 	std::vector<double> out(factorial(numcands));
-	std::generate(out.begin(), out.end(), []() { return(drand48()*1000); });
+	std::generate(out.begin(), out.end(), []() {
+		return (drand48()*1000);
+	});
 	return out;
 }
 
@@ -31,7 +33,8 @@ std::vector<std::vector<double> > get_test_vectors(int how_many,
 
 	std::vector<std::vector<double> > out(how_many);
 	std::generate(out.begin(), out.end(), [numcands]() {
-		return(get_test_vector(numcands)); });
+		return (get_test_vector(numcands));
+	});
 
 	return out;
 }
@@ -87,7 +90,9 @@ std::vector<bool> get_ordinal_test_result(const std::vector<double> &
 
 	for (size_t x = 0; x < cardinal_results.size(); ++x) {
 		for (size_t y = 0; y < cardinal_results.size(); ++y) {
-			if (x == y) continue;
+			if (x == y) {
+				continue;
+			}
 
 			ordinal_output.push_back((cardinal_results[x]-cardinal_results[y])
 				> threshold);
@@ -105,17 +110,15 @@ std::vector<bool> get_ordinal_test_result(const std::vector<double> &
 
 typedef std::pair<uint64_t, uint64_t> hash_result;
 
-namespace std
-{
-	template<>
-	struct hash<std::pair<uint64_t, uint64_t> >
-	{
-		// Assumes the key numbers are well-distributed, as with the
-		// results of the spooky hash above.
-		size_t operator()(const std::pair<uint64_t, uint64_t> & in) const {
-			return (size_t)in.first;
-		}
-	};
+namespace std {
+template<>
+struct hash<std::pair<uint64_t, uint64_t> > {
+	// Assumes the key numbers are well-distributed, as with the
+	// results of the spooky hash above.
+	size_t operator()(const std::pair<uint64_t, uint64_t> & in) const {
+		return (size_t)in.first;
+	}
+};
 }
 
 hash_result get_ordinal_hash_test_result(const std::vector<double> &
@@ -168,7 +171,7 @@ int main(int argc, const char ** argv)  {
 	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " [file containing past output]"
 			<< std::endl;
-		return(-1);
+		return (-1);
 	}
 
 	std::string filename = argv[1];
@@ -188,18 +191,19 @@ int main(int argc, const char ** argv)  {
 	gen_custom_function x(numcands);
 
 	std::vector<std::vector<double> > cardinal_tests = get_test_vectors(8,
-		numcands);
+			numcands);
 
 	std::vector<std::vector<double> > ordinal_tests = get_test_vectors(48,
-		numcands);
+			numcands);
 
 	std::vector<std::vector<double> > basis = get_identity_vectors(numcands,
-		true);
+			true);
 
 	std::copy(basis.begin(), basis.end(), std::back_inserter(ordinal_tests));
 
 	std::map<std::vector<double>, algo_t> cardinal_seen_before;
-	std::unordered_map<std::pair<uint64_t, uint64_t>, algo_t> ordinal_seen_before;
+	std::unordered_map<std::pair<uint64_t, uint64_t>, algo_t>
+	ordinal_seen_before;
 
 	// Insert all the algorithms we've already been through...
 	algo_t last_algorithm_seen = 0;
@@ -207,7 +211,8 @@ int main(int argc, const char ** argv)  {
 
 	for (algo_t algorithm: prior_algorithm_numbers) {
 		if (!x.set_algorithm(algorithm)) {
-			std::cerr << "Error! " << algorithm << " is not a valid algorithm number!" << std::endl;
+			std::cerr << "Error! " << algorithm << " is not a valid algorithm number!"
+				<< std::endl;
 			throw new std::runtime_error("Error reintroducing algorithms");
 		}
 
@@ -223,7 +228,8 @@ int main(int argc, const char ** argv)  {
 		ordinal_seen_before[ordinal_results_hash] = algorithm;
 
 		if ((++count & 2047) == 0) {
-			std::cerr << algorithm/(long double)last_algorithm_seen << "    \r" << std::flush;
+			std::cerr << algorithm/(long double)last_algorithm_seen << "    \r" <<
+				std::flush;
 			count = 0;
 		}
 	}
@@ -233,10 +239,12 @@ int main(int argc, const char ** argv)  {
 	// And now for some new ones.
 
 	for (algo_t i = last_algorithm_seen; ; ++i) {
-		if (!x.set_algorithm(i)) continue;
+		if (!x.set_algorithm(i)) {
+			continue;
+		}
 
 		std::vector<double> cardinal_results = evaluate_algorithm(x,
-			cardinal_tests);
+				cardinal_tests);
 
 		if (cardinal_seen_before.find(cardinal_results) !=
 			cardinal_seen_before.end()) {

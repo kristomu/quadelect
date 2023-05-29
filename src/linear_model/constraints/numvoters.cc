@@ -11,9 +11,9 @@ constraint_set voter_constraints::max_numvoters_definition(int numcands,
 	out.description = "numvoters_max_constraint_" + situation_suffix;
 	out.constraint_rel.type = LREL_LE;
 	out.constraint_rel.lhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::all_permutations(numcands), "", situation_suffix);
+			constraint_tools::all_permutations(numcands), "", situation_suffix);
 	out.constraint_rel.rhs.weights.push_back(std::pair<std::string, double>(
-		voters_var, 1));
+			voters_var, 1));
 
 	return out;
 }

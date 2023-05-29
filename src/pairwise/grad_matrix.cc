@@ -11,17 +11,20 @@
 
 #include "grad_matrix.h"
 
-size_t cond_borda_matrix::linear(size_t cand, size_t against, size_t numcands) const {
+size_t cond_borda_matrix::linear(size_t cand, size_t against,
+	size_t numcands) const {
 
-	return(against * numcands + cand);
+	return (against * numcands + cand);
 }
 
-double cond_borda_matrix::get_internal(size_t candidate, size_t against, 
-		bool raw) const {
+double cond_borda_matrix::get_internal(size_t candidate, size_t against,
+	bool raw) const {
 
-	if (candidate == against) return(0);
+	if (candidate == against) {
+		return (0);
+	}
 
-	double raw_score = engine.get_score(linear(candidate, against, 
+	double raw_score = engine.get_score(linear(candidate, against,
 				num_candidates));
 
 	// If it's not allocated or the candidate number is too large, boom.
@@ -30,12 +33,12 @@ double cond_borda_matrix::get_internal(size_t candidate, size_t against,
 	// Also consider different score schedules now that we've got Condorcet
 	// matrices set up. The schedules should go in engine, though.
 
-	if (raw)
-		return(raw_score);
-	else	return(type.transform(raw_score, engine.get_score(linear(
-						against, candidate, 
-						num_candidates)),
-				num_voters));
+	if (raw) {
+		return (raw_score);
+	} else	return (type.transform(raw_score, engine.get_score(linear(
+							against, candidate,
+							num_candidates)),
+					num_voters));
 }
 
 bool cond_borda_matrix::add_internal(size_t candidate, size_t against,
@@ -46,30 +49,30 @@ bool cond_borda_matrix::add_internal(size_t candidate, size_t against,
 			"Candidate number out of range");
 	}
 
-	return(engine.add_rating(linear(candidate, against, num_candidates), 
+	return (engine.add_rating(linear(candidate, against, num_candidates),
 				weight, value));
 }
 
 bool cond_borda_matrix::set_internal(size_t candidate, size_t against,
 	double weight, double value) {
 
-if (std::max(candidate, against) >= num_candidates) {
+	if (std::max(candidate, against) >= num_candidates) {
 		throw std::out_of_range("cond_borda::set_internal: "
 			"Candidate number out of range");
 	}
-	return(engine.set_rating(linear(candidate, against, num_candidates), 
+	return (engine.set_rating(linear(candidate, against, num_candidates),
 				weight, value));
 }
 
 bool cond_borda_matrix::set_internal(size_t candidate, size_t against,
 	double value) {
 
-	return(set_internal(candidate, against, 1, value));
+	return (set_internal(candidate, against, 1, value));
 }
 
 cond_borda_matrix::cond_borda_matrix(const list<ballot_group> & scores,
-		size_t num_candidates_in, pairwise_type kind, bool cardinal,
-		completion_type completion_in) : abstract_condmat(kind) {
+	size_t num_candidates_in, pairwise_type kind, bool cardinal,
+	completion_type completion_in) : abstract_condmat(kind) {
 
 	if (num_candidates_in == 0) {
 		throw std::runtime_error("cond_borda_matrix: Can't initialize matrix "
@@ -90,22 +93,22 @@ cond_borda_matrix::cond_borda_matrix(const list<ballot_group> & scores,
 }
 
 cond_borda_matrix::cond_borda_matrix(const cond_borda_matrix & in,
-		pairwise_type kind) : abstract_condmat(kind) {
+	pairwise_type kind) : abstract_condmat(kind) {
 
 	engine = in.engine;
 	num_voters = in.num_voters;
 	num_candidates = in.num_candidates;
 }
 
-void cond_borda_matrix::count_ballots(const list<ballot_group> & scores, 
-		size_t num_candidates_in, bool cardinal, completion_type
-		completion) {
+void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
+	size_t num_candidates_in, bool cardinal, completion_type
+	completion) {
 
 	// Check that we have as many candidates as needed. If not, boom.
 	// TODO: Just wipe and resize if too small.
-	if (engine.get_num_candidates() < num_candidates_in * 
-			num_candidates_in || num_candidates <
-			num_candidates_in) {
+	if (engine.get_num_candidates() < num_candidates_in *
+		num_candidates_in || num_candidates <
+		num_candidates_in) {
 		throw std::runtime_error("count_ballots: Too few candidates!");
 	}
 
@@ -125,7 +128,7 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 	size_t counter;
 
 	for (list<ballot_group>::const_iterator pos = scores.begin(); pos !=
-			scores.end(); ++pos) {
+		scores.end(); ++pos) {
 
 		num_voters += pos->weight;
 
@@ -142,7 +145,7 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 
 		// First find out which are ranked at all.
 		for (pri = pos->contents.begin(); pri != pos->contents.end();
-				++pri) {
+			++pri) {
 			if (pri->get_candidate_num() >= num_candidates) {
 				throw std::out_of_range("cond_borda::count_ballots: "
 					"Voter ranked a candidate greater then number of candidates.");
@@ -160,10 +163,12 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 		// No, we commented out the equal-rank for the wrong method,
 		// doh. Check later... with the *right* generator.
 		for (counter = 0; counter < seen.size(); ++counter) {
-			if (seen[counter]) continue;
+			if (seen[counter]) {
+				continue;
+			}
 
-			for (sec_count = 0; sec_count < seen.size(); 
-					++sec_count)
+			for (sec_count = 0; sec_count < seen.size();
+				++sec_count)
 				if (counter != sec_count && !seen[sec_count]) {
 					ok = add_internal(counter, sec_count,
 							pos->weight, 0);
@@ -179,9 +184,10 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 		}
 
 		for (pri = pos->contents.begin(); pri != pos->contents.end();
-				++pri) {
-			if (primary_old != pri->get_score())
+			++pri) {
+			if (primary_old != pri->get_score()) {
 				--pri_count;
+			}
 
 			secondary_old = pri->get_score();
 			primary_old = pri->get_score();
@@ -190,10 +196,13 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 			size_t pri_cand = pri->get_candidate_num();
 
 			for (sec = pri; sec != pos->contents.end(); ++sec) {
-				if (sec == pri) continue;
+				if (sec == pri) {
+					continue;
+				}
 
-				if (sec->get_score() != secondary_old)
+				if (sec->get_score() != secondary_old) {
 					--sec_count;
+				}
 
 				if (!seen[sec->get_candidate_num()]) {
 					throw std::logic_error("cond_borda::count_ballots: "
@@ -206,11 +215,13 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 				if (cardinal)
 					dist = pri->get_score() -
 						sec->get_score();
-				else	dist = pri_count - sec_count;
+				else	{
+					dist = pri_count - sec_count;
+				}
 
 				bool x;
 
-				x = add_internal(pri_cand, 
+				x = add_internal(pri_cand,
 						sec->get_candidate_num(),
 						pos->weight, dist);
 
@@ -233,9 +244,11 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 					// what goes here? pri's score for now,
 					// i.e. assume the unranked cands are
 					// ranked at zero.
-					if (cardinal)
+					if (cardinal) {
 						dist = pri->get_score();
-					else	dist = pri_count - sec_count+1;
+					} else	{
+						dist = pri_count - sec_count+1;
+					}
 
 					bool x;
 
@@ -264,15 +277,15 @@ void cond_borda_matrix::zeroize() {
 	}
 
 	engine = grad_fracile();
-	engine.add_candidates(linear(num_candidates, num_candidates, 
-				num_candidates));
+	engine.add_candidates(linear(num_candidates, num_candidates,
+			num_candidates));
 }
 
 bool cond_borda_matrix::reinit(completion_type completion) {
-	return(engine.init(0.5, completion));
+	return (engine.init(0.5, completion));
 }
 
 bool cond_borda_matrix::update() {
-	return(engine.update(false));
+	return (engine.update(false));
 }
 

@@ -50,7 +50,7 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 			std::cout << "Combination " << x.to_string() << ", "
 				<< y.to_string() << ":";
 			if (!cur_test.set_scenarios(x, y, max_numvoters,
-				relative_criterion)) {
+					relative_criterion)) {
 				std::cout << "not permitted\n";
 				continue;
 			}
@@ -128,7 +128,7 @@ size_t update_pass_list(size_t & global_iter_count,
 
 	// Handle stride (since setting up an algorithm takes time.)
 	for (i = 0; i < stride; ++i) {
-		ballot_vectors.push_back( {
+		ballot_vectors.push_back({
 			get_ballot_vector(test_instances[i].before_A),
 			get_ballot_vector(test_instances[i].before_B),
 			get_ballot_vector(test_instances[i].after_A),
@@ -146,7 +146,9 @@ size_t update_pass_list(size_t & global_iter_count,
 	for (size_t funct_idx = 0; funct_idx < passes_so_far.size();
 		++funct_idx) {
 
-		if (!passes_so_far[funct_idx]) { continue; }
+		if (!passes_so_far[funct_idx]) {
+			continue;
+		}
 
 		algo_t to_test = functions_to_test[funct_idx];
 
@@ -162,18 +164,19 @@ size_t update_pass_list(size_t & global_iter_count,
 		bool passed_this = true;
 		for (i = 0; i < stride && passed_this; ++i) {
 			double result_A = evaluator.evaluate(ballot_vectors[i][0]),
-				result_B = evaluator.evaluate(ballot_vectors[i][1]),
-				result_Ap = evaluator.evaluate(ballot_vectors[i][2]),
-				result_Bp = evaluator.evaluate(ballot_vectors[i][3]);
+				   result_B = evaluator.evaluate(ballot_vectors[i][1]),
+				   result_Ap = evaluator.evaluate(ballot_vectors[i][2]),
+				   result_Bp = evaluator.evaluate(ballot_vectors[i][3]);
 
 			bool is_nan = isnan(result_A) || isnan(result_B) ||
 				isnan(result_Ap) || isnan(result_Bp);
 
 			if (is_nan || (result_A - result_B > 0 &&
-				result_Ap - result_Bp < 0)) {
+					result_Ap - result_Bp < 0)) {
 
 				passes_so_far[funct_idx] = false;
-				std::cout << "Disqualified " << to_test << " at iteration " << global_iter_count << "\n";
+				std::cout << "Disqualified " << to_test << " at iteration " <<
+					global_iter_count << "\n";
 				passed_this = false;
 			}
 		}
@@ -199,12 +202,12 @@ size_t test(int test_iterations, size_t & global_iter_count,
 		std::vector<relative_test_instance> instances;
 		for (size_t i = 0; i < stride; ++i) {
 			instances.push_back(get_test_instance(
-			same_group_test_generators[linear_count++ %
-				same_group_test_generators.size()], candidate_equivalences));
+					same_group_test_generators[linear_count++ %
+									   same_group_test_generators.size()], candidate_equivalences));
 		}
 
 		passes = update_pass_list(global_iter_count,
-			functions_to_test, passes_so_far, instances);
+				functions_to_test, passes_so_far, instances);
 	}
 
 	return passes;
@@ -230,9 +233,10 @@ int main(int argc, char ** argv) {
 	std::cout << "Reading file... " << std::endl;
 
 	if (argc < 3) {
-		std::cerr << "Usage: " << argv[0] << " [file containing sifter output, 3 cands] [output file]" <<
+		std::cerr << "Usage: " << argv[0] <<
+			" [file containing sifter output, 3 cands] [output file]" <<
 			std::endl;
-		return(-1);
+		return (-1);
 	}
 
 	std::string filename = argv[1];
@@ -262,11 +266,13 @@ int main(int argc, char ** argv) {
 	fixed_cand_equivalences three_equivalences(3);
 
 	std::map<int, fixed_cand_equivalences> other_equivs;
-	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(4, fixed_cand_equivalences(4)));;
-	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(3, fixed_cand_equivalences(3)));;
+	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(4,
+			fixed_cand_equivalences(4)));;
+	other_equivs.insert(std::pair<int, fixed_cand_equivalences>(3,
+			fixed_cand_equivalences(3)));;
 
 	std::set<copeland_scenario> canonical_full = get_nonderived_scenarios(
-		numcands, other_equivs.find(numcands)->second);
+			numcands, other_equivs.find(numcands)->second);
 
 	std::vector<copeland_scenario> canonical_full_v;
 	std::copy(canonical_full.begin(), canonical_full.end(),
@@ -342,7 +348,7 @@ int main(int argc, char ** argv) {
 		std::cout << "Now sampling an instance." << std::endl;
 
 		relative_test_instance ti = get_test_instance(
-			itgen, other_equivs);
+				itgen, other_equivs);
 
 		ballot_tools().print_ranked_ballots(ti.before_A.election);
 
@@ -360,9 +366,9 @@ int main(int argc, char ** argv) {
 	size_t global_iter_count = 0;
 	std::vector<bool> passes_so_far(functions_to_test.size(), true);
 
-	for(;;) {
+	for (;;) {
 		size_t x = test(20, global_iter_count, functions_to_test,
-			passes_so_far, test_generators, other_equivs);
+				passes_so_far, test_generators, other_equivs);
 
 		std::ofstream out_file(out_filename);
 		gen_custom_function evaluator(numcands);

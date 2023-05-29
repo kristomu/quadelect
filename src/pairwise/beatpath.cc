@@ -5,8 +5,8 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 // Beatpath matrix.
 
-void beatpath::make_beatpaths(const abstract_condmat & input, 
-		const vector<bool> & hopefuls) {
+void beatpath::make_beatpaths(const abstract_condmat & input,
+	const vector<bool> & hopefuls) {
 
 	size_t num_candidates = input.get_num_candidates();
 	set_num_voters(input.get_num_voters());
@@ -28,10 +28,13 @@ void beatpath::make_beatpaths(const abstract_condmat & input,
 
 	for (i = 0; i < num_candidates; ++i)
 		for (j = 0; j < num_candidates; ++j) {
-			if (i == j) continue;
+			if (i == j) {
+				continue;
+			}
 			for (k = 0; k < num_candidates; ++k) {
-				if (i == k || j == k)
+				if (i == k || j == k) {
 					continue;
+				}
 
 				contents[j][k] = max(contents[j][k],
 						min(contents[j][i],
@@ -42,31 +45,33 @@ void beatpath::make_beatpaths(const abstract_condmat & input,
 	// All done!
 }
 
-double beatpath::get_internal(size_t candidate, size_t against, bool raw) const {
+double beatpath::get_internal(size_t candidate, size_t against,
+	bool raw) const {
 	// Same as in pairwise_matrix.
 
-	assert (candidate < contents.size());
-	assert (against < contents.size());
+	assert(candidate < contents.size());
+	assert(against < contents.size());
 
-	if (raw)
-		return(contents[candidate][against]);
-	else	return(type.transform(contents[candidate][against],
-				contents[against][candidate], num_voters));
+	if (raw) {
+		return (contents[candidate][against]);
+	} else	return (type.transform(contents[candidate][against],
+					contents[against][candidate], num_voters));
 }
 
-beatpath::beatpath(const abstract_condmat & input, pairwise_type 
-		type_in) : abstract_condmat(type_in) {
+beatpath::beatpath(const abstract_condmat & input, pairwise_type
+	type_in) : abstract_condmat(type_in) {
 	make_beatpaths(input, vector<bool>(input.get_num_candidates(), true));
 }
 
 beatpath::beatpath(const abstract_condmat & input, pairwise_type type_in,
-		const vector<bool> & hopefuls) : abstract_condmat(type_in) {
+	const vector<bool> & hopefuls) : abstract_condmat(type_in) {
 	make_beatpaths(input, hopefuls);
 }
 
 // ... I think?
-beatpath::beatpath(const list<ballot_group> & scores, size_t num_candidates,
-		pairwise_type type_in) : abstract_condmat(CM_PAIRWISE_OPP) {
+beatpath::beatpath(const list<ballot_group> & scores,
+	size_t num_candidates,
+	pairwise_type type_in) : abstract_condmat(CM_PAIRWISE_OPP) {
 	make_beatpaths(condmat(scores, num_candidates, type_in),
-			vector<bool>(num_candidates, true));
+		vector<bool>(num_candidates, true));
 }

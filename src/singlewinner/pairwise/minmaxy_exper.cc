@@ -8,8 +8,8 @@
 #include <list>
 
 pair<ordering, bool> minmaxy_experimental::pair_elect(
-		const abstract_condmat & input, const vector<bool> & hopefuls,
-		cache_map * cache, bool winner_only) const {
+	const abstract_condmat & input, const vector<bool> & hopefuls,
+	cache_map * cache, bool winner_only) const {
 
 	// Each candidate A has a leximax ordering over all other candidates X
 	// min(X>A, A>X) - X>A. This is then sorted in order of smallest to
@@ -23,11 +23,15 @@ pair<ordering, bool> minmaxy_experimental::pair_elect(
 	size_t i, j;
 
 	for (i = 0; i < input.get_num_candidates(); ++i) {
-		if (!hopefuls[i]) continue;
+		if (!hopefuls[i]) {
+			continue;
+		}
 		std::pair<std::list<double>, size_t> next_score_element(
-            std::list<double>(), i);
+			std::list<double>(), i);
 		for (j = 0; j < input.get_num_candidates(); ++j) {
-			if (!hopefuls[j]) continue;
+			if (!hopefuls[j]) {
+				continue;
+			}
 			double AoverX = input.get_magnitude(i, j, hopefuls);
 			double XoverA = input.get_magnitude(j, i, hopefuls);
 			next_score_element.first.push_back(
@@ -43,13 +47,15 @@ pair<ordering, bool> minmaxy_experimental::pair_elect(
 	int score = 0;
 
 	for (i = 0; i < score_lists.size(); ++i) {
-		if (!hopefuls[score_lists[i].second]) { continue; }
+		if (!hopefuls[score_lists[i].second]) {
+			continue;
+		}
 		if (i > 0 && score_lists[i].first > score_lists[i-1].first) {
 			++score;
 		}
 		out.insert(candscore(score_lists[i].second, score));
 	}
 
-	return(pair<ordering, bool>(out, false));
+	return (pair<ordering, bool>(out, false));
 }
 

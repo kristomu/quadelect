@@ -14,8 +14,8 @@ using namespace std;
 // below-mean score (if average loser elimination).
 
 ordering loser_elimination::break_tie(const ordering & original_ordering,
-		const list<ordering> & past_ordering,
-		int num_candidates) const {
+	const list<ordering> & past_ordering,
+	int num_candidates) const {
 
 	ordering fixed_ordering = original_ordering;
 
@@ -28,7 +28,7 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 	ordering_tools otools;
 
 	for (list<ordering>::const_iterator vpos = past_ordering.begin();
-		       vpos != past_ordering.end() && tied; ++vpos) {
+		vpos != past_ordering.end() && tied; ++vpos) {
 
 		// A rather hackish way of checking that there are more than
 		// two with the same rank, but I suppose it works. Ech.
@@ -36,8 +36,9 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 		++pos;
 		tied = (pos->get_score() == fixed_ordering.
 				rbegin()->get_score());
-		if (!tied)
+		if (!tied) {
 			continue;
+		}
 
 		fixed_ordering = otools.tiebreak(fixed_ordering, *vpos,
 				num_candidates);
@@ -45,7 +46,7 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 
 	// TODO: If still a tie, break by first ballot?
 
-	return(fixed_ordering);
+	return (fixed_ordering);
 }
 
 // Loser-elimination doesn't do anything special when winner_only is set to
@@ -53,9 +54,10 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 // candidates anyway (early majority in IRV notwithstanding). Perhaps find a
 // generalization of early majority, eventually.
 
-pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
-		papers, const vector<bool> & hopefuls, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+pair<ordering, bool> loser_elimination::elect_inner(const
+	list<ballot_group> &
+	papers, const vector<bool> & hopefuls, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
 	list<ordering> base_method_tiebreaks;
 	vector<bool> base_hopefuls = hopefuls;
@@ -67,8 +69,9 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 	size_t num_hopefuls = 0, counter;
 
 	for (counter = 0; counter < (size_t)num_candidates; ++counter)
-		if (hopefuls[counter])
+		if (hopefuls[counter]) {
 			++num_hopefuls;
+		}
 
 	int rank = 0;
 
@@ -87,8 +90,9 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 
 	// While we have candidates left to add...
 	while (output.first.size() < num_hopefuls) {
-		if (debug)
+		if (debug) {
 			cout << "Loop de loop, rank is " << rank << endl;
+		}
 
 		// Get the output for the base method.
 		ordering this_round = base->elect(papers, base_hopefuls,
@@ -111,7 +115,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 			// the scores are undefined and should not be
 			// considered.
 			for (pos = this_round.begin(); pos != this_round.end();
-					++pos)
+				++pos)
 				if (base_hopefuls[pos->get_candidate_num()]) {
 					total += pos->get_score();
 					++inner_num_cands;
@@ -125,10 +129,11 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 			// instead of dividing through by num_cands - the former has
 			// better numerical precision.
 			for (rpos = this_round.rbegin(); rpos !=
-					this_round.rend() && (inner_num_cands * rpos->get_score())
-					<= total; ++rpos) {
-				if (!base_hopefuls[rpos->get_candidate_num()])
+				this_round.rend() && (inner_num_cands * rpos->get_score())
+				<= total; ++rpos) {
+				if (!base_hopefuls[rpos->get_candidate_num()]) {
 					continue;
+				}
 
 				// TODO: Make ties tied instead of arbitrarily tiebroken.
 				// e.g. all candidates have equal first preference votes,
@@ -137,8 +142,8 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 
 				// Currently doesn't work so...
 				output.first.insert(candscore(rpos->
-							get_candidate_num(),
-							rank++));
+						get_candidate_num(),
+						rank++));
 				base_hopefuls[rpos->get_candidate_num()] =
 					false;
 				++elim_this_round;
@@ -155,7 +160,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 					this_round.rend(); ++rpos) {
 
 					output.first.insert(candscore(rpos->get_candidate_num(),
-						rank));
+							rank));
 					base_hopefuls[rpos->get_candidate_num()] = false;
 					++elim_this_round;
 				}
@@ -165,7 +170,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 			if (debug)
 				cout << "this_round: " << otools.
 					ordering_to_text(this_round, fakecand,
-							true) << endl;
+						true) << endl;
 
 			// Otherwise, break any potential ties, then get
 			// the loser. Note that the tiebreak function will
@@ -180,7 +185,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 			if (debug)
 				cout << "mod_this_round: " << otools.
 					ordering_to_text(mod_this_round,
-							fakecand, true) << endl;
+						fakecand, true) << endl;
 
 			// Determine loser and add him to the elimination list,
 			// then actually eliminate him.
@@ -200,18 +205,20 @@ pair<ordering, bool> loser_elimination::elect_inner(const list<ballot_group> &
 		// elimination, but for aesthetics, we add it no matter what.
 		// If first_differences is true, we should add the new ballot
 		// to the end - otherwise, we should add it to the beginning.
-		if (first_differences)
+		if (first_differences) {
 			base_method_tiebreaks.push_back(this_round);
-		else	base_method_tiebreaks.push_front(this_round);
+		} else	{
+			base_method_tiebreaks.push_front(this_round);
+		}
 	}
 
-	return(output);
+	return (output);
 }
 
 loser_elimination::loser_elimination(const election_method * base_method,
-		bool average_loser, bool use_first_diff) {
+	bool average_loser, bool use_first_diff) {
 
-	assert (base_method != NULL);
+	assert(base_method != NULL);
 	base = base_method;
 	average_loser_elim = average_loser;
 	first_differences = use_first_diff;
@@ -223,13 +230,17 @@ string loser_elimination::determine_name() const {
 
 	string ref;
 
-	if (average_loser_elim)
+	if (average_loser_elim) {
 		ref = "AVGEliminate-[" + base->name() + "]";
-	else	ref = "Eliminate-[" + base->name() + "]";
+	} else	{
+		ref = "Eliminate-[" + base->name() + "]";
+	}
 
-	if (first_differences)
+	if (first_differences) {
 		ref += "/fd";
-	else	ref += "/ld";
+	} else	{
+		ref += "/ld";
+	}
 
-	return(ref);
+	return (ref);
 }

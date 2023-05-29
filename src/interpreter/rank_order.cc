@@ -9,8 +9,12 @@
 bool rank_order_int::is_this_format(const vector<string> & inputs) const {
 
 	// if the first line is RANK_ORDER, we know it's this format.
-	if (inputs.empty()) return (false);
-	if (inputs[0] == "RANK_ORDER") return (true);
+	if (inputs.empty()) {
+		return (false);
+	}
+	if (inputs[0] == "RANK_ORDER") {
+		return (true);
+	}
 
 	// Otherwise, only alnums, =, :, ., and > are permitted (as well as the
 	// obvious newlines and spaces). It must also have at least one alnum.
@@ -40,15 +44,16 @@ bool rank_order_int::is_this_format(const vector<string> & inputs) const {
 					if (isprint(inputs[line][sec])) {
 						++ alnums_seen;
 						accepted = true;
-					} else
+					} else {
 						accepted = false;
+					}
 					break;
 			}
 
 			if (!accepted) {
 				cerr << "Not accepted" << endl;
 				cerr << "\t" << inputs[line] << " at " <<
-				     inputs[line][sec] << endl;
+					inputs[line][sec] << endl;
 				return (false);
 			}
 		}
@@ -57,8 +62,9 @@ bool rank_order_int::is_this_format(const vector<string> & inputs) const {
 	return (true);
 }
 
-pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots(
-    const vector<string> & inputs, bool debug) const {
+pair<map<size_t, string>, list<ballot_group> >
+rank_order_int::interpret_ballots(
+	const vector<string> & inputs, bool debug) const {
 
 	// For each line: If it's RANK_ORDER, ignore. Otherwise, check if
 	// there's a : preceded by only numbers (or . in case it's decimal).
@@ -85,10 +91,13 @@ pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots
 	int min_rank = 0;
 
 	for (size_t counter = 0; counter < inputs.size(); ++counter) {
-		if (inputs[counter] == "RANK_ORDER") continue;
+		if (inputs[counter] == "RANK_ORDER") {
+			continue;
+		}
 
-		if (debug)
+		if (debug) {
 			cout << "Debug parse: " << inputs[counter] << endl;
+		}
 
 		size_t sec;
 		// Find the : if there is one.
@@ -97,17 +106,18 @@ pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots
 		ballot_group to_add;
 
 		for (sec = 0; sec < inputs[counter].size() && num_end == -1;
-		        ++sec)
-			if (inputs[counter][sec] == ':')
+			++sec)
+			if (inputs[counter][sec] == ':') {
 				num_end = sec;
+			}
 
 		double weight = 1;
 		// If we found something, then hi-ho hi-ho to the stod you go.
 		if (num_end > 0)
 			weight = str_tod(inputs[counter].substr(0,
-			                                        num_end));
+						num_end));
 
-		assert (weight > 0);
+		assert(weight > 0);
 
 		to_add.weight = weight;
 
@@ -118,7 +128,7 @@ pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots
 			int term = -1;
 			min_rank = min(min_rank, cur_rank);
 			for (sec = num_end+1; sec < inputs[counter].size() &&
-			        term == -1; ++sec) {
+				term == -1; ++sec) {
 				// Slurp letters to form the current candidate
 				// name until we reach >, =, or end of line.
 
@@ -129,7 +139,7 @@ pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots
 						break;
 					default:
 						cur_name +=
-						    inputs[counter][sec];
+							inputs[counter][sec];
 						break;
 				}
 			}
@@ -138,18 +148,18 @@ pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots
 			// any.
 			int first_nonspace_before, first_nonspace_after;
 			for (sec = 0; sec < cur_name.size() &&
-			        cur_name[sec] == ' '; ++sec);
+				cur_name[sec] == ' '; ++sec);
 			first_nonspace_before = sec;
 			// Nasty trick: sec <= cur_name.size()-1 really means >= 0
 			// because subtracting one from 0 will wrap around to max
 			// value for size_t.
 			for (sec = cur_name.size()-1; sec <= cur_name.size()-1 &&
-			        cur_name[sec] == ' '; --sec);
+				cur_name[sec] == ' '; --sec);
 			first_nonspace_after = sec;
 
 			cur_name = cur_name.substr(first_nonspace_before,
-			                           first_nonspace_after + 1 -
-			                           first_nonspace_before);
+					first_nonspace_after + 1 -
+					first_nonspace_before);
 
 			// Look up this candidate's candidate number. If there
 			// is none, add a new number.
@@ -160,31 +170,36 @@ pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots
 			if (fwd.find(cur_name) == fwd.end()) {
 				cand_number = candidates++;
 				fwd[cur_name] = cand_number;
-			} else
+			} else {
 				cand_number = fwd.find(cur_name)->second;
+			}
 
 			// Dump this preference into the ballot we're setting.
 			to_add.contents.insert(candscore(cand_number,
-			                                 cur_rank));
+					cur_rank));
 
 			// If our stopping point wasn't EOL, it could be either
 			// > or =. If it's >, we should decrease rank so that
 			// the next candidate has lower rank, otherwise we
 			// shouldn't.
-			if (term != -1 && inputs[counter][term] == '>')
+			if (term != -1 && inputs[counter][term] == '>') {
 				--cur_rank;
+			}
 
 			// Finally, update stopping point.
-			if (term != -1)
+			if (term != -1) {
 				num_end = term;
-			else	num_end = inputs[counter].size()-1;
+			} else	{
+				num_end = inputs[counter].size()-1;
+			}
 		}
 
 		// If there was a ballot there, add it.
 		// (???: Do this anyway to handle "Irrelevant ballots"? Perhaps
 		//  only when a weight has been explicitly stated.)
-		if (!to_add.contents.empty())
+		if (!to_add.contents.empty()) {
 			to_ret.second.push_back(to_add);
+		}
 	}
 
 	// Invert the fwd map.
@@ -193,14 +208,14 @@ pair<map<size_t, string>, list<ballot_group> > rank_order_int::interpret_ballots
 	// Postprocess the ballots so the ratings are all positive (seems to
 	// make a diff for median, etc).
 	for (list<ballot_group>::iterator lbpos = to_ret.second.begin();
-	        lbpos != to_ret.second.end(); ++lbpos) {
+		lbpos != to_ret.second.end(); ++lbpos) {
 		ordering replacement;
 
 		for (ordering::const_iterator opos = lbpos->contents.begin();
-		        opos != lbpos->contents.end(); ++opos)
+			opos != lbpos->contents.end(); ++opos)
 			replacement.insert(candscore(opos->
-			                             get_candidate_num(),
-			                             opos->get_score() - min_rank));
+					get_candidate_num(),
+					opos->get_score() - min_rank));
 
 		lbpos->contents = replacement;
 	}

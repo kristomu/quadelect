@@ -15,7 +15,7 @@ uint64_t rng::rng64(uint64_t * s) {
 	const uint64_t s0 = s[ 1 ];
 	s[ 0 ] = s0;
 	s1 ^= s1 << 23; // a
-	return ( s[ 1 ] = ( s1 ^ s0 ^ ( s1 >> 17 ) ^ ( s0 >> 26 ) ) ) + s0;
+	return (s[ 1 ] = (s1 ^ s0 ^ (s1 >> 17) ^ (s0 >> 26))) + s0;
 }
 
 // Clock one iteration of xorshift64* to improve Crush results with
@@ -41,7 +41,7 @@ void rng::s_rand(uint64_t seed_in) {
 }
 
 void rng::s_rand() {
-	// std::random_device is a C++ hardware RNG class. It returns 
+	// std::random_device is a C++ hardware RNG class. It returns
 	// unsigned 32-bit ints, so we need two of them.
 	std::random_device rd;
 	uint64_t seed_in = 0;
@@ -106,7 +106,9 @@ double rng::drand(double min, double max) {
 }
 
 uint64_t rng::lrand(uint64_t modulus) {
-	if (modulus == 0) return (0);
+	if (modulus == 0) {
+		return (0);
+	}
 
 	// Find up to max without succumbing to modulo bias.
 
@@ -115,8 +117,9 @@ uint64_t rng::lrand(uint64_t modulus) {
 	uint64_t remainder = maxVal % modulus;
 
 	// If the modulus evenly divides maxVal, then we're done.
-	if (remainder == 0)
+	if (remainder == 0) {
 		return (long_rand() % modulus);
+	}
 
 	// Otherwise, keep trying until we're inside a range that *does*.
 	uint64_t randval;
@@ -130,7 +133,9 @@ uint64_t rng::lrand(uint64_t modulus) {
 }
 
 uint64_t rng::lrand(uint64_t min, uint64_t max) {
-	if (max < min) return (lrand(max, min));
+	if (max < min) {
+		return (lrand(max, min));
+	}
 
 	return (min + lrand(max-min));
 }
@@ -138,25 +143,29 @@ uint64_t rng::lrand(uint64_t min, uint64_t max) {
 uint32_t rng::irand(uint32_t modulus) {
 	// Same thing, 32 bit edition.
 
-	if (modulus == 0) return (0);
+	if (modulus == 0) {
+		return (0);
+	}
 
 	const uint32_t maxVal = ~((uint32_t)0);
 	uint32_t remainder = maxVal % modulus;
 
-	if (remainder == 0)
+	if (remainder == 0) {
 		return (irand() % modulus);
+	}
 
 	uint32_t randval;
-	do
+	do {
 		randval = irand();
-	while (randval < remainder);
+	} while (randval < remainder);
 
 	return ((randval - remainder)%modulus);
 }
 
 uint32_t rng::irand(uint32_t min, uint32_t max) {
-	if (max < min)
+	if (max < min) {
 		return (irand(max, min));
+	}
 
 	return (min + irand(max-min));
 }

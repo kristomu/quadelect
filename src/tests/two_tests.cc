@@ -4,28 +4,31 @@
 
 // Should this be a pseudo-singlewinner method? Nah, because then we lose the
 // capacity of picking number of seats as needed.
-ordering twotest::synthesize_single_winner(const list<int> & mw_council, 
-		int num_candidates) const {
+ordering twotest::synthesize_single_winner(const list<int> & mw_council,
+	int num_candidates) const {
 
-        vector<bool> members(num_candidates, false);
-        list<int>::const_iterator lpos;
-        for (lpos = mw_council.begin(); lpos != mw_council.end(); ++lpos)
+	vector<bool> members(num_candidates, false);
+	list<int>::const_iterator lpos;
+	for (lpos = mw_council.begin(); lpos != mw_council.end(); ++lpos) {
 		members[*lpos] = true;
+	}
 
-        ordering unmod;
-        for (int counter = 0; counter < num_candidates; ++counter)
-                if (members[counter])
-                        unmod.insert(candscore(counter, 1));
-                else    unmod.insert(candscore(counter, 0));
+	ordering unmod;
+	for (int counter = 0; counter < num_candidates; ++counter)
+		if (members[counter]) {
+			unmod.insert(candscore(counter, 1));
+		} else {
+			unmod.insert(candscore(counter, 0));
+		}
 
-	return(unmod);
+	return (unmod);
 }
 
 
-ternary twotest::pass(const election_method * base, 
-		const list<ballot_group> & input,
-		int num_candidates, cache_map * unmod_cache,
-		cache_map * mod_cache) {
+ternary twotest::pass(const election_method * base,
+	const list<ballot_group> & input,
+	int num_candidates, cache_map * unmod_cache,
+	cache_map * mod_cache) {
 
 	disproof_out.complete = false;
 	disproof_out.unmodified_ballots = input;
@@ -43,57 +46,61 @@ ternary twotest::pass(const election_method * base,
 			unmodified_ballots, num_candidates, unmod_cache,
 			winner_only());
 	if (!applicable(disproof_out.unmodified_ordering,
-				disproof_out.modification_data, true))
-		return(TINAPP);
+			disproof_out.modification_data, true)) {
+		return (TINAPP);
+	}
 
 	// Generate the modified ballots.
 	arrangement = rearrange_ballots(input, num_candidates,
 			disproof_out.modification_data);
-		
+
 	// No luck? Give up and call the original inapplicable.
 	// Note that adding a loop before this would distort the
 	// probability calcs.
-	if(!arrangement.first) 
-		return(TINAPP);
+	if (!arrangement.first) {
+		return (TINAPP);
+	}
 
 	// Otherwise, set the modified ballot list.
 	disproof_out.modified_ballots = arrangement.second;
 
 	// Now "pass last".
 
-	return(pass_last(base, num_candidates, true, unmod_cache, mod_cache));
+	return (pass_last(base, num_candidates, true, unmod_cache, mod_cache));
 }
 
 ternary twotest::pass(const election_method * base,
-		const list<ballot_group> & input,
-		int num_candidates) {
+	const list<ballot_group> & input,
+	int num_candidates) {
 
-	return(pass(base, input, num_candidates, NULL, NULL));
+	return (pass(base, input, num_candidates, NULL, NULL));
 }
 
 ternary twotest::pass_specd(const election_method * base,
-		const disproof & to_test, int num_candidates,
-		cache_map * unmod_cache, cache_map * mod_cache) {
+	const disproof & to_test, int num_candidates,
+	cache_map * unmod_cache, cache_map * mod_cache) {
 
 	disproof_out = to_test;
-	
+
 	// Generate the modified ballots.
 	pair<bool, list<ballot_group> > arrangement;
-	arrangement = rearrange_ballots(disproof_out.unmodified_ballots, 
+	arrangement = rearrange_ballots(disproof_out.unmodified_ballots,
 			num_candidates, disproof_out.modification_data);
 
-	if(!arrangement.first)
-		return(TINAPP);
+	if (!arrangement.first) {
+		return (TINAPP);
+	}
 
 	// Otherwise, set the modified ballot list.
 	disproof_out.modified_ballots = arrangement.second;
 
-	return(pass_last(base, num_candidates, false, unmod_cache, mod_cache));
+	return (pass_last(base, num_candidates, false, unmod_cache, mod_cache));
 }
 
-ternary twotest::pass_last(const election_method * base, int num_candidates,
-		bool unmod_already_set, cache_map * unmod_cache, 
-		cache_map * mod_cache) {
+ternary twotest::pass_last(const election_method * base,
+	int num_candidates,
+	bool unmod_already_set, cache_map * unmod_cache,
+	cache_map * mod_cache) {
 	// We assume the data structure (ballot and modified, and data) have
 	// been filled out.
 
@@ -120,19 +127,21 @@ ternary twotest::pass_last(const election_method * base, int num_candidates,
 				winner_only());
 	// Check if it's applicable
 	if (!applicable(disproof_out.unmodified_ordering,
-				disproof_out.modification_data, true))
-		return(TINAPP);
+			disproof_out.modification_data, true)) {
+		return (TINAPP);
+	}
 
 	// Get the modified ordering.
 	disproof_out.modified_ordering = base->elect(disproof_out.
-			modified_ballots, num_candidates, mod_cache, 
+			modified_ballots, num_candidates, mod_cache,
 			winner_only());
 	// Doesn't this let it get off free? Well, in another sense, the
 	// scenarios are symmetric and therefore if we're going to check one,
 	// we should also check the other (or do a xor).
 	if (!applicable(disproof_out.modified_ordering,
-				disproof_out.modification_data, false))
-		return(TINAPP);
+			disproof_out.modification_data, false)) {
+		return (TINAPP);
+	}
 
 	// We can't check applicable(modified) here because it might be
 	// relevant - for instance, reversal symmetry with disallow ties
@@ -141,17 +150,20 @@ ternary twotest::pass_last(const election_method * base, int num_candidates,
 	disproof_out.complete = true;
 
 	// Then just check if they pass!
-	if (pass_internal(disproof_out.unmodified_ordering, 
-				disproof_out.modified_ordering, 
-				disproof_out.modification_data, num_candidates))
-		return(TTRUE);
-	else	return(TFALSE);
+	if (pass_internal(disproof_out.unmodified_ordering,
+			disproof_out.modified_ordering,
+			disproof_out.modification_data, num_candidates)) {
+		return (TTRUE);
+	} else	{
+		return (TFALSE);
+	}
 }
 
-ternary twotest::pass_last(const election_method * base, int num_candidates) {
+ternary twotest::pass_last(const election_method * base,
+	int num_candidates) {
 
-	return(pass_last(base, num_candidates, false, NULL, NULL));
-	
+	return (pass_last(base, num_candidates, false, NULL, NULL));
+
 }
 
 // This function is for checking many functions at once against the test. It
@@ -182,11 +194,11 @@ ternary twotest::pass_last(const election_method * base, int num_candidates) {
 // Possible TODO: pass mod_cache instead of making it. Depends on how much time
 // it takes to create a new map vs clearing it.
 bool twotest::pass_many(const vector<ordering> & base_outcomes,
-		const list<ballot_group> & original_ballots, 
-		int num_candidates, int num_nc_iters, 
-		const vector<const election_method *> & methods_to_test,
-		vector<method_test_info> & compliance_data, 
-		bool skip_already_false) {
+	const list<ballot_group> & original_ballots,
+	int num_candidates, int num_nc_iters,
+	const vector<const election_method *> & methods_to_test,
+	vector<method_test_info> & compliance_data,
+	bool skip_already_false) {
 
 	//cout << "Debug: test is " << name() << endl;
 
@@ -207,7 +219,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 	}
 
 	int num_uninterrupted = 0; // iters since we last tested something.
-	
+
 	cache_map mod_cache;
 	disproof_out.unmodified_ballots = original_ballots;
 
@@ -226,49 +238,55 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 		// ordering would be very useful here.
 		bool one_applicable = false, all_discovered = true;
 		for (counter = 0; counter < status.size() && !one_applicable;
-				++counter) {
+			++counter) {
 
-			if (status[counter] != TFALSE)
+			if (status[counter] != TFALSE) {
 				all_discovered = false;
+			}
 
 			// If it's already determined, no need to go further.
-			if (status[counter] != TINAPP)
+			if (status[counter] != TINAPP) {
 				continue;
+			}
 
 			// If not applicable, continue.
-			if (!applicable(base_outcomes[counter], 
-						disproof_out.modification_data,
-					       	true))
+			if (!applicable(base_outcomes[counter],
+					disproof_out.modification_data,
+					true)) {
 				continue;
+			}
 
 			// If we get here, it was applicable, so break;
 			one_applicable = true;
 		}
 
 		// If nothing was applicable, try again with some other data.
-		if (!one_applicable)
+		if (!one_applicable) {
 			continue;
+		}
 
 		// If everything has been discovered and we have been told to
 		// not find further disproofs where disproofs have already been
 		// found, get outta here.
-		if (all_discovered && skip_already_false)
-			return(false);
+		if (all_discovered && skip_already_false) {
+			return (false);
+		}
 
 		// Otherwise, generate the actual modified ballot group and
-		// start testing! It might still not be applicable or even 
+		// start testing! It might still not be applicable or even
 		// possible,  but we don't know that yet.
 		pair<bool, list<ballot_group> > arrangement =
 			rearrange_ballots(disproof_out.unmodified_ballots,
-					num_candidates, 
-					disproof_out.modification_data);
+				num_candidates,
+				disproof_out.modification_data);
 
 		// If we couldn't make a modified ballot out of it, try again
 		// with other data. (This could happen, for instance, if we're
 		// trying to make a monotonicity failure and everybody ranks
 		// the winner first - then he can't be raised anywhere)
-		if (!arrangement.first)
+		if (!arrangement.first) {
 			continue;
+		}
 
 		// We're all set, so load the modified ballots and set the
 		// starting point...
@@ -283,14 +301,15 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 		// And then, for all tests that remain, check if they return
 		// something other than TINAPP. If so, we've tested them, so
 		// mark them as such.
-		for (counter = first; counter < status.size() && 
-				methods_left > 0; ++counter) {
-			if (status[counter] != TINAPP)
+		for (counter = first; counter < status.size() &&
+			methods_left > 0; ++counter) {
+			if (status[counter] != TINAPP) {
 				continue;
+			}
 
 			// Would this be more elegant if we replaced it with
 			// a cache lookup? Yes, but also slower.
-			disproof_out.unmodified_ordering = 
+			disproof_out.unmodified_ordering =
 				base_outcomes[counter];
 
 			// TODO: Fix bug here. Adding mod_cache makes the system
@@ -308,11 +327,13 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 				// Update compliance data.
 				++compliance_data[counter].iters_run;
 				if (result == TFALSE) {
-					cout << "result for " << methods_to_test[counter]->name() << " and " << name() << " is " << result << " at iter " << compliance_data[counter].iters_run << endl;
+					cout << "result for " << methods_to_test[counter]->name() << " and " <<
+						name() << " is " << result << " at iter " <<
+						compliance_data[counter].iters_run << endl;
 					compliance_data[counter].
-						passes_so_far =	false;
+					passes_so_far =	false;
 					compliance_data[counter].
-						crit_disproof =	disproof_out;
+					crit_disproof =	disproof_out;
 				}
 			}
 		}
@@ -321,7 +342,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 
 	//cout << "---" << endl;
 
-	return(true);
+	return (true);
 }
 
 // TODO BLUESKY: Some way of doing multiwinner twotests, e.g. DPC.
@@ -332,7 +353,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 	// TODO: Ties must be allowed, and only winners/losers be counted.
 	// Some methods (Schulze STV etc) provide for a full ranking of every
 	// possible council, but that's exponential and so we don't support it.
-	
+
 	list<int> unmodified_council = base_mw->get_council(council_size,
 			num_candidates, disproof_out.unmodified_ballots);
 	disproof_out.unmodified_ordering = synthesize_single_winner(
@@ -361,13 +382,13 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 }
 
 ternary twotest::pass_multiwinner(const multiwinner_method * base_mw,
-		const list<ballot_group> & input, int council_size, 
+		const list<ballot_group> & input, int council_size,
 		int num_candidates) {
 
 	// Second verse, same as the first. (See above)
 	// Maybe making a surrogate single winner method would be best
 	// after all, then just integrate it into twotest...
-	
+
         disproof_out.complete = false;
         disproof_out.unmodified_ballots = input;
 

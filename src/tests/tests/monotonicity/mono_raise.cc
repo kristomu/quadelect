@@ -16,9 +16,9 @@
 ////////////////
 
 bool mono_raise::alter_ballot(const ordering & input,
-                              ordering & norm, size_t numcands,
-                              const vector<size_t> & data,
-                              rng & randomizer) const {
+	ordering & norm, size_t numcands,
+	const vector<size_t> & data,
+	rng & randomizer) const {
 
 	// Let's raise/lower the candidate to raise (unless he's already
 	// in first/last and not a tie).
@@ -34,10 +34,10 @@ bool mono_raise::alter_ballot(const ordering & input,
 	bool did_something = false;
 
 	for (ordering::iterator spos = norm.begin(); spos != norm.end() &&
-	        !did_something; ++spos) {
+		!did_something; ++spos) {
 
 		if (spos->get_candidate_num() == cand_to_change &&
-		        spos->get_score() != highest_score) {
+			spos->get_score() != highest_score) {
 			double cur_score = spos->get_score();
 			double rand_displace = 1.01;
 
@@ -58,7 +58,7 @@ bool mono_raise::alter_ballot(const ordering & input,
 		}
 	}
 
-	return(did_something);
+	return (did_something);
 }
 
 ///// Mono-raise-delete
@@ -80,7 +80,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 	// Hack because "lowering" doesn't make sense for add-delete.
 	if (!raise) {
 		output = input;
-		return(false);
+		return (false);
 	}
 
 	bool did_something = false;
@@ -89,27 +89,28 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 	candscore to_add(-1, -1);
 
 	for (ordering::const_iterator spos = input.begin();
-	        spos != input.end() && !did_something; ++spos) {
+		spos != input.end() && !did_something; ++spos) {
 
 		if (spos->get_candidate_num() == cand_to_change) {
 			int cur_score = spos->get_score();
 			rand_displace = cur_score;
 			if (highest_score != cur_score) {
 				rand_displace = randomizer.irand(
-				                    cur_score,
-				                    highest_score);
+						cur_score,
+						highest_score);
 				// Always raise by at least one, unless
 				// we're already at top.
 				rand_displace = min((double)highest_score,
-				                    rand_displace + 1);
+						rand_displace + 1);
 			}
 
 			// Set what we want to add
 			to_add = candscore(spos->get_candidate_num(),
-			                   rand_displace);
+					rand_displace);
 
-			if (rand_displace != cur_score)
+			if (rand_displace != cur_score) {
 				did_something = true;
+			}
 		}
 	}
 
@@ -128,8 +129,9 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 	cout << "B: " << output.size() << endl;
 	output.erase(limit_pos, output.end());*/
 	for (ordering::const_iterator xpos = input.begin(); xpos != input.end()
-	        && xpos->get_score() > rand_displace; ++xpos)
+		&& xpos->get_score() > rand_displace; ++xpos) {
 		output.insert(*xpos);
+	}
 
 	//cout << "BA: " << output.size() << endl;
 
@@ -138,7 +140,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 
 	//assert(output.size() != input.size());
 
-	return(output.size() != input.size());
+	return (output.size() != input.size());
 }
 
 ///// Mono-raise-random
@@ -146,7 +148,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 
 bool mono_raise_random::alter_ballot(const ordering & input,
 	ordering & output, size_t numcands, const vector<size_t> & data,
-    rng & randomizer) const {
+	rng & randomizer) const {
 
 	// Lost of cut-n-paste code from MRD here. See mono-raise-delete for
 	// what this does. May have to refactor later.
@@ -162,7 +164,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	// position)
 	if (!raise) {
 		output = input;
-		return(false);
+		return (false);
 	}
 
 	bool did_something = false;
@@ -171,21 +173,22 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	candscore to_add(-1, -1);
 
 	for (ordering::const_iterator spos = input.begin(); spos != input.end()
-	        && !did_something; ++spos) {
+		&& !did_something; ++spos) {
 
 		if (spos->get_candidate_num() == cand_to_change) {
 			int cur_score = spos->get_score();
 			rand_displace = cur_score;
 			if (highest_score != cur_score)
 				rand_displace = min((double)randomizer.
-				                    irand(cur_score, highest_score),
-				                    rand_displace + 1);
+						irand(cur_score, highest_score),
+						rand_displace + 1);
 
 			to_add = candscore(spos->get_candidate_num(),
-			                   rand_displace);
-			
-			if (rand_displace != cur_score)
+					rand_displace);
+
+			if (rand_displace != cur_score) {
 				did_something = true;
+			}
 		}
 	}
 
@@ -196,7 +199,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	used[to_add.get_candidate_num()] = true;
 
 	for (ordering::const_iterator xpos = input.begin(); xpos != input.end()
-	        && xpos->get_score() > rand_displace; ++xpos) {
+		&& xpos->get_score() > rand_displace; ++xpos) {
 		output.insert(*xpos);
 		used[xpos->get_candidate_num()] = true;
 	}
@@ -205,9 +208,9 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	for (size_t counter = 0; counter < used.size(); ++counter)
 		if (!used[counter])
 			output.insert(candscore(counter, rand_displace -
-			                        (randomizer.drand() + 0.01)));
+					(randomizer.drand() + 0.01)));
 
 	output.insert(to_add);
 
-	return(true);
+	return (true);
 }

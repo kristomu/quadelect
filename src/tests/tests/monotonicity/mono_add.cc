@@ -15,18 +15,18 @@
 ////////////////////
 
 bool mono_add_plump::add_ballots(const vector<int> & data,
-		rng & randomizer, list<ballot_group> & input,
-		double total_weight, int numcands) const {
+	rng & randomizer, list<ballot_group> & input,
+	double total_weight, int numcands) const {
 
 	// Logarithmic hack for weight. If the random choice < 0.2, then 1.
 	// Otherwise, random r = 0..9 and val = 1 - (ln(10-r)/l(10)) fraction
 	// of total.
 
 	double wt;
-	if (randomizer.drand() < 0.2 && total_weight > 1)
+	if (randomizer.drand() < 0.2 && total_weight > 1) {
 		wt = 1;
-	else	wt = total_weight * (1 - (log(10-randomizer.drand()*9)/
-				log(10)));
+	} else	wt = total_weight * (1 - (log(10-randomizer.drand()*9)/
+					log(10)));
 
 	int cand = data[0];
 
@@ -35,7 +35,7 @@ bool mono_add_plump::add_ballots(const vector<int> & data,
 
 	input.push_back(ballot_group(round(wt), plump, false, false));
 
-	return(true);
+	return (true);
 }
 
 ///// Mono-add-top
@@ -45,8 +45,8 @@ bool mono_add_plump::add_ballots(const vector<int> & data,
 // hand, the random input ballot could handle that...
 
 bool mono_add_top::add_ballots(const vector<int> & data,
-                rng & randomizer, list<ballot_group> & input,
-                double total_weight, int numcands) const {
+	rng & randomizer, list<ballot_group> & input,
+	double total_weight, int numcands) const {
 
 	// See above.
 
@@ -58,7 +58,7 @@ bool mono_add_top::add_ballots(const vector<int> & data,
 	}
 
 	// wt <= 0 shouldn't happen
-	assert (wt > 0);
+	assert(wt > 0);
 
 	int cand = data[0];
 
@@ -78,10 +78,10 @@ bool mono_add_top::add_ballots(const vector<int> & data,
 	for (size_t counter = 0; counter < other_candidates.size(); ++counter) {
 		if (other_candidates[counter] != cand)
 			o_rand.insert(candscore(other_candidates[counter],
-						counter));
+					counter));
 	}
 
 	input.push_back(ballot_group(round(wt), o_rand, false, false));
 
-	return(true);
+	return (true);
 }

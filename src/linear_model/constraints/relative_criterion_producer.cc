@@ -8,7 +8,7 @@
 #include <set>
 
 std::vector<std::shared_ptr<relative_criterion_const> >
-	relative_criterion_producer::get_all(int min_num_cands,
+relative_criterion_producer::get_all(int min_num_cands,
 	int max_num_cands, bool different_scenarios_only) const {
 
 	// Note: I make use of knowledge that's not encoded in the classes
@@ -19,8 +19,8 @@ std::vector<std::shared_ptr<relative_criterion_const> >
 	// but should be sufficient (not miss any).
 
 	std::vector<std::shared_ptr<relative_criterion_const> >
-		monotonicity, clones, strategy, base_constraints,
-		relative_constraints;
+	monotonicity, clones, strategy, base_constraints,
+				  relative_constraints;
 
 	int numcands;
 
@@ -41,7 +41,7 @@ std::vector<std::shared_ptr<relative_criterion_const> >
 				}
 			}
 		} while (std::next_permutation(cand_permutation.begin()+1,
-			cand_permutation.end()));
+				cand_permutation.end()));
 	}
 
 	for (const std::vector<int> & clone_spec: clone_specs) {
@@ -103,10 +103,10 @@ std::vector<std::shared_ptr<relative_criterion_const> >
 				elim_schedule[cand_to_elim] = -1;
 				elim_schedules.insert(elim_schedule);
 				elim_schedule[cand_to_elim] = cand_permutation[
-					cand_to_elim];
+						cand_to_elim];
 			}
 		} while (std::next_permutation(cand_permutation.begin()+1,
-			cand_permutation.end()));
+				cand_permutation.end()));
 	}
 
 	for (const std::vector<int> & elim_sched : elim_schedules) {
@@ -136,7 +136,7 @@ std::vector<std::shared_ptr<relative_criterion_const> >
 }
 
 std::vector<std::shared_ptr<relative_criterion_const> >
-	relative_criterion_producer::get_criteria(int min_num_cands,
+relative_criterion_producer::get_criteria(int min_num_cands,
 	int max_num_cands, bool different_scenarios_only,
 	const std::vector<std::string> & desired_criteria) const {
 
@@ -146,7 +146,9 @@ std::vector<std::shared_ptr<relative_criterion_const> >
 		get_all(min_num_cands, max_num_cands, different_scenarios_only);
 
 	// If there are no filtering specs, return everything
-	if (desired_criteria.empty()) { return out; }
+	if (desired_criteria.empty()) {
+		return out;
+	}
 
 	// Otherwise remove the undesired ones. Note erase is O(n) and
 	// so the whole thing is O(n^ 2). This could be optimized with

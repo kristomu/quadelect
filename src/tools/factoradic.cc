@@ -19,7 +19,7 @@ std::string factoradic::kth_permutation(int k, int numcands) {
 		candidates.erase(candidates.begin()+digit);
 	}
 
-	return(output);
+	return (output);
 }
 
 /*main() {

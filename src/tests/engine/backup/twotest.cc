@@ -23,7 +23,7 @@
 
 // Perhaps support tie failures and take actual ties into account.
 // Tie failures would be something like (for monotonicity), first A = B = C > D,
-// then we find failures for A > ..., B > ..., C > ..., and so no matter how 
+// then we find failures for A > ..., B > ..., C > ..., and so no matter how
 // the method would break the tie, it can't escape.
 
 #include "../../generator/ballotgen.cc"
@@ -65,7 +65,7 @@ class twotest_engine {
 
 	public:
 		twotest_engine(unsigned int max_iters, int min_voters,
-				int max_voters, int min_cands, int max_cands);
+			int max_voters, int min_cands, int max_cands);
 
 		void set_generator(pure_ballot_generator * gen_in);
 		void set_maxiters(unsigned int max_iters, bool effective);
@@ -84,11 +84,13 @@ class twotest_engine {
 // close enough. One way of doing it right would be to find the greatest 2^n,
 // then just throw away numbers that are too large.
 int twotest_engine::bracket_random(int minimum, int maximum) const {
-	assert (minimum <= maximum);
-	
-	if (maximum-minimum < 2) return(minimum);
+	assert(minimum <= maximum);
 
-	return(minimum + random() % (maximum - minimum));
+	if (maximum-minimum < 2) {
+		return (minimum);
+	}
+
+	return (minimum + random() % (maximum - minimum));
 }
 
 void twotest_engine::set_generator(pure_ballot_generator * gen_in) {
@@ -96,37 +98,37 @@ void twotest_engine::set_generator(pure_ballot_generator * gen_in) {
 }
 
 void twotest_engine::set_generator(pure_ballot_generator * gen_in) {
-        generator = gen_in;
+	generator = gen_in;
 }
 
 void twotest_engine::set_maxiters(unsigned int max_iters, bool effective) {
-        num_iterations = max_iters;
-        eff_iterations = effective;
+	num_iterations = max_iters;
+	eff_iterations = effective;
 }
 
 void twotest_engine::set_num_voters(int minimum, int maximum) {
-        min_num_voters = minimum;
-        max_num_voters = maximum;
+	min_num_voters = minimum;
+	max_num_voters = maximum;
 }
 
 void twotest_engine::set_num_candidates(int minimum, int maximum) {
-        min_num_candidates = minimum;
-        max_num_candidates = maximum;
+	min_num_candidates = minimum;
+	max_num_candidates = maximum;
 }
 
 twotest_engine::twotest_engine() {
-        generator = NULL;
-        set_maxiters(1024, false);
-        set_num_voters(1, 100);
-        set_num_candidates(1, 10);
+	generator = NULL;
+	set_maxiters(1024, false);
+	set_num_voters(1, 100);
+	set_num_candidates(1, 10);
 }
 
 twotest_engine::twotest_engine(unsigned int max_iters, bool effective,
-                int min_voters, int max_voters, int min_cands, int max_cands) {
-        generator = NULL;
-        set_maxiters(max_iters, effective);
-        set_num_voters(min_voters, max_voters);
-        set_num_candidates(min_cands, max_cands);
+	int min_voters, int max_voters, int min_cands, int max_cands) {
+	generator = NULL;
+	set_maxiters(max_iters, effective);
+	set_num_voters(min_voters, max_voters);
+	set_num_candidates(min_cands, max_cands);
 }
 
 // Should be vector<ternary> either inapp for inapplicable, or true/false.
@@ -135,17 +137,18 @@ twotest_engine::twotest_engine(unsigned int max_iters, bool effective,
 // data. These are grouped together and we then generate a common modified
 // ballot for them, so that we can cache. Then we go through them and check
 // if they pass or fail the criteria, set these methods aside, and do it again
-// with new data. If we go more than num_nc_iters without having a single 
+// with new data. If we go more than num_nc_iters without having a single
 // new method turn applicable, we give up.
-// If twotests could have a function that would coax data to fit a certain 
+// If twotests could have a function that would coax data to fit a certain
 // outcome (e.g. set a given winner for monotonicity), then we could speed
 // up this part by a lot.
-void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
-		const list<ballot_group> & original_ballots, int num_candidates,
-		int num_nc_iters, const twotest * test, const 
-		vector<election_method *> & methods_to_test, const
-		vector<method_test_info> & compliance_data,
-		bool skip_already_false) {
+void twotest_engine::run_single_test(const vector<ordering> &
+	base_outcomes,
+	const list<ballot_group> & original_ballots, int num_candidates,
+	int num_nc_iters, const twotest * test, const
+	vector<election_method *> & methods_to_test, const
+	vector<method_test_info> & compliance_data,
+	bool skip_already_false) {
 
 	// Perhaps pass this later. We'll see. Profile first, and only then
 	// optimize.
@@ -155,12 +158,12 @@ void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
 
 	// If we're supposed to skip those that are already false, incorporate
 	// that data into status s.th. we'll skip them automatically.
-	
+
 	int counter;
 
 	if (skip_already_false) {
 		for (counter = 0; counter < prior_compliance_data.size();
-				++counter)
+			++counter)
 			if (!prior_compliance_data[counter].passes_so_far) {
 				status[counter] = TFALSE;
 				--methods_left;
@@ -174,7 +177,7 @@ void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
 	disproof potential_disproof;
 	potential_disproof.unmodified_ballots = original_ballots;
 
-	// As long as we have some methods left and haven't exceeded 
+	// As long as we have some methods left and haven't exceeded
 	// num_nc_iters...
 	cache_map mod_cache;
 
@@ -189,12 +192,13 @@ void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
 		// data is applicable. If not, no need to waste time trying
 		// to make a modified ballot.
 		bool one_applicable = false;
-		for (int counter = 0; counter < status.size() && 
-				!one_applicable; ++counter) {
+		for (int counter = 0; counter < status.size() &&
+			!one_applicable; ++counter) {
 
 			// If it's already determined, no need to go further.
-			if (status[counter] != TINAPP)
+			if (status[counter] != TINAPP) {
 				continue;
+			}
 
 			// If not applicable, continue.
 			// NOTE: Do remember how this will come into play
@@ -203,27 +207,30 @@ void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
 			// if #0 is false, the first method we check (which
 			// would be #1, but zeroth in sequence) must have
 			// its base outcome set at base_outcome[1].
-			if (!applicable(base_outcome[counter], data, true))
+			if (!applicable(base_outcome[counter], data, true)) {
 				continue;
+			}
 
 			// If we go here, it was applicable, so break.
 			one_applicable = true;
 		}
 
 		// If nothing was applicable, try again.
-		if (!one_applicable)
+		if (!one_applicable) {
 			continue;
+		}
 
-		// Otherwise, generate the modified ballot set and start 
-		// testing! They might still not be applicable, but we don't 
+		// Otherwise, generate the modified ballot set and start
+		// testing! They might still not be applicable, but we don't
 		// know that yet.
-		pair<bool, list<ballot_group> > arrangement = 
-			test->rearrange_ballots(original_ballots, 
-					num_candidates, data);
+		pair<bool, list<ballot_group> > arrangement =
+			test->rearrange_ballots(original_ballots,
+				num_candidates, data);
 
 		// If we couldn't make a modified ballot out of it, try again.
-		if (!arrangement.first)
+		if (!arrangement.first) {
 			continue;
+		}
 
 		int first = counter - 1;
 		mod_cache.clear();
@@ -235,10 +242,11 @@ void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
 
 		// For all the tests that remain, check if they return something
 		// different from TINAPP. If so, mark them as such.
-		for (counter = first; counter < status.size() && 
-				methods_left > 0; ++counter) {
-			if (status[counter] != TINAPP)
+		for (counter = first; counter < status.size() &&
+			methods_left > 0; ++counter) {
+			if (status[counter] != TINAPP) {
 				continue;
+			}
 
 			test->set_unmodified_ordering(base_outcomes[counter]);
 
@@ -252,9 +260,9 @@ void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
 				++prior_compliance_data[counter].iters_run;
 				if (f == TFALSE) {
 					prior_compliance_data[counter].
-						passed_so_far = false;
+					passed_so_far = false;
 					prior_compliance_data[counter].
-						crit_disproof = 
+					crit_disproof =
 						test->get_disproof();
 				}
 			}
@@ -281,7 +289,7 @@ bool twotest_engine::run_tests(int iterations) {
 		list<ballot_group> base_ballot = generator->generate_ballots(
 				num_voters, num_cands);
 
-		// Group together all tests that can build upon this 
+		// Group together all tests that can build upon this
 		// ballot_set. To do so, we must get the outcome for every
 		// method for the base ballot. TODO? Make a function that
 		// coaxes data so it can work with the outcome that the method
@@ -295,21 +303,22 @@ bool twotest_engine::run_tests(int iterations) {
 
 		for (sec = 0; sec < methods.size(); ++sec)
 			base_outcomes.push_back(methods[sec]->elect(base_ballot,
-						num_cands, orig_cache, false));
+					num_cands, orig_cache, false));
 
 		// Get a list of all tests that can use this ballot set,
 		// as well as the methods for which that test's data settings
 		// are applicable.
-		
+
 		list<tests> workable;
 		list<list<methods> > applicable_tests;
 		for (sec = 0; sec < tests.size(); ++sec) {
 			list<method> applicable_this;
-			for (list<ordering>::const_iterator binc = 
-					base_outcomes.begin(); 
-					binc != base_outcomes.end(); ++binc)
-				if (tests[sec]->applicable(*binc, data, true))
+			for (list<ordering>::const_iterator binc =
+					base_outcomes.begin();
+				binc != base_outcomes.end(); ++binc)
+				if (tests[sec]->applicable(*binc, data, true)) {
 					applicable_this.push_back(*binc);
+				}
 
 			if (!applicable_this.empty()) {
 				workable.push_back(tests[sec]);

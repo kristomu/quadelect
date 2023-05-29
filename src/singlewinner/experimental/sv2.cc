@@ -2,10 +2,11 @@
 #include "../positional/all.h"
 #include "../pairwise/simple_methods.h"
 
-pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & papers,
-		const vector<bool> & hopefuls,
-		int num_candidates, cache_map * cache,
-		bool winner_only) const {
+pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> &
+	papers,
+	const vector<bool> & hopefuls,
+	int num_candidates, cache_map * cache,
+	bool winner_only) const {
 
 	// Not sure if this is working properly...
 
@@ -23,7 +24,7 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
 
 	// I'll just negate this; can't be bothered.
 
-	assert (num_candidates <= 3);
+	assert(num_candidates <= 3);
 
 	// TODO: Use cache.
 
@@ -31,12 +32,16 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
 			CM_PAIRWISE_OPP);
 
 	int num_hopefuls = 0;
-	for (bool hopeful : hopefuls) { if (hopeful) { ++num_hopefuls; } }
+	for (bool hopeful : hopefuls) {
+		if (hopeful) {
+			++num_hopefuls;
+		}
+	}
 
 	// If two candidates or fewer, just hand off to a method that does a majority vote.
 	if (num_hopefuls < 3) {
 		return ord_minmax(CM_PAIRWISE_OPP).pair_elect(
-			condorcet_matrix, hopefuls, cache, winner_only);
+				condorcet_matrix, hopefuls, cache, winner_only);
 	}
 
 	// Get Plurality scores. Whole or fractional? Should perhaps be set
@@ -57,7 +62,7 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
 	double numvoters = 0;
 
 	for (ordering::const_iterator pos = plur_ordering.begin(); pos !=
-			plur_ordering.end(); ++pos) {
+		plur_ordering.end(); ++pos) {
 		plur_scores[pos->get_candidate_num()] = pos->get_score();
 		numvoters += pos->get_score();
 	}
@@ -81,49 +86,51 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> & paper
 		output.insert(candscore(i, scores[i]));
 	}
 
-        return(pair<ordering, bool>(output, false));*/
+	    return(pair<ordering, bool>(output, false));*/
 
 	ordering out;
 
 	for (int counter = 0; counter < 3; ++counter) {
-                double score = 0;
+		double score = 0;
 
-                // Cycle A>B>C>A
-                // then counter = 0 (A)
-                // sec = 1 (B),
-                // third party = 2 (C)
+		// Cycle A>B>C>A
+		// then counter = 0 (A)
+		// sec = 1 (B),
+		// third party = 2 (C)
 
-                // SV would presumably be:
-                // (B>C) / (C>A)
+		// SV would presumably be:
+		// (B>C) / (C>A)
 
-                //double majority = 0.5 * input.get_num_voters();
+		//double majority = 0.5 * input.get_num_voters();
 
-                // EWW!
+		// EWW!
 
-                int beaten = (counter + 1)%3;
-                int third_party = (counter+2)%3;
+		int beaten = (counter + 1)%3;
+		int third_party = (counter+2)%3;
 
-                // If we beat the third party, then switch the two around.
-                if (condorcet_matrix.get_magnitude(counter, third_party) >=
-                	condorcet_matrix.get_magnitude(third_party, counter)) {
+		// If we beat the third party, then switch the two around.
+		if (condorcet_matrix.get_magnitude(counter, third_party) >=
+			condorcet_matrix.get_magnitude(third_party, counter)) {
 
-                	beaten = (counter+2)%3;
-                	third_party = (counter+1)%3;
-                }
+			beaten = (counter+2)%3;
+			third_party = (counter+1)%3;
+		}
 
-                // If we're a CW, give max score
-                if (condorcet_matrix.get_magnitude(counter, third_party) >=
-                	condorcet_matrix.get_magnitude(third_party, counter)) {
-                	score = 1000;
-               	} else {
-               		score = -(plur_factors[beaten]/plur_factors[third_party]);
-               	}
+		// If we're a CW, give max score
+		if (condorcet_matrix.get_magnitude(counter, third_party) >=
+			condorcet_matrix.get_magnitude(third_party, counter)) {
+			score = 1000;
+		} else {
+			score = -(plur_factors[beaten]/plur_factors[third_party]);
+		}
 
-               	// Set 0/0 to 0
-               	if (isnan(score)) { score = 0; }
+		// Set 0/0 to 0
+		if (isnan(score)) {
+			score = 0;
+		}
 
-                out.insert(candscore(counter, score));
-        }
+		out.insert(candscore(counter, score));
+	}
 
-	return(pair<ordering, bool>(out, false));
+	return (pair<ordering, bool>(out, false));
 }

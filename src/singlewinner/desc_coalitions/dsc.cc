@@ -6,8 +6,8 @@
 // equal-last candidates for truncated ballots.
 
 std::vector<coalition_entry> dsc::get_coalitions(
-			const std::list<ballot_group> & papers,
-			const std::vector<bool> & hopefuls, int num_candidates) const {
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates) const {
 
 	// Go through the ballot set, incrementing the coalition counts.
 
@@ -21,7 +21,7 @@ std::vector<coalition_entry> dsc::get_coalitions(
 	}
 
 	for (std::list<ballot_group>::const_iterator ballot = papers.begin();
-			ballot != papers.end(); ++ballot) {
+		ballot != papers.end(); ++ballot) {
 
 		current_coalition.clear();
 
@@ -34,8 +34,8 @@ std::vector<coalition_entry> dsc::get_coalitions(
 
 			double current_score = opos->get_score();
 
-			for (; opos != ballot->contents.end() && 
-					opos->get_score() == current_score; ++opos) {
+			for (; opos != ballot->contents.end() &&
+				opos->get_score() == current_score; ++opos) {
 				if (hopefuls[opos->get_candidate_num()]) {
 					current_coalition.insert(opos->get_candidate_num());
 				}
@@ -60,15 +60,15 @@ std::vector<coalition_entry> dsc::get_coalitions(
 		}
 	}
 
-	// Convert the coalition counts into an array form that we can sort by 
+	// Convert the coalition counts into an array form that we can sort by
 	// support. The actual sorting happens inside get_candidate_score.
 
 	std::vector<coalition_entry> coalitions;
-	for (std::map<std::set<int>, double>::const_iterator 
-			pos = coalition_count.begin(); pos != coalition_count.end(); 
-			++pos) {
+	for (std::map<std::set<int>, double>::const_iterator
+		pos = coalition_count.begin(); pos != coalition_count.end();
+		++pos) {
 		coalitions.push_back(coalition_entry(pos->second, pos->first));
 	}
 
-	return(coalitions);
+	return (coalitions);
 }

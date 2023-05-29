@@ -8,7 +8,8 @@
 using namespace std;
 
 // Ordering sorter
-int ordering_sorter::compare(const ordering & a, const ordering & b) const {
+int ordering_sorter::compare(const ordering & a,
+	const ordering & b) const {
 
 	// EOF precedes any candidate number.
 	// Otherwise, leximax on the candidates. If there's a tie, break on
@@ -24,57 +25,68 @@ int ordering_sorter::compare(const ordering & a, const ordering & b) const {
 
 	while (apos != a.end() && bpos != b.end()) {
 		if (tiebreaker == 0) {
-			if (apos->get_score() < bpos->get_score())
+			if (apos->get_score() < bpos->get_score()) {
 				tiebreaker = -1;
-			if (apos->get_score() > bpos->get_score())
+			}
+			if (apos->get_score() > bpos->get_score()) {
 				tiebreaker = 1;
+			}
 		}
 
-		if (apos->get_candidate_num() < bpos->get_candidate_num())
-			return(-1);
-		if (apos->get_candidate_num() > bpos->get_candidate_num())
-			return(1);
+		if (apos->get_candidate_num() < bpos->get_candidate_num()) {
+			return (-1);
+		}
+		if (apos->get_candidate_num() > bpos->get_candidate_num()) {
+			return (1);
+		}
 
 		++apos;
 		++bpos;
 	}
 
 	int asize = a.size(), bsize = b.size();
-	if (asize < bsize) return(-1);
-	if (bsize > asize) return(1);
+	if (asize < bsize) {
+		return (-1);
+	}
+	if (bsize > asize) {
+		return (1);
+	}
 
-	return(tiebreaker);
+	return (tiebreaker);
 }
 
-bool ordering_sorter::operator()(const ordering & a, const ordering & b) const {
+bool ordering_sorter::operator()(const ordering & a,
+	const ordering & b) const {
 	// Equality returns both a < b and b < a true.
-	return(compare(a, b) < 1);
+	return (compare(a, b) < 1);
 }
 
-bool ordering_sorter::operator() (const ballot_group & a,
-		const ballot_group & b) const {
+bool ordering_sorter::operator()(const ballot_group & a,
+	const ballot_group & b) const {
 	// If it's a tie, break further on size.
 	// We can't sort by size first, because then merging identical ballots
 	// wouldn't work, and that's something we'd prefer to work.
 
 	int dir = compare(a.contents, b.contents);
 
-	if (dir == 0)
-		return(a.weight < b.weight);
-	else	return(dir < 1);
+	if (dir == 0) {
+		return (a.weight < b.weight);
+	} else	{
+		return (dir < 1);
+	}
 }
 
 // The ordering tools themselves.
 
 ordering ordering_tools::reverse(const ordering & in) const {
 
-        ordering out;
+	ordering out;
 
-        for (ordering::const_iterator pos = in.begin(); pos != in.end(); ++pos)
-                out.insert(candscore(pos->get_candidate_num(),
-                                        -pos->get_score()));
+	for (ordering::const_iterator pos = in.begin(); pos != in.end(); ++pos)
+		out.insert(candscore(pos->get_candidate_num(),
+				-pos->get_score()));
 
-        return(out);
+	return (out);
 }
 
 ordering ordering_tools::winner_only(const ordering & in) const {
@@ -82,27 +94,30 @@ ordering ordering_tools::winner_only(const ordering & in) const {
 	ordering out;
 
 	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
-			pos->get_score() == in.begin()->get_score(); ++pos)
+		pos->get_score() == in.begin()->get_score(); ++pos) {
 		out.insert(*pos);
+	}
 
-	return(out);
+	return (out);
 }
 
 // Turns it into 0 for first place, -1 for second, etc.
 ordering ordering_tools::scrub_scores(const ordering & in) const {
 
-        int count = -1;
-        double last = -INFINITY;
+	int count = -1;
+	double last = -INFINITY;
 
-        ordering out;
+	ordering out;
 
-        for (ordering::const_iterator pos = in.begin(); pos != in.end(); ++pos){
-                if (pos == in.begin() || pos->get_score() != last) ++count;
-                out.insert(candscore(pos->get_candidate_num(), -count));
-                last = pos->get_score();
-        }
+	for (ordering::const_iterator pos = in.begin(); pos != in.end(); ++pos) {
+		if (pos == in.begin() || pos->get_score() != last) {
+			++count;
+		}
+		out.insert(candscore(pos->get_candidate_num(), -count));
+		last = pos->get_score();
+	}
 
-        return(out);
+	return (out);
 }
 
 ordering ordering_tools::scrub_scores_by_cand(const ordering & in) const {
@@ -113,26 +128,28 @@ ordering ordering_tools::scrub_scores_by_cand(const ordering & in) const {
 
 	ordering out;
 
-	for (ordering::const_iterator pos = in.begin(); pos != in.end(); ++pos){
+	for (ordering::const_iterator pos = in.begin(); pos != in.end(); ++pos) {
 		++intermed;
-		if (pos == in.begin() || pos->get_score() != last)
+		if (pos == in.begin() || pos->get_score() != last) {
 			count = intermed;
+		}
 		out.insert(candscore(pos->get_candidate_num(), -count));
 		last = pos->get_score();
 	}
 
-	return(out);
+	return (out);
 }
 
 list<int> ordering_tools::get_winners(const ordering & in) const {
 
-        list<int> toRet;
+	list<int> toRet;
 
-        for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
-                        pos->get_score() == in.begin()->get_score(); ++pos)
-                toRet.push_back(pos->get_candidate_num());
+	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
+		pos->get_score() == in.begin()->get_score(); ++pos) {
+		toRet.push_back(pos->get_candidate_num());
+	}
 
-        return(toRet);
+	return (toRet);
 }
 
 // Break ties in the ordering "tied" according to tiebreaker.
@@ -143,13 +160,14 @@ list<int> ordering_tools::get_winners(const ordering & in) const {
 // deltas will only disambiguate equals. Then we proceed down the original
 // ballot, adding deltas accordingly.
 ordering ordering_tools::tiebreak(const ordering & tied,
-		const ordering & tiebreaker, size_t num_candidates) const {
+	const ordering & tiebreaker, size_t num_candidates) const {
 
 	// Some simple checks.
 	// If tied is of size 1, then there's nothing to do - the tie is
 	// already maximally broken.
-	if (tied.size() == 1)
-		return(tied);
+	if (tied.size() == 1) {
+		return (tied);
+	}
 
 	vector<double> tiebreaker_diff(num_candidates, 0);
 
@@ -163,8 +181,9 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 	// If it's zero, there's a tie among all candidates, so just set
 	// the delta to 1 instead. Note that we can't just return the tiebreak:
 	// there may be more candidates in the tiebreak than in tied.
-	if (delta == 0)
+	if (delta == 0) {
 		delta = 1;
+	}
 
 	// Otherwise, try to find the smallest.
 	ordering::const_iterator pos = tied.begin(), last = tied.begin();
@@ -176,8 +195,9 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 		}
 
 		if (last->get_score() - pos->get_score() < delta &&
-				last->get_score() - pos->get_score() > 0)
+			last->get_score() - pos->get_score() > 0) {
 			delta = last->get_score() - pos->get_score();
+		}
 
 		++pos;
 		++last;
@@ -191,7 +211,7 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 	// renorm ensures "real" scores will be above 0.01 deltas.
 
 	for (pos = tiebreaker.begin(); pos != tiebreaker.end(); ++pos) {
-		assert (pos->get_candidate_num() < num_candidates);
+		assert(pos->get_candidate_num() < num_candidates);
 
 		tiebreaker_diff[pos->get_candidate_num()] = renorm(
 				tiebreaker.rbegin()->get_score(),
@@ -208,17 +228,17 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 
 	for (pos = tied.begin(); pos != tied.end(); ++pos)
 		toRet.insert(candscore(pos->get_candidate_num(),
-					pos->get_score() +
-					tiebreaker_diff[pos->
-						get_candidate_num()]));
+				pos->get_score() +
+				tiebreaker_diff[pos->
+					get_candidate_num()]));
 
 	// Done!
 
-	return(toRet);
+	return (toRet);
 }
 
 ordering ordering_tools::ranked_tiebreak(const ordering & tied,
-		const ordering & tiebreaker, size_t num_candidates) const {
+	const ordering & tiebreaker, size_t num_candidates) const {
 
 	// This works by sorting a struct of ints, which includes a pair.
 	// The first int in the pair is the order of the candidate according
@@ -232,8 +252,9 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	map<size_t, string> fakecand;
 	if (debug) {
 		// DEBUG.
-		for (counter = 0; counter < 26; ++counter)
+		for (counter = 0; counter < 26; ++counter) {
 			fakecand[counter] = (char)('A' + counter);
+		}
 
 		cout << "Tied: " << ordering_to_text(tied, fakecand, true)
 			<< endl;
@@ -254,7 +275,7 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	}
 
 	ordering::const_reverse_iterator rpos = tied.rbegin(), old_pos =
-		rpos;
+			rpos;
 
 	// Insert the first, manually.
 	int rank_count = 0;
@@ -263,8 +284,9 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	++rpos;
 
 	while (rpos != tied.rend()) {
-		if (rpos->get_score() != old_pos->get_score())
+		if (rpos->get_score() != old_pos->get_score()) {
 			++rank_count;
+		}
 		to_sort[rpos->get_candidate_num()].first.first = rank_count;
 		// This candidate is in use, so mark it that way.
 		used_candidate[rpos->get_candidate_num()] = true;
@@ -279,8 +301,9 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	++rpos;
 
 	while (rpos != tiebreaker.rend()) {
-		if (rpos->get_score() != old_pos->get_score())
+		if (rpos->get_score() != old_pos->get_score()) {
 			++rank_count;
+		}
 		to_sort[rpos->get_candidate_num()].first.second = rank_count;
 		old_pos = rpos++;
 	}
@@ -294,15 +317,16 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	ordering output;
 	rank_count = 0;
 	vector<sorter>::const_reverse_iterator spos = to_sort.rbegin(),
-		old_spos = spos;
+										   old_spos = spos;
 	if (used_candidate[spos->second]) {
 		output.insert(candscore(spos->second, rank_count));
 	}
 	++spos;
 
 	while (spos != to_sort.rend()) {
-		if (spos->first != old_spos->first)
+		if (spos->first != old_spos->first) {
 			++rank_count;
+		}
 		if (used_candidate[spos->second]) {
 			output.insert(candscore(spos->second, rank_count));
 		}
@@ -313,7 +337,7 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 		cout << "Output: " << ordering_to_text(output, fakecand, true)
 			<< endl;
 
-	return(output);
+	return (output);
 }
 
 bool ordering_tools::has_equal_rank(const ordering & to_check) const {
@@ -331,67 +355,75 @@ bool ordering_tools::has_equal_rank(const ordering & to_check) const {
 		pos_old = pos++;
 	}
 
-	return(equal_rank);
+	return (equal_rank);
 }
 
 string ordering_tools::ordering_to_text(const ordering & rank_ballot,
-		const map<size_t, string> & reverse_cand_lookup,
-		bool numeric) const {
+	const map<size_t, string> & reverse_cand_lookup,
+	bool numeric) const {
 
-        double oldscore = -INFINITY;
-        bool first = true;
+	double oldscore = -INFINITY;
+	bool first = true;
 
-        string out;
+	string out;
 
-        for (ordering::const_iterator pos = rank_ballot.begin(); pos !=
-                        rank_ballot.end(); ++pos) {
-                if (reverse_cand_lookup.find(pos->get_candidate_num()) ==
-                                reverse_cand_lookup.end())
-                        return("ERR");
-                else {
-                        double newscore = pos->get_score();
+	for (ordering::const_iterator pos = rank_ballot.begin(); pos !=
+		rank_ballot.end(); ++pos) {
+		if (reverse_cand_lookup.find(pos->get_candidate_num()) ==
+			reverse_cand_lookup.end()) {
+			return ("ERR");
+		} else {
+			double newscore = pos->get_score();
 
-                        if (!first) {
-                                if (newscore < oldscore)
-                                        out += " > ";
-                                else    out += " = ";
-                        } else
-                                first = false;
+			if (!first) {
+				if (newscore < oldscore) {
+					out += " > ";
+				} else {
+					out += " = ";
+				}
+			} else {
+				first = false;
+			}
 
-                        out += reverse_cand_lookup.find(
-                                        pos->get_candidate_num())->second;
-                        if (numeric)
-                                out += "(" + dtos(pos->get_score()) + ")";
+			out += reverse_cand_lookup.find(
+					pos->get_candidate_num())->second;
+			if (numeric) {
+				out += "(" + dtos(pos->get_score()) + ")";
+			}
 
-                        oldscore = newscore;
-                }
-        }
+			oldscore = newscore;
+		}
+	}
 
-        return(out);
+	return (out);
 }
 
-ordering ordering_tools::direct_vector_to_ordering(const vector<double> & in,
-		const vector<bool> & hopefuls) const {
+ordering ordering_tools::direct_vector_to_ordering(const vector<double> &
+	in,
+	const vector<bool> & hopefuls) const {
 
 	ordering toRet;
 
 	for (size_t counter = 0; counter < min(in.size(), hopefuls.size());
-			++counter)
-		if (hopefuls[counter])
+		++counter)
+		if (hopefuls[counter]) {
 			toRet.insert(candscore(counter, in[counter]));
+		}
 
-	return(toRet);
+	return (toRet);
 }
 
-ordering ordering_tools::indirect_vector_to_ordering(const vector<double> & in,
-		const vector<int> & mapping) const {
+ordering ordering_tools::indirect_vector_to_ordering(
+	const vector<double> & in,
+	const vector<int> & mapping) const {
 
 	ordering toRet;
 
-	for (size_t counter = 0; counter < mapping.size(); ++counter)
+	for (size_t counter = 0; counter < mapping.size(); ++counter) {
 		toRet.insert(candscore(mapping[counter], in[counter]));
+	}
 
-	return(toRet);
+	return (toRet);
 }
 
 
@@ -399,23 +431,25 @@ ordering ordering_tools::indirect_vector_to_ordering(const vector<double> & in,
 //
 
 list<ballot_group> ballot_tools::sort_ballots(const list<ballot_group> &
-		to_sort) const {
+	to_sort) const {
 	list<ballot_group> sorted = to_sort;
 
 	sorted.sort(otools.sorter);
 
-	return(sorted);
+	return (sorted);
 }
 
 
 list<ballot_group> ballot_tools::compress(const list<ballot_group> &
-		uncompressed) const {
+	uncompressed) const {
 
 	// You asked for n log n, here it is.
 
-	if (uncompressed.empty()) return(uncompressed);
+	if (uncompressed.empty()) {
+		return (uncompressed);
+	}
 
-        list<ballot_group> compressed = sort_ballots(uncompressed);
+	list<ballot_group> compressed = sort_ballots(uncompressed);
 	list<ballot_group>::iterator check, check_against;
 
 	for (check = compressed.begin(); check != compressed.end(); ++check) {
@@ -425,62 +459,65 @@ list<ballot_group> ballot_tools::compress(const list<ballot_group> &
 		// breaks on it, otherwise same_rank might try to access
 		// something that doesn't exist, leading to big bara boom.
 		while (check_against != compressed.end() &&
-				// Perhaps we don't need scrub scores here. Hm.
-				// We don't seem to need it. Uncomment if it
-				// turns out I'm wrong.
-				/*otools.scrub_scores*/(check->contents) ==
-				/*otools.scrub_scores*/(check_against->contents)) {
+			// Perhaps we don't need scrub scores here. Hm.
+			// We don't seem to need it. Uncomment if it
+			// turns out I'm wrong.
+			/*otools.scrub_scores*/(check->contents) ==
+			/*otools.scrub_scores*/(check_against->contents)) {
 
-				check->weight += check_against->weight;
-				check_against = compressed.erase(check_against);
+			check->weight += check_against->weight;
+			check_against = compressed.erase(check_against);
 		}
 	}
 
-        return(compressed);
+	return (compressed);
 }
 
 string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
-		const map<size_t, string> & reverse_cand_lookup,
-		bool numeric) const {
+	const map<size_t, string> & reverse_cand_lookup,
+	bool numeric) const {
 
 	string out = dtos(rank_ballot.weight) + ": ";
 	string order = otools.ordering_to_text(rank_ballot.contents,
 			reverse_cand_lookup, numeric);
 
-	if (order == "ERR")
-		return(order);
-	else	return(out + order);
+	if (order == "ERR") {
+		return (order);
+	} else	{
+		return (out + order);
+	}
 }
 
 vector<string> ballot_tools::ballots_to_text(string prefix,
-		const list<ballot_group> & rank_ballots,
-		const map<size_t, string> & reverse_cand_lookup,
-		bool numeric) const {
+	const list<ballot_group> & rank_ballots,
+	const map<size_t, string> & reverse_cand_lookup,
+	bool numeric) const {
 
 	vector<string> output;
 
 	for (list<ballot_group>::const_iterator pos = rank_ballots.begin();
-			pos != rank_ballots.end(); ++pos) {
+		pos != rank_ballots.end(); ++pos) {
 		output.push_back(prefix + ballot_to_text(*pos,
-					reverse_cand_lookup, numeric));
+				reverse_cand_lookup, numeric));
 
-		if (*output.rbegin() == "ERR")
-			return(vector<string>(1, "ERR"));
+		if (*output.rbegin() == "ERR") {
+			return (vector<string>(1, "ERR"));
+		}
 	}
 
-	return(output);
+	return (output);
 }
 
 vector<string> ballot_tools::ballots_to_text(const list<ballot_group> &
-		rank_ballots, const map<size_t, string> & reverse_cand_lookup,
-		bool numeric) const {
+	rank_ballots, const map<size_t, string> & reverse_cand_lookup,
+	bool numeric) const {
 
-	return(ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
+	return (ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
 }
 
 // TODO: Handle more than 26 candidates??
 void ballot_tools::print_ranked_ballots(const list<ballot_group> &
-		rank_ballots) const {
+	rank_ballots) const {
 
 	map<size_t, string> fakecand;
 

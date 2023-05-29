@@ -14,20 +14,20 @@ using namespace std;
 // here. If the method in question wishes, it can override the function with a
 // quicker one - that's why it's virtual.
 pair<ordering, bool> election_method::elect_inner(
-		const list<ballot_group> & papers, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+	const list<ballot_group> & papers, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
 	vector<bool> hopefuls(num_candidates, true);
 
-	return(elect_inner(papers, hopefuls, num_candidates, cache,
+	return (elect_inner(papers, hopefuls, num_candidates, cache,
 				winner_only));
 }
 
 // Cache wrappers.
 
 pair<ordering, bool> election_method::elect_detailed(
-		const list<ballot_group> & papers, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+	const list<ballot_group> & papers, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
 	// Do a few sanity checks.
 	assert(num_candidates > 0);
@@ -37,8 +37,9 @@ pair<ordering, bool> election_method::elect_detailed(
 	// be the same in case of (n-1)-way loser ties for n > 2, but we can't
 	// detect that in a general case.)
 
-	if (num_candidates <= 2)
+	if (num_candidates <= 2) {
 		winner_only = true;
+	}
 
 	// If we have a cache, try to look up the answer. We have to do it
 	// this way because has_outcome wastes another name() call or in some
@@ -49,8 +50,9 @@ pair<ordering, bool> election_method::elect_detailed(
 		toRet = cache->get_outcome(name(), winner_only);
 
 		// If we got something, then return it...
-		if (!toRet.first.empty())
-			return(toRet);
+		if (!toRet.first.empty()) {
+			return (toRet);
+		}
 	}
 
 	// Otherwise, get the output the hard way.
@@ -58,7 +60,7 @@ pair<ordering, bool> election_method::elect_detailed(
 			winner_only);
 
 	// Check that there are no errors.
-	assert (toRet.first.size() == (size_t)num_candidates);
+	assert(toRet.first.size() == (size_t)num_candidates);
 
 	// There were none, so set the cache...
 	if (cache != NULL) {
@@ -67,21 +69,22 @@ pair<ordering, bool> election_method::elect_detailed(
 	}
 
 	// ... and return the value.
-	return(toRet);
+	return (toRet);
 }
 
 pair<ordering, bool> election_method::elect_detailed(
-		const list<ballot_group> & papers,
-		const vector<bool> & hopefuls,
-		int num_candidates, cache_map * cache, bool winner_only) const {
+	const list<ballot_group> & papers,
+	const vector<bool> & hopefuls,
+	int num_candidates, cache_map * cache, bool winner_only) const {
 
 	// A few sanity checks...
-	assert (num_candidates > 0);
-	assert ((int)hopefuls.size() == num_candidates);
+	assert(num_candidates > 0);
+	assert((int)hopefuls.size() == num_candidates);
 
 	// ... a little optimization...
-	if (num_candidates <= 2)
+	if (num_candidates <= 2) {
 		winner_only = true;
+	}
 
 	// If all are hopeful, it's just an ordinary election and so we can
 	// make use of the cache. Detect that.
@@ -104,11 +107,11 @@ pair<ordering, bool> election_method::elect_detailed(
 		pair<ordering, bool> toRet;
 		toRet.second = false;
 		toRet.first.insert(candscore(last_hopeful, 1));
-		return(toRet);
+		return (toRet);
 	}
 
 	if (num_hopefuls == num_candidates)
-		return(elect_detailed(papers, num_candidates, cache,
+		return (elect_detailed(papers, num_candidates, cache,
 					winner_only));
 
 	// Otherwise, go about it the hard way.
@@ -118,7 +121,7 @@ pair<ordering, bool> election_method::elect_detailed(
 
 	// Check that there are no errors.
 	// BLUESKY: make num_* size_t.
-	assert (toRet.first.size() == (size_t)num_hopefuls);
+	assert(toRet.first.size() == (size_t)num_hopefuls);
 
 	// Then return! We can't use cache as there could be collisions
 	// between different hopefuls patterns.
@@ -126,22 +129,22 @@ pair<ordering, bool> election_method::elect_detailed(
 	// round with A and B excluded, C and D remaining becomes
 	// __##/Plurality... Is it worth it? Find out when we have a tester,
 	// but probably not.
-	return(toRet);
+	return (toRet);
 }
 
 // Public wrappers.
 ordering election_method::elect(const list<ballot_group> & papers,
-		int num_candidates, cache_map * cache,
-		bool winner_only) const {
+	int num_candidates, cache_map * cache,
+	bool winner_only) const {
 
-	return(elect_detailed(papers, num_candidates, cache, winner_only).
+	return (elect_detailed(papers, num_candidates, cache, winner_only).
 			first);
 }
 
 ordering election_method::elect(const list<ballot_group> & papers,
-		const vector<bool> & hopefuls, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+	const vector<bool> & hopefuls, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
-	return(elect_detailed(papers, hopefuls, num_candidates, cache,
+	return (elect_detailed(papers, hopefuls, num_candidates, cache,
 				winner_only).first);
 }

@@ -2,7 +2,7 @@
 #include "condorcet.h"
 
 int condorcet_set::get_CW(const abstract_condmat & input,
-		const vector<bool> & hopefuls) const {
+	const vector<bool> & hopefuls) const {
 
 	// First, we go through every candidate, where the winner of a one-on
 	// one between the first and second in line wins. If there's a CW, we'll
@@ -17,15 +17,18 @@ int condorcet_set::get_CW(const abstract_condmat & input,
 	}
 
 	// If none, get outta here.
-	if (curcand == input.get_num_candidates()) { return -1; }
+	if (curcand == input.get_num_candidates()) {
+		return -1;
+	}
 
 	for (counter = curcand+1; counter < input.get_num_candidates(); ++counter)
 		if (hopefuls[counter] &&
-				input.get_magnitude(counter, curcand,
-					hopefuls) >
-				input.get_magnitude(curcand, counter,
-					hopefuls))
+			input.get_magnitude(counter, curcand,
+				hopefuls) >
+			input.get_magnitude(curcand, counter,
+				hopefuls)) {
 			curcand = counter;
+		}
 
 	// Then, we check that candidate's results against everybody else.
 	// If he wins against all of them, he's the CW, otherwise there's a
@@ -34,16 +37,18 @@ int condorcet_set::get_CW(const abstract_condmat & input,
 	for (counter = 0; counter < input.get_num_candidates(); ++counter)
 		if (hopefuls[counter] && counter != curcand)
 			if (input.get_magnitude(counter, curcand, hopefuls) >=
-					input.get_magnitude(curcand, counter,
-						hopefuls))
-				return(-1);
+				input.get_magnitude(curcand, counter,
+					hopefuls)) {
+				return (-1);
+			}
 
-	return(curcand);
+	return (curcand);
 }
 
-pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache,
-		bool winner_only) const {
+pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat &
+	input,
+	const vector<bool> & hopefuls, cache_map * cache,
+	bool winner_only) const {
 
 	// We start with the hopefuls we have. Find the CW, insert into the
 	// output ordering below what's already there, mark as no longer
@@ -67,13 +72,14 @@ pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat & input,
 		}
 
 	} while (cw != -1 && !winner_only &&
-			counter < input.get_num_candidates());
+		counter < input.get_num_candidates());
 
 	// Add all the other candidates below the iterated CWs.
 
 	for (counter = 0; counter < cws.size(); ++counter)
-		if (iter_hopefuls[counter] && !cws[counter])
+		if (iter_hopefuls[counter] && !cws[counter]) {
 			to_ret.insert(candscore(counter, rank));
+		}
 
-	return(pair<ordering, bool>(to_ret, winner_only));
+	return (pair<ordering, bool>(to_ret, winner_only));
 }

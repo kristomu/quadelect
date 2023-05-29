@@ -73,7 +73,7 @@ std::vector<vector_test_instance> test_generator_group::sample(
 			}
 
 			elections.push_back(sample(generators[i],
-				should_be_reversed[i], candidate_equivalences));
+					should_be_reversed[i], candidate_equivalences));
 		}
 	}
 
@@ -83,7 +83,9 @@ std::vector<vector_test_instance> test_generator_group::sample(
 bool test_generator_group::fits_group_directly(
 	const test_instance_generator & candidate) const {
 	// If it's empty, everything matches.
-	if (generators.empty()) { return true; }
+	if (generators.empty()) {
+		return true;
+	}
 
 	// Check that the tests this group will be subjected to, and
 	// what the new test_instance_generator wants to be subjected to,
@@ -96,13 +98,15 @@ bool test_generator_group::fits_group_directly(
 	// Check if the scenarios match directly.
 
 	return candidate.before_A == before_A && candidate.after_A == after_A &&
-			candidate.before_B == before_B && candidate.after_B == after_B;
+		candidate.before_B == before_B && candidate.after_B == after_B;
 }
 
 bool test_generator_group::fits_group_reversed(
 	const test_instance_generator & candidate) const {
 
-	if (generators.empty()) { return true; }
+	if (generators.empty()) {
+		return true;
+	}
 
 	if (candidate.no_harm ^ no_harm || candidate.no_help ^ no_help) {
 		return false;
@@ -159,7 +163,7 @@ void test_generator_group::print_scenarios(std::ostream & where) const {
 }
 
 std::set<copeland_scenario>
-	test_generator_group::get_tested_scenarios() const {
+test_generator_group::get_tested_scenarios() const {
 
 	std::set<copeland_scenario> out;
 	out.insert(before_A);
@@ -173,12 +177,22 @@ std::set<copeland_scenario>
 bool test_generator_group::operator<(
 	const test_generator_group & other) const {
 
-	if (no_help != other.no_help) { return no_help < other.no_help; }
-	if (no_harm != other.no_harm) { return no_harm < other.no_harm; }
+	if (no_help != other.no_help) {
+		return no_help < other.no_help;
+	}
+	if (no_harm != other.no_harm) {
+		return no_harm < other.no_harm;
+	}
 
-	if (before_A != other.before_A) { return before_A < other.before_A; }
-	if (before_B != other.before_B) { return before_B < other.before_B; }
-	if (after_A != other.after_A) { return after_A < other.after_A; }
+	if (before_A != other.before_A) {
+		return before_A < other.before_A;
+	}
+	if (before_B != other.before_B) {
+		return before_B < other.before_B;
+	}
+	if (after_A != other.after_A) {
+		return after_A < other.after_A;
+	}
 	return after_B < other.after_B;
 }
 
@@ -191,11 +205,11 @@ bool test_generator_group::operator==(
 copeland_scenario test_generator_group::get_scenario(
 	test_election election_type) const {
 
-	switch(election_type) {
-		case TYPE_A: return(before_A);
-		case TYPE_B: return(before_B);
-		case TYPE_A_PRIME: return(after_A);
-		case TYPE_B_PRIME: return(after_B);
+	switch (election_type) {
+		case TYPE_A: return (before_A);
+		case TYPE_B: return (before_B);
+		case TYPE_A_PRIME: return (after_A);
+		case TYPE_B_PRIME: return (after_B);
 		default:
 			throw std::runtime_error("test_generator_group: invalid"
 				" current_election!");

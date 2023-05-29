@@ -20,11 +20,11 @@ double Lil_UCB::C(int num_plays_this, size_t num_bandits) const {
 	// p. 4
 
 	double inner_log_part = log((1+epsilon) * num_plays_this/deltamod);
-	double bigstuff = 2 * sigma_sq * (1 + epsilon) * log(inner_log_part) / 
+	double bigstuff = 2 * sigma_sq * (1 + epsilon) * log(inner_log_part) /
 		(double)num_plays_this;
 	double score = (1 + beta) * (1 + sqrt(epsilon)) * sqrt(bigstuff);
 
-	return(score);
+	return (score);
 }
 
 void Lil_UCB::load_bandits(std::vector<Bandit *> & bandits) {
@@ -41,7 +41,7 @@ void Lil_UCB::load_bandits(std::vector<Bandit *> & bandits) {
 	size_t bandidx;
 
 	for (bandidx = 0; bandidx < bandits.size(); ++bandidx) {
-		if(bandits[bandidx]->get_num_pulls() == 0) {
+		if (bandits[bandidx]->get_num_pulls() == 0) {
 			bandits[bandidx]->pull();
 			played_new_bandit = true;
 		}
@@ -49,9 +49,9 @@ void Lil_UCB::load_bandits(std::vector<Bandit *> & bandits) {
 
 		// Only show status if we've actually done some initial pulls.
 		if (played_new_bandit && (bandidx % 1000 == 0)) {
-			std::cout << "Initial pull: " << bandidx << " of " << 
-			bandits.size() << " or " << 
-			round(bandidx/(double)bandits.size() * 100 * 100)/100.0 << std::endl;
+			std::cout << "Initial pull: " << bandidx << " of " <<
+				bandits.size() << " or " <<
+				round(bandidx/(double)bandits.size() * 100 * 100)/100.0 << std::endl;
 		}
 
 		minimum = std::min(minimum, bandits[bandidx]->get_minimum());
@@ -62,7 +62,7 @@ void Lil_UCB::load_bandits(std::vector<Bandit *> & bandits) {
 
 	for (bandidx = 0; bandidx < bandits.size(); ++bandidx) {
 		queue_entry to_add = create_queue_entry(bandits[bandidx],
-			bandits.size());
+				bandits.size());
 
 		bandit_queue.push(to_add);
 	}
@@ -88,8 +88,8 @@ double Lil_UCB::pull_bandit_arms(int max_pulls) {
 
 		// Update score. +1 because we haven't pushed the current
 		// bandit yet.
-		at_top.score = get_score(*at_top.bandit_ref, 
-			bandit_queue.size()+1);
+		at_top.score = get_score(*at_top.bandit_ref,
+				bandit_queue.size()+1);
 
 		bandit_queue.push(at_top);
 
@@ -98,10 +98,10 @@ double Lil_UCB::pull_bandit_arms(int max_pulls) {
 		other_pulled = total_num_pulls - recordholder_pulled;
 
 		if (recordholder_pulled >= 1 + lambda * other_pulled) {
-			return(1);
+			return (1);
 		}
 	}
 
-	return(std::min(recordholder_pulled / (1 + lambda * other_pulled),
-		1.0));
+	return (std::min(recordholder_pulled / (1 + lambda * other_pulled),
+				1.0));
 }

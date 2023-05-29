@@ -7,7 +7,7 @@
 using namespace std;
 
 list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
-        int numcands, bool do_truncate, rng & random_source) const {
+	int numcands, bool do_truncate, rng & random_source) const {
 
 	// Fill a vector with 0...numcands, then shuffle randomly, then turn
 	// into ordering. The reason we don't use generate_ordering
@@ -34,12 +34,14 @@ list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 		to_add.contents.clear();
 
 		random_shuffle(candidates.begin(), candidates.end(),
-		               random_source);
+			random_source);
 
 		size_t this_far;
-		if (do_truncate && candidates.size() > 1)
+		if (do_truncate && candidates.size() > 1) {
 			this_far = random_source.irand(1, candidates.size());
-		else	this_far = candidates.size();
+		} else	{
+			this_far = candidates.size();
+		}
 
 		// HACK, part II
 		// The proper way to do this is to build randomly, i.e. every
@@ -51,10 +53,11 @@ list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 
 		for (size_t counter = 0; counter < this_far; ++counter) {
 			to_add.contents.insert(candscore(candidates[counter],
-			                                 lin_counter));
+					lin_counter));
 			if (counter == 0 || !do_equal_rank ||
-			        !equal_rank[counter-1])
+				!equal_rank[counter-1]) {
 				++lin_counter;
+			}
 		}
 
 		to_add.weight = get_sample(random_source);

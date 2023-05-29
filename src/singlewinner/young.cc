@@ -1,6 +1,6 @@
 // Young's method. See young.h for more information!
 
-// Possible later thing to do: use the virtual equation stuff in 
+// Possible later thing to do: use the virtual equation stuff in
 // linear_model/ to simplify the construction of the GLPK model.
 
 #include "../pairwise/matrix.h"
@@ -16,15 +16,18 @@
 
 using namespace std;
 
-pair<double, double> young::get_young_score(const list<ballot_group> & papers, 
-		size_t candidate, size_t num_candidates, size_t num_ballots, 
-		const vector<bool> & hopeful, bool relaxed, 
-		bool symmetric_completion, bool debug) const {
+pair<double, double> young::get_young_score(const list<ballot_group> &
+	papers,
+	size_t candidate, size_t num_candidates, size_t num_ballots,
+	const vector<bool> & hopeful, bool relaxed,
+	bool symmetric_completion, bool debug) const {
 
 	pair<double, double> score(-1, -1);
 
-	assert (candidate < num_candidates);
-	if (!hopeful[candidate]) return(score);
+	assert(candidate < num_candidates);
+	if (!hopeful[candidate]) {
+		return (score);
+	}
 
 	// Yup, you guessed it, it's return of GLPK.
 
@@ -32,9 +35,9 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	// later?)
 	glp_prob * ip;
 	ip = glp_create_prob();
-	assert (ip != NULL);
-	glp_set_prob_name(ip, (string("Young score for " + 
-					itos(candidate)).c_str()));
+	assert(ip != NULL);
+	glp_set_prob_name(ip, (string("Young score for " +
+				itos(candidate)).c_str()));
 	glp_set_obj_dir(ip, GLP_MAX); // Maximum score.
 
 	// Row = alias variables, e.g. p = sum over i x[i] * e[i][c*][1],
@@ -51,7 +54,7 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	//                      sum over i
 	//                               x[i] * e[i][c*][a]
 	//                        >= 1
-	// for all i, x[i] is integer, 0 >= x[i] >= wt[i], where wt[i] is 
+	// for all i, x[i] is integer, 0 >= x[i] >= wt[i], where wt[i] is
 	// the weight of the ith ballot,
 
 	glp_add_rows(ip, num_candidates - 1);
@@ -90,17 +93,19 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	double tie_val = 0;
 
 	// Setting tie_val to 0.5 may make it break Condorcet when there are
-	// many voters. However, having this value > 0 (e.g. 0.01) seems to 
+	// many voters. However, having this value > 0 (e.g. 0.01) seems to
 	// improve BR. More investigation is needed.
 	// Setting it to (num_candidates * (num_candidates - 1)) seems to work.
 	if (symmetric_completion)
 		//tie_val = 0.5;
+	{
 		tie_val = 1/(double)(num_candidates * (num_candidates-1));
+	}
 
 	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
-			papers.end(); ++pos) {
+		papers.end(); ++pos) {
 		// If not relaxed, we can't handle non-integer ballot sizes.
-		assert (relaxed || pos->weight == round(pos->weight));
+		assert(relaxed || pos->weight == round(pos->weight));
 
 		// Determine the data we need for ar. This is sort of a copy
 		// of the code in matrix.cc, but to do it through a Condorcet
@@ -109,46 +114,53 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 		ordering::const_iterator ourcand = pos->contents.end(), opos;
 
 		// First find the current candidate.
-		for (opos = pos->contents.begin(); opos != pos->contents.end() 
-				&& ourcand == pos->contents.end(); ++opos)
-			if ((size_t)opos->get_candidate_num() == candidate)
+		for (opos = pos->contents.begin(); opos != pos->contents.end()
+			&& ourcand == pos->contents.end(); ++opos)
+			if ((size_t)opos->get_candidate_num() == candidate) {
 				ourcand = opos;
-		
+			}
+
 		if (ourcand == pos->contents.end()) {
-			// If the candidate wasn't found, that means the voter 
-			// truncated and thus everybody else who is ranked is 
-			// above him, all other hopefuls equal, not-hopefuls 
+			// If the candidate wasn't found, that means the voter
+			// truncated and thus everybody else who is ranked is
+			// above him, all other hopefuls equal, not-hopefuls
 			// below.
 
-			if (debug)
+			if (debug) {
 				cout << "Didn't find that candidate." << endl;
+			}
 
 			for (counter = 0; counter < hopeful.size(); ++counter)
-				if (hopeful[counter] || counter == candidate)
+				if (hopeful[counter] || counter == candidate) {
 					vs_others[counter] = tie_val;
-				else	vs_others[counter] = 1;
+				} else	{
+					vs_others[counter] = 1;
+				}
 
-			for (opos = pos->contents.begin(); opos != 
-					pos->contents.end(); ++opos)
+			for (opos = pos->contents.begin(); opos !=
+				pos->contents.end(); ++opos) {
 				vs_others[opos->get_candidate_num()] = -1;
+			}
 		} else {
-			// If the candidate was found, check for all others 
-			// whether c* ranks above them. If c* does, 1; if he 
-			// doesn't, either 0 or -1. Truncated and not-hopeful 
+			// If the candidate was found, check for all others
+			// whether c* ranks above them. If c* does, 1; if he
+			// doesn't, either 0 or -1. Truncated and not-hopeful
 			// candidates aren't checked and so get an automatic 1.
 
 			fill(vs_others.begin(), vs_others.end(), 1);
 
-			if (debug)
+			if (debug) {
 				cout << "Found that candidate." << endl;
+			}
 
-			for (opos = pos->contents.begin(); opos != 
-					pos->contents.end(); ++opos) {
-				if (!hopeful[opos->get_candidate_num()])
+			for (opos = pos->contents.begin(); opos !=
+				pos->contents.end(); ++opos) {
+				if (!hopeful[opos->get_candidate_num()]) {
 					continue;
+				}
 
 				if (opos->get_score() > ourcand->get_score())
-					vs_others[opos->get_candidate_num()] 
+					vs_others[opos->get_candidate_num()]
 						= -1;
 				if (opos->get_score() == ourcand->get_score())
 					vs_others[opos->get_candidate_num()]
@@ -159,43 +171,48 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 		if (debug) {
 			cout << "Our candidate is number " << candidate << endl;
 			cout << "The versus array is: ";
-			copy(vs_others.begin(), vs_others.end(), 
-					ostream_iterator<int>(cout, " "));
+			copy(vs_others.begin(), vs_others.end(),
+				ostream_iterator<int>(cout, " "));
 			cout << endl;
 		}
 
 		for (counter = 0; counter < vs_others.size(); ++counter) {
-			if (counter == candidate) continue;
+			if (counter == candidate) {
+				continue;
+			}
 
-			if (counter < candidate)
+			if (counter < candidate) {
 				ia[running_count] = 1 + counter;
-			else	ia[running_count] = counter;
+			} else	{
+				ia[running_count] = counter;
+			}
 
 			ja[running_count] = running_ballot_count;
 			ar[running_count] = vs_others[counter];
 			++running_count;
 		}
 
-		// Set the column constraint for this voter. The x parameter 
+		// Set the column constraint for this voter. The x parameter
 		// can't be above the ballot's weight, nor can it be below
 		// zero.
 
 		glp_set_col_bnds(ip, running_ballot_count, GLP_DB, 0,
-				pos->weight);
+			pos->weight);
 
 		if (debug) {
 			name = "x[" + itos(running_ballot_count - 1) + "]";
-			glp_set_col_name(ip, running_ballot_count, 
-					name.c_str());
+			glp_set_col_name(ip, running_ballot_count,
+				name.c_str());
 		}
 
-		if (!relaxed)
+		if (!relaxed) {
 			glp_set_col_kind(ip, running_ballot_count, GLP_IV);
-		
+		}
+
 		++running_ballot_count;
 	}
 
-	assert (running_count <= entries + 1);
+	assert(running_count <= entries + 1);
 	glp_load_matrix(ip, running_count - 1, ia, ja, ar);
 
 	// Now set row constraints. These must all be above zero, i.e. the
@@ -214,7 +231,9 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 
 	for (counter = 0; counter < num_candidates - 1; ++counter) {
 		size_t realcand = counter;
-		if (realcand >= candidate) ++realcand;
+		if (realcand >= candidate) {
+			++realcand;
+		}
 
 		if (debug) {
 			name = "vs_cand_" + itos(realcand);
@@ -227,8 +246,9 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	// Finally, set the objective coefficients. They will all be one,
 	// since no voter is more important than another.
 
-	for (counter = 0; counter < num_ballots; ++counter)
+	for (counter = 0; counter < num_ballots; ++counter) {
 		glp_set_obj_coef(ip, counter + 1, 1);
+	}
 
 	// All done. Now let's set a few parameters involving verbosity and
 	// then solve. We first solve the linear programming relaxation since
@@ -240,29 +260,32 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	glp_smcp params;
 	glp_init_smcp(&params);
 
-	if (debug)
+	if (debug) {
 		params.msg_lev = GLP_MSG_ALL;
-	else	params.msg_lev = GLP_MSG_OFF;
+	} else	{
+		params.msg_lev = GLP_MSG_OFF;
+	}
 	params.presolve = GLP_ON;
 
 	/*glp_write_lp(ip, NULL, "output.txt");
 	assert (1 != 1);*/
 
-	// Solve the relaxation. If it doesn't succeed and it's not an 
-	// infeasibility problem (see later) , clean up and return -1 
+	// Solve the relaxation. If it doesn't succeed and it's not an
+	// infeasibility problem (see later) , clean up and return -1
 	// for error.
 	int simplex_return = glp_simplex(ip, &params);
 	bool no_soln = (simplex_return == GLP_ENOPFS);
 
 	if (simplex_return != 0 && simplex_return != GLP_ENOPFS) {
-		if (debug)
+		if (debug) {
 			cout << "First error, val = " << simplex_return << endl;
+		}
 
 		delete[] ar;
 		delete[] ia;
 		delete[] ja;
 		glp_delete_prob(ip);
-		return(score);
+		return (score);
 	}
 
 	// Check whether there are any feasible solutions to the problem at all.
@@ -271,27 +294,28 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	// to make the candidate the CW, his score is 0.
 	if (no_soln || glp_get_status(ip) == GLP_NOFEAS) {
 		if (debug)
-			cout << "No possible way to make this candidate a CW." 
+			cout << "No possible way to make this candidate a CW."
 				<< endl;
 		score = pair<double, double>(0, 0);
 	} else {
 		// So there *is* a potential way to make him the CW.
 
-		// If we want the relaxation or we're all integer, return the 
+		// If we want the relaxation or we're all integer, return the
 		// objective straight ahead.
 
 		score.first = glp_get_obj_val(ip);
 
 		bool relaxed_okay = true;
 
-		for (counter = 0; counter < num_ballots && relaxed_okay; 
-				++counter) {
+		for (counter = 0; counter < num_ballots && relaxed_okay;
+			++counter) {
 			double retval = glp_get_col_prim(ip, counter+1);
 			relaxed_okay = (retval == (int)retval);
 		}
 
-		if (relaxed_okay)
+		if (relaxed_okay) {
 			score.second = glp_get_obj_val(ip);
+		}
 
 		// If the linear solution isn't integer-perfect and we
 		// want an integer solution, provide it.
@@ -302,9 +326,11 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 			glp_iocp io_param;
 			glp_init_iocp(&io_param);
 
-			if (debug)
+			if (debug) {
 				io_param.msg_lev = GLP_MSG_ALL;
-			else	io_param.msg_lev = GLP_MSG_OFF;
+			} else	{
+				io_param.msg_lev = GLP_MSG_OFF;
+			}
 
 			// Make use of the advanced cut options, as they
 			// significantly speed up the search.
@@ -318,10 +344,11 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 			// mip_gap, but my version of GLPK seems to have a bug
 			// where it immediately times out if mip_gap != 0.
 
-			if (glp_intopt(ip, &io_param) != 0)
+			if (glp_intopt(ip, &io_param) != 0) {
 				score.second = -1;
-			else
+			} else {
 				score.second = glp_get_obj_val(ip);
+			}
 		}
 	}
 
@@ -332,24 +359,30 @@ pair<double, double> young::get_young_score(const list<ballot_group> & papers,
 	delete[] ar;
 	glp_delete_prob(ip);
 
-	return(score);
+	return (score);
 }
 
 string young::determine_name() const {
 	string retval = "Young(";
 
-	if (is_sym_comp) retval += "sym-completion,";
-	else retval += "wv,";
+	if (is_sym_comp) {
+		retval += "sym-completion,";
+	} else {
+		retval += "wv,";
+	}
 
-	if (is_relaxed) retval += "linear)";
-	else retval += "integer)";
+	if (is_relaxed) {
+		retval += "linear)";
+	} else {
+		retval += "integer)";
+	}
 
-	return(retval);
+	return (retval);
 }
 
 pair<ordering, bool> young::elect_inner(const list<ballot_group> & papers,
-		const vector<bool> & hopefuls, int num_candidates, 
-		cache_map * /*cache*/, bool /*winner_only*/) const {
+	const vector<bool> & hopefuls, int num_candidates,
+	cache_map * /*cache*/, bool /*winner_only*/) const {
 
 	// Rather simple.
 
@@ -358,23 +391,29 @@ pair<ordering, bool> young::elect_inner(const list<ballot_group> & papers,
 	int num_ballots = papers.size(); // O(n)
 
 	for (int counter = 0; counter < num_candidates; ++counter) {
-		if (!hopefuls[counter]) continue;
+		if (!hopefuls[counter]) {
+			continue;
+		}
 
 		pair<double, double> score = get_young_score(
 				papers, counter, num_candidates,
 				num_ballots, hopefuls, is_relaxed, is_sym_comp,
 				false);
 
-		if (is_relaxed)
-			assert (score.first != -1);
-		else	assert (score.second != -1);
+		if (is_relaxed) {
+			assert(score.first != -1);
+		} else	{
+			assert(score.second != -1);
+		}
 
-		if (is_relaxed)
+		if (is_relaxed) {
 			toRet.insert(candscore(counter, score.first));
-		else	toRet.insert(candscore(counter, score.second));
+		} else	{
+			toRet.insert(candscore(counter, score.second));
+		}
 	}
 
-	return(pair<ordering, bool>(toRet, false));
+	return (pair<ordering, bool>(toRet, false));
 }
 
 young::young(bool use_sym_comp, bool use_relax) {

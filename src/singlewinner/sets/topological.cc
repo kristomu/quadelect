@@ -3,7 +3,7 @@
 using namespace std;
 
 vector<int> topological_set::find_indegree(const abstract_condmat & input,
-		const vector<bool> & hopefuls) const {
+	const vector<bool> & hopefuls) const {
 
 	// Set all to 0.
 	vector<int> indegree(input.get_num_candidates(), 0);
@@ -12,14 +12,15 @@ vector<int> topological_set::find_indegree(const abstract_condmat & input,
 	for (int counter = 0; counter < input.get_num_candidates(); ++counter)
 		for (int sec = 0; sec < input.get_num_candidates(); ++sec)
 			if (counter != sec && relation(input, hopefuls,
-						counter, sec))
+					counter, sec)) {
 				++indegree[sec];
+			}
 
-	return(indegree);
+	return (indegree);
 }
 
 ordering topological_set::topo_sort(const abstract_condmat & input,
-		const vector<bool> & hopefuls, vector<int> indegree) const {
+	const vector<bool> & hopefuls, vector<int> indegree) const {
 
 	// First of all, insert all with no incoming edges. The pair<int, int>
 	// has the vertex (candidate) number as the first element, and a "count"
@@ -32,8 +33,9 @@ ordering topological_set::topo_sort(const abstract_condmat & input,
 	ordering toRet;
 
 	for (counter = 0; counter < indegree.size(); ++counter)
-		if (indegree[counter] == 0)
+		if (indegree[counter] == 0) {
 			running_list.push_back(pair<int, int>(counter, 0));
+		}
 
 	// While there are candidates left...
 	while (!running_list.empty()) {
@@ -51,8 +53,8 @@ ordering topological_set::topo_sort(const abstract_condmat & input,
 				--indegree[counter];
 				if (indegree[counter] == 0)
 					running_list.push_back(pair<int, int>(
-								counter, 
-								cur.second+1));
+							counter,
+							cur.second+1));
 			}
 
 		// Finally, add the current vertex to the output ordering.
@@ -61,10 +63,11 @@ ordering topological_set::topo_sort(const abstract_condmat & input,
 
 	// Check if there are any nonzero degrees left. If so, cycle, so bork.
 	for (counter = 0; counter < indegree.size(); ++counter)
-		if (indegree[counter] != 0)
-			return(ordering());
+		if (indegree[counter] != 0) {
+			return (ordering());
+		}
 
 	// No? Return the ordering and we're done.
-	return(toRet);
+	return (toRet);
 }
 

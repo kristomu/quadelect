@@ -20,12 +20,12 @@ std::list<ballot_group> test_generator::vector_election_to_ordering_format(
 		ballot.rated = false;
 		for (int i = 0; i < numcands; ++i) {
 			ballot.contents.insert(candscore(cur_cand_ordering[i],
-				numcands-i));
+					numcands-i));
 		}
 		ballot.weight = election[perm_number++];
 		out_election.push_back(ballot);
 	} while (std::next_permutation(cur_cand_ordering.begin(),
-		cur_cand_ordering.end()));
+			cur_cand_ordering.end()));
 
 	return out_election;
 }
@@ -57,21 +57,21 @@ std::pair<constraint_set, bool> test_generator::set_scenario_constraints(
 	// Set constraints on the number of voters
 	voter_constraints voters("v");
 	all_constraints.add(voters.max_numvoters_definition(before.get_numcands(),
-		before_name));
+			before_name));
 	all_constraints.add(voters.max_numvoters_definition(after.get_numcands(),
-		after_name));
+			after_name));
 	all_constraints.add(voters.max_numvoters_upper_bound(max_numvoters));
 
 	// Set scenario constraints.
 	pairwise_constraints pairwise;
 	all_constraints.add(pairwise.beat_constraints(before.get_short_form(),
-		before_name, before.get_numcands()));
+			before_name, before.get_numcands()));
 	all_constraints.add(pairwise.beat_constraints(after.get_short_form(),
-		after_name, after.get_numcands()));
+			after_name, after.get_numcands()));
 
 	// Add relative constraints linking the before- and after-election.
 	all_constraints.add(rel_criterion.relative_constraints(before_name,
-		after_name));
+			after_name));
 
 	// Set the margin of pairwise victory and add a nonnegativity
 	// constraint.
@@ -92,16 +92,18 @@ bool test_generator::set_scenarios(copeland_scenario before,
 	// with composition required by ISDA later.)
 
 	std::pair<constraint_set, bool> constraints = set_scenario_constraints(
-		before, after, max_numvoters, rel_criterion, "before", "after");
+			before, after, max_numvoters, rel_criterion, "before", "after");
 
-	if (!constraints.second) { return false; }
+	if (!constraints.second) {
+		return false;
+	}
 
 	// Set up the polytope and sampler. Return true if we can do so,
 	// false if we can't.
 	try {
 		election_polytope = constraint_polytope(constraints.first);
 		sampler = billiard_sampler<constraint_polytope>(election_polytope,
-			true, true, rng_seed);
+				true, true, rng_seed);
 	} catch (const std::runtime_error & e) {
 		return false;
 	}
@@ -134,16 +136,16 @@ relative_test_instance test_generator::sample_instance(
 	// testing function can provide the required synthetic score
 	// down the line.
 
-	assert (other_candidate_idx_before != CP_NONEXISTENT ||
+	assert(other_candidate_idx_before != CP_NONEXISTENT ||
 		other_candidate_idx_after != CP_NONEXISTENT);
 
 	if (other_candidate_idx_before == CP_NONEXISTENT ||
 		other_candidate_idx_after == CP_NONEXISTENT) {
 
 		relative_test_instance pretend = sample_instance(
-			std::max(other_candidate_idx_before, (ssize_t)0),
-			std::max((ssize_t)0, other_candidate_idx_after),
-			before_cand_remapping, after_cand_remapping);
+				std::max(other_candidate_idx_before, (ssize_t)0),
+				std::max((ssize_t)0, other_candidate_idx_after),
+				before_cand_remapping, after_cand_remapping);
 
 		pretend.before_B.from_perspective_of =
 			other_candidate_idx_before;
@@ -175,7 +177,7 @@ relative_test_instance test_generator::sample_instance(
 	}
 
 	out.before_A.election = vector_election_to_ordering_format(
-		vector_election, scenario_before.get_numcands());
+			vector_election, scenario_before.get_numcands());
 	out.before_A.from_perspective_of = 0;
 	out.before_A.scenario = scenario_before;
 
@@ -185,7 +187,7 @@ relative_test_instance test_generator::sample_instance(
 	}
 
 	out.after_A.election = vector_election_to_ordering_format(
-		vector_election, scenario_after.get_numcands());
+			vector_election, scenario_after.get_numcands());
 	out.after_A.from_perspective_of = 0;
 	out.after_A.scenario = scenario_after;
 
@@ -194,15 +196,15 @@ relative_test_instance test_generator::sample_instance(
 			other_candidate_idx_before);
 
 	out.before_B.election = permute_election_candidates(out.before_A.election,
-		cand_remapping.cand_permutations[0]);
+			cand_remapping.cand_permutations[0]);
 	out.before_B.from_perspective_of = other_candidate_idx_before;
 	out.before_B.scenario = cand_remapping.to_scenario;
 
 	cand_remapping = after_cand_remapping.get_candidate_remapping(
-		out.after_A.scenario, other_candidate_idx_after);
+			out.after_A.scenario, other_candidate_idx_after);
 
 	out.after_B.election = permute_election_candidates(out.after_A.election,
-		cand_remapping.cand_permutations[0]);
+			cand_remapping.cand_permutations[0]);
 	out.after_B.from_perspective_of = other_candidate_idx_after;
 	out.after_B.scenario = cand_remapping.to_scenario;
 

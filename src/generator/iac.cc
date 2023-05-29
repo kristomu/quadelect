@@ -39,7 +39,9 @@ std::list<ballot_group> iac::generate_ballots_int(
 		++i;
 
 		int weight = interval_source[i+1] - interval_source[i];
-		if (weight == 0) { continue; }
+		if (weight == 0) {
+			continue;
+		}
 
 		ordering cur_ordering;
 		for (int j = 0; j < numcands; ++j) {
@@ -47,7 +49,8 @@ std::list<ballot_group> iac::generate_ballots_int(
 		}
 
 		ballots.push_back(ballot_group(weight, cur_ordering, true, false));
-	} while (std::next_permutation(candidate_order.begin(), candidate_order.end()));
+	} while (std::next_permutation(candidate_order.begin(),
+			candidate_order.end()));
 
 	return ballots;
 };

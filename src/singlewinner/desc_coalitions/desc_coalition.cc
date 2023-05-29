@@ -13,16 +13,16 @@ void desc_coalition_method::sort_by_candidate(
 }
 
 bool desc_coalition_method::can_candidate_win(
-		std::vector<coalition_entry> & coalitions,
-		const std::set<int> & starting_candidate_set,
-		int candidate, int num_candidates) const {
+	std::vector<coalition_entry> & coalitions,
+	const std::set<int> & starting_candidate_set,
+	int candidate, int num_candidates) const {
 
 	sort_by_candidate(coalitions, candidate);
 
 	std::set<int> coalition_so_far = starting_candidate_set;
 
 	for (std::vector<coalition_entry>::const_iterator pos = coalitions.begin();
-			pos != coalitions.end(); ++pos) {
+		pos != coalitions.end(); ++pos) {
 
 		std::set<int> test_intersection;
 
@@ -38,22 +38,22 @@ bool desc_coalition_method::can_candidate_win(
 		// If there's only one candidate left, return true if that candidate
 		// is the specified candidate, false otherwise.
 		if (test_intersection.size() == 1) {
-			return(test_intersection.find(candidate) != 
-				test_intersection.end());
+			return (test_intersection.find(candidate) !=
+					test_intersection.end());
 		}
 
 		coalition_so_far = test_intersection;
 	}
 
-	return(coalition_so_far.find(candidate) != coalition_so_far.end());
+	return (coalition_so_far.find(candidate) != coalition_so_far.end());
 }
 
 std::pair<ordering, bool> desc_coalition_method::elect_inner(
-		const std::list<ballot_group> & papers,
-		const std::vector<bool> & hopefuls, int num_candidates, 
-		cache_map * cache, bool winner_only) const {
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
-	// Performance enhancement is possible: traditional DSC algorithm if 
+	// Performance enhancement is possible: traditional DSC algorithm if
 	// winner_only is true.
 
 	// Get the coalitions corresponding to this ballot group.
@@ -67,8 +67,8 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 		}
 	}
 
-	std::vector<coalition_entry> coalitions = get_coalitions(papers, 
-		hopefuls, num_candidates);
+	std::vector<coalition_entry> coalitions = get_coalitions(papers,
+			hopefuls, num_candidates);
 
 	ordering outcome;
 
@@ -84,15 +84,15 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 	// Revealed_candidates are the candidates we've revealed during that
 	// turn.
 	std::set<int> unknown_candidates = all_candidates,
-					revealed_candidates;
+				  revealed_candidates;
 	int rank_score = num_candidates;
 
 	std::set<int>::const_iterator pos;
 
 	while (!unknown_candidates.empty()) {
 		revealed_candidates.empty();
-		for (pos = unknown_candidates.begin(); pos != 
-				unknown_candidates.end(); ++pos) {
+		for (pos = unknown_candidates.begin(); pos !=
+			unknown_candidates.end(); ++pos) {
 
 			if (can_candidate_win(coalitions, unknown_candidates, *pos,
 					num_candidates)) {
@@ -102,8 +102,8 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 			}
 		}
 
-		for (pos = revealed_candidates.begin(); 
-				pos != revealed_candidates.end(); ++pos) {
+		for (pos = revealed_candidates.begin();
+			pos != revealed_candidates.end(); ++pos) {
 			unknown_candidates.erase(*pos);
 		}
 
@@ -113,14 +113,14 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 		// non-winners as equal last.
 		if (winner_only) {
 
-			for (pos = unknown_candidates.begin(); pos != 
-					unknown_candidates.end(); ++pos) {
+			for (pos = unknown_candidates.begin(); pos !=
+				unknown_candidates.end(); ++pos) {
 				outcome.insert(candscore(*pos, rank_score));
 			}
 
-			return(std::pair<ordering, bool>(outcome, winner_only));
+			return (std::pair<ordering, bool>(outcome, winner_only));
 		}
 	}
 
-	return(std::pair<ordering, bool>(outcome, winner_only));
+	return (std::pair<ordering, bool>(outcome, winner_only));
 }

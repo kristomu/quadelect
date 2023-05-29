@@ -24,40 +24,42 @@ using namespace std;
 
 // Note that the function also modifies two of the input variables, the lower
 // and upper, pointing to the lower and upper generalized bimedian (same unless
-// it has to take the mean). It returns the point (sum of weights) where lower 
+// it has to take the mean). It returns the point (sum of weights) where lower
 // ends; that value is used to determine how much of the weight is to the left
 // and the right of the sweep line in the algorithm itself.
 
 double grad_fracile::get_center(
-		list<pair<double, double> >::const_iterator & lower,
-		list<pair<double, double> >::const_iterator & upper,
-		const list<pair<double, double> > & source,
-		double numvoters, double fracile) const {
+	list<pair<double, double> >::const_iterator & lower,
+	list<pair<double, double> >::const_iterator & upper,
+	const list<pair<double, double> > & source,
+	double numvoters, double fracile) const {
 
 	double sum = 0;
 
-        // Find the lower "bimedian". If the central point is exactly between 
-        // the lower and upper, then upper is one block further, otherwise upper
-        // is the same as lower.
+	// Find the lower "bimedian". If the central point is exactly between
+	// the lower and upper, then upper is one block further, otherwise upper
+	// is the same as lower.
 
-        for (lower = source.begin(); lower != source.end() &&
-                        sum + lower->second < fracile * numvoters; ++lower)
-                sum += lower->second;
-
-        assert (lower != source.end()); // Happens if empty or wrong numvoters.
-
-        upper = lower;
-
-        // If it's exactly between two blocks (as in a median of 2), the upper 
-        // must be incremented unless that would lead upper to become invalid.
-
-        if (sum + lower->second == fracile * numvoters) {
-                ++upper;
-                if (upper == source.end())
-                        upper = lower;
+	for (lower = source.begin(); lower != source.end() &&
+		sum + lower->second < fracile * numvoters; ++lower) {
+		sum += lower->second;
 	}
 
-	return(sum);
+	assert(lower != source.end());  // Happens if empty or wrong numvoters.
+
+	upper = lower;
+
+	// If it's exactly between two blocks (as in a median of 2), the upper
+	// must be incremented unless that would lead upper to become invalid.
+
+	if (sum + lower->second == fracile * numvoters) {
+		++upper;
+		if (upper == source.end()) {
+			upper = lower;
+		}
+	}
+
+	return (sum);
 }
 
 void grad_fracile::add_score(size_t candidate, double left, double right) {
@@ -65,14 +67,14 @@ void grad_fracile::add_score(size_t candidate, double left, double right) {
 	// function on your own risk.
 	/*if (candidate >= sorted_lists.size()) return;*/
 
-	// TODO: Fix problem where, if one candidate has two 1 wt. blocks and 
+	// TODO: Fix problem where, if one candidate has two 1 wt. blocks and
 	// the other has one 1 wt. block, that will make the first win over the
 	// second since scores are only added for those that change.
 
-	// For now we'll just keep the edge scores. Magnitude-type Condorcet 
+	// For now we'll just keep the edge scores. Magnitude-type Condorcet
 	// might have a problem with this, so fix later.
 
-	assert (right >= left);
+	assert(right >= left);
 
 	scores[candidate] = left + right;
 }
@@ -80,11 +82,12 @@ void grad_fracile::add_score(size_t candidate, double left, double right) {
 // This function does run length encoding of the sorted list, so that if the
 // number of ratings is fixed, the structure will be polyspace summable.
 
-void grad_fracile::compress_candidate(list<pair<double, double> > & 
-		cand_scores, bool sorted) {
+void grad_fracile::compress_candidate(list<pair<double, double> > &
+	cand_scores, bool sorted) {
 
-	if (!sorted)
+	if (!sorted) {
 		cand_scores.sort();
+	}
 
 	list<pair<double, double> > ::iterator pos, advance;
 
@@ -119,11 +122,11 @@ grad_fracile::grad_fracile() {
 	completion = GF_BOTH;
 
 	// Minimum and maximum scores are -infinity and +infinity respectively,
-	// so that they are always below or above the most extreme rank 
-	// possible. 
+	// so that they are always below or above the most extreme rank
+	// possible.
 
 	minscorev.push_back(pair<double, double>(-INFINITY, INFINITY));
-	maxscorev.push_back(pair<double, double>( INFINITY, INFINITY));
+	maxscorev.push_back(pair<double, double>(INFINITY, INFINITY));
 
 	num_hopefuls = 0;
 }
@@ -134,30 +137,32 @@ int grad_fracile::add_candidate() {
 	++num_hopefuls;
 
 	finite_min_sentinels.push_back(list<pair<double, double> >());
-	finite_min_sentinels.rbegin()->push_back(pair<double, double>(0, 
-				INFINITY));
+	finite_min_sentinels.rbegin()->push_back(pair<double, double>(0,
+			INFINITY));
 	finite_max_sentinels.push_back(list<pair<double, double> >());
-	finite_max_sentinels.rbegin()->push_back(pair<double, double>(0, 
-				INFINITY));
+	finite_max_sentinels.rbegin()->push_back(pair<double, double>(0,
+			INFINITY));
 	left_indices.push_back(minscorev.begin());
 	right_indices.push_back(minscorev.begin());
 
 	scores.push_back(0);
-	return(sorted_lists.size());
+	return (sorted_lists.size());
 }
 
 // Perhaps the other way is faster.
 int grad_fracile::add_candidates(int how_many) {
-	for (int counter = 0; counter < how_many; ++counter)
+	for (int counter = 0; counter < how_many; ++counter) {
 		add_candidate();
+	}
 
-	return(get_num_candidates());
+	return (get_num_candidates());
 }
 
 int grad_fracile::remove_last_candidate() {
 	if (!sorted_lists.empty()) {
-		if (*(hopefuls.rbegin()))
+		if (*(hopefuls.rbegin())) {
 			--num_hopefuls;
+		}
 
 		sorted_lists.pop_back();
 		hopefuls.pop_back();
@@ -168,22 +173,25 @@ int grad_fracile::remove_last_candidate() {
 		right_indices.pop_back();
 	}
 
-	return(sorted_lists.size());
+	return (sorted_lists.size());
 }
 
-bool grad_fracile::add_rating(size_t candidate, double weight, double rating) {
+bool grad_fracile::add_rating(size_t candidate, double weight,
+	double rating) {
 
 	// If the candidate doesn't exist, fugeddaboudit.
-	if (candidate >= sorted_lists.size()) 
-		return(false);
+	if (candidate >= sorted_lists.size()) {
+		return (false);
+	}
 
 	// We can't permit inf/nan weights because they'll mess with the
 	// sentinels.
-	assert (finite(weight));
+	assert(finite(weight));
 
 	// If it has a non-positive weight, do the same.
-	if (weight <= 0)
-		return(false);
+	if (weight <= 0) {
+		return (false);
+	}
 
 	// If we go here, that means we're going to somehow incorporate the
 	// new rating into the system, which means it'll need a reinit.
@@ -195,71 +203,77 @@ bool grad_fracile::add_rating(size_t candidate, double weight, double rating) {
 	// Sorted remains true but a reset will be needed.
 	if (sorted_lists[candidate].empty()) {
 		sorted_lists[candidate].push_back(pair<double, double>(rating,
-					weight));
-		return(true);
+				weight));
+		return (true);
 	}
 
 	// If the first block for this candidate has the same rating as what
 	// we're trying to add, simply increment the weight.
 	if (sorted_lists[candidate].begin()->first == rating) {
 		sorted_lists[candidate].begin()->second += weight;
-		return(true);
+		return (true);
 	}
 
 	// Ditto for the last block.
 	if (sorted_lists[candidate].rbegin()->first == rating) {
 		sorted_lists[candidate].rbegin()->second += weight;
-		return(true);
+		return (true);
 	}
 
 	// If the rating is less than the first block, we can insert at the
 	// beginning without turning the list unsorted, so do so.
 	if (sorted_lists[candidate].begin()->first > rating) {
 		sorted_lists[candidate].push_front(pair<double, double>(rating,
-					weight));
-		return(true);
+				weight));
+		return (true);
 	}
 
 	// Same for last.
 	if (sorted_lists[candidate].rbegin()->first < rating) {
 		sorted_lists[candidate].push_back(pair<double, double>(rating,
-					weight));
-		return(true);
+				weight));
+		return (true);
 	}
 
 	// Okay, so neither is true. Invalidate the sorted-order invariant
 	// and insert at the end.
 	all_sorted = false;
 	sorted_lists[candidate].push_back(pair<double, double>(rating, weight));
-	return(true);
+	return (true);
 }
 
 // Same as add_rating, only clear the list first.
-bool grad_fracile::set_rating(size_t candidate, double weight, double rating) {
-	if (candidate >= sorted_lists.size())
-		return(false);
+bool grad_fracile::set_rating(size_t candidate, double weight,
+	double rating) {
+	if (candidate >= sorted_lists.size()) {
+		return (false);
+	}
 
 	sorted_lists[candidate].clear();
-	return(add_rating(candidate, weight, rating));
+	return (add_rating(candidate, weight, rating));
 }
 
 bool grad_fracile::exclude(size_t candidate) {
-	if (candidate >= sorted_lists.size())
-		return(false);
+	if (candidate >= sorted_lists.size()) {
+		return (false);
+	}
 
-	if (hopefuls[candidate])
+	if (hopefuls[candidate]) {
 		--num_hopefuls;
+	}
 
 	hopefuls[candidate] = false;
-	return(true);
+	return (true);
 }
 
 bool grad_fracile::include(size_t candidate) {
-	if (candidate >= sorted_lists.size())
-		return(false);
+	if (candidate >= sorted_lists.size()) {
+		return (false);
+	}
 
-	if (hopefuls[candidate])
-		return(true);
+	if (hopefuls[candidate]) {
+		return (true);
+	}
 
 	// Again, we could determine whether this would actually change
 	// anything, before setting does_need_reinit. Bluesky: that, not worth
@@ -268,18 +282,19 @@ bool grad_fracile::include(size_t candidate) {
 	++num_hopefuls;
 	hopefuls[candidate] = true;
 	does_need_reinit = true;
-	return(true);
+	return (true);
 }
 
 bool grad_fracile::is_hopeful(size_t candidate) const {
-	if (candidate >= sorted_lists.size())
-		return(false);
+	if (candidate >= sorted_lists.size()) {
+		return (false);
+	}
 
-	return(hopefuls[candidate]);
+	return (hopefuls[candidate]);
 }
 
 int grad_fracile::get_num_hopefuls() const {
-	return(num_hopefuls);
+	return (num_hopefuls);
 }
 
 void grad_fracile::reset_hopefuls() {
@@ -291,30 +306,35 @@ void grad_fracile::reset_hopefuls() {
 }
 
 double grad_fracile::get_score(size_t candidate) const {
-	if (candidate >= sorted_lists.size())
-		return(NAN);
+	if (candidate >= sorted_lists.size()) {
+		return (NAN);
+	}
 
-	return(scores[candidate]);
+	return (scores[candidate]);
 }
 
 double grad_fracile::lget_eff_voters(size_t candidate) const {
-	if (candidate >= sorted_lists.size())
-		return(NAN);
+	if (candidate >= sorted_lists.size()) {
+		return (NAN);
+	}
 
 	double sum = 0;
 
 	for (list<pair<double, double> >::const_iterator pos = sorted_lists[
-			candidate].begin(); pos != sorted_lists[candidate].
-			end(); ++pos)
+				candidate].begin(); pos != sorted_lists[candidate].
+		end(); ++pos) {
 		sum += pos->second;
+	}
 
-	return(sum);
+	return (sum);
 }
 
 
 bool grad_fracile::init(double fracile, completion_type completion_in) {
 
-	if (fracile < 0 || fracile > 1) return(false);
+	if (fracile < 0 || fracile > 1) {
+		return (false);
+	}
 
 	// First set the completion type.
 	completion = completion_in;
@@ -323,16 +343,17 @@ bool grad_fracile::init(double fracile, completion_type completion_in) {
 
 	// If we're not sorted yet, sort.
 	if (!all_sorted) {
-		for (counter = 0; counter < sorted_lists.size(); ++counter)
+		for (counter = 0; counter < sorted_lists.size(); ++counter) {
 			sorted_lists[counter].sort();
+		}
 		all_sorted = true;
 	}
 
 	// Clear the priority queue and iterators.
 	left_pq = priority_queue<priority_entry, vector<priority_entry>,
-		greater<priority_entry> >();
+	greater<priority_entry> >();
 	right_pq = priority_queue<priority_entry, vector<priority_entry>,
-		 greater<priority_entry> >();
+	greater<priority_entry> >();
 
 	left_indices.clear();
 	right_indices.clear();
@@ -357,8 +378,8 @@ bool grad_fracile::init(double fracile, completion_type completion_in) {
 			cumul = 0;
 		} else
 			// Otherwise, find the central point properly.
-			cumul = get_center(cur_left, cur_right,	
-					sorted_lists[counter], numvoters, 
+			cumul = get_center(cur_left, cur_right,
+					sorted_lists[counter], numvoters,
 					fracile);
 
 		left_indices[counter] = cur_left;
@@ -394,24 +415,25 @@ bool grad_fracile::init(double fracile, completion_type completion_in) {
 		// Changed starts off as false because all are assumed to be
 		// equal. Set it to true if not all are equal.
 
-		if (counter > 0 && !changed)
+		if (counter > 0 && !changed) {
 			changed = (get_score(counter) != get_score(counter-1));
+		}
 
 		// Insert the proper priority queue data for the sweep line
 		// algorithm.
 		left_pq.push(priority_entry(left_dist, counter,
-					cur_left->first));
+				cur_left->first));
 		right_pq.push(priority_entry(right_dist, counter,
-					cur_right->first));
+				cur_right->first));
 
 	}
 
 	does_need_reinit = false;
-	return(true);
+	return (true);
 }
 
 bool grad_fracile::ordinal_changed() const {
-	return(changed);
+	return (changed);
 }
 
 void grad_fracile::print_next_pair(size_t cand, bool left) const {
@@ -428,28 +450,36 @@ void grad_fracile::print_next_pair(size_t cand, bool left) const {
 bool grad_fracile::update(bool debug) {
 
 	// If there's nothing to work with, get outta here.
-	if (sorted_lists.empty()) return(false);
+	if (sorted_lists.empty()) {
+		return (false);
+	}
 
 	// If it needs to be inited, do so.
 	if (does_need_reinit || !all_sorted)
-		if (!init(0.5, completion))	// ???
-			return(false);
+		if (!init(0.5, completion)) {	// ???
+			return (false);
+		}
 
 	// Okay, ready for update.
 	// First remove not-hopefuls in either direction if there are any
 	// hopefuls left.
-	if (num_hopefuls < 2) return(false);
+	if (num_hopefuls < 2) {
+		return (false);
+	}
 
-	while (!left_pq.empty() && !hopefuls[left_pq.top().array]) 
+	while (!left_pq.empty() && !hopefuls[left_pq.top().array]) {
 		left_pq.pop();
-	while (!right_pq.empty() && !hopefuls[right_pq.top().array]) 
+	}
+	while (!right_pq.empty() && !hopefuls[right_pq.top().array]) {
 		right_pq.pop();
+	}
 
 	// If either priority queue is empty, something is wrong; outta here.
 	if (right_pq.empty() || left_pq.empty()) {
-		if (debug)
+		if (debug) {
 			cout << "ERROR: Empty priority queue!!" << endl;
-		return(false);
+		}
+		return (false);
 	}
 
 	// Peek at the top of the queue to find the position/s with the shortest
@@ -461,17 +491,18 @@ bool grad_fracile::update(bool debug) {
 	// If neither is finite, that means that we have a sentinel value; in
 	// other words, that we've run out of data. In that case, there's
 	// nothing left to do, so return false.
-	if (!finite(minimum_distance))
-		return(false);
+	if (!finite(minimum_distance)) {
+		return (false);
+	}
 
 	if (debug) {
-		cout << "Left minimum distance is " << 
+		cout << "Left minimum distance is " <<
 			left_pq.top().distance << endl;
-		 cout << "Right minimum distance is " << 
-			 right_pq.top().distance << endl;
-		 cout << "Minimum distance is " << minimum_distance <<
-			 " with difference " << left_pq.top().distance -
-			 right_pq.top().distance << endl;
+		cout << "Right minimum distance is " <<
+			right_pq.top().distance << endl;
+		cout << "Minimum distance is " << minimum_distance <<
+			" with difference " << left_pq.top().distance -
+			right_pq.top().distance << endl;
 	}
 
 	// Assume that no change in score has occurred. If that is still the
@@ -484,7 +515,7 @@ bool grad_fracile::update(bool debug) {
 	priority_entry new_event;
 
 	while (left_pq.top().distance == minimum_distance) {
-		assert (!left_pq.empty());
+		assert(!left_pq.empty());
 		// Get and remove the old event.
 		new_event = left_pq.top();
 		left_pq.pop();
@@ -494,25 +525,27 @@ bool grad_fracile::update(bool debug) {
 		// Update the array's iterator by moving it one step closer to
 		// the start. If it's already at the start, add an infinity-
 		// distance box instead. Which box depends on the completion.
-		// If it's GF_BOTH or GF_LEAST, the score is -infinity, 
+		// If it's GF_BOTH or GF_LEAST, the score is -infinity,
 		// otherwise it's the current rating (??)
 		if (left_indices[cand] == sorted_lists[cand].begin()) {
-			if (debug)
+			if (debug) {
 				cout << cand << " reached beginning" << endl;
-			if (completion == GF_BOTH || completion == GF_LEAST)
+			}
+			if (completion == GF_BOTH || completion == GF_LEAST) {
 				left_indices[cand] = minscorev.begin();
-			else {
+			} else {
 				if (debug)
-					cout << "Setting min sentinel to " 
+					cout << "Setting min sentinel to "
 						<< new_event.score << endl;
 				// HACK HACK
-				finite_min_sentinels[cand].begin()->first = 
+				finite_min_sentinels[cand].begin()->first =
 					new_event.score;
-				left_indices[cand] = 
+				left_indices[cand] =
 					finite_min_sentinels[cand].begin();
 			}
-		} else
+		} else {
 			--left_indices[cand];
+		}
 
 		// Update distance and score, and reinsert.
 		new_event.distance += left_indices[cand]->second;
@@ -532,7 +565,7 @@ bool grad_fracile::update(bool debug) {
 
 	// Same on the right.
 	while (right_pq.top().distance == minimum_distance) {
-		assert (!right_pq.empty());
+		assert(!right_pq.empty());
 		new_event = right_pq.top();
 		right_pq.pop();
 
@@ -540,7 +573,7 @@ bool grad_fracile::update(bool debug) {
 
 		++right_indices[cand];
 
-		// If we're at the end and the completion is GF_BOTH or 
+		// If we're at the end and the completion is GF_BOTH or
 		// GF_GREATEST, the value of the completion is infinity,
 		// otherwise it's the current value.
 		// Should this be -inf instead? Consider two cases:
@@ -553,17 +586,18 @@ bool grad_fracile::update(bool debug) {
 		// expanded to be like everybody gave X 10 points... (Only if
 		// half vote every candidate zero.)
 		if (right_indices[cand] == sorted_lists[cand].end()) {
-			if (debug)
+			if (debug) {
 				cout << cand << " reached end." << endl;
+			}
 
-			if (completion == GF_BOTH || completion == GF_GREATEST)
+			if (completion == GF_BOTH || completion == GF_GREATEST) {
 				right_indices[cand] = maxscorev.begin();
-			else {
+			} else {
 				if (debug)
-					cout << "Setting max sentinel to " 
+					cout << "Setting max sentinel to "
 						<< new_event.score << endl;
 				// HACK HACK
-				finite_max_sentinels[cand].begin()->first = 
+				finite_max_sentinels[cand].begin()->first =
 					new_event.score;
 				right_indices[cand] = finite_max_sentinels[cand]
 					.begin();
@@ -575,7 +609,7 @@ bool grad_fracile::update(bool debug) {
 		new_event.score = right_indices[cand]->first;
 
 		add_score(cand, left_indices[cand]->first, new_event.score);
-		
+
 		right_pq.push(new_event);
 
 		if (debug)
@@ -584,13 +618,14 @@ bool grad_fracile::update(bool debug) {
 				endl;
 	}
 
-	return(true);
+	return (true);
 }
 
 void grad_fracile::compress() {
 
-	for (size_t counter = 0; counter < sorted_lists.size(); ++counter)
+	for (size_t counter = 0; counter < sorted_lists.size(); ++counter) {
 		compress_candidate(sorted_lists[counter], all_sorted);
+	}
 
 	all_sorted = true; // side effect.
 }

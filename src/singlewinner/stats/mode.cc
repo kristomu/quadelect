@@ -9,9 +9,9 @@
 #include <map>
 #include <iterator>
 
-pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> & 
-		papers, const vector<bool> & hopefuls,
-		int num_candidates, cache_map * /*cache*/, bool /*winner_only*/) const {
+pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
+	papers, const vector<bool> & hopefuls,
+	int num_candidates, cache_map * /*cache*/, bool /*winner_only*/) const {
 
 	// Since we don't know the number of buckets we need in advance to find
 	// the mode, use a map, as it will create new buckets if we want it.
@@ -23,12 +23,12 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 	vector<map<double, double> > mode_maps(num_candidates);
 
 	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
-			papers.end(); ++pos)
+		papers.end(); ++pos)
 		for (ordering::const_iterator opos = pos->contents.begin();
-				opos != pos->contents.end(); ++opos)
+			opos != pos->contents.end(); ++opos)
 			if (hopefuls[opos->get_candidate_num()])
 				mode_maps[opos->get_candidate_num()]
-					[opos->get_score()] += pos->weight;
+				[opos->get_score()] += pos->weight;
 
 	// Dump into lists.
 
@@ -36,10 +36,13 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 
 	for (size_t counter = 0; counter < mode_maps.size(); ++counter) {
 
-		if (debug)
+		if (debug) {
 			cout << "Candidate " << counter << endl;
+		}
 
-		if (!hopefuls[counter]) continue;
+		if (!hopefuls[counter]) {
+			continue;
+		}
 
 		// Create a rearranged list of (frequency, number) pairs.
 		// We'll sort this list so that the highest frequency comes
@@ -47,17 +50,17 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 		// (Are ties going to be a problem?)
 		list<pair<double, double> > rearranged;
 
-		for (map<double, double>::const_iterator mpos = 
+		for (map<double, double>::const_iterator mpos =
 				mode_maps[counter].begin(); mpos !=
-				mode_maps[counter].end(); ++mpos) {
-			
+			mode_maps[counter].end(); ++mpos) {
+
 			if (debug)
-				cout << "\t Adding (val: " << mpos->first 
-					<< " freq: " << mpos->second << ")" 
+				cout << "\t Adding (val: " << mpos->first
+					<< " freq: " << mpos->second << ")"
 					<< endl;
 
 			rearranged.push_back(pair<double, double>(mpos->second,
-						mpos->first));
+					mpos->first));
 		}
 
 		rearranged.sort(greater<pair<double, double> >());
@@ -66,13 +69,14 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 
 		for (list<pair<double, double> >::const_iterator lpos =
 				rearranged.begin(); lpos != rearranged.end();
-				++lpos)
+			++lpos) {
 			this_cand_score.push_back(lpos->second);
+		}
 
 		if (debug) {
 			cout << "Values in frequency order: ";
-			copy(this_cand_score.begin(), this_cand_score.end(), 
-					ostream_iterator<double>(cout, " "));
+			copy(this_cand_score.begin(), this_cand_score.end(),
+				ostream_iterator<double>(cout, " "));
 			cout << endl;
 		}
 
@@ -80,7 +84,7 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 		// belongs to, so moving the lists around won't make it unclear
 		// who is actually at top.
 		candidate_scores.push_back(pair<list<double>, int>(
-					this_cand_score, counter));
+				this_cand_score, counter));
 	}
 
 	// Sort in least first order.
@@ -89,20 +93,20 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 	// Produce an ordering from this. Where have I seen this sort of code
 	// before? :p We go from lowest rank to highest so that we can start
 	// at zero no matter the number of candidates.
-	
+
 	int lincount = 0, last_shown = 0;
 
 	vector<pair<list<double>, int> >::const_iterator vpos, prev;
 	ordering out;
 
 	for (vpos = candidate_scores.begin(); vpos != candidate_scores.end();
-			++vpos) {
+		++vpos) {
 
 		if (debug) {
-			cout << "Assigning ranks: Candidate " << vpos->second 
+			cout << "Assigning ranks: Candidate " << vpos->second
 				<< " has these values: ";
-			copy(vpos->first.begin(), vpos->first.end(), 
-					ostream_iterator<double>(cout, " "));
+			copy(vpos->first.begin(), vpos->first.end(),
+				ostream_iterator<double>(cout, " "));
 			cout << endl;
 		}
 
@@ -110,9 +114,10 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 		// label it as long as the others are of higher rank), or if
 		// it's different from the previous once, update last_show so
 		// that it will get a different rank.
-		if (vpos == candidate_scores.begin() || vpos->first > 
-				prev->first)
+		if (vpos == candidate_scores.begin() || vpos->first >
+			prev->first) {
 			last_shown = lincount;
+		}
 
 		if (debug)
 			cout << "\tThe candidate thus gets rank " << last_shown
@@ -123,5 +128,5 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 		prev = vpos;
 	}
 
-	return(pair<ordering, bool>(out, false));
+	return (pair<ordering, bool>(out, false));
 }

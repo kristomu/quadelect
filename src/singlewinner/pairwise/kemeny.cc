@@ -25,7 +25,7 @@
 using namespace std;
 
 vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
-		const vector<bool> & hopefuls, bool debug) const {
+	const vector<bool> & hopefuls, bool debug) const {
 
 	// The output is an adjacency matrix where [a][b] is true if a beats b
 	// in the transitive Kemeny ordering.
@@ -74,7 +74,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 
 	// Create the problem.
 	ip = glp_create_prob();
-	assert (ip != NULL);
+	assert(ip != NULL);
 	glp_set_prob_name(ip, "Kemeny rank");
 	glp_set_obj_dir(ip, GLP_MAX); // Maximum score
 
@@ -118,9 +118,13 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	// (x[1][1], [2][2] etc) are left alone so they won't slow things too
 	// much.
 	for (counter = 0; counter < n; ++counter) {
-		if (!hopefuls[counter]) continue;
+		if (!hopefuls[counter]) {
+			continue;
+		}
 		for (sec = 0; sec < n; ++sec) {
-			if (counter == sec) continue;
+			if (counter == sec) {
+				continue;
+			}
 
 			// If we're debugging, it makes sense to label the
 			// parameters, so do so. Otherwise, don't, as it takes
@@ -130,7 +134,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 				name = "x[" + itos(counter) + "][" + itos(sec)
 					+ "]";
 				glp_set_col_name(ip, counter * n + sec + 1,
-						name.c_str());
+					name.c_str());
 			}
 
 			glp_set_col_kind(ip, counter * n + sec + 1, GLP_BV);
@@ -140,20 +144,26 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	// Set sum constraints: x[i][j] + x[j][i] = 1, so that one of the pair
 	// always beats the other, but they don't both.
 	for (counter = 0; counter < n; ++counter) {
-		if (!hopefuls[counter]) continue;
+		if (!hopefuls[counter]) {
+			continue;
+		}
 		for (sec = 0; sec < n; ++sec) {
-			if (counter == sec) continue;
-			if (!hopefuls[sec]) continue;
+			if (counter == sec) {
+				continue;
+			}
+			if (!hopefuls[sec]) {
+				continue;
+			}
 
 			if (debug) {
 				name = "direct_" + itos(counter) + "_" +
 					itos(sec);
 				glp_set_row_name(ip, counter * n + sec + 1,
-						name.c_str());
+					name.c_str());
 			}
 
 			glp_set_row_bnds(ip, counter * n + sec + 1, GLP_FX, 1,
-					1);
+				1);
 
 			// This row includes x[i][j] times one...
 			ia[running_count] = counter * n + sec + 1;
@@ -166,7 +176,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 			ar[running_count] = 1;
 			++running_count;
 
-			}
+		}
 	}
 
 	assert(running_count < entries + 1);
@@ -178,10 +188,13 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 
 	for (counter = 0; counter < n; ++counter) {
 		for (sec = 0; sec < n; ++sec) {
-			if (counter == sec) continue;
+			if (counter == sec) {
+				continue;
+			}
 			for (tri = 0; tri < n; ++tri) {
-				if (tri == sec || tri == counter)
+				if (tri == sec || tri == counter) {
 					continue;
+				}
 
 				int constraint_no = counter * n * n + sec * n +
 					tri;
@@ -191,13 +204,13 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 						+ "_" + itos(sec) + "_"
 						+ itos(tri);
 					glp_set_row_name(ip, offset +
-							constraint_no + 1,
-							name.c_str());
+						constraint_no + 1,
+						name.c_str());
 				}
 
 				// Must be >= 1.
 				glp_set_row_bnds(ip, offset + constraint_no + 1,
-						GLP_LO, 1, 1);
+					GLP_LO, 1, 1);
 
 				// This row includes x[i][j] times one...
 				ia[running_count] = offset + constraint_no + 1;
@@ -221,17 +234,19 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	// Proceed to load the constraints into the IP solver.
 	//cout << "Running count: " << running_count << " of " <<
 	//	entries << endl;
-	assert (running_count <= entries + 1);
+	assert(running_count <= entries + 1);
 	glp_load_matrix(ip, running_count - 1, ia, ja, ar);
 
 	// Set the objective coefficients.
 	for (counter = 0; counter < n; ++counter) {
-		if (!hopefuls[counter]) continue;
+		if (!hopefuls[counter]) {
+			continue;
+		}
 		for (sec = 0; sec < n; ++sec)
 			if (counter != sec && hopefuls[sec])
 				glp_set_obj_coef(ip, counter * n + sec + 1,
-						input.get_magnitude(counter,
-							sec, hopefuls));
+					input.get_magnitude(counter,
+						sec, hopefuls));
 	}
 
 	// PHEW!
@@ -245,9 +260,11 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	glp_smcp params;
 	glp_init_smcp(&params);
 
-	if (debug)
+	if (debug) {
 		params.msg_lev = GLP_MSG_ON;
-	else	params.msg_lev = GLP_MSG_OFF;
+	} else	{
+		params.msg_lev = GLP_MSG_OFF;
+	}
 	params.presolve = GLP_ON;
 
 	// Solve the relaxation. If it doesn't succeed, signal an error.
@@ -269,9 +286,11 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	glp_iocp io_param;
 	glp_init_iocp(&io_param);
 
-	if (debug)
+	if (debug) {
 		io_param.msg_lev = GLP_MSG_ON;
-	else	io_param.msg_lev = GLP_MSG_OFF;
+	} else	{
+		io_param.msg_lev = GLP_MSG_OFF;
+	}
 
 	// Solve if we don't already have an integer solution.
 	if (!already_int) {
@@ -288,10 +307,16 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	adjacency = vector<vector<bool> > (n, vector<bool>(n, false));
 
 	for (counter = 0; counter < n; ++counter) {
-		if (!hopefuls[counter]) continue;
+		if (!hopefuls[counter]) {
+			continue;
+		}
 		for (sec = 0; sec < n; ++sec) {
-			if (counter == sec) continue;
-			if (!hopefuls[sec]) continue;
+			if (counter == sec) {
+				continue;
+			}
+			if (!hopefuls[sec]) {
+				continue;
+			}
 
 			if (already_int)
 				adjacency[counter][sec] = (
@@ -315,23 +340,24 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	delete[] ar;
 	glp_delete_prob(ip);
 
-	return(adjacency);
+	return (adjacency);
 }
 
 pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
-		const vector<bool> & hopefuls, cache_map * cache,
-		bool winner_only) const {
+	const vector<bool> & hopefuls, cache_map * cache,
+	bool winner_only) const {
 
 	// First, get the transitive adjacency matrix for Kemeny.
 	vector<vector<bool> > adj = solve_kemeny(input, hopefuls, true);
 
 	// If we start with at least one candidate, we should finish with
 	// at least one.
-	assert (input.get_num_candidates() == 0 || !adj.empty());
+	assert(input.get_num_candidates() == 0 || !adj.empty());
 
 	// If there's nothing here, abort as that's an error.
-	if (adj.empty())
-		return(pair<ordering, bool>(ordering(), false));
+	if (adj.empty()) {
+		return (pair<ordering, bool>(ordering(), false));
+	}
 
 	// Otherwise, each's score is the number of candidates he ranks above.
 	// If I'm going to do a linear relaxation later, I'll have to use a
@@ -340,16 +366,21 @@ pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
 	ordering out;
 
 	for (size_t counter = 0; counter < adj.size(); ++counter) {
-		if (!hopefuls[counter]) continue;
+		if (!hopefuls[counter]) {
+			continue;
+		}
 		int candcount = 0;
 		for (size_t sec = 0; sec < adj.size(); ++sec) {
-			if (!hopefuls[sec]) continue;
-			if (adj[counter][sec])
+			if (!hopefuls[sec]) {
+				continue;
+			}
+			if (adj[counter][sec]) {
 				++candcount;
+			}
 		}
 
 		out.insert(candscore(counter, candcount));
 	}
 
-	return(pair<ordering, bool>(out, false));
+	return (pair<ordering, bool>(out, false));
 }

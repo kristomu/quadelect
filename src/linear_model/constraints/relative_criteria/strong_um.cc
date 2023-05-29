@@ -6,14 +6,15 @@ constraint strong_um::get_before_after_equality(
 	std::string before_suffix, std::string after_suffix) const {
 
 	constraint out;
-	out.description = "before_after_equality__" + before_suffix + "__" + after_suffix;
+	out.description = "before_after_equality__" + before_suffix + "__" +
+		after_suffix;
 	out.constraint_rel.type = LREL_EQ;
 	out.constraint_rel.lhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::all_permutations(numcands_before), "",
-		before_suffix);
+			constraint_tools::all_permutations(numcands_before), "",
+			before_suffix);
 	out.constraint_rel.rhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::all_permutations(numcands_after), "",
-		after_suffix);
+			constraint_tools::all_permutations(numcands_after), "",
+			after_suffix);
 
 	return out;
 }
@@ -25,14 +26,14 @@ constraint_set strong_um::majority_pairwise_beat(
 	lin_relation majority_beats;
 	majority_beats.type = LREL_GE;
 	majority_beats.lhs = constraint_tools::permutations_to_relation_side(
-		constraint_tools::get_permutations_beating(0, manipulator,
-			numcands_before), "", before_suffix);
+			constraint_tools::get_permutations_beating(0, manipulator,
+				numcands_before), "", before_suffix);
 	// greater than or equal to half the number of voters...
 	majority_beats.rhs.weights.push_back(std::pair<std::string, double>(
-		"v", 0.5));
+			"v", 0.5));
 	// plus margin.
 	majority_beats.rhs.weights.push_back(std::pair<std::string, double>(
-		"min_victory_margin", 1));
+			"min_victory_margin", 1));
 
 	constraint out_const;
 	out_const.constraint_rel = majority_beats;
@@ -69,19 +70,23 @@ constraint_set strong_um::no_compromising(std::string before_suffix,
 
 			for (size_t rank = 0; rank < least_rank; ++rank) {
 				ranks_b_below_at |= (permutation[numcands_after - rank - 1]
-					== (int)manipulator);
+						== (int)manipulator);
 			}
 
-			if (!ranks_b_below_at) { continue; }
+			if (!ranks_b_below_at) {
+				continue;
+			}
 
 			compromise_limit.lhs.weights.push_back(std::pair<std::string,
 				double>(constraint_tools::permutation_to_str(permutation,
-					after_suffix), 1));
+						after_suffix), 1));
 			compromise_limit.rhs.weights.push_back(std::pair<std::string,
 				double>(constraint_tools::permutation_to_str(permutation,
-					before_suffix), 1));
+						before_suffix), 1));
 		}
-		if (compromise_limit.lhs.weights.empty()) { continue; }
+		if (compromise_limit.lhs.weights.empty()) {
+			continue;
+		}
 
 		constraint compromise_limit_const;
 		compromise_limit_const.description = "no_compromising_rank_" +
@@ -90,7 +95,7 @@ constraint_set strong_um::no_compromising(std::string before_suffix,
 		compromise_limits.add(compromise_limit_const);
 	}
 
-	return(compromise_limits);
+	return (compromise_limits);
 }
 
 constraint_set strong_um::retain_honest_ballots(std::string before_suffix,
@@ -126,10 +131,10 @@ constraint_set strong_um::retain_honest_ballots(std::string before_suffix,
 		honest_rel.type = LREL_LE;
 		honest_rel.lhs.weights.push_back(std::pair<std::string,
 			double>(constraint_tools::permutation_to_str(permutation,
-				before_suffix), 1));
+					before_suffix), 1));
 		honest_rel.rhs.weights.push_back(std::pair<std::string,
 			double>(constraint_tools::permutation_to_str(permutation,
-				after_suffix), 1));
+					after_suffix), 1));
 
 		honest.constraint_rel = honest_rel;
 

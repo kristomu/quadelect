@@ -29,8 +29,9 @@ std::vector<bool> smith_set(const std::vector<std::vector<bool> > &
 			if (k != i) {
 				for (j = 0; j < N; ++j) {
 					if (k != j && i != j) {
-						if (haspath[i][k] && haspath[k][j])
+						if (haspath[i][k] && haspath[k][j]) {
 							haspath[i][j] = true;
+						}
 					}
 				}
 			}
@@ -46,7 +47,7 @@ std::vector<bool> smith_set(const std::vector<std::vector<bool> > &
 			}
 		}
 	}
-	return(in_smith);
+	return (in_smith);
 }
 
 size_t smith_set_size(const std::vector<bool> & smith) {
@@ -73,7 +74,9 @@ std::set<copeland_scenario> get_nonderived_scenarios(
 	std::set<copeland_scenario> out;
 
 	for (const auto & kv: equivalences.get_noncanonical_scenarios()) {
-		if (!kv.second.canonical) continue;
+		if (!kv.second.canonical) {
+			continue;
+		}
 
 		if (smith_set_size(kv.first) == desired_smith_set_size) {
 			out.insert(kv.first);
@@ -115,7 +118,9 @@ reduction get_ISDA_reduction(const copeland_scenario & in) {
 	// 2. Get the relabeling (not quite a permutation).
 	size_t i, j;
 	for (i = 0; i < copeland_matrix.size(); ++i) {
-		if (!smith_cands[i]) continue;
+		if (!smith_cands[i]) {
+			continue;
+		}
 		out.cand_relabeling.push_back(i);
 	}
 
@@ -125,7 +130,9 @@ reduction get_ISDA_reduction(const copeland_scenario & in) {
 
 	std::vector<int> smith_cand_idx;
 	for (i = 0; i < in.get_numcands(); ++i) {
-		if (smith_cands[i]) { smith_cand_idx.push_back(i); }
+		if (smith_cands[i]) {
+			smith_cand_idx.push_back(i);
+		}
 	}
 
 	std::vector<std::vector<bool> > new_copeland_matrix;
@@ -217,7 +224,9 @@ std::set<copeland_scenario> get_permissible_ISDA_reductions(
 			for (int from_cand : red.cand_relabeling) {
 				found_A |= (from_cand == 0);
 			}
-			if (!found_A) continue;
+			if (!found_A) {
+				continue;
+			}
 		}
 		out.insert(cur);
 	} while (++cur != base_scenario);

@@ -8,8 +8,12 @@ bool constraint_tools::does_beat(int A, int B,
 	const std::vector<int> & permutation) {
 
 	for (int candidate: permutation) {
-		if (candidate == A) return true;
-		if (candidate == B) return false;
+		if (candidate == A) {
+			return true;
+		}
+		if (candidate == B) {
+			return false;
+		}
 	}
 
 	return false;
@@ -69,10 +73,10 @@ relation_side constraint_tools::permutations_to_relation_side(
 
 	for (const std::vector<int> & permutation: permutations) {
 		std::string var_name = prefix + permutation_to_str(permutation,
-			suffix);
+				suffix);
 
 		out.weights.push_back(std::pair<std::string, double>(
-			var_name, 1));
+				var_name, 1));
 	}
 
 	return out;

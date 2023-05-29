@@ -11,40 +11,49 @@
 #include "tools.h"
 
 int sign(double in) {
-	if (in < 0) return -1;
-	if (in == 0) return 0;
+	if (in < 0) {
+		return -1;
+	}
+	if (in == 0) {
+		return 0;
+	}
 	return 1;
 }
 
 double get_abs_time() {
 	timeval tv;
-	if (gettimeofday(&tv, NULL) == 0)
+	if (gettimeofday(&tv, NULL) == 0) {
 		return (tv.tv_sec + tv.tv_usec/1e6);
-	else    return (0);
+	} else {
+		return (0);
+	}
 }
 
 int factorial(int x) {
-	if (x <= 0) return(1);
+	if (x <= 0) {
+		return (1);
+	}
 	return (x * factorial(x-1));
 }
 
 
 // Distance on the Lp norm (generalized Euclidean).
 double euc_distance(double Lp, const std::vector<double> & a,
-                    const std::vector<double> & b) {
+	const std::vector<double> & b) {
 
 	double sum = 0;
 	size_t num_elements = std::min(a.size(), b.size());
 
-	for (size_t counter = 0; counter < num_elements; ++counter)
+	for (size_t counter = 0; counter < num_elements; ++counter) {
 		sum += fabs(pow(a[counter]-b[counter], Lp));
+	}
 
 	return (pow(sum/(double)num_elements, 1.0/Lp));
 }
 
 // Integer to string
 
-std::string itos (int source) {
+std::string itos(int source) {
 	std::ostringstream q;
 	q << source;
 	return (q.str());
@@ -56,19 +65,21 @@ std::string lltos(long long source) {
 	return (q.str());
 }
 
-std::string dtos (double source) {
+std::string dtos(double source) {
 	std::ostringstream q;
 	q << source;
 	return (q.str());
 }
 
-std::string dtos (double source, double precision) {
+std::string dtos(double source, double precision) {
 	return (dtos(round(source * pow(10.0, precision)) /
-	             pow(10.0, precision)));
+				pow(10.0, precision)));
 }
 
 std::string s_padded(std::string a, size_t maxlen) {
-	if (maxlen < a.size()) return a;
+	if (maxlen < a.size()) {
+		return a;
+	}
 
 	size_t len = std::max((size_t)0, maxlen - a.size());
 
@@ -76,7 +87,9 @@ std::string s_padded(std::string a, size_t maxlen) {
 }
 
 std::string s_right_padded(std::string a, size_t maxlen) {
-	if (maxlen < a.size()) return a;
+	if (maxlen < a.size()) {
+		return a;
+	}
 
 	size_t len = std::max((size_t)0, maxlen - a.size());
 
@@ -89,8 +102,9 @@ std::string itos(int source, unsigned int minlen) {
 	if (basis.size() < minlen) {
 		std::string q(minlen - basis.size(), '0');
 		return (q + basis);
-	} else
+	} else {
 		return (basis);
+	}
 }
 
 std::string lltos(long long source, unsigned int minlen) {
@@ -98,8 +112,9 @@ std::string lltos(long long source, unsigned int minlen) {
 	if (basis.size() < minlen) {
 		std::string q(minlen - basis.size(), '0');
 		return (q + basis);
-	} else
+	} else {
 		return (basis);
+	}
 }
 
 // Hexadecimal versions of the above
@@ -123,8 +138,9 @@ std::string itos_hex(int source, unsigned int minlen) {
 	if (basis.size() < minlen) {
 		std::string q(minlen - basis.size(), '0');
 		return (q + basis);
-	} else
+	} else {
 		return (basis);
+	}
 }
 
 std::string lltos_hex(long long source, unsigned int minlen) {
@@ -132,8 +148,9 @@ std::string lltos_hex(long long source, unsigned int minlen) {
 	if (basis.size() < minlen) {
 		std::string q(minlen - basis.size(), '0');
 		return (q + basis);
-	} else
+	} else {
 		return (basis);
+	}
 }
 
 // String to integer.
@@ -190,13 +207,17 @@ int str_toi_hex(std::string source) {
 
 int str_toi_generalized(std::string source) {
 	// If it's too short to have the hex qualifiers, go right to stoi
-	if (source.size() < 2) return (str_toi(source));
+	if (source.size() < 2) {
+		return (str_toi(source));
+	}
 	// Okay, test if it's hex. If so, strip off the qualifier and return
 	// stoi_hex for the integer.
-	if (source.size() > 2 && source[0] == '0' && source[1] == 'x')
+	if (source.size() > 2 && source[0] == '0' && source[1] == 'x') {
 		return (str_toi_hex(source.substr(2, source.size() - 2)));
-	if (*(source.end()-1) == 'h')
+	}
+	if (*(source.end()-1) == 'h') {
 		return (str_toi_hex(source.substr(0, source.size() - 1)));
+	}
 
 	return (str_toi(source));
 }
@@ -220,28 +241,31 @@ bool is_integer(std::string source, bool permit_hex) {
 
 	// Special case of -0. We permit this because of precedent; quite a
 	// number of robots use this (perhaps because of rounding from nonints).
-	if (source == "-0")
+	if (source == "-0") {
 		source = "0";
+	}
 
 	// We handle leading zeroes by expanding the itos to the right size.
 	if (is_hex && permit_hex)
 		return (source == itos_hex(comp_stoi_hex(source),
-		                           source.size()));
-	else	return (source == itos(comp_stoi(source), source.size()));
+					source.size()));
+	else	{
+		return (source == itos(comp_stoi(source), source.size()));
+	}
 }
 
 // Misc string modifications
 std::string lowercase(std::string mixed) {
 	std::string toRet = mixed;
 	transform(toRet.begin(), toRet.end(), toRet.begin(),
-	          (int(*)(int)) tolower); // Isn't this funny?
+		(int(*)(int)) tolower); // Isn't this funny?
 	return (toRet);
 }
 
 std::string uppercase(std::string mixed) {
 	std::string toRet = mixed;
 	transform(toRet.begin(), toRet.end(), toRet.begin(),
-	          (int(*)(int)) toupper);	// Second verse..
+		(int(*)(int)) toupper);	// Second verse..
 	return (toRet);
 }
 
@@ -265,9 +289,11 @@ std::string remove_extension(std::string fn) {
 		}
 	}
 
-	if (found)
+	if (found) {
 		return (fn.substr(0, pos));
-	else	return (fn);
+	} else	{
+		return (fn);
+	}
 }
 
 std::string remove_path(std::string fn) {
@@ -285,9 +311,11 @@ std::string remove_path(std::string fn) {
 		}
 	}
 
-	if (found)
+	if (found) {
 		return (fn.substr(pos+1, fn.size()-pos));
-	else	return (fn);
+	} else	{
+		return (fn);
+	}
 }
 
 // Normalization ops.
@@ -299,8 +327,8 @@ std::string remove_path(std::string fn) {
 // Tokenization
 
 std::vector<std::string> tokenize(const std::string & input_string,
-                                  const std::string & delimiters, const char comment_marker,
-                                  bool include_delimiters) {
+	const std::string & delimiters, const char comment_marker,
+	bool include_delimiters) {
 
 	std::string str = input_string;
 
@@ -313,17 +341,19 @@ std::vector<std::string> tokenize(const std::string & input_string,
 	size_t lastPos = str.find_first_not_of(delimiters, 0);
 	size_t pos = str.find_first_of(delimiters, lastPos); // returns -1 if none
 
-	if (pos == std::string::npos)
+	if (pos == std::string::npos) {
 		return (std::vector<std::string>(1, str));
+	}
 
 	std::vector<std::string> tokens;
 
 	while (std::string::npos != pos || std::string::npos != lastPos) {
 		if (include_delimiters && pos != str.size())
 			tokens.push_back(str.substr(lastPos, pos + 1 -
-			                            lastPos));
-		else
+					lastPos));
+		else {
 			tokens.push_back(str.substr(lastPos, pos - lastPos));
+		}
 
 		lastPos = str.find_first_not_of(delimiters, pos);
 		pos = str.find_first_of(delimiters, lastPos);
@@ -340,14 +370,14 @@ std::string strip_spaces(const std::string & in) {
 	for (counter = 0; counter < in.size() && in[counter] == ' '; ++counter);
 	// Find the first non-space, from the end
 	for (rcount = in.size()-1; rcount >= counter && in[rcount] == ' ';
-	        --rcount);
+		--rcount);
 
 	return (in.substr(counter, rcount-counter + 1));
 }
 
 // File slurping.
 std::vector<std::string> slurp_file(std::ifstream & source,
-                                    bool print_while_slurping) {
+	bool print_while_slurping) {
 	std::vector<std::string> output;
 	std::string next;
 
@@ -356,8 +386,9 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 	while (!source.eof()) {
 		getline(source, next);
 		if (!source.eof()) {
-			if (print_while_slurping)
+			if (print_while_slurping) {
 				std::cout << next << std::endl;
+			}
 			output.push_back(next);
 		}
 	}

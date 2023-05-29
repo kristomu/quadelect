@@ -9,9 +9,9 @@
 using namespace std;
 
 pair<ordering, bool> random_ballot::elect_inner(
-		const list<ballot_group> & papers, 
-		const vector<bool> & hopefuls, int num_candidates,
-		cache_map * cache, bool winner_only) const {
+	const list<ballot_group> & papers,
+	const vector<bool> & hopefuls, int num_candidates,
+	cache_map * cache, bool winner_only) const {
 
 	// We need two rounds through, first one to determine the number of
 	// voters, and then once to find which ballot to pick. After finding
@@ -23,13 +23,14 @@ pair<ordering, bool> random_ballot::elect_inner(
 	list<ballot_group>::const_iterator pos;
 	ordering::const_iterator opos;
 
-	for (pos = papers.begin(); pos != papers.end(); ++pos)
+	for (pos = papers.begin(); pos != papers.end(); ++pos) {
 		num_voters += pos->weight;
+	}
 
 	double threshold = drand48() * num_voters, running_sum = 0;
 
 	ordering prelim;
-	
+
 	// Here we have a magic constant to get around the possible unlucky
 	// case that only few voters vote for the hopefuls. We could do it
 	// more rigorously by shuffling the list, but there's no need most
@@ -41,20 +42,21 @@ pair<ordering, bool> random_ballot::elect_inner(
 
 	for (counter = 0; counter < retries && prelim.empty(); ++counter) {
 
-		for (pos = papers.begin(); pos != papers.end() && 
-				prelim.empty(); ++pos) {
+		for (pos = papers.begin(); pos != papers.end() &&
+			prelim.empty(); ++pos) {
 
 			running_sum += pos->weight;
 
 			if (running_sum >= threshold) {
 				// Add all hopefuls. If the voter only ranks
 				// non-hopefuls, the !empty loop condition will
-				// make the loop proceed as if that ballot 
+				// make the loop proceed as if that ballot
 				// didn't exist.
-				for (opos = pos->contents.begin(); opos != 
-						pos->contents.end(); ++opos)
-					if (hopefuls[opos->get_candidate_num()])
+				for (opos = pos->contents.begin(); opos !=
+					pos->contents.end(); ++opos)
+					if (hopefuls[opos->get_candidate_num()]) {
 						prelim.insert(*opos);
+					}
 			}
 		}
 	}
@@ -68,14 +70,15 @@ pair<ordering, bool> random_ballot::elect_inner(
 		copy(papers.begin(), papers.end(), back_inserter(rnd_papers));
 		random_shuffle(rnd_papers.begin(), rnd_papers.end());
 
-		for (vector<ballot_group>::const_iterator vpos = 
+		for (vector<ballot_group>::const_iterator vpos =
 				rnd_papers.begin(); vpos != rnd_papers.end() &&
-				prelim.empty(); ++vpos) {
+			prelim.empty(); ++vpos) {
 
-			for (opos = pos->contents.begin(); opos != 
-					pos->contents.end(); ++opos)
-				if (hopefuls[opos->get_candidate_num()])
+			for (opos = pos->contents.begin(); opos !=
+				pos->contents.end(); ++opos)
+				if (hopefuls[opos->get_candidate_num()]) {
 					prelim.insert(*opos);
+				}
 		}
 	}
 
@@ -85,18 +88,20 @@ pair<ordering, bool> random_ballot::elect_inner(
 
 	vector<bool> already_seen(num_candidates, false);
 
-	for (opos = prelim.begin(); opos != prelim.end(); ++opos)
+	for (opos = prelim.begin(); opos != prelim.end(); ++opos) {
 		already_seen[opos->get_candidate_num()] = true;
+	}
 
 	double least_score = 1;
-	if (!prelim.empty())
+	if (!prelim.empty()) {
 		least_score = prelim.rbegin()->get_score();
+	}
 
 	for (counter = 0; counter < already_seen.size(); ++counter)
 		if (hopefuls[counter] && !already_seen[counter])
 			// Add with a random score lower than the least ranked.
-			prelim.insert(candscore(counter, least_score - 
-						fabs(least_score) * drand48()));
+			prelim.insert(candscore(counter, least_score -
+					fabs(least_score) * drand48()));
 
-	return(pair<ordering, bool>(prelim, false));
+	return (pair<ordering, bool>(prelim, false));
 }
