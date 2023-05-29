@@ -6,6 +6,7 @@
 
 #include <iterator>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -13,9 +14,10 @@ double abstract_condmat::get_magnitude(size_t candidate, size_t against,
 		const vector<bool> & hopefuls) const {
 
 	// size() is a bit expensive, thus I'm doing it this way.
-	if (candidate < against)
-		assert (against <= hopefuls.size());
-	else	assert (candidate <= hopefuls.size());
+	if (std::max(candidate, against) >= hopefuls.size()) {
+		throw std::out_of_range(
+			"get_magnitude: candidate number too large!");
+	}
 
 	// Make sure num_voters is properly set.
 	assert (get_num_voters() != -INFINITY);

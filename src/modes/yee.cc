@@ -511,15 +511,26 @@ bool yee::init(rng & randomizer) {
 	// Set candidate positions if they haven't already been set manually.
 	if (!manual_cand_positions) {
 		candidate_pdf->set_params(2, true); // 2D
-		assert(randomize_candidate_positions(randomizer));
+
+		if (!randomize_candidate_positions(randomizer)) {
+			throw std::logic_error("Yee diagram: Could not randomize "
+				"candidate positions!");
+		}
 	}
 
 	// Port candidate positions over to the voter PDF.
 	voter_pdf->set_params(2, true);
-	assert(voter_pdf->fix_candidate_positions(num_candidates,
-				candidate_pdf->get_fixed_candidate_pos()));
+	if (!voter_pdf->fix_candidate_positions(num_candidates,
+				candidate_pdf->get_fixed_candidate_pos())) {
+		throw std::logic_error("Yee diagram: Could not fix "
+			"candidate positions!");
+	}
 	// Set sigma.
-	assert(voter_pdf->set_dispersion(sigma));
+
+	if (!voter_pdf->set_dispersion(sigma)) {
+		throw std::logic_error("Yee diagram: Could not set standard "
+			"deviation!");
+	}
 
 	inited = true;
 	return(true);
@@ -535,8 +546,10 @@ int yee::get_max_rounds() const {
 
 string yee::do_round(bool give_brief_status, bool reseed, rng & randomizer) {
 
-	if (!inited)
-		return(""); // No go.
+	if (!inited) {
+		throw std::runtime_error("Yee diagram: Needs to be "
+			"initialized first");
+	}
 
 	string output;
 

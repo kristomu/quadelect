@@ -1,7 +1,7 @@
 #include <values.h>
-#include <assert.h>
 #include <errno.h>
 
+#include <stdexcept>
 #include <iterator> 
 #include <iostream> 
 #include <fstream>
@@ -216,7 +216,11 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 			while (strategy.empty())
 				strategy = ic.generate_ballots(1, numcands, randomizer);
 			if (q == iterations-1) {
-				assert (num_prefers_challenger - cumul > 0);
+				if (num_prefers_challenger - cumul < 0) {
+					throw std::runtime_error("Cumulative sum of "
+						"voters preferring challenger exceeds "
+						"maximum! Something's seriously wrong.");
+				}
 				strategy.begin()->weight = num_prefers_challenger - cumul;
 			} else {
 				strategy.begin()->weight = drand48() * num_prefers_challenger/(double)iterations;

@@ -11,24 +11,27 @@
 // Condorcet matrix, the Implementation.
 
 double condmat::get_internal(size_t candidate, size_t against, bool raw) const {
-	// If outside bounds, complain (if assertions are enabled).
-	if (candidate < against) {
-		assert (against < contents.size());
-	} else {
-		assert (candidate < contents.size());
+	// If outside bounds, complain.
+	if (std::max(candidate, against) >= contents.size()) {
+		std::cout << "candidate " << candidate << " against " << against << " contents " << contents.size() << std::endl;
+		throw std::out_of_range(
+			"condmat::get_internal: candidate number too large!");
 	}
 
-	if (raw)
+	if (raw) {
 		return(contents[candidate][against]);
-	else	return(type.transform(contents[candidate][against],
+	} else {
+		return(type.transform(contents[candidate][against],
 				contents[against][candidate], num_voters));
+	}
 }
 
 bool condmat::set_internal(size_t candidate, size_t against, double value) {
 	// Again, if outside of bounds, yell very loudly.
-	if (candidate < against)
-		assert (against < contents.size());
-	else	assert (candidate < contents.size());
+	if (std::max(candidate, against) >= contents.size()) {
+		throw std::out_of_range(
+			"condmat::set_internal: candidate number too large!");
+	}
 
 	contents[candidate][against] = value;
 
@@ -40,7 +43,10 @@ condmat::condmat(pairwise_type type_in) : abstract_condmat(type_in) {}
 condmat::condmat(const list<ballot_group> & scores, size_t num_candidates,
 		pairwise_type kind) : abstract_condmat(kind) {
 
-	assert (num_candidates > 1);
+	if (num_candidates == 0) {
+		throw std::invalid_argument("condmat: Must have at least "
+			"one candidate");
+	}
 
 	contents = vector<vector<double> >(num_candidates, 
 			vector<double>(num_candidates, 0));
@@ -51,7 +57,10 @@ condmat::condmat(const list<ballot_group> & scores, size_t num_candidates,
 condmat::condmat(size_t num_candidates_in, double num_voters_in,
 		pairwise_type type_in) : abstract_condmat(type_in) {
 
-	assert(num_candidates_in > 1);
+	if (num_candidates_in == 0) {
+		throw std::invalid_argument("condmat: Must have at least "
+			"one candidate");
+	}
 
 	contents = vector<vector<double> > (num_candidates_in,
 			vector<double>(num_candidates_in, 0));
@@ -105,7 +114,10 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 				cand != ballot->contents.end(); ++cand) {
 
 			// Check that the data is valid.
-			assert(cand->get_candidate_num() < num_candidates);
+			if (cand->get_candidate_num() >= num_candidates) {
+				throw std::out_of_range("condmat::count_ballots: "
+					"Voter ranked a candidate greater then number of candidates.");
+			}
 
 			// Okay, it's valid, so mark it off...
 			if (!seen[cand->get_candidate_num()]) {
@@ -123,7 +135,10 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 				if (against->get_score() == cand->get_score())
 					continue;
 
-				assert(against->get_candidate_num() < num_candidates);
+				if (against->get_candidate_num() >= num_candidates) {
+					throw std::out_of_range("condmat::count_ballots: "
+						"Voter ranked a candidate greater then number of candidates.");
+				}
 
 				// Okay, it's legitimate and there's a 
 				// strict preference. Add it.
@@ -132,7 +147,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 						against->get_candidate_num(),
 						true);
 
-				if (debug)
+				if (debug) {
 					cout << "Adding "<< ballot->weight <<
 						" to " 	<< (char)('A' + cand->
 							get_candidate_num()) 
@@ -141,6 +156,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 							get_candidate_num()) 
 						<< " -- was " << last 
 						<< " is now ";
+				}
 
 				set_internal(cand->get_candidate_num(),
 						against->get_candidate_num(),

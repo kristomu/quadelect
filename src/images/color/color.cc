@@ -113,7 +113,10 @@ double color_conv::labgamma(double x, double kappa, double eps) const {
 
 vector<double> color_conv::XYZ_to_RGB(const vector<double> XYZ) const {
 
-	assert(XYZ.size() >= 3);
+	if (XYZ.size() < 3) {
+		throw std::invalid_argument(
+			"XYZ_to_RGB: input doesn't contain all three coordinates!");
+	}
 
 	vector<double> RGB(3);
 
@@ -182,7 +185,10 @@ vector<double> color_conv::XYZ_to_LAB(const vector<double> XYZ) const {
 
 vector<double> color_conv::LAB_to_XYZ(const vector<double> LAB) const {
 
-	assert(LAB.size() >= 3);
+	if (LAB.size() < 3) {
+		throw std::invalid_argument(
+			"XYZ_to_RGB: input doesn't contain all three coordinates!");
+	}
 
 	// Custom conversion. See XYZ_to_LAB.
 

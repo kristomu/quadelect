@@ -219,8 +219,12 @@ template <typename T> void stats<T>::add_result(T minimum, T result,
 
 template <typename T> T stats<T>::get_mean(stats_type norm_type) const {
 
-	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
-		norm_type == MS_INTERROUND);
+	if (norm_type != MS_UNNORM && norm_type != MS_INTRAROUND &&
+		norm_type != MS_INTERROUND) {
+
+		throw std::invalid_argument(
+			"stats::get_mean: Unrecognized stats type!");
+	}
 
 	switch (norm_type) {
 		case MS_UNNORM:
@@ -254,9 +258,6 @@ const {
 	T square_sum, square_mean = square(get_mean(norm_type)),
 				  adj_denominator = (sum_maximum - sum_minimum) / (T)num_scores;
 
-	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
-		norm_type == MS_INTERROUND);
-
 	switch (norm_type) {
 		case MS_UNNORM:
 			square_sum = scores_sq_sum;
@@ -264,10 +265,12 @@ const {
 		case MS_INTRAROUND:
 			square_sum = norm_scores_sq_sum;
 			break;
-		default:
 		case MS_INTERROUND:
 			square_sum = sq_sum_normdiff / square(adj_denominator);
 			break;
+		default:
+			throw std::invalid_argument(
+				"stats::get_variance: Unrecognized stats type!");
 	}
 
 	// N / (N-1) * ( 1/N square_sum - square(mean))
@@ -286,20 +289,19 @@ template <typename T> T stats<T>::get_median(stats_type norm_type) const {
 		return (-INFINITY);
 	}
 
-	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
-		norm_type == MS_INTERROUND);
-
 	switch (norm_type) {
 		case MS_UNNORM:
 			return (calc_median(scores));
 		case MS_INTRAROUND:
 			return (calc_median(normalized_scores));
-		default:
 		case MS_INTERROUND:
 			// We now use the new formulation (see the constructor).
 			return (calc_median(normalized_scores) /
 					((sum_maximum - sum_minimum) / (T)
 						num_scores));
+		default:
+			throw std::invalid_argument(
+				"stats::get_median: Unrecognized stats type!");
 	}
 }
 
@@ -313,21 +315,20 @@ template <typename T> T stats<T>::get_last(stats_type norm_type) const {
 		return std::numeric_limits<T>::quiet_NaN();
 	}
 
-	assert(norm_type == MS_UNNORM || norm_type == MS_INTRAROUND ||
-		norm_type == MS_INTERROUND);
-
 	switch (norm_type) {
 		case MS_UNNORM:
 			return (*scores.rbegin());
 		case MS_INTRAROUND:
 			return (*normalized_scores.rbegin());
-		default:
 		case MS_INTERROUND:
 			return (renorm(sum_minimum / (T)scores.size(),
 						sum_maximum/(T)
 						scores.size(),
 						*scores.rbegin(), (T)0.0,
 						(T)1.0));
+		default:
+			throw std::invalid_argument(
+				"stats::get_last: Unrecognized stats type!");
 	}
 }
 

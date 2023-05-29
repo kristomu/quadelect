@@ -19,7 +19,6 @@
 
 #include <vector>
 #include <math.h>
-#include <assert.h>
 
 enum color_space { CS_RGB, CS_HSV, CS_XYZ, CS_LAB}; // CS_LCh?
 

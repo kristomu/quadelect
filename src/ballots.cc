@@ -1,6 +1,6 @@
-#include <assert.h>
 
 #include <unordered_map>
+#include <stdexcept>
 #include <vector>
 #include <string>
 #include <math.h>
@@ -17,8 +17,9 @@ using namespace std;
 // and so that we may experiment with cardinal ratings later.
 
 void candscore::set_score(double score_in) {
-	//assert (finite(score_in));
-	assert (!isnan(score_in));
+	if (isnan(score_in)) {
+		throw std::invalid_argument("candscore: NaN is not a valid score.");
+	}
 	score = score_in;
 }
 

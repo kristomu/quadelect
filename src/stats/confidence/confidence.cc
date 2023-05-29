@@ -7,7 +7,6 @@
 // beta function and AS 103 for the inverse.
 
 #include "confidence.h"
-#include <assert.h>
 
 // Logarithm of the complete beta function.
 double confidence_int::lnbeta(double p, double q) const {

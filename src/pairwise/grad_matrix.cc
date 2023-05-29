@@ -29,7 +29,6 @@ double cond_borda_matrix::get_internal(size_t candidate, size_t against,
 	// values be? Approvalish tiebreak? Hm.
 	// Also consider different score schedules now that we've got Condorcet
 	// matrices set up. The schedules should go in engine, though.
-	// assert (!isnan(raw_score));
 
 	if (raw)
 		return(raw_score);
@@ -42,8 +41,10 @@ double cond_borda_matrix::get_internal(size_t candidate, size_t against,
 bool cond_borda_matrix::add_internal(size_t candidate, size_t against,
 	double weight, double value) {
 
-	assert (candidate < num_candidates);
-	assert (against < num_candidates);
+	if (std::max(candidate, against) >= num_candidates) {
+		throw std::out_of_range("cond_borda::add_internal: "
+			"Candidate number out of range");
+	}
 
 	return(engine.add_rating(linear(candidate, against, num_candidates), 
 				weight, value));
@@ -52,9 +53,10 @@ bool cond_borda_matrix::add_internal(size_t candidate, size_t against,
 bool cond_borda_matrix::set_internal(size_t candidate, size_t against,
 	double weight, double value) {
 
-	assert (candidate < num_candidates);
-	assert (against < num_candidates);
-
+if (std::max(candidate, against) >= num_candidates) {
+		throw std::out_of_range("cond_borda::set_internal: "
+			"Candidate number out of range");
+	}
 	return(engine.set_rating(linear(candidate, against, num_candidates), 
 				weight, value));
 }
@@ -69,12 +71,19 @@ cond_borda_matrix::cond_borda_matrix(const list<ballot_group> & scores,
 		size_t num_candidates_in, pairwise_type kind, bool cardinal,
 		completion_type completion_in) : abstract_condmat(kind) {
 
-	assert (num_candidates_in > 1);
+	if (num_candidates_in == 0) {
+		throw std::runtime_error("cond_borda_matrix: Can't initialize matrix "
+			"with no candidates!");
+	}
 
 	// Make sure we can get space for all candidates.
 	num_candidates = num_candidates_in;
 	int pairwise = linear(num_candidates, num_candidates, num_candidates);
-	assert (engine.add_candidates(pairwise) == pairwise); 
+
+	if (engine.add_candidates(pairwise) != pairwise) {
+		throw std::logic_error("cond_borda_matrix: Consistency error "
+			"adding candidates!");
+	}
 
 	num_voters = 0;
 	count_ballots(scores, num_candidates_in, cardinal, completion_in);
@@ -94,9 +103,11 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 
 	// Check that we have as many candidates as needed. If not, boom.
 	// TODO: Just wipe and resize if too small.
-	assert (engine.get_num_candidates() >= num_candidates_in * 
-			num_candidates_in && num_candidates >=
-			num_candidates_in);
+	if (engine.get_num_candidates() < num_candidates_in * 
+			num_candidates_in || num_candidates <
+			num_candidates_in) {
+		throw std::runtime_error("count_ballots: Too few candidates!");
+	}
 
 	// For each ballot,
 	//	pri_count = 0, sec_count = 0
@@ -132,7 +143,10 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 		// First find out which are ranked at all.
 		for (pri = pos->contents.begin(); pri != pos->contents.end();
 				++pri) {
-			assert(pri->get_candidate_num() < num_candidates);
+			if (pri->get_candidate_num() >= num_candidates) {
+				throw std::out_of_range("cond_borda::count_ballots: "
+					"Voter ranked a candidate greater then number of candidates.");
+			}
 			seen[pri->get_candidate_num()] = true;
 		}
 
@@ -157,7 +171,10 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 					ok &= add_internal(sec_count, counter,
 							pos->weight, 0);
 
-					assert(ok);
+					if (!ok) {
+						throw std::logic_error("cond_borda::count_ballots: "
+							"Could not add ranking!");
+					}
 				}
 		}
 
@@ -178,7 +195,11 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 				if (sec->get_score() != secondary_old)
 					--sec_count;
 
-				assert (seen[sec->get_candidate_num()]);
+				if (!seen[sec->get_candidate_num()]) {
+					throw std::logic_error("cond_borda::count_ballots: "
+						"Got a ranking for a candidate we didn't see a "
+						"ranking for before???");
+				}
 
 				double dist;
 
@@ -196,7 +217,10 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 				x &= add_internal(sec->get_candidate_num(),
 						pri_cand, pos->weight, -dist);
 
-				assert(x);
+				if (!x) {
+					throw std::logic_error("cond_borda::count_ballots: "
+						"Could not add ranking!");
+				}
 
 				secondary_old = sec->get_score();
 			}
@@ -235,7 +259,10 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 }
 
 void cond_borda_matrix::zeroize() {
-	assert (num_candidates > 1);
+	if (num_candidates == 0) {
+		return;
+	}
+
 	engine = grad_fracile();
 	engine.add_candidates(linear(num_candidates, num_candidates, 
 				num_candidates));

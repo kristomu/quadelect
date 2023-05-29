@@ -6,13 +6,13 @@
 // beforehand. (BLUESKY do that, which would thus permit things like LE/LE/LE/
 // (Smith,Plurality).)
 
-#include <assert.h>
 #include <values.h>
 #include <errno.h>
 #include <ctype.h>
 
 #include <getopt.h>
 
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <list>
@@ -87,9 +87,10 @@ bayesian_regret setup_regret(list<election_method *> & methods,
 			min_voters, max_voters, false, MS_INTRAROUND,
 			generators, rtmethods);
 
-	//rng randomizer(10); // <- or time
-
-	assert(br.init(randomizer));
+	// TODO: Throw the exception inside the bayesian regret code instead.
+	if (!br.init(randomizer)) {
+		throw std::runtime_error("Bayesian Regret: could not initialize!");
+	}
 
 	return(br);
 }
@@ -103,15 +104,19 @@ yee setup_yee(list<election_method *> & methods, int num_voters, int num_cands,
 
 	yee to_output;
 
-	assert(to_output.set_params(num_voters, num_cands, do_use_autopilot,
-				case_prefix, picture_size, sigma));
+	if (!to_output.set_params(num_voters, num_cands, do_use_autopilot,
+				case_prefix, picture_size, sigma)) {
+		throw std::runtime_error("Yee diagram: Could not set parameters!");
+	}
 
 	to_output.set_voter_pdf(&gaussian);
 	to_output.set_candidate_pdf(&uniform);
 
 	to_output.add_methods(methods.begin(), methods.end());
 
-	assert(to_output.init(randomizer));
+	if (!to_output.init(randomizer)) {
+		throw std::runtime_error("Yee diagram: Could not initialize!");
+	}
 
 	return(to_output);
 }
@@ -123,7 +128,9 @@ barycentric setup_bary(list<election_method *> & methods,
 
 	to_output.add_methods(methods.begin(), methods.end());
 
-	assert(to_output.init(randomizer));
+	if (!to_output.init(randomizer)) {
+		throw std::runtime_error("Barycentric: Could not initialize!");
+	}
 
 	return(to_output);
 }
@@ -393,23 +400,43 @@ int main(int argc, char * * argv) {
 				switch(opt_flag) {
 					case 'a': // -bi
 						breg_rounds = str_toi(ext);
-						assert(breg_rounds > 0);
+						if (breg_rounds <= 0) {
+							std::cerr << "You must specify at least one round." 
+								<< std::endl;
+							return -1;
+						}
 						break;
 					case 'c': // -bcm  mincand
 						breg_min_cands = str_toi(ext);
-						assert (breg_min_cands > 1);
+						if (breg_min_cands <= 1) {
+							std::cerr << "Must have at least two candidates."
+								<< std::endl;
+							return -1;
+						}
 						break;
 					case 'd': // -bcx  maxcand
 						breg_max_cands = str_toi(ext);
-						assert (breg_max_cands > 0);
+						if (breg_max_cands <= 1) {
+							std::cerr << "Must have at least two candidates."
+								<< std::endl;
+							return -1;
+						}
 						break;
 					case 'e': // -bvm  minvoter
 						breg_min_voters = str_toi(ext);
-						assert (breg_min_voters > 0);
+						if (breg_min_voters < 1) {
+							std::cerr << "Must have at least one voter."
+								<< std::endl;
+							return -1;
+						}
 						break;
 					case 'f': // -bvx  maxvoter
 						breg_max_voters = str_toi(ext);
-						assert (breg_max_voters > 0);
+						if (breg_max_voters < 1) {
+							std::cerr << "Must have at least one voter."
+								<< std::endl;
+							return -1;
+						}
 						break;
 					case 'g': // -brf  report_freq
 						breg_report_freq = str_toi(ext);
@@ -417,11 +444,19 @@ int main(int argc, char * * argv) {
 						break;
 					case 'h': // -ys   sigma
 						yee_sigma = str_tod(ext);
-						assert (yee_sigma > 0);
+						if (yee_sigma < 0) {
+							std::cerr << "Yee diagram: standard deviation must "
+								"be nonnegative." << std::endl;
+							return -1;
+						}
 						break;
 					case 'o': // -yps  picsize
 						yee_size = str_toi(ext);
-						assert(yee_size > 0);
+						if (yee_size < 0) {
+							std::cerr << "Yee diagram: picture output size must "
+								"be nonnegative." << std::endl;
+							return -1;
+						}
 						break;
 					case 'j': // -yna  autopilot
 						yee_autopilot = false;
@@ -431,11 +466,19 @@ int main(int argc, char * * argv) {
 						break;
 					case 'l': // -yv   voters
 						yee_voters = str_toi(ext);
-						assert (yee_voters > 0);
+						if (yee_voters < 1) {
+							std::cerr << "Yee diagram: must have at "
+								"least one voter." << std::endl;
+							return -1;
+						}
 						break;
 					case 'n': // -yc   candidates
 						yee_candidates = str_toi(ext);
-						assert (yee_candidates > 1);
+						if (yee_candidates < 1) {
+							std::cerr << "Yee diagram: must have at "
+								"least two candidates." << std::endl;
+							return -1;
+						}
 						break;
 					case 'p': // -ic [filename]
 						int_constraint_fn = ext;
