@@ -8,14 +8,15 @@
 
 #include "cache.h"
 
-bool cache_map::has_outcome(const string & name) const {
+bool cache_map::has_outcome(const std::string & name) const {
 	return (outcomes.find(name) != outcomes.end());
 }
 
 // Winner_only will also accept a full ordering, so if w_o is true, this
 // reduces to the above function. Otherwise, we check that a full ranking is
 // indeed available.
-bool cache_map::has_outcome(const string & name, bool winner_only) const {
+bool cache_map::has_outcome(const std::string & name,
+	bool winner_only) const {
 	bool at_all = has_outcome(name);
 
 	if (winner_only) {

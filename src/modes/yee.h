@@ -26,7 +26,7 @@ class yee : public mode {
 		bool use_autopilot; double autopilot_factor;
 		int autopilot_history_len;
 		bool draw_binaries;
-		string run_prefix;// Prefix to give pictures. Keep it short!
+		std::string run_prefix;// Prefix to give pictures. Keep it short!
 		int x_size, y_size;
 		double sigma;     // Desired standard deviation of the Gaussian.
 
@@ -41,12 +41,13 @@ class yee : public mode {
 
 		// Election methods and generators.
 		spatial_generator * voter_pdf, * candidate_pdf;
-		vector<const election_method *> e_methods;
+		std::vector<const election_method *> e_methods;
 
 		// Arrays that hold information about who won and the color
 		// corresponding to each candidate.
-		vector<vector<vector<vector<bool > > > > winners_all_m_all_cand;
-		vector<vector<double> > candidate_colors;
+		std::vector<std::vector<std::vector<std::vector<bool > > > >
+		winners_all_m_all_cand;
+		std::vector<std::vector<double> > candidate_colors;
 
 		// For caching.
 		cache_map cmap;
@@ -54,19 +55,19 @@ class yee : public mode {
 		// This function generates hex-style "codenames" for each method
 		// so the mode doesn't overwrite pictures when dealing with more
 		// than one method at a time. It's generated from a hash function.
-		string get_codename(const election_method & in,
+		std::string get_codename(const election_method & in,
 			int bytes) const;
 
 		// Produce candidate colors, given the number of candidates.
-		vector<vector<double> > get_candidate_colors(int numcands,
+		std::vector<std::vector<double> > get_candidate_colors(int numcands,
 			bool debug) const;
 
 		// Test a given pixel and update winners arrays. See the .cc
 		// for more information.
 		long long check_pixel(int x, int y, int xsize, int ysize,
-			const vector<const election_method *> & methods,
+			const std::vector<const election_method *> & methods,
 			spatial_generator & ballotgen,
-			vector<vector<vector<vector<bool > > > > &
+			std::vector<std::vector<std::vector<std::vector<bool > > > > &
 			am_ac_winners, int min_num_voters_in,
 			int max_num_voters_in, bool do_use_autopilot,
 			double autopilot_factor_in,
@@ -75,11 +76,11 @@ class yee : public mode {
 
 		// Given complete winners arrays, draw the different pictures
 		// that visualize those arrays.
-		bool draw_pictures(string prefix,
-			const vector<vector<vector<bool > > > &
+		bool draw_pictures(std::string prefix,
+			const std::vector<std::vector<std::vector<bool > > > &
 			ac_winners,
-			vector<vector<double> > & cand_colors,
-			vector<vector<double> > & cand_locations,
+			std::vector<std::vector<double> > & cand_colors,
+			std::vector<std::vector<double> > & cand_locations,
 			bool draw_binaries, bool ignore_errors,
 			double inner_radius_in, double outer_radius_in,
 			double hue_factor) const;
@@ -92,18 +93,18 @@ class yee : public mode {
 		bool set_params(int min_voters_in, int max_voters_in,
 			int num_cands, bool do_use_autopilot, double
 			autopilot_factor_in, int autopilot_history_len,
-			bool do_draw_binaries, string case_prefix,
+			bool do_draw_binaries, std::string case_prefix,
 			int xsize_in, int ysize_in, double sigma_in);
 
 		// Reasonable defaults for the technical params.
 		bool set_params(int num_voters, int num_cands,
-			bool do_use_autopilot, string case_prefix,
+			bool do_use_autopilot, std::string case_prefix,
 			int picture_size, double sigma_in);
 
 		// These void init.
 		void set_voter_pdf(spatial_generator * candidate);
 		void set_candidate_pdf(spatial_generator * candidate);
-		bool set_candidate_positions(vector<vector<double> > &
+		bool set_candidate_positions(std::vector<std::vector<double> > &
 			positions);
 		bool randomize_candidate_positions(rng & randomizer);
 
@@ -124,10 +125,10 @@ class yee : public mode {
 		}
 
 		// Reseed does nothing here.
-		string do_round(bool give_brief_status, bool reseed,
+		std::string do_round(bool give_brief_status, bool reseed,
 			rng & randomizer);
 
-		vector<string> provide_status() const;
+		std::vector<std::string> provide_status() const;
 };
 
 template<typename T> void yee::add_methods(T start_iter, T end_iter) {

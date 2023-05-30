@@ -17,8 +17,8 @@
 // converges quickly. WDS also considers that more likely to give a good result.
 
 struct sinkhorn_factor {
-	vector<double> row;
-	vector<double> col;
+	std::vector<double> row;
+	std::vector<double> col;
 };
 
 class sinkhorn : public pairwise_method {
@@ -27,7 +27,7 @@ class sinkhorn : public pairwise_method {
 		bool add_one;
 
 		sinkhorn_factor get_sinkhorn_factor(int max_iterations, const
-			vector<vector<double > > & input_matrix,
+			std::vector<std::vector<double > > & input_matrix,
 			bool debug) const;
 
 	public:
@@ -37,11 +37,11 @@ class sinkhorn : public pairwise_method {
 			update_name();
 		}
 
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const;
+		std::string pw_name() const;
 
 		void set_tolerance(double tolerance_in) {
 			tolerance = tolerance_in; update_name();

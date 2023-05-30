@@ -7,7 +7,6 @@
 #include "stats.h"
 #include "../multiwinner/methods.h"
 
-using namespace std;
 
 class multiwinner_stats : public stats {
 

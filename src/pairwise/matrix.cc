@@ -43,7 +43,8 @@ bool condmat::set_internal(size_t candidate, size_t against,
 
 condmat::condmat(pairwise_type type_in) : abstract_condmat(type_in) {}
 
-condmat::condmat(const list<ballot_group> & scores, size_t num_candidates,
+condmat::condmat(const std::list<ballot_group> & scores,
+	size_t num_candidates,
 	pairwise_type kind) : abstract_condmat(kind) {
 
 	if (num_candidates == 0) {
@@ -51,8 +52,8 @@ condmat::condmat(const list<ballot_group> & scores, size_t num_candidates,
 			"one candidate");
 	}
 
-	contents = vector<vector<double> >(num_candidates,
-			vector<double>(num_candidates, 0));
+	contents = std::vector<std::vector<double> >(num_candidates,
+			std::vector<double>(num_candidates, 0));
 
 	count_ballots(scores, num_candidates);
 }
@@ -65,8 +66,8 @@ condmat::condmat(size_t num_candidates_in, double num_voters_in,
 			"one candidate");
 	}
 
-	contents = vector<vector<double> > (num_candidates_in,
-			vector<double>(num_candidates_in, 0));
+	contents = std::vector<std::vector<double> > (num_candidates_in,
+			std::vector<double>(num_candidates_in, 0));
 
 	num_voters = num_voters_in;
 }
@@ -81,7 +82,7 @@ condmat::condmat(const condmat & in,
 // count ballots go here. Then test.
 
 // Perhaps bool clear.
-void condmat::count_ballots(const list<ballot_group> & scores,
+void condmat::count_ballots(const std::list<ballot_group> & scores,
 	size_t num_candidates) {
 
 	// For each ballot
@@ -96,15 +97,15 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 	// nothing if we've seen all the candidates (i.e. ballot is complete).
 
 	if (contents.size() != num_candidates)
-		contents = vector<vector<double> > (num_candidates,
-				vector<double> (num_candidates, 0));
+		contents = std::vector<std::vector<double> > (num_candidates,
+				std::vector<double> (num_candidates, 0));
 
-	vector<bool> seen(num_candidates);
+	std::vector<bool> seen(num_candidates);
 
 	bool debug = false;
 	num_voters = 0;
 
-	for (list<ballot_group>::const_iterator ballot = scores.begin();
+	for (std::list<ballot_group>::const_iterator ballot = scores.begin();
 		ballot != scores.end(); ++ballot) {
 
 		fill(seen.begin(), seen.end(), false);
@@ -153,7 +154,7 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 						true);
 
 				if (debug) {
-					cout << "Adding "<< ballot->weight <<
+					std::cout << "Adding "<< ballot->weight <<
 						" to " 	<< (char)('A' + cand->
 							get_candidate_num())
 						<< " vs " << (char)('A' +
@@ -168,12 +169,12 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 					last + ballot->weight);
 
 				if (debug) {
-					cout << get_internal(cand->
+					std::cout << get_internal(cand->
 							get_candidate_num(),
 							against->
 							get_candidate_num(),
 							true);
-					cout << endl;
+					std::cout << std::endl;
 				}
 			}
 		}
@@ -196,13 +197,13 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 					}
 
 					if (debug)
-						cout << "Unranked vs ranked: "<<
+						std::cout << "Unranked vs ranked: "<<
 							"adding " << ballot->
 							weight 	<< " to " <<
 							(char)('A'+ counter) <<
 							" vs " <<
 							(char)('A' + sec)
-							<< endl;
+							<< std::endl;
 
 					// The ranked candidate beats the
 					// unranked one - update scores.
@@ -216,24 +217,24 @@ void condmat::count_ballots(const list<ballot_group> & scores,
 		}
 
 		if (debug) {
-			cout << endl;
+			std::cout << std::endl;
 		}
 	}
 
 	if (debug) {
-		cout << "After count-ballots:" << endl;
+		std::cout << "After count-ballots:" << std::endl;
 		for (size_t y = 0; y < num_candidates; ++y) {
 			for (size_t x = 0; x < num_candidates; ++x) {
-				cout << get_internal(y, x, true) << "    ";
+				std::cout << get_internal(y, x, true) << "    ";
 			}
-			cout << endl;
+			std::cout << std::endl;
 		}
 	}
 }
 
 void condmat::zeroize() {
 
-	for (vector<vector<double> > ::iterator outer = contents.begin();
+	for (std::vector<std::vector<double> > ::iterator outer = contents.begin();
 		outer != contents.end(); ++outer) {
 		fill(outer->begin(), outer->end(), 0);
 	}

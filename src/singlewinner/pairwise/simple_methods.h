@@ -8,7 +8,6 @@
 
 #include <complex>
 
-using namespace std;
 
 // Some simple (low K-complexity) Condorcet methods follow.
 // Minmax, "maxmin", and LR are really just all variants on:
@@ -25,7 +24,7 @@ using namespace std;
 // This produces a social ordering according to the greatest opponent magnitude,
 // negated (so as to keep with the convention that higher score is better).
 
-// If reverse_perspective is true, we do min(candidate above others)
+// If reverse_perspective is true, we do std::min(candidate above others)
 // instead of -max(others over candidate). This is mostly intended for
 // debugging with CM_PAIRWISE_OPP; keep it off for standard uses.
 
@@ -35,11 +34,11 @@ class ord_minmax : public pairwise_method {
 		bool reverse_perspective;
 
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const {
+		std::string pw_name() const {
 			if (reverse_perspective) {
 				return ("Minmax (rev. persp.)");
 			} else {
@@ -70,11 +69,11 @@ class ext_minmax : public pairwise_method {
 	private:
 		bool minmin;
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const {
+		std::string pw_name() const {
 			if (minmin) {
 				return ("Ext-Minmin");
 			} else	{
@@ -96,11 +95,11 @@ class ext_minmax : public pairwise_method {
 class maxmin : public pairwise_method {
 
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const {
+		std::string pw_name() const {
 			return ("Maximin");
 		}
 		maxmin(pairwise_type def_type_in) : pairwise_method(
@@ -118,14 +117,14 @@ class copeland : public pairwise_method {
 
 	public:
 		// Used for n-th order Copeland
-		vector<double> get_copeland(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
-			const vector<double> & counterscores) const;
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::vector<double> get_copeland(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
+			const std::vector<double> & counterscores) const;
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const;
+		std::string pw_name() const;
 		copeland(pairwise_type def_type_in) : pairwise_method(def_type_in) {
 			win = 1;
 			tie = 0;
@@ -149,11 +148,11 @@ class copeland : public pairwise_method {
 
 class schulze : public pairwise_method {
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const {
+		std::string pw_name() const {
 			return ("Schulze");
 		}
 

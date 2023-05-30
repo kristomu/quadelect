@@ -15,6 +15,6 @@ double odm::get_score(double offense, double defense) const {
 	return (offense / defense);
 }
 
-string odm::odm_name() const {
+std::string odm::odm_name() const {
 	return ("ODM");
 }

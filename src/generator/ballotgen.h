@@ -22,13 +22,12 @@
 #include <numeric>
 #include <list>
 
-using namespace std;
 
 class pure_ballot_generator {
 	protected:
 		bool truncate, compress;
 
-		virtual list<ballot_group> generate_ballots_int(int num_voters,
+		virtual std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
 			rng & random_source) const = 0;
 
@@ -50,7 +49,7 @@ class pure_ballot_generator {
 		// Provides an empty ballot on error.
 		// We ask for truncation because some criteria, like
 		// mono-append, make no sense without.
-		list<ballot_group> generate_ballots(int num_voters,
+		std::list<ballot_group> generate_ballots(int num_voters,
 			int numcands, rng & random_source) const {
 			ballot_tools bt;
 			if (compress)
@@ -66,7 +65,7 @@ class pure_ballot_generator {
 							random_source));
 		}
 
-		virtual string name() const = 0;
+		virtual std::string name() const = 0;
 		virtual ~pure_ballot_generator() {}
 };
 
@@ -79,7 +78,7 @@ class indiv_ballot_generator : public pure_ballot_generator {
 			bool do_truncate, rng & random_source)
 		const = 0;
 
-		list<ballot_group> generate_ballots_int(int num_voters,
+		std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
 			rng & random_source) const;
 

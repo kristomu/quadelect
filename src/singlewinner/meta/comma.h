@@ -16,15 +16,15 @@ class comma : public election_method {
 		const election_method * set_method;
 		const election_method * specific_method;
 
-		string cached_name;
+		std::string cached_name;
 
 	protected:
-		pair<ordering, bool> elect_inner(const list<ballot_group> &
-			papers, const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(const std::list<ballot_group> &
+			papers, const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string determine_name() const;
+		std::string determine_name() const;
 
 	public:
 
@@ -37,7 +37,7 @@ class comma : public election_method {
 			cached_name = determine_name();
 		}
 
-		string name() const {
+		std::string name() const {
 			return (cached_name);
 		}
 };

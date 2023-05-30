@@ -10,7 +10,6 @@
 #include <assert.h>
 #include <iostream>
 
-using namespace std;
 
 // Tolerance specifies the, well, tolerance before it assumes convergence.
 // Add_one adds 1 to all the Condorcet matrix entries so that the method always
@@ -34,11 +33,11 @@ class keener : public pairwise_method {
 			normalize_diagonal = normalize_diagonal_in;
 			update_name();
 		}
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const;
+		std::string pw_name() const;
 
 		void set_tolerance(double tolerance_in) {
 			tolerance = tolerance_in;

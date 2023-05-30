@@ -13,13 +13,12 @@
 #include "../../tools/tools.h"
 #include "../../ballots.h"
 
-using namespace std;
 
 class median_ratings : public election_method {
 
 	private:
 
-		string cached_name;
+		std::string cached_name;
 		bool tiebreak;
 
 		// Normalization parameters. Like Cardinal Ratings, these decide
@@ -30,27 +29,27 @@ class median_ratings : public election_method {
 		int range_minimum, range_maximum;
 
 		double get_trunc_mean_destructively(
-			vector<pair<double, double> > & array,
+			std::vector<std::pair<double, double> > & array,
 			double num_voters, bool already_sorted,
 			double distance) const;
 
-		vector<double> aggregate_ratings(const list<ballot_group> &
-			papers, int num_candidates, const vector<bool> &
+		std::vector<double> aggregate_ratings(const std::list<ballot_group> &
+			papers, int num_candidates, const std::vector<bool> &
 			hopefuls) const;
 
 	protected:
 
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates,
 			cache_map * cache, bool winner_only) const;
 
-		string determine_name() const;
+		std::string determine_name() const;
 
 	public:
 
-		string name() const {
+		std::string name() const {
 			return (cached_name);
 		}
 

@@ -134,7 +134,7 @@ class backtracker {
 					tests_and_results[group_idx].group_results.num_tests, 0);
 		}
 
-		void set_algorithms(const std::vector<vector<algo_t> > & algos_in);
+		void set_algorithms(const std::vector<std::vector<algo_t> > & algos_in);
 
 		double try_algorithms() {
 			if (prospective_algorithms.empty()) {
@@ -498,7 +498,7 @@ void backtracker::set_tests_and_results(
 }
 
 void backtracker::set_algorithms(
-	const std::vector<vector<algo_t> > & algos_in) {
+	const std::vector<std::vector<algo_t> > & algos_in) {
 
 	prospective_algorithms = algos_in;
 
@@ -619,7 +619,7 @@ std::list<size_t> get_group_order(double time_limit,
 		}
 		outgoing_groups.pop();
 
-		swap(incoming_groups, outgoing_groups);
+		std::swap(incoming_groups, outgoing_groups);
 	}
 
 	return output_order;
@@ -738,9 +738,9 @@ void print_group_order(const std::list<size_t> & group_order) {
 		iter != group_order.end(); iter++) {
 
 		if (iter != group_order.begin()) {
-			cout << ", ";
+			std::cout << ", ";
 		}
-		cout << *iter;
+		std::cout << *iter;
 	}
 	std::cout << "];\n";
 }
@@ -940,7 +940,7 @@ int main(int argc, char ** argv) {
 
 						double most_disc = get_most_discriminating_group(verifier,
 							group_idx, tests_to_skip);
-						all_results[group].swap(most_disc, tests_to_skip);
+						all_results[group].std::swap(most_disc, tests_to_skip);
 
 						size_t discgroup = get_most_discriminating_group(verifier,
 							group_idx, tests_to_skip);
@@ -960,7 +960,7 @@ int main(int argc, char ** argv) {
 
 	for (int ts : group_order) {
 		std::cout << ts << ": ";
-		grps.groups[ts].print_scenarios(cout);
+		grps.groups[ts].print_scenarios(std::cout);
 		std::cout << "\n";
 	}
 

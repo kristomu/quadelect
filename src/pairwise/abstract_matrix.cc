@@ -8,10 +8,9 @@
 #include <iostream>
 #include <stdexcept>
 
-using namespace std;
 
 double abstract_condmat::get_magnitude(size_t candidate, size_t against,
-	const vector<bool> & hopefuls) const {
+	const std::vector<bool> & hopefuls) const {
 
 	// size() is a bit expensive, thus I'm doing it this way.
 	if (std::max(candidate, against) >= hopefuls.size()) {

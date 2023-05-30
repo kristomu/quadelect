@@ -14,7 +14,7 @@
 
 bool mono_sub_plump::alter_ballot(const ordering & input,
 	ordering & output,
-	size_t numcands, const vector<size_t> & data, rng &
+	size_t numcands, const std::vector<size_t> & data, rng &
 	randomizer) const {
 
 	// This one is easy. First check if x is top-ranked. If he isn't,
@@ -43,7 +43,7 @@ bool mono_sub_plump::alter_ballot(const ordering & input,
 //////////////////
 
 bool mono_sub_top::alter_ballot(const ordering & input, ordering & output,
-	size_t numcands, const vector<size_t> & data,
+	size_t numcands, const std::vector<size_t> & data,
 	rng & randomizer) const {
 
 	double highest_score = output.begin()->get_score();

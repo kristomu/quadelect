@@ -16,7 +16,7 @@ int main(int argc, const char ** argv) {
 	for (i = 0; i < how_many; ++i) {
 		double this_arm_mean = 0.005 * drand48() + i/(double)(2*how_many);
 		bernoullis.push_back(new Bernoulli(this_arm_mean));
-		maxmean = max(maxmean, this_arm_mean);
+		maxmean = std::max(maxmean, this_arm_mean);
 	}
 
 	random_shuffle(bernoullis.begin(), bernoullis.end());

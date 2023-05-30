@@ -85,7 +85,7 @@ class eligibility_tables {
 class memoization_entry {
 	public:
 		int term;
-		double score; // alternately vector<double>...
+		double score; // alternately std::vector<double>...
 
 		memoization_entry() {
 			term = -1;

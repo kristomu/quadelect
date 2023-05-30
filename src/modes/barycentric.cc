@@ -7,7 +7,7 @@
 
 #include "../spookyhash/SpookyV2.h"
 
-ordering strict_ballot(string input) {
+ordering strict_ballot(std::string input) {
 
 	ordering output;
 
@@ -18,9 +18,10 @@ ordering strict_ballot(string input) {
 	return (output);
 }
 
-list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
-	double maxvoters, string first_group, string sec_group,
-	string third_group, double x_1, double y_1, double x_2,
+std::list<ballot_group>  barycentric::generate_ballot_set(double x,
+	double y,
+	double maxvoters, std::string first_group, std::string sec_group,
+	std::string third_group, double x_1, double y_1, double x_2,
 	double y_2, double x_3, double y_3) const {
 
 	// Vertices of the triangle
@@ -34,10 +35,10 @@ list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
 	l_3 = 1 - (l_1 + l_2);
 
 	if (l_1 < 0 || l_2 < 0 || l_3 < 0) {
-		return (list<ballot_group>());
+		return (std::list<ballot_group>());
 	}
 
-	list<ballot_group> toRet;
+	std::list<ballot_group> toRet;
 	toRet.push_back(ballot_group(l_1 * maxvoters, strict_ballot(
 				first_group), true, false));
 	toRet.push_back(ballot_group(l_2 * maxvoters, strict_ballot(
@@ -48,7 +49,8 @@ list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
 	return (toRet);
 }
 
-list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
+std::list<ballot_group>  barycentric::generate_ballot_set(double x,
+	double y,
 	double maxvoters) const {
 
 	// We have four groups:
@@ -63,7 +65,7 @@ list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
 	// The three gropus are ABC, BCA, and CAB, so we can explore Condorcet
 	// cycles in greater detail.
 
-	list<ballot_group> ballots;
+	std::list<ballot_group> ballots;
 
 	if (ballots.empty())
 		ballots = generate_ballot_set(x, y, maxvoters, "ABC", "BCA",
@@ -86,14 +88,15 @@ list<ballot_group>  barycentric::generate_ballot_set(double x, double y,
 	return (ballots);
 }
 
-vector<vector<double> > barycentric::get_candidate_colors(int numcands,
+std::vector<std::vector<double> > barycentric::get_candidate_colors(
+	int numcands,
 	bool debug) const {
 
 	if (numcands <= 0) {
-		return (vector<vector<double> >());
+		return (std::vector<std::vector<double> >());
 	}
 
-	vector<vector<double> > candidate_RGB(numcands);
+	std::vector<std::vector<double> > candidate_RGB(numcands);
 
 	// The candidates are each given colors at hues spaced equally from
 	// each other, and with full saturation and value. If you want
@@ -101,7 +104,7 @@ vector<vector<double> > barycentric::get_candidate_colors(int numcands,
 	// it might be better in LAB color space -- if I could get LAB to work,
 	// and if tone-mapping to limited gamut displays wasn't so hard.
 
-	vector<double> HSV(3, 1);
+	std::vector<double> HSV(3, 1);
 	HSV[0] = 0;
 
 	color_conv converter;
@@ -110,12 +113,12 @@ vector<vector<double> > barycentric::get_candidate_colors(int numcands,
 		candidate_RGB[cand] = converter.convert(HSV, CS_HSV, CS_RGB);
 
 		if (debug) {
-			cout << "RGB values for " << cand << ": ";
+			std::cout << "RGB values for " << cand << ": ";
 			copy(candidate_RGB[cand].begin(),
 				candidate_RGB[cand].end(),
-				ostream_iterator<double>(cout, "\t"));
+				std::ostream_iterator<double>(std::cout, "\t"));
 
-			cout << endl;
+			std::cout << std::endl;
 		}
 
 		// It must be +1 because the Hue aspect is circular, leaving
@@ -160,13 +163,13 @@ void barycentric::add_method(const election_method * to_add) {
 }
 
 bool barycentric::init(rng & randomizer) {
-	cout << "INIT 1" << endl;
+	std::cout << "INIT 1" << std::endl;
 	// If there are no methods, there's nothing we can do.
 	if (e_methods.empty()) {
 		return (false);
 	}
 
-	cout << "INIT 2" << endl;
+	std::cout << "INIT 2" << std::endl;
 
 	// Okay, set candidate colors. There are three candidates.
 	cand_colors = get_candidate_colors(3, false);
@@ -184,10 +187,10 @@ int barycentric::get_current_round() const {
 	return (cur_round);
 }
 
-string barycentric::do_round(bool give_brief_status, bool reseed,
+std::string barycentric::do_round(bool give_brief_status, bool reseed,
 	rng & randomizer) {
 
-	cout << "DO_ROUND" << endl;
+	std::cout << "DO_ROUND" << std::endl;
 
 	// For the method in question:
 	//	For every pixel,
@@ -211,17 +214,17 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 
 	double numvoters = 100;
 
-	string code = get_codename(*our_method, code_length);
-	string status = "Barycentric: " + our_method->name() + " has code "
+	std::string code = get_codename(*our_method, code_length);
+	std::string status = "Barycentric: " + our_method->name() + " has code "
 		+ code + ". Drawing...";
 
-	string outfn = code + "_bary.ppm";
-	ofstream color_pic(outfn.c_str());
+	std::string outfn = code + "_bary.ppm";
+	std::ofstream color_pic(outfn.c_str());
 
 	if (!color_pic) {
 		// Couldn't open that file.
-		cerr << "Couldn't open color picture file " << outfn <<
-			" for writing." << endl;
+		std::cerr << "Couldn't open color picture file " << outfn <<
+			" for writing." << std::endl;
 
 		// Since we've got nothing more to do, we can just return false
 		// no matter what here.
@@ -229,12 +232,13 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 	}
 
 	// Write the header
-	color_pic << "P6 " << endl << xsize << " " << ysize << endl << 255 <<
-		endl;
+	color_pic << "P6 " << std::endl << xsize << " " << ysize << std::endl <<
+		255 <<
+		std::endl;
 
 	for (int y = 0; y < ysize; ++y) {
 		for (int x = 0; x < xsize; ++x) {
-			list<ballot_group> barycentric_ballot =
+			std::list<ballot_group> barycentric_ballot =
 				generate_ballot_set(x / (double)xsize,
 					y / (double)ysize,
 					numvoters);
@@ -267,10 +271,10 @@ string barycentric::do_round(bool give_brief_status, bool reseed,
 	return (status + "OK");
 }
 
-vector<string> barycentric::provide_status() const {
-	string out = "Barycentric: Done " + itos(cur_round) + " of " +
+std::vector<std::string> barycentric::provide_status() const {
+	std::string out = "Barycentric: Done " + itos(cur_round) + " of " +
 		itos(max_rounds) + " rounds, or " +
 		dtos(100.0 * cur_round/(double)max_rounds) + "%";
 
-	return (vector<string>(1, out));
+	return (std::vector<std::string>(1, out));
 }

@@ -2,9 +2,10 @@
 #include "../positional/all.h"
 #include "../pairwise/simple_methods.h"
 
-pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> &
+std::pair<ordering, bool> sv_att_second::elect_inner(
+	const std::list<ballot_group> &
 	papers,
-	const vector<bool> & hopefuls,
+	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
@@ -58,7 +59,7 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> &
 	// Do the rest later. Dump plur stuff into a vector, say plurscores,
 	// then...
 
-	vector<double> plur_scores(num_candidates, 0);
+	std::vector<double> plur_scores(num_candidates, 0);
 	double numvoters = 0;
 
 	for (ordering::const_iterator pos = plur_ordering.begin(); pos !=
@@ -67,13 +68,13 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> &
 		numvoters += pos->get_score();
 	}
 
-	vector<double> plur_factors(num_candidates, 0);
+	std::vector<double> plur_factors(num_candidates, 0);
 	int counter;
 	for (counter = 0; counter < num_candidates; ++counter) {
 		plur_factors[counter] = 0.5 - plur_scores[counter]/numvoters;
 	}
 
-	/*vector<double> scores(num_candidates, 0);
+	/*std::vector<double> scores(num_candidates, 0);
 
 	ordering output;
 
@@ -86,7 +87,7 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> &
 		output.insert(candscore(i, scores[i]));
 	}
 
-	    return(pair<ordering, bool>(output, false));*/
+	    return(std::pair<ordering, bool>(output, false));*/
 
 	ordering out;
 
@@ -132,5 +133,5 @@ pair<ordering, bool> sv_att_second::elect_inner(const list<ballot_group> &
 		out.insert(candscore(counter, score));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

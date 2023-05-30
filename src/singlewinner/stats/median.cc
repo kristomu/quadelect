@@ -12,7 +12,7 @@
 // the median is included. If 0.1, we include from 0.4 times numvoters to 0.6.
 
 double median_ratings::get_trunc_mean_destructively(
-	vector<pair<double, double> > & array,
+	std::vector<std::pair<double, double> > & array,
 	double num_voters, bool already_sorted, double distance) const {
 
 	// This has side effects, namely that we sort. Our strategy, because
@@ -27,12 +27,14 @@ double median_ratings::get_trunc_mean_destructively(
 
 	double wt_count = 0;
 
-	vector<pair<double, double> >::const_iterator lower = array.end(),
-												  upper = array.end();
+	std::vector<std::pair<double, double> >::const_iterator lower =
+		array.end(),
+		upper = array.end();
 
-	for (vector<pair<double, double> >::const_iterator pos = array.begin();
+	for (std::vector<std::pair<double, double> >::const_iterator pos =
+			array.begin();
 		pos != array.end() && lower == array.end(); ++pos) {
-		//cout << pos->first << "\t" << wt_count << " of " << num_voters << " ( linear: count " << pos - array.begin() << " of " << array.end() - array.begin() << ")" << endl;
+		//std::cout << pos->first << "\t" << wt_count << " of " << num_voters << " ( linear: count " << pos - array.begin() << " of " << array.end() - array.begin() << ")" << std::endl;
 		wt_count += pos->second;
 
 		if (wt_count >= num_voters * 0.5) {
@@ -46,9 +48,11 @@ double median_ratings::get_trunc_mean_destructively(
 		}
 	}
 
-	cout << "DEBUG: " << lower - array.begin() << " " << upper - array.begin()
-		<< " vs " << endl;
-	cout << floor(num_voters * 0.5) << " " << ceil(num_voters * 0.5) << endl;
+	std::cout << "DEBUG: " << lower - array.begin() << " " << upper -
+		array.begin()
+		<< " vs " << std::endl;
+	std::cout << floor(num_voters * 0.5) << " " << ceil(num_voters * 0.5) <<
+		std::endl;
 
 	assert(lower != array.end());  // shouldn't happen.
 
@@ -66,9 +70,10 @@ double median_ratings::get_trunc_mean_destructively(
 
 // Like in Cardinal Ratings, this determines each candidate's rating. Ratings
 // for candidates not defined as hopeful will be zero.
-vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
+std::vector<double> median_ratings::aggregate_ratings(
+	const std::list<ballot_group> &
 	papers, int num_candidates,
-	const vector<bool> & hopefuls) const {
+	const std::vector<bool> & hopefuls) const {
 
 	// Because the median isn't summable, we have to store a v<v<double> >
 	// where one dimension is the candidates and the other the voters. We
@@ -80,18 +85,19 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 	// one. The first double of the pair is the value, the second is the
 	// weight.
 
-	vector<vector<pair<double, double> > > ratings_block(num_candidates);
+	std::vector<std::vector<std::pair<double, double> > > ratings_block(
+		num_candidates);
 
 	ordering::const_iterator sec;
 
 	// We must make this a vector since the voters may not necessarily be
 	// expressing an opinion about every candidate.
-	vector<double> num_voters(num_candidates, 0);
+	std::vector<double> num_voters(num_candidates, 0);
 	double score;
 
 	double global_max = -INFINITY, global_min = INFINITY;
 
-	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 
 		// Do we need to normalize? If so, find the max and min hopeful
@@ -136,14 +142,14 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 				score = sec->get_score();
 			}
 
-			score = min((double)range_maximum, max((double)
+			score = std::min((double)range_maximum, std::max((double)
 						range_minimum, score));
 
-			global_min = min(global_min, score);
-			global_max = max(global_max, score);
+			global_min = std::min(global_min, score);
+			global_max = std::max(global_max, score);
 
 			ratings_block[sec->get_candidate_num()].push_back(
-				pair<double, double>(score,
+				std::pair<double, double>(score,
 					pos->weight));
 		}
 
@@ -152,7 +158,7 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 	// Now determine the median ratings of all those candidates, and return
 	// those.
 
-	vector<double> retval(num_candidates, 0);
+	std::vector<double> retval(num_candidates, 0);
 
 	for (int counter = 0; counter < num_candidates; ++counter)
 		if (hopefuls[counter]) {
@@ -167,21 +173,21 @@ vector<double> median_ratings::aggregate_ratings(const list<ballot_group> &
 	return (retval);
 }
 
-pair<ordering, bool> median_ratings::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates,
+std::pair<ordering, bool> median_ratings::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// Get everybody's score. We don't know who's going to be the winner
 	// ahead of time (*might* be possible through sorted structs but bleh),
 	// so we have to get the answers for all the candidates.
 
-	vector<double> scores = aggregate_ratings(papers, num_candidates,
+	std::vector<double> scores = aggregate_ratings(papers, num_candidates,
 			hopefuls);
 
 	// Now we just have to turn it into an ordering.
 
-	pair<ordering, bool> medians(ordering(), false);
+	std::pair<ordering, bool> medians(ordering(), false);
 
 	for (int counter = 0; counter < scores.size(); ++counter)
 		if (hopefuls[counter])
@@ -191,8 +197,8 @@ pair<ordering, bool> median_ratings::elect_inner(
 	return (medians);
 }
 
-string median_ratings::determine_name() const {
-	string base = "Median-" + itos(range_maximum - range_minimum) + "(";
+std::string median_ratings::determine_name() const {
+	std::string base = "Median-" + itos(range_maximum - range_minimum) + "(";
 	if (normalize) {
 		base += "norm";
 		if (tiebreak) {

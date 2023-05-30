@@ -56,12 +56,13 @@
 #define idx_CAB 4
 #define idx_CBA 5
 
-bool cond_brute_rpn::is_abca(const vector<double> & vote_array) const {
+bool cond_brute_rpn::is_abca(const std::vector<double> & vote_array)
+const {
 	return (C_AbB > C_BbA && C_BbC > C_CbB && C_CbA > C_AbC);
 }
 
-bool cond_brute_rpn::get_scores(const vector<double> & vote_array,
-	vector<double> & output) const {
+bool cond_brute_rpn::get_scores(const std::vector<double> & vote_array,
+	std::vector<double> & output) const {
 
 	assert(is_abca(vote_array));
 
@@ -75,9 +76,9 @@ bool cond_brute_rpn::get_scores(const vector<double> & vote_array,
 		//      BCA -> CAB  3->4
 		//      CAB -> ABC  4->0
 		//      CBA -> ACB  5->1
-		vector<double> transposed_to_b = {C_BCA, C_BAC, C_CBA,
-						   C_CAB, C_ABC, C_ACB
-					   };
+		std::vector<double> transposed_to_b = {C_BCA, C_BAC, C_CBA,
+								C_CAB, C_ABC, C_ACB
+							};
 
 		double bscore = cfunct.evaluate(transposed_to_b, false);
 
@@ -89,9 +90,9 @@ bool cond_brute_rpn::get_scores(const vector<double> & vote_array,
 		//      CAB -> BCA  4->3
 		//      CBA -> BAC  5->2
 
-		vector<double> transposed_to_c = {C_CAB, C_CBA, C_ACB, C_ABC,
-						   C_BCA, C_BAC
-					   };
+		std::vector<double> transposed_to_c = {C_CAB, C_CBA, C_ACB, C_ABC,
+								C_BCA, C_BAC
+							};
 
 		double cscore = cfunct.evaluate(transposed_to_c, false);
 
@@ -111,10 +112,10 @@ bool cond_brute_rpn::get_scores(const vector<double> & vote_array,
 // Returns true if we didn't find any monotonicity problems,
 // otherwise false.
 bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
-	const vector<double> & vote_array) const {
+	const std::vector<double> & vote_array) const {
 
-	vector<double> modified_vote_array;
-	vector<double> original_scores(3), modified_scores(3);
+	std::vector<double> modified_vote_array;
+	std::vector<double> original_scores(3), modified_scores(3);
 	get_scores(vote_array, original_scores);
 
 	modified_vote_array = vote_array;
@@ -176,29 +177,29 @@ bool cond_brute_rpn::check_monotonicity_single_instance(int num_attempts,
 			modified_scores[2] - modified_scores[0] >= margin;
 
 		if (zero_greater_than_one && mod_one_greater_than_zero) {
-			/*cout << "Type one error" << endl;
-			cout << "Was: ";
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Scores:";
-			copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Is:";
-			copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "scores:";
-			copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << endl;*/
+			/*std::cout << "Type one error" << std::endl;
+			std::cout << "Was: ";
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Scores:";
+			copy(original_scores.begin(), original_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Is:";
+			copy(modified_vote_array.begin(), modified_vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "scores:";
+			copy(modified_scores.begin(), modified_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << std::endl;*/
 			return (false);
 		}
 		if (zero_greater_than_two && mod_two_greater_than_zero) {
-			/*cout << "Type two error" << endl;
-			cout << "Was: ";
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Scores:";
-			copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Is:";
-			copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "scores:";
-			copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << endl;*/
+			/*std::cout << "Type two error" << std::endl;
+			std::cout << "Was: ";
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Scores:";
+			copy(original_scores.begin(), original_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Is:";
+			copy(modified_vote_array.begin(), modified_vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "scores:";
+			copy(modified_scores.begin(), modified_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << std::endl;*/
 			return (false);
 		}
 
@@ -218,7 +219,7 @@ int cond_brute_rpn::check_monotonicity(int num_attempts) const {
 
 	int failures = 0;
 
-	vector<double> vote_array(6, 0);
+	std::vector<double> vote_array(6, 0);
 
 	for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
 		++cur_attempt) {
@@ -240,10 +241,10 @@ int cond_brute_rpn::check_monotonicity(int num_attempts) const {
 
 // See above.
 bool cond_brute_rpn::check_mono_add_top_single_instance(int num_attempts,
-	const vector<double> & vote_array) const {
+	const std::vector<double> & vote_array) const {
 
-	vector<double> modified_vote_array;
-	vector<double> original_scores(3), modified_scores(3);
+	std::vector<double> modified_vote_array;
+	std::vector<double> original_scores(3), modified_scores(3);
 	get_scores(vote_array, original_scores);
 
 	modified_vote_array = vote_array;
@@ -282,29 +283,29 @@ bool cond_brute_rpn::check_mono_add_top_single_instance(int num_attempts,
 			modified_scores[2] - modified_scores[0] >= margin;
 
 		if (zero_greater_than_one && mod_one_greater_than_zero) {
-			/*cout << "Type one error" << endl;
-			cout << "Was: ";
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Scores:";
-			copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Is:";
-			copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "scores:";
-			copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << endl;*/
+			/*std::cout << "Type one error" << std::endl;
+			std::cout << "Was: ";
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Scores:";
+			copy(original_scores.begin(), original_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Is:";
+			copy(modified_vote_array.begin(), modified_vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "scores:";
+			copy(modified_scores.begin(), modified_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << std::endl;*/
 			return (false);
 		}
 		if (zero_greater_than_two && mod_two_greater_than_zero) {
-			/*cout << "Type two error" << endl;
-			cout << "Was: ";
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Scores:";
-			copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "Is:";
-			copy(modified_vote_array.begin(), modified_vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << "scores:";
-			copy(modified_scores.begin(), modified_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl << endl;*/
+			/*std::cout << "Type two error" << std::endl;
+			std::cout << "Was: ";
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Scores:";
+			copy(original_scores.begin(), original_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "Is:";
+			copy(modified_vote_array.begin(), modified_vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << "scores:";
+			copy(modified_scores.begin(), modified_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl << std::endl;*/
 			return (false);
 		}
 
@@ -323,7 +324,7 @@ int cond_brute_rpn::check_mono_add_top(int num_attempts) const {
 	for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
 		++cur_attempt) {
 
-		vector<double> vote_array(6, 0);
+		std::vector<double> vote_array(6, 0);
 
 		while (!is_abca(vote_array)) {
 			for (int counter = 0; counter < 6; ++counter) {
@@ -342,7 +343,7 @@ int cond_brute_rpn::check_mono_add_top(int num_attempts) const {
 
 
 bool cond_brute_rpn::check_liia_single_instance(
-	const vector<double> & vote_array) const {
+	const std::vector<double> & vote_array) const {
 
 	// We have ABCA
 	// If A is first, then B must be second (since A>B>C>A, so without
@@ -350,7 +351,7 @@ bool cond_brute_rpn::check_liia_single_instance(
 	// If B is first, then C must be second.
 	// If C is first, then A must be second.
 
-	vector<double> scores(3);
+	std::vector<double> scores(3);
 	get_scores(vote_array, scores);
 
 	double margin = 1e-9;
@@ -378,7 +379,7 @@ int cond_brute_rpn::check_liia(int num_attempts) const {
 
 	int failures = 0;
 
-	vector<double> vote_array(6, 0);
+	std::vector<double> vote_array(6, 0);
 
 	for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
 		++cur_attempt) {
@@ -390,14 +391,14 @@ int cond_brute_rpn::check_liia(int num_attempts) const {
 		}
 
 		if (!check_liia_single_instance(vote_array)) {
-			/*cout << "Failure detected." << endl;
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl;
-			vector<double> original_scores(3);
+			/*std::cout << "Failure detected." << std::endl;
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;
+			std::vector<double> original_scores(3);
 			get_scores(vote_array, original_scores);
-			cout << "\tScores are: ";
-			copy(original_scores.begin(), original_scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl;*/
+			std::cout << "\tScores are: ";
+			copy(original_scores.begin(), original_scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;*/
 			++failures;
 		}
 	}
@@ -406,9 +407,9 @@ int cond_brute_rpn::check_liia(int num_attempts) const {
 }
 
 bool cond_brute_rpn::check_revsym_single_instance(
-	const vector<double> & vote_array) const {
+	const std::vector<double> & vote_array) const {
 
-	vector<double> original_scores(3), modified_scores(3);
+	std::vector<double> original_scores(3), modified_scores(3);
 	get_scores(vote_array, original_scores);
 
 	// Reversing the ballots:
@@ -429,15 +430,15 @@ bool cond_brute_rpn::check_revsym_single_instance(
 	// CAB -> CAB
 	// CBA -> ACB
 
-	vector<double> reversed_votes = {C_BCA, C_CBA, C_BAC, C_ABC, C_CAB,
-					   C_ACB
-				   };
+	std::vector<double> reversed_votes = {C_BCA, C_CBA, C_BAC, C_ABC, C_CAB,
+							C_ACB
+						};
 
 	get_scores(reversed_votes, modified_scores);
 
 	// Since we swapped C and B when we reversed the ballots, we must swap
 	// them back.
-	swap(reversed_votes[1], reversed_votes[2]);
+	std::swap(reversed_votes[1], reversed_votes[2]);
 
 	// If A > B on both, we fail. Same for every other combination.
 	// Note that we let ties pass.
@@ -472,7 +473,7 @@ int cond_brute_rpn::check_reversal_symmetry(int num_attempts) const {
 
 	int failures = 0;
 
-	vector<double> vote_array(6, 0);
+	std::vector<double> vote_array(6, 0);
 
 	for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
 		++cur_attempt) {
@@ -484,9 +485,9 @@ int cond_brute_rpn::check_reversal_symmetry(int num_attempts) const {
 		} while (!is_abca(vote_array));
 
 		if (!check_revsym_single_instance(vote_array)) {
-			/*cout << "Failure detected." << endl;
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl;*/
+			/*std::cout << "Failure detected." << std::endl;
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;*/
 			++failures;
 		}
 	}
@@ -498,7 +499,7 @@ int cond_brute_rpn::check_reversal_symmetry(int num_attempts) const {
 // sum i=1..k A's ith prefs >= sum i=1..k B's kth prefs for all k and the
 // inequality is strict for at least one, then B can't win.
 bool cond_brute_rpn::check_single_weak_positionally_dominant(
-	const vector<double> & vote_array) const {
+	const std::vector<double> & vote_array) const {
 
 	double fpA = C_ABC + C_ACB;
 	double fpB = C_BAC + C_BCA;
@@ -514,7 +515,7 @@ bool cond_brute_rpn::check_single_weak_positionally_dominant(
 		return (true);
 	}
 
-	vector<double> scores(3);
+	std::vector<double> scores(3);
 	get_scores(vote_array, scores);
 
 	return (scores[0] > scores[1]);
@@ -529,7 +530,7 @@ const {
 	for (cur_attempt = 0; cur_attempt < num_attempts && failures == 0;
 		++cur_attempt) {
 
-		vector<double> vote_array(6, 0);
+		std::vector<double> vote_array(6, 0);
 
 		while (!is_abca(vote_array)) {
 			for (int counter = 0; counter < 6; ++counter) {
@@ -538,14 +539,14 @@ const {
 		}
 
 		if (!check_single_weak_positionally_dominant(vote_array)) {
-			/*cout << "Failure detected." << endl;
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl;
-			cout << "Scores:" << endl;
-			vector<double> scores(3);
+			/*std::cout << "Failure detected." << std::endl;
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;
+			std::cout << "Scores:" << std::endl;
+			std::vector<double> scores(3);
 			get_scores(vote_array, scores);
-			copy(scores.begin(), scores.end(), ostream_iterator<double>(cout, " "));
-			cout << endl;*/
+			copy(scores.begin(), scores.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;*/
 			++failures;
 		}
 	}
@@ -555,10 +556,10 @@ const {
 
 // Check dominant mutual burial resistance.
 bool cond_brute_rpn::check_dmtbr_single_instance(int num_attempts,
-	const vector<double> & vote_array) const {
+	const std::vector<double> & vote_array) const {
 
-	vector<double> modified_vote_array;
-	vector<double> scores(3);
+	std::vector<double> modified_vote_array;
+	std::vector<double> scores(3);
 
 	modified_vote_array = vote_array;
 
@@ -627,7 +628,7 @@ int cond_brute_rpn::check_dmtbr(int num_attempts) const {
 	// 4: b>c>a
 	// 4: c>b>a
 	// 1: a>b>c
-	vector<double> vote_array = {1, 0, 0, 4, 0, 4};
+	std::vector<double> vote_array = {1, 0, 0, 4, 0, 4};
 	if (!check_dmtbr_single_instance(inner_tries, vote_array)) {
 		return (1);
 	}
@@ -652,9 +653,9 @@ int cond_brute_rpn::check_dmtbr(int num_attempts) const {
 		} while (is_abca(vote_array));
 
 		if (!check_dmtbr_single_instance(inner_tries, vote_array)) {
-			/*cout << "Failure detected." << endl;
-			copy(vote_array.begin(), vote_array.end(), ostream_iterator<double>(cout, " "));
-			cout << endl;*/
+			/*std::cout << "Failure detected." << std::endl;
+			copy(vote_array.begin(), vote_array.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;*/
 			++failures;
 		}
 	}
@@ -672,7 +673,7 @@ int cond_brute_rpn::check_dmtbr(int num_attempts) const {
  above A without raising their ranking or rating of B.*
 */
 /*bool cond_brute_rpn::check_um_single_instance(int num_attempts,
-    const vector<double> & vote_array) const {
+    const std::vector<double> & vote_array) const {
 
     // In our terms:
     // If either A is the CW or we have an ABCA cycle
@@ -691,9 +692,9 @@ int cond_brute_rpn::check_dmtbr(int num_attempts) const {
 // This is very easy. Generate an ABCA, check for tie, if there is a tie,
 // try to break it by adding epsilon to each ranking in turn.
 
-pair<ordering, bool> cond_brute_rpn::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls,
+std::pair<ordering, bool> cond_brute_rpn::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
@@ -707,9 +708,9 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 	condmat condorcet_matrix = condmat(papers, num_candidates,
 			CM_PAIRWISE_OPP);
 
-	vector<double> counts(6, 0); // ABC ACB BAC BCA CAB CBA
+	std::vector<double> counts(6, 0); // ABC ACB BAC BCA CAB CBA
 
-	for (list<ballot_group>::const_iterator bpos = papers.begin();
+	for (std::list<ballot_group>::const_iterator bpos = papers.begin();
 		bpos != papers.end(); ++bpos) {
 		// Go through the ballot in question and determine which category
 		// it falls into of the complete ballots above. If neither, get
@@ -718,7 +719,7 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 		ordering::const_iterator order_pos = bpos->contents.begin();
 		double numvoters_this_paper = bpos->weight;
 
-		vector<int> candorder(3, -1);
+		std::vector<int> candorder(3, -1);
 		for (int i = 0; i < 3; ++i) {
 			assert(order_pos != bpos->contents.end());
 			candorder[i] = (order_pos++)->get_candidate_num();
@@ -754,9 +755,10 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 				counts[5] += numvoters_this_paper;
 				break;
 			default:
-				cout << "Got a value of " << index << " not supposed to happen!" << endl;
-				cout << "Candorder: " << candorder[0] << " " << candorder[1] << " " <<
-					candorder[2] << endl;
+				std::cout << "Got a value of " << index << " not supposed to happen!" <<
+					std::endl;
+				std::cout << "Candorder: " << candorder[0] << " " << candorder[1] << " " <<
+					candorder[2] << std::endl;
 				assert(1!=1);
 		}
 	}
@@ -765,7 +767,7 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 
 	ordering out;
 
-	vector<double> scores_by_cand(3, -1);
+	std::vector<double> scores_by_cand(3, -1);
 
 	for (int counter = 0; counter < 3; ++counter) {
 		double score = 0;
@@ -831,7 +833,7 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 			//      CBA -> ABC  5->0
 
 			// Make the method satisfy anonymity.
-			vector<vector<int> > anonymity_permutations = {
+			std::vector<std::vector<int> > anonymity_permutations = {
 				{0, 1, 2, 3, 4, 5},
 				{1, 0, 4, 5, 2, 3},
 				{2, 3, 0, 1, 5, 4},
@@ -871,7 +873,7 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 			assert(anon_perm_to_use >= 0);
 
 			// Construct the input for the function.
-			vector<double> funcinputs(6);
+			std::vector<double> funcinputs(6);
 			for (int i = 0; i < 6; ++i) {
 				funcinputs[i] = counts[anonymity_permutations[anon_perm_to_use][i]];
 			}
@@ -937,5 +939,5 @@ pair<ordering, bool> cond_brute_rpn::elect_inner(
 	// if permissive is on, return A=B=C anyway. If it's off, throw an
 	// exception.
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

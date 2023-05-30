@@ -7,14 +7,13 @@
 
 #include <list>
 
-using namespace std;
 
 // Loser-elimination meta-method. This method takes a base method and
 // repeatedly disqualifies the loser (if loser-elimination) or those with a
 // below-mean score (if average loser elimination).
 
 ordering loser_elimination::break_tie(const ordering & original_ordering,
-	const list<ordering> & past_ordering,
+	const std::list<ordering> & past_ordering,
 	int num_candidates) const {
 
 	ordering fixed_ordering = original_ordering;
@@ -27,7 +26,7 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 
 	ordering_tools otools;
 
-	for (list<ordering>::const_iterator vpos = past_ordering.begin();
+	for (std::list<ordering>::const_iterator vpos = past_ordering.begin();
 		vpos != past_ordering.end() && tied; ++vpos) {
 
 		// A rather hackish way of checking that there are more than
@@ -54,15 +53,15 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 // candidates anyway (early majority in IRV notwithstanding). Perhaps find a
 // generalization of early majority, eventually.
 
-pair<ordering, bool> loser_elimination::elect_inner(const
-	list<ballot_group> &
-	papers, const vector<bool> & hopefuls, int num_candidates,
+std::pair<ordering, bool> loser_elimination::elect_inner(const
+	std::list<ballot_group> &
+	papers, const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
-	list<ordering> base_method_tiebreaks;
-	vector<bool> base_hopefuls = hopefuls;
+	std::list<ordering> base_method_tiebreaks;
+	std::vector<bool> base_hopefuls = hopefuls;
 
-	pair<ordering, bool> output;
+	std::pair<ordering, bool> output;
 	output.second = false;
 
 	// Determine the number of hopefuls we have.
@@ -76,11 +75,11 @@ pair<ordering, bool> loser_elimination::elect_inner(const
 	int rank = 0;
 
 	bool debug = false;
-	map<size_t, string> fakecand;
+	std::map<size_t, std::string> fakecand;
 	ordering_tools otools;
 
 	if (debug) {
-		string f = "!";
+		std::string f = "!";
 
 		for (counter = 0; counter < 26; ++counter) {
 			f[0] = (char)('A' + counter);
@@ -91,7 +90,7 @@ pair<ordering, bool> loser_elimination::elect_inner(const
 	// While we have candidates left to add...
 	while (output.first.size() < num_hopefuls) {
 		if (debug) {
-			cout << "Loop de loop, rank is " << rank << endl;
+			std::cout << "Loop de loop, rank is " << rank << std::endl;
 		}
 
 		// Get the output for the base method.
@@ -168,9 +167,9 @@ pair<ordering, bool> loser_elimination::elect_inner(const
 		} else {
 			// DEBUG
 			if (debug)
-				cout << "this_round: " << otools.
+				std::cout << "this_round: " << otools.
 					ordering_to_text(this_round, fakecand,
-						true) << endl;
+						true) << std::endl;
 
 			// Otherwise, break any potential ties, then get
 			// the loser. Note that the tiebreak function will
@@ -183,9 +182,9 @@ pair<ordering, bool> loser_elimination::elect_inner(const
 					base_method_tiebreaks, num_candidates);
 
 			if (debug)
-				cout << "mod_this_round: " << otools.
+				std::cout << "mod_this_round: " << otools.
 					ordering_to_text(mod_this_round,
-						fakecand, true) << endl;
+						fakecand, true) << std::endl;
 
 			// Determine loser and add him to the elimination list,
 			// then actually eliminate him.
@@ -226,9 +225,9 @@ loser_elimination::loser_elimination(const election_method * base_method,
 	cached_name = determine_name();
 }
 
-string loser_elimination::determine_name() const {
+std::string loser_elimination::determine_name() const {
 
-	string ref;
+	std::string ref;
 
 	if (average_loser_elim) {
 		ref = "AVGEliminate-[" + base->name() + "]";

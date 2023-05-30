@@ -38,14 +38,14 @@ int main() {
 	int seed = 999;
 	rng randomizer(seed);
 
-	list<ballot_group> ballots;
+	std::list<ballot_group> ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
 	// cached the Condorcet data, that should be faster than if we haven't,
 	// but one probably needs Valgrind to see the difference.
 
-	vector<pairwise_type> types;
+	std::vector<pairwise_type> types;
 	types.push_back(CM_WV);
 	types.push_back(CM_LV);
 	types.push_back(CM_MARGINS);
@@ -60,7 +60,7 @@ int main() {
 
 	size_t counter;
 
-	vector<election_method *> condorcets;
+	std::vector<election_method *> condorcets;
 
 	for (counter = 0; counter < types.size(); ++counter) {
 		condorcets.push_back(new ext_minmax(types[counter], false));
@@ -82,21 +82,21 @@ int main() {
 	ordering out;
 
 	for (counter = 0; counter < 9001; ++counter) {
-		//cout << counter << endl;
+		//std::cout << counter << std::endl;
 
 		ballots = ic.generate_ballots(100, 4, randomizer);
 		cache.clear();
 
 		for (size_t sec = 0; sec < condorcets.size(); ++sec) {
-			//cout << condorcets[sec]->name() << endl;
+			//std::cout << condorcets[sec]->name() << std::endl;
 			out = condorcets[sec]->elect(ballots, 4, &cache, false);
 		}
 	}
 
 	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p) {
-		cout << (char)('A' + p->get_candidate_num()) << "\t";
+		std::cout << (char)('A' + p->get_candidate_num()) << "\t";
 	}
-	cout << endl;
+	std::cout << std::endl;
 
 	return (0);
 }

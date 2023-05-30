@@ -18,9 +18,9 @@ class ext_antiplurality : public positional {
 		}
 
 	public:
-		ordering pos_elect(const vector<vector<double> > &
+		ordering pos_elect(const std::vector<std::vector<double> > &
 			positional_matrix, int num_hopefuls,
-			const vector<bool> * hopefuls) const {
+			const std::vector<bool> * hopefuls) const {
 
 			// We can get Antiplurality from Plurality by reversing all the
 			// ballots, running Plurality, and reversing the result. In this
@@ -28,10 +28,10 @@ class ext_antiplurality : public positional {
 
 			int numcands = (int)positional_matrix.size();
 
-			std::vector<vector<double > > rev_pos_matrix;
+			std::vector<std::vector<double > > rev_pos_matrix;
 
 			for (size_t i = 0; i < positional_matrix.size(); ++i) {
-				rev_pos_matrix.push_back(vector<double>(
+				rev_pos_matrix.push_back(std::vector<double>(
 						positional_matrix[i].rbegin(),
 						positional_matrix[i].rend()));
 			}
@@ -57,7 +57,7 @@ class ext_antiplurality : public positional {
 		ext_antiplurality(positional_type
 			kind_in) : positional(kind_in), inner_method(kind_in) {}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Ext-Antiplurality");
 		}
 };

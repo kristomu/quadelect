@@ -33,7 +33,6 @@
 
 #include <math.h>
 
-using namespace std;
 
 // TODO? Pare this down somewhat. Max and min can be used to
 // directly construct if-then clauses.
@@ -88,9 +87,9 @@ enum custom_funct_atom {
 
 class custom_function {
 	private:
-		vector<custom_funct_atom> our_function;
-		mutable vector<double> funct_stack;
-		mutable vector<double> test_results;
+		std::vector<custom_funct_atom> our_function;
+		mutable std::vector<double> funct_stack;
+		mutable std::vector<double> test_results;
 
 		const double blancmange_order = 0.67;
 		bool is_generous_to_asymptotes;
@@ -108,22 +107,24 @@ class custom_function {
 		}
 
 		void decode_function(unsigned long long function_number,
-			vector<custom_funct_atom> & output) const;
-		double evaluate(vector<double> & stack,
+			std::vector<custom_funct_atom> & output) const;
+		double evaluate(std::vector<double> & stack,
 			const custom_funct_atom & cur_atom,
-			const vector<double> & input_values,
+			const std::vector<double> & input_values,
 			bool generous_to_asymptotes) const;
-		double evaluate_function(const vector<custom_funct_atom> & function,
-			const vector<double> & input_values,
+		double evaluate_function(const std::vector<custom_funct_atom> & function,
+			const std::vector<double> & input_values,
 			bool reject_large_stack, bool generous_to_asymptotes) const;
 		bool update_suitability(const custom_function & funct_to_test,
-			const vector<vector<double> > & test_in_vectors,
-			map<vector<double>, unsigned long long> & results_already_seen) const;
+			const std::vector<std::vector<double> > & test_in_vectors,
+			std::map<std::vector<double>, unsigned long long> & results_already_seen)
+		const;
 		bool update_ordinal_suitability(const custom_function &
-			funct_to_test, const vector<vector<double> > & test_in_vectors,
-			map<vector<bool>, unsigned long long> & results_already_seen) const;
+			funct_to_test, const std::vector<std::vector<double> > & test_in_vectors,
+			std::map<std::vector<bool>, unsigned long long> & results_already_seen)
+		const;
 
-		string atom_to_word(const custom_funct_atom in) const;
+		std::string atom_to_word(const custom_funct_atom in) const;
 		unsigned long long our_value;
 
 	public:
@@ -137,26 +138,29 @@ class custom_function {
 
 		custom_function(unsigned long long function_number, bool generous_in);
 		custom_function(bool generous_in);
-		double evaluate(const vector<double> & input_values,
+		double evaluate(const std::vector<double> & input_values,
 			bool reject_large_stack, bool generous_to_asymptotes) const;
-		double evaluate(const vector<double> & input_values,
+		double evaluate(const std::vector<double> & input_values,
 			bool reject_large_stack) const;
 
 		// Determine if the function works on the test vectors.
-		bool update_suitability(const vector<vector<double> > & test_in_vectors,
-			map<vector<double>, unsigned long long > & results_already_seen) const {
+		bool update_suitability(const std::vector<std::vector<double> > &
+			test_in_vectors,
+			std::map<std::vector<double>, unsigned long long > & results_already_seen)
+		const {
 			return (update_suitability(*this, test_in_vectors,
 						results_already_seen));
 		}
 
-		bool update_ordinal_suitability(const vector<vector<double> > &
+		bool update_ordinal_suitability(const std::vector<std::vector<double> > &
 			test_in_vectors,
-			map<vector<bool>, unsigned long long > & results_already_seen) const {
+			std::map<std::vector<bool>, unsigned long long > & results_already_seen)
+		const {
 			return (update_ordinal_suitability(*this, test_in_vectors,
 						results_already_seen));
 		}
 
-		vector<string> get_atom_printout() const;
+		std::vector<std::string> get_atom_printout() const;
 		unsigned long long get_value() const {
 			return (our_value);
 		}

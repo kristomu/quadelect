@@ -35,14 +35,14 @@
 
 int main(int argc, const char ** argv) {
 	if (argc < 2) {
-		cerr << "Usage: " << argv[0] << " [brute_rpn_number_list.txt]"
-			<< endl;
+		std::cerr << "Usage: " << argv[0] << " [brute_rpn_number_list.txt]"
+			<< std::endl;
 		return (-1);
 	}
 
 	string name = argv[1];
 	ifstream tests_in(argv[1]);
-	vector<unsigned long long> tests;
+	std::vector<unsigned long long> tests;
 
 	while (!tests_in.eof()) {
 		unsigned long long tin;
@@ -51,8 +51,8 @@ int main(int argc, const char ** argv) {
 	}
 
 
-	cout << "Test time!" << endl;
-	cout << "Thy name is " << name << endl;
+	std::cout << "Test time!" << std::endl;
+	std::cout << "Thy name is " << name << std::endl;
 
 	size_t j;
 	const int stepsize = 1000;
@@ -77,26 +77,26 @@ int main(int argc, const char ** argv) {
 
 			#pragma omp critical
 			{
-				cout << cbp.name() << " results: ";
+				std::cout << cbp.name() << " results: ";
 				if (mono_ok) {
-					cout << "M";
+					std::cout << "M";
 				}
 				if (mat_ok) {
-					cout << "A";
+					std::cout << "A";
 				}
 				if (revsym_ok) {
-					cout << "R";
+					std::cout << "R";
 				}
 				if (liia_ok) {
-					cout << "L";
+					std::cout << "L";
 				}
 				if (wpd_ok) {
-					cout << "P";
+					std::cout << "P";
 				}
 				if (dmtbr_ok) {
-					cout << "D";
+					std::cout << "D";
 				}
-				cout << endl;
+				std::cout << std::endl;
 			}
 		}
 	}

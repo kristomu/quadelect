@@ -2,7 +2,7 @@
 #include "pdom.h"
 
 bool pdom_set::relation(const abstract_condmat & input, int a, int b,
-	const vector<bool> & hopefuls) const {
+	const std::vector<bool> & hopefuls) const {
 	// A Pareto-dominates B if
 	// no voter ranks B ahead of A
 	// and at least one voter ranks A ahead of B

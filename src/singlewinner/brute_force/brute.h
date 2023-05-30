@@ -17,27 +17,26 @@
 #include <iostream>
 #include <assert.h>
 
-using namespace std;
 
 class cond_brute : public election_method {
 	private:
-		vector<int> weights;
+		std::vector<int> weights;
 		int weight_code;
 		int radix;
 
-		vector<int> decode_weight_code(int wcode, int base) const;
+		std::vector<int> decode_weight_code(int wcode, int base) const;
 
 	public:
 		bool failed_liia;
 
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string name() const {
-			string compliances = get_compliances();
+		std::string name() const {
+			std::string compliances = get_compliances();
 			if (compliances != "") {
 				compliances = "/" + compliances;
 			}
@@ -60,7 +59,7 @@ class cond_brute : public election_method {
 		bool is_monotone() const;
 		bool passes_mat() const;
 		bool reversal_symmetric() const;
-		string get_compliances() const;
+		std::string get_compliances() const;
 };
 
 #endif

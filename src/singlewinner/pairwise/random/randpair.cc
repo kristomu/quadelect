@@ -7,8 +7,9 @@
 #include <iostream>
 #include <list>
 
-pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> randpair::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	bool debug = false;
@@ -17,7 +18,7 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 	// added to the output ordering, it is moved to the beginning and
 	// the num_handled counter is incremented. Thus the first pair is
 	// drawn randomly from [0..n], the next pair from [1..n] and so on.
-	vector<int> candidates;
+	std::vector<int> candidates;
 	size_t num_handled = 0;
 
 	size_t counter;
@@ -46,8 +47,8 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 			// victory to the first; since both are picked randomly,
 			// that is unbiased.
 			if (debug)
-				cout << "Checking " << candidates[first]
-					<< " vs " << candidates[second] << endl;
+				std::cout << "Checking " << candidates[first]
+					<< " vs " << candidates[second] << std::endl;
 
 			if (input.get_magnitude(candidates[first],
 					candidates[second], hopefuls) >=
@@ -62,12 +63,12 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 
 		// Admit our winner to the ordering...
 		if (debug)
-			cout << "Winner is " << candidates[winner]
-				<< " and gets " << left << " points." << endl;
+			std::cout << "Winner is " << candidates[winner]
+				<< " and gets " << left << " points." << std::endl;
 
 		toRet.insert(candscore(candidates[winner], left));
 		// and move it out of the way.
-		swap(candidates[winner], candidates[num_handled]);
+		std::swap(candidates[winner], candidates[num_handled]);
 		++num_handled;
 
 		// If we only wanted the winner, add the rest tied last
@@ -79,17 +80,17 @@ pair<ordering, bool> randpair::pair_elect(const abstract_condmat & input,
 			}
 
 			if (debug) {
-				cout << "All done(TRUE)" << endl;
+				std::cout << "All done(TRUE)" << std::endl;
 			}
 
-			return (pair<ordering, bool>(toRet, true));
+			return (std::pair<ordering, bool>(toRet, true));
 		}
 	}
 
 	if (debug) {
-		cout << "All done(FALSE)" << endl;
+		std::cout << "All done(FALSE)" << std::endl;
 	}
 
-	return (pair<ordering, bool>(toRet, false));
+	return (std::pair<ordering, bool>(toRet, false));
 }
 

@@ -5,7 +5,7 @@
 
 int sdom_set::strongly_dominates(int y, int x,
 	const abstract_condmat & input,
-	const vector<bool> & hopeful) const {
+	const std::vector<bool> & hopeful) const {
 
 	// Determine if dominator beats dominated. If so, continue; if it's
 	// the other way around, then get the negative of the result with the
@@ -79,8 +79,9 @@ int sdom_set::strongly_dominates(int y, int x,
 	}
 }
 
-pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	// Make the empty "strongly dominates" matrix.
@@ -88,11 +89,11 @@ pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
 		CM_PAIRWISE_OPP);
 	sdom_matrix.zeroize();
 
-	vector<int> dominated(input.get_num_candidates(), 0);
+	std::vector<int> dominated(input.get_num_candidates(), 0);
 
 	// Fill it with the results.
 	int counter, sec;
-	//cout << "Row dominates col" << endl;
+	//std::cout << "Row dominates col" << std::endl;
 	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
 		if (!hopefuls[counter]) {
 			continue;
@@ -111,10 +112,10 @@ pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
 				sdom_matrix.add(counter, sec, result);
 				assert(sdom_matrix.get_magnitude(counter, sec) == result);
 			}
-			//		cout << sdom_matrix.get_magnitude(counter, sec) << "\t";
+			//		std::cout << sdom_matrix.get_magnitude(counter, sec) << "\t";
 			//sdom_matrix.add(sec, counter, -result);
 		}
-		//	cout << endl;
+		//	std::cout << std::endl;
 	}
 
 	ordering toRet;
@@ -126,8 +127,8 @@ pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat & input,
 		toRet.insert(candscore(counter, -dominated[counter]));
 	}
 
-	return (pair<ordering, bool>(toRet, false));
+	return (std::pair<ordering, bool>(toRet, false));
 
 	// Return the Smith set for this matrix.
-	//return(pair<ordering,bool>(nested_sets(sdom_matrix, hopefuls), false));
+	//return(std::pair<ordering,bool>(nested_sets(sdom_matrix, hopefuls), false));
 }

@@ -8,11 +8,10 @@
 
 #include "vmedian.h"
 
-using namespace std;
 
 grad_fracile vi_median_ratings::aggregate_ratings(
-	const list<ballot_group> & papers, int num_candidates,
-	const vector<bool> & hopefuls, bool do_norm, double minimum,
+	const std::list<ballot_group> & papers, int num_candidates,
+	const std::vector<bool> & hopefuls, bool do_norm, double minimum,
 	double maximum) const {
 
 	// Not-hopefuls get zeroes. Hopefuls get rated as the ballot specifies,
@@ -23,7 +22,7 @@ grad_fracile vi_median_ratings::aggregate_ratings(
 
 	double score;
 
-	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 
 		double local_min = INFINITY, local_max = -INFINITY;
@@ -36,8 +35,8 @@ grad_fracile vi_median_ratings::aggregate_ratings(
 		if (do_norm)
 			for (opos = pos->contents.begin();
 				opos != pos->contents.end(); ++opos) {
-				local_min = min(local_min, opos->get_score());
-				local_max = max(local_max, opos->get_score());
+				local_min = std::min(local_min, opos->get_score());
+				local_max = std::max(local_max, opos->get_score());
 			}
 
 		for (opos = pos->contents.begin(); opos != pos->contents.end();
@@ -56,7 +55,7 @@ grad_fracile vi_median_ratings::aggregate_ratings(
 				score = minimum;
 			}
 
-			score = min(maximum, max(minimum, score));
+			score = std::min(maximum, std::max(minimum, score));
 
 			assert(out.add_rating(opos->get_candidate_num(),
 					pos->weight, score));
@@ -73,11 +72,12 @@ grad_fracile vi_median_ratings::aggregate_ratings(
 	return (out);
 }
 
-pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
+std::pair<ordering, bool> vi_median_ratings::get_ranks(
+	grad_fracile & source,
 	double fracile, bool tiebreak, bool winner_only,
 	bool debug) const {
 
-	list<pair<double, int> > l_ordering;
+	std::list<std::pair<double, int> > l_ordering;
 
 	gf_comparand comparison(&source);
 	bool broke_early = false, updated = true;
@@ -86,14 +86,14 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 	// being, though it may not be optimal.
 	assert(source.init(fracile, GF_NONE));
 
-	list<pair<double, int> >::iterator opos, obpos;
+	std::list<std::pair<double, int> >::iterator opos, obpos;
 	size_t iter = 0, counter;
 
 	// Create our ordering struct with the initial state of every candidate
 	// being tied with each other.
 	for (counter = 0; counter < source.get_num_candidates(); ++counter)
 		if (source.is_hopeful(counter)) {
-			l_ordering.push_back(pair<double, int>(0, counter));
+			l_ordering.push_back(std::pair<double, int>(0, counter));
 		}
 
 	// While some boxes are finite, there are ties left, and we haven't
@@ -104,7 +104,7 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 		++iter;
 
 		if (debug) {
-			cout << "Iter " << iter << endl;
+			std::cout << "Iter " << iter << std::endl;
 
 			for (counter = 0; counter < source.get_num_candidates();
 				++counter) {
@@ -112,12 +112,12 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 					continue;
 				}
 
-				cout << "Candidate " << counter << ": " <<
+				std::cout << "Candidate " << counter << ": " <<
 					source.get_score(counter)<< "\t left: ";
 				source.print_next_pair(counter, true);
-				cout << " right: ";
+				std::cout << " right: ";
 				source.print_next_pair(counter, false);
-				cout << endl;
+				std::cout << std::endl;
 			}
 		}
 
@@ -127,7 +127,7 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 
 		if (source.ordinal_changed()) {
 			if (debug) {
-				cout << "-Changed-" << endl;
+				std::cout << "-Changed-" << std::endl;
 			}
 			l_ordering.sort(comparison); // Sort the list.
 		}
@@ -146,7 +146,7 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 		// For #1, compare against #2. We can't do this by reference,
 		// otherwise, #2 could think it was different from #1 simply
 		// because #1 was changed first. BLUESKY: Do better?
-		pair<double, int> o_last = *(++l_ordering.begin());
+		std::pair<double, int> o_last = *(++l_ordering.begin());
 
 		for (opos = l_ordering.begin(); source.ordinal_changed() &&
 			opos != l_ordering.end(); ++opos) {
@@ -162,9 +162,9 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 						!comparison.equals(*opos
 							, *obpos))) {
 					if (debug)
-						cout << "Tie for " <<
+						std::cout << "Tie for " <<
 							opos->second
-							<< " broken." << endl;
+							<< " broken." << std::endl;
 					source.exclude(opos->second);
 				}
 			}
@@ -193,14 +193,14 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 		if (winner_only && !source.is_hopeful(l_ordering.rbegin()->
 				second)) {
 			if (debug) {
-				cout << "Broke early." << endl;
+				std::cout << "Broke early." << std::endl;
 			}
 			broke_early = true;
 		}
 
 		// repeat.
 		if (debug) {
-			cout << endl;
+			std::cout << std::endl;
 		}
 	}
 
@@ -213,9 +213,9 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 		double eff_voters = source.lget_eff_voters(opos->second);
 
 		if (debug)
-			cout << "Candidate " << opos->second << " has score "
+			std::cout << "Candidate " << opos->second << " has score "
 				<< opos->first << " supported by "
-				<< eff_voters << " effective v." << endl;
+				<< eff_voters << " effective v." << std::endl;
 
 		// Use the number of effective voters as a final tiebreak. We
 		// add 2 so that the maximum alteration is definitely less than
@@ -230,14 +230,14 @@ pair<ordering, bool> vi_median_ratings::get_ranks(grad_fracile & source,
 	}
 
 	if (debug) {
-		cout << iter << " iterations." << endl << endl;
+		std::cout << iter << " iterations." << std::endl << std::endl;
 	}
 
-	return (pair<ordering, bool>(out, broke_early));
+	return (std::pair<ordering, bool>(out, broke_early));
 }
 
-pair<ordering, bool> vi_median_ratings::elect_inner(
-	const list<ballot_group> & papers,const vector<bool> & hopefuls,
+std::pair<ordering, bool> vi_median_ratings::elect_inner(
+	const std::list<ballot_group> & papers,const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * /*cache*/, bool winner_only) const {
 
 	// First, get the ballots into a more managable format.
@@ -248,8 +248,8 @@ pair<ordering, bool> vi_median_ratings::elect_inner(
 	return (get_ranks(grad_struct, 0.5, use_tiebreak, winner_only, false));
 }
 
-string vi_median_ratings::determine_name() const {
-	string base = "Var.Median-" + dtos(med_maximum) + "(";
+std::string vi_median_ratings::determine_name() const {
+	std::string base = "Var.Median-" + dtos(med_maximum) + "(";
 	if (normalize) {
 		base += "norm";
 

@@ -5,7 +5,7 @@
 #include <list>
 
 std::list<pairwise_method *> get_pairwise_methods(
-	const list<pairwise_type> & types, bool include_experimental);
+	const std::list<pairwise_type> & types, bool include_experimental);
 
 std::list<positional *> get_positional_methods(bool truncate);
 
@@ -15,10 +15,10 @@ template <typename T, typename Q> std::list<election_method *> expand_meta(
 	const std::list<T *> & base_methods, const std::list<Q *> & sets,
 	bool elimination_works) {
 
-	list<election_method *> kombinat;
-	typename list<Q *>::const_iterator spos;
+	std::list<election_method *> kombinat;
+	typename std::list<Q *>::const_iterator spos;
 
-	for (typename list<T *>::const_iterator pos = base_methods.begin();
+	for (typename std::list<T *>::const_iterator pos = base_methods.begin();
 		pos != base_methods.end(); ++pos) {
 		for (spos = sets.begin(); spos != sets.end(); ++spos) {
 			if ((*pos)->name() == (*spos)->name()) {

@@ -69,7 +69,7 @@ class dsc : public desc_coalition_method {
 			int num_candidates) const;
 
 	public:
-		string name() const {
+		std::string name() const {
 			return ("DSC");
 		}
 };

@@ -17,7 +17,6 @@
 #include "../method.h"
 #include "../../pairwise/matrix.h"
 
-using namespace std;
 
 class least_rev : public pairwise_method {
 	private:
@@ -28,10 +27,10 @@ class least_rev : public pairwise_method {
 		double spow(const double & num, const double & exponent) const;
 
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
-		string pw_name() const;
+		std::string pw_name() const;
 		least_rev(pairwise_type def_type_in);
 		least_rev(pairwise_type def_type_in, bool offense, bool defense,
 			double power_in);

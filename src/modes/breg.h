@@ -29,11 +29,11 @@ class bayesian_regret : public mode {
 
 		stats_type br_type;
 
-		vector<pure_ballot_generator *> generators;
-		vector<const election_method *> methods;
-		vector<stats<float> > method_stats;
+		std::vector<pure_ballot_generator *> generators;
+		std::vector<const election_method *> methods;
+		std::vector<stats<float> > method_stats;
 
-		vector<double> utilities;
+		std::vector<double> utilities;
 
 	public:
 
@@ -63,15 +63,15 @@ class bayesian_regret : public mode {
 			size_t min_cand_in, size_t max_cand_in,
 			size_t min_voters_in, size_t max_voters_in,
 			bool show_median_in, stats_type br_type_in,
-			list<pure_ballot_generator *> & generators_in,
-			list<const election_method *> & methods_in);
+			std::list<pure_ballot_generator *> & generators_in,
+			std::list<const election_method *> & methods_in);
 
 		bayesian_regret(size_t maxiters_in,
 			size_t min_cand_in, size_t max_cand_in,
 			size_t min_voters, size_t max_voters,
 			bool show_median_in, stats_type br_type_in,
-			list<pure_ballot_generator *> & generators_in,
-			list<const election_method *> & methods_in);
+			std::list<pure_ballot_generator *> & generators_in,
+			std::list<const election_method *> & methods_in);
 
 		// Create stats for a single method given by its index
 		// in the methods array.
@@ -92,13 +92,13 @@ class bayesian_regret : public mode {
 		// INTERROUND going on at the same time, for instance.
 		// Hm, that will be harder than I thought... I may need
 		// hash names to do that properly.
-		string do_round(bool give_brief_status, bool reseed,
+		std::string do_round(bool give_brief_status, bool reseed,
 			rng & randomizer, cache_map * cache);
 
-		string do_round(bool give_brief_status, bool reseed,
+		std::string do_round(bool give_brief_status, bool reseed,
 			rng & randomizer);
 
-		vector<string> provide_status() const;
+		std::vector<std::string> provide_status() const;
 };
 
 // These have to be in the header since they're templated functions.

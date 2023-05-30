@@ -10,13 +10,12 @@
 #include "../singlewinner/brute_force/rpn/custom_func.h"
 #include "../singlewinner/brute_force/bruterpn.h"
 
-using namespace std;
 
-vector<vector<double> > create_test_vectors(int how_many) {
-	vector<vector<double> > test_vectors;
+std::vector<std::vector<double> > create_test_vectors(int how_many) {
+	std::vector<std::vector<double> > test_vectors;
 
 	for (int test = 0; test < how_many; ++test) {
-		vector<double> this_test(6, 0);
+		std::vector<double> this_test(6, 0);
 		for (int tidx = 0; tidx < 6; ++tidx) {
 			this_test[tidx] = drand48()*8191;
 		}
@@ -26,7 +25,7 @@ vector<vector<double> > create_test_vectors(int how_many) {
 	return (test_vectors);
 }
 
-void get_digits_msb(list<int> & output, unsigned long long number,
+void get_digits_msb(std::list<int> & output, unsigned long long number,
 	int radix) {
 
 	if (number == 0) {
@@ -37,11 +36,12 @@ void get_digits_msb(list<int> & output, unsigned long long number,
 	get_digits_msb(output, number/radix, radix);
 }
 
-unsigned long long digits_to_number(const list<int> & input, int radix) {
+unsigned long long digits_to_number(const std::list<int> & input,
+	int radix) {
 
 	unsigned long long num_out = 0;
 
-	for (list<int>::const_iterator pos = input.begin();
+	for (std::list<int>::const_iterator pos = input.begin();
 		pos != input.end(); ++pos) {
 
 		num_out = num_out * radix + *pos;
@@ -55,13 +55,13 @@ unsigned long long digits_to_number(const list<int> & input, int radix) {
 // transform it into a bruterpn number that obeys that constraint.
 // (Explain better later)
 unsigned long long transform_rpn_number_only_these(unsigned long long idx,
-	const vector<custom_funct_atom> & permitted) {
+	const std::vector<custom_funct_atom> & permitted) {
 
-	list<int> digits;
+	std::list<int> digits;
 
 	get_digits_msb(digits, idx, permitted.size());
 
-	for (list<int>::iterator pos = digits.begin(); pos != digits.end();
+	for (std::list<int>::iterator pos = digits.begin(); pos != digits.end();
 		++pos) {
 
 		*pos = (int)permitted[*pos];
@@ -73,15 +73,16 @@ unsigned long long transform_rpn_number_only_these(unsigned long long idx,
 
 
 int main() {
-	vector<double> initvalues= {1, 2, 3, 4, 5, 6};
-	map<vector<double>, unsigned long long> already_seen;
-	map<vector<bool>, unsigned long long> already_seen_ordinal;
+	std::vector<double> initvalues= {1, 2, 3, 4, 5, 6};
+	std::map<std::vector<double>, unsigned long long> already_seen;
+	std::map<std::vector<bool>, unsigned long long> already_seen_ordinal;
 
 	int numtests = 8;
 	int numtests_ordinal = 128;
 
-	vector<vector<double> > test_vectors = create_test_vectors(numtests);
-	vector<vector<double> > test_vectors_ordinal =
+	std::vector<std::vector<double> > test_vectors = create_test_vectors(
+			numtests);
+	std::vector<std::vector<double> > test_vectors_ordinal =
 		create_test_vectors(numtests_ordinal);
 
 	custom_function cf(8469866259);
@@ -90,22 +91,22 @@ int main() {
 	unsigned long long funct_id;
 	unsigned long long start_at = 0;
 
-	vector<custom_funct_atom> permitted = {VAL_IN_ABC, VAL_IN_ACB,
-								  VAL_IN_BAC, VAL_IN_BCA, VAL_IN_CAB, VAL_IN_CBA, VAL_IN_FPA,
-								  VAL_IN_FPB, VAL_IN_FPC, VAL_IN_AbB, VAL_IN_AbC, VAL_IN_BbA,
-								  VAL_IN_BbC, VAL_IN_CbB, VAL_IN_CbA,
-								  VAL_IN_ALL, VAL_ZERO, VAL_ONE, VAL_TWO, UNARY_FUNC_NEG,
-								  BINARY_FUNC_PLUS, BINARY_FUNC_MINUS, BINARY_FUNC_MAX,
-								  BINARY_FUNC_MIN
-							  };
+	std::vector<custom_funct_atom> permitted = {VAL_IN_ABC, VAL_IN_ACB,
+									   VAL_IN_BAC, VAL_IN_BCA, VAL_IN_CAB, VAL_IN_CBA, VAL_IN_FPA,
+									   VAL_IN_FPB, VAL_IN_FPC, VAL_IN_AbB, VAL_IN_AbC, VAL_IN_BbA,
+									   VAL_IN_BbC, VAL_IN_CbB, VAL_IN_CbA,
+									   VAL_IN_ALL, VAL_ZERO, VAL_ONE, VAL_TWO, UNARY_FUNC_NEG,
+									   BINARY_FUNC_PLUS, BINARY_FUNC_MINUS, BINARY_FUNC_MAX,
+									   BINARY_FUNC_MIN
+								   };
 
 	bool use_only_permitted_tokens = false;
 	bool require_monotone = false;
 
 	for (unsigned long long i = start_at; i >= 0; ++i) {
 		if ((i & 8388607) == 0)
-			cerr << i << "  " << round(100.0*log(i+1-start_at)/log(10))/
-				100.0 << "     \r" << flush;
+			std::cerr << i << "  " << round(100.0*log(i+1-start_at)/log(10))/
+				100.0 << "     \r" << std::flush;
 
 		if (use_only_permitted_tokens) {
 			funct_id = transform_rpn_number_only_these(i, permitted);
@@ -116,28 +117,28 @@ int main() {
 		cf.set_id(funct_id);
 		cbp.set_funct_code(funct_id, false);
 
-		/*cout << "Function " << funct_id << ": ";
-		vector<string> printout = cf.get_atom_printout();
+		/*std::cout << "Function " << funct_id << ": ";
+		std::vector<std::string> printout = cf.get_atom_printout();
 		    copy(printout.begin(), printout.end(),
-		        ostream_iterator<string>(cout, " "));*/
+		        std::ostream_iterator<std::string>(std::cout, " "));*/
 		if (cf.update_suitability(test_vectors, already_seen)) {
 			if (require_monotone && cbp.check_monotonicity(40000) > 0) {
-				//cout << "Not monotone" << endl;
+				//std::cout << "Not monotone" << std::endl;
 				continue;
 			}
 			if (!cf.update_ordinal_suitability(test_vectors_ordinal,
 					already_seen_ordinal)) {
-				//cout << "(fail ordinal)" << endl;
+				//std::cout << "(fail ordinal)" << std::endl;
 				continue;
 			}
-			cout << "Function " << funct_id << ": ";
-			cout << "OK, " << cf.evaluate(initvalues, false) << "\t";
-			vector<string> printout = cf.get_atom_printout();
+			std::cout << "Function " << funct_id << ": ";
+			std::cout << "OK, " << cf.evaluate(initvalues, false) << "\t";
+			std::vector<std::string> printout = cf.get_atom_printout();
 			copy(printout.begin(), printout.end(),
-				ostream_iterator<string>(cout, " "));
-			cout << endl;
+				std::ostream_iterator<std::string>(std::cout, " "));
+			std::cout << std::endl;
 		} else {
-			//cout << "(fail cardinal)" << endl;
+			//std::cout << "(fail cardinal)" << std::endl;
 		}
 	}
 

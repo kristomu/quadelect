@@ -62,11 +62,13 @@
 
 #include "../random/random.h"
 
-vector<vector<bool> > get_impromptu_cm(const ordering & a, int numcands) {
+std::vector<std::vector<bool> > get_impromptu_cm(const ordering & a,
+	int numcands) {
 
 	// toRet[a][b] is 1 if the voter ranked A above B, otherwise 0.
 
-	vector<vector<bool> > toRet(numcands, vector<bool>(numcands, false));
+	std::vector<std::vector<bool> > toRet(numcands, std::vector<bool>(numcands,
+			false));
 
 	for (ordering::const_iterator pos = a.begin(); pos != a.end(); ++pos) {
 		ordering::const_iterator sec = pos;
@@ -80,13 +82,13 @@ vector<vector<bool> > get_impromptu_cm(const ordering & a, int numcands) {
 	return (toRet);
 }
 
-void ktau(const vector<ordering> & orderings,
-	vector<vector<double> > & distances, int numcands) {
+void ktau(const std::vector<ordering> & orderings,
+	std::vector<std::vector<double> > & distances, int numcands) {
 
 	// Make CMs
 	int num_methods = orderings.size();
 
-	vector<vector<vector<bool> > > cms(num_methods);
+	std::vector<std::vector<std::vector<bool> > > cms(num_methods);
 
 	int counter, sec;
 
@@ -113,7 +115,7 @@ void ktau(const vector<ordering> & orderings,
 
 set<int> get_winners(const ordering & a) {
 
-	set<int> winners_a; // You don't like winners. Winners? Yes, winners.
+	std::set<int> winners_a; // You don't like winners. Winners? Yes, winners.
 
 	for (ordering::const_iterator pos = a.begin(); pos != a.end() &&
 		pos->get_score() == a.begin()->get_score(); ++pos) {
@@ -123,11 +125,11 @@ set<int> get_winners(const ordering & a) {
 	return (winners_a);
 }
 
-void winner_check(const vector<ordering> & orderings,
-	vector<vector<double> > & distances, int numcands) {
+void winner_check(const std::vector<ordering> & orderings,
+	std::vector<std::vector<double> > & distances, int numcands) {
 
-	vector<set<int> > winners;
-	vector<int> symdif, unions;
+	std::vector<std::set<int> > winners;
+	std::vector<int> symdif, unions;
 	size_t counter, sec;
 
 	for (counter = 0; counter < orderings.size(); ++counter) {
@@ -174,14 +176,14 @@ int main() {
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots;
+	std::list<ballot_group> ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
 	// cached the Condorcet data, that should be faster than if we haven't,
 	// but one probably needs Valgrind to see the difference.
 
-	vector<pairwise_ident> types;
+	std::vector<pairwise_ident> types;
 	types.push_back(CM_WV);
 	//types.push_back(CM_LV);
 	//types.push_back(CM_MARGINS);
@@ -196,8 +198,8 @@ int main() {
 
 	size_t counter;
 
-	vector<election_method *> condorcets;
-	vector<stats<float> > method_stats;
+	std::vector<election_method *> condorcets;
+	std::vector<stats<float> > method_stats;
 
 	stats_type br_type = MS_INTERROUND;
 
@@ -243,10 +245,10 @@ int main() {
 
 		election_method * p = *condorcets.rbegin();
 
-		cout << "Last is " << p->name() << endl;
+		std::cout << "Last is " << p->name() << std::endl;
 	}
 
-	vector<completion_type> ct;
+	std::vector<completion_type> ct;
 	ct.push_back(GF_NONE);
 	// Doesn't matter, only slows us down.
 	/*ct.push_back(GF_LEAST);
@@ -320,7 +322,7 @@ int main() {
 	condorcets.push_back(new schulze(CM_MARGINS));*/
 
 	// Some positional ones and other fun.
-	vector<election_method *> condorcetsp;
+	std::vector<election_method *> condorcetsp;
 	condorcetsp.push_back(new plurality(PT_WHOLE));
 	condorcetsp.push_back(new borda(PT_WHOLE));
 	condorcetsp.push_back(new antiplurality(PT_WHOLE));
@@ -370,9 +372,10 @@ int main() {
 		method_stats.push_back(stats<float>(br_type,
 				condorcets[counter]->name(), false));
 
-	cout << "There are " << condorcets.size() << " methods." << endl;
+	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
 
-	vector<vector<double> > distances(condorcets.size(), vector<double>(
+	std::vector<std::vector<double> > distances(condorcets.size(),
+		std::vector<double>(
 			condorcets.size(), 0));
 
 	// 900 times:
@@ -396,16 +399,16 @@ int main() {
 	int initial_numcands = 12, numcands;
 
 	int report_freq = 1000;
-	vector<double> utilities(initial_numcands);
+	std::vector<double> utilities(initial_numcands);
 
-	map<int, string> rcl;
+	std::map<int, std::string> rcl;
 	for (counter = 0; counter < 26; ++counter) {
 		string foo = "A";
 		foo[0] = 'A' + counter;
 		rcl[counter] = foo;
 	}
 
-	vector<ordering> outputs(condorcets.size());
+	std::vector<ordering> outputs(condorcets.size());
 
 	double maxiters = 4000;
 
@@ -420,8 +423,9 @@ int main() {
 
 		/*numcands = 6;
 		numvoters = 13;*/
-		cout << counter << ": " << numcands << " cands, " << numvoters << " voters"
-			<< endl;
+		std::cout << counter << ": " << numcands << " cands, " << numvoters <<
+			" voters"
+			<< std::endl;
 
 		if (counter % 2 == 0) {
 			ballots = ic.generate_ballots(numvoters, numcands, randomizer);
@@ -446,8 +450,8 @@ int main() {
 		size_t sec;
 
 		for (sec = 0; sec < condorcets.size(); ++sec) {
-			/*cout << "Now testing " << condorcets[sec]->name()
-				<< endl;*/
+			/*std::cout << "Now testing " << condorcets[sec]->name()
+				<< std::endl;*/
 			outputs[sec] = condorcets[sec]->elect(ballots,
 					numcands, &cache, false);
 			out = outputs[sec];
@@ -467,8 +471,8 @@ int main() {
 			method_stats[sec].add_result(maxval, nominator/
 				denominator, minval);
 			if (counter % report_freq == 0) {
-				cout << method_stats[sec].
-					display_stats(false, 0.05) << endl;
+				std::cout << method_stats[sec].
+					display_stats(false, 0.05) << std::endl;
 			}
 		}
 
@@ -482,13 +486,14 @@ int main() {
 		}
 
 	synth_coordinates test;
-	vector<coord> coords = test.generate_random_coords(distances.size(), 2);
+	std::vector<coord> coords = test.generate_random_coords(distances.size(),
+			2);
 
 	coord minimum = coords[0], maximum = coords[0];
 	for (counter = 0; counter < coords.size(); ++counter)
 		for (sec = 0; sec < coords[counter].size(); ++sec) {
-			minimum[sec] = min(minimum[sec], coords[counter][sec]);
-			maximum[sec] = max(maximum[sec], coords[counter][sec]);
+			minimum[sec] = std::min(minimum[sec], coords[counter][sec]);
+			maximum[sec] = std::max(maximum[sec], coords[counter][sec]);
 		}
 
 	for (counter = 0; counter < coords.size(); ++counter)
@@ -497,25 +502,25 @@ int main() {
 			coords[counter][sec] /= (maximum[0]-minimum[0]);
 		}
 
-	cout << "Distance dump." << endl;
+	std::cout << "Distance dump." << std::endl;
 	for (counter = 0; counter < coords.size(); ++counter) {
-		cout << condorcets[counter]->name() << endl;
+		std::cout << condorcets[counter]->name() << std::endl;
 	}
 
 	for (counter = 0; counter < coords.size(); ++counter) {
 		for (sec = 0; sec < coords.size(); ++sec) {
-			cout << distances[counter][sec] << " ";
+			std::cout << distances[counter][sec] << " ";
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 
-	cout << endl << endl;
+	std::cout << std::endl << std::endl;
 
 	for (counter = 0; counter < coords.size(); ++counter) {
 		copy(coords[counter].begin(), coords[counter].end(),
-			ostream_iterator<double>(cout, " "));
-		cout << method_stats[counter].get_mean();
-		cout << "\t" << condorcets[counter]->name() << endl;
+			std::ostream_iterator<double>(std::cout, " "));
+		std::cout << method_stats[counter].get_mean();
+		std::cout << "\t" << condorcets[counter]->name() << std::endl;
 	}
 
 	return (0);

@@ -33,26 +33,25 @@
 #include <vector>
 #include <map>
 
-using namespace std;
 
 class twotest_engine {
 
 	private:
 		// Tests, methods, and generator in use.
-		vector<twotest *> tests;
-		vector<election_method *> methods;
+		std::vector<twotest *> tests;
+		std::vector<election_method *> methods;
 		pure_ballot_generator * generator;
 
 		// Map from name to vector index
-		map<string, int> test_index;
-		map<string, int> method_index;
+		std::map<std::string, int> test_index;
+		std::map<std::string, int> method_index;
 
 		// Data about which methods fail which criteria, and if so,
 		// disproofs of criterion compliance. This is test-major, i.e.
 		// data for method x and criterion y is [y][x].
 		// TODO BLUESKY: Some kind of way we can specify beforehand
 		// criteria we do know the method fails.
-		vector<vector<method_test_info> > method_pass_status;
+		std::vector<std::vector<method_test_info> > method_pass_status;
 
 		unsigned int num_iterations;
 
@@ -131,7 +130,7 @@ twotest_engine::twotest_engine(unsigned int max_iters, bool effective,
 	set_num_candidates(min_cands, max_cands);
 }
 
-// Should be vector<ternary> either inapp for inapplicable, or true/false.
+// Should be std::vector<ternary> either inapp for inapplicable, or true/false.
 // For the test in question, we generate random data and then check which
 // methods (method outcomes, really) that are applicable with regards to the
 // data. These are grouped together and we then generate a common modified
@@ -142,17 +141,17 @@ twotest_engine::twotest_engine(unsigned int max_iters, bool effective,
 // If twotests could have a function that would coax data to fit a certain
 // outcome (e.g. set a given winner for monotonicity), then we could speed
 // up this part by a lot.
-void twotest_engine::run_single_test(const vector<ordering> &
+void twotest_engine::run_single_test(const std::vector<ordering> &
 	base_outcomes,
-	const list<ballot_group> & original_ballots, int num_candidates,
+	const std::list<ballot_group> & original_ballots, int num_candidates,
 	int num_nc_iters, const twotest * test, const
-	vector<election_method *> & methods_to_test, const
-	vector<method_test_info> & compliance_data,
+	std::vector<election_method *> & methods_to_test, const
+	std::vector<method_test_info> & compliance_data,
 	bool skip_already_false) {
 
 	// Perhaps pass this later. We'll see. Profile first, and only then
 	// optimize.
-	vector<ternary> status(methods_to_test.size(), TINAPP);
+	std::vector<ternary> status(methods_to_test.size(), TINAPP);
 
 	int methods_left = methods_to_test.size();
 
@@ -223,7 +222,7 @@ void twotest_engine::run_single_test(const vector<ordering> &
 		// Otherwise, generate the modified ballot set and start
 		// testing! They might still not be applicable, but we don't
 		// know that yet.
-		pair<bool, list<ballot_group> > arrangement =
+		std::pair<bool, std::list<ballot_group> > arrangement =
 			test->rearrange_ballots(original_ballots,
 				num_candidates, data);
 
@@ -274,8 +273,8 @@ bool twotest_engine::run_tests(int iterations) {
 
 	cache_map orig_cache, mod_cache;
 
-	list<election_method *> used, unused;
-	list<twotest *> applicable;
+	std::list<election_method *> used, unused;
+	std::list<twotest *> applicable;
 
 	int counter, sec, tri;
 
@@ -286,7 +285,7 @@ bool twotest_engine::run_tests(int iterations) {
 		int num_voters = bracket_random(min_num_voters, max_num_voters);
 		int num_cands = bracket_random(min_num_cands, max_num_cands);
 
-		list<ballot_group> base_ballot = generator->generate_ballots(
+		std::list<ballot_group> base_ballot = generator->generate_ballots(
 				num_voters, num_cands);
 
 		// Group together all tests that can build upon this
@@ -298,7 +297,7 @@ bool twotest_engine::run_tests(int iterations) {
 		// TODO: Winner_only based on whether we need more data than the
 		// winner or not.
 
-		list<ordering> base_outcomes;
+		std::list<ordering> base_outcomes;
 		orig_cache.clear();
 
 		for (sec = 0; sec < methods.size(); ++sec)
@@ -309,11 +308,11 @@ bool twotest_engine::run_tests(int iterations) {
 		// as well as the methods for which that test's data settings
 		// are applicable.
 
-		list<tests> workable;
-		list<list<methods> > applicable_tests;
+		std::list<tests> workable;
+		std::list<std::list<methods> > applicable_tests;
 		for (sec = 0; sec < tests.size(); ++sec) {
-			list<method> applicable_this;
-			for (list<ordering>::const_iterator binc =
+			std::list<method> applicable_this;
+			for (std::list<ordering>::const_iterator binc =
 					base_outcomes.begin();
 				binc != base_outcomes.end(); ++binc)
 				if (tests[sec]->applicable(*binc, data, true)) {

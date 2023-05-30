@@ -6,11 +6,10 @@
 
 #include "spatial.h"
 
-using namespace std;
 
 class uniform_generator : public spatial_generator {
 	protected:
-		vector<double> rnd_vector(size_t size, rng & random_source) const;
+		std::vector<double> rnd_vector(size_t size, rng & random_source) const;
 
 	public:
 		uniform_generator() : spatial_generator() {
@@ -38,7 +37,7 @@ class uniform_generator : public spatial_generator {
 			set_dispersion(0.5); set_center(0.5);
 		}
 
-		string name() const {
+		std::string name() const {
 			return ("Uniform spatial");
 		}
 };

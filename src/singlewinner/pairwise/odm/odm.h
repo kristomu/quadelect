@@ -12,7 +12,6 @@
 
 #include "odm_gen.h"
 
-using namespace std;
 
 class odm : public odm_gen {
 
@@ -21,11 +20,11 @@ class odm : public odm_gen {
 			double opposing_strength) const;
 
 		// No intra-round normalization.
-		void ir_norm(vector<double> & factors) const {}
+		void ir_norm(std::vector<double> & factors) const {}
 
 		double get_score(double offense, double defense) const;
 
-		string odm_name() const;
+		std::string odm_name() const;
 
 	public:
 		odm(pairwise_type def_type_in, double tolerance_in) :

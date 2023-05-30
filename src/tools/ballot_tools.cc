@@ -5,13 +5,12 @@
 
 #include <iterator>
 
-using namespace std;
 
 // TODO: Handle more than 26 candidates??
-map<size_t, string> get_default_candidate_labeling() {
-	map<size_t, string> fakecand;
+std::map<size_t, std::string> get_default_candidate_labeling() {
+	std::map<size_t, std::string> fakecand;
 
-	string f = "!";
+	std::string f = "!";
 
 	for (int counter = 0; counter < 26; ++counter) {
 		f[0] = (char)('A' + counter);
@@ -154,9 +153,9 @@ ordering ordering_tools::scrub_scores_by_cand(const ordering & in) const {
 	return (out);
 }
 
-list<int> ordering_tools::get_winners(const ordering & in) const {
+std::list<int> ordering_tools::get_winners(const ordering & in) const {
 
-	list<int> toRet;
+	std::list<int> toRet;
 
 	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
 		pos->get_score() == in.begin()->get_score(); ++pos) {
@@ -183,7 +182,7 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 		return (tied);
 	}
 
-	vector<double> tiebreaker_diff(num_candidates, 0);
+	std::vector<double> tiebreaker_diff(num_candidates, 0);
 
 	// Find minimum and maximum for tiebreaker
 	// Well, those are just tiebreaker.rbegin() and tiebreaker.begin() resp.
@@ -263,29 +262,29 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	size_t counter;
 	bool debug = false;
 
-	map<size_t, string> fakecand;
+	std::map<size_t, std::string> fakecand;
 	if (debug) {
 		// DEBUG.
 		for (counter = 0; counter < 26; ++counter) {
 			fakecand[counter] = (char)('A' + counter);
 		}
 
-		cout << "Tied: " << ordering_to_text(tied, fakecand, true)
-			<< endl;
-		cout << "Tiebreak: " << ordering_to_text(tiebreaker, fakecand,
-				true) << endl;
+		std::cout << "Tied: " << ordering_to_text(tied, fakecand, true)
+			<< std::endl;
+		std::cout << "Tiebreak: " << ordering_to_text(tiebreaker, fakecand,
+				true) << std::endl;
 	}
 
-	typedef pair<pair<int, int>, int> sorter;
+	typedef std::pair<std::pair<int, int>, int> sorter;
 	// We don't want candidates who aren't used in the tied ballot to be
 	// on the result ballot.
 	std::vector<bool> used_candidate(num_candidates, false);
 
-	vector<sorter> to_sort(num_candidates);
+	std::vector<sorter> to_sort(num_candidates);
 
 	for (counter = 0; counter < to_sort.size(); ++counter) {
 		to_sort[counter].second = counter;
-		to_sort[counter].first = pair<int, int>(-10, -10);
+		to_sort[counter].first = std::pair<int, int>(-10, -10);
 	}
 
 	ordering::const_reverse_iterator rpos = tied.rbegin(), old_pos =
@@ -324,14 +323,14 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 
 	// Sort...
 
-	sort(to_sort.begin(), to_sort.end(), greater<sorter>());
+	sort(to_sort.begin(), to_sort.end(), std::greater<sorter>());
 
 	// And read off.
 
 	ordering output;
 	rank_count = 0;
-	vector<sorter>::const_reverse_iterator spos = to_sort.rbegin(),
-										   old_spos = spos;
+	std::vector<sorter>::const_reverse_iterator spos = to_sort.rbegin(),
+												old_spos = spos;
 	if (used_candidate[spos->second]) {
 		output.insert(candscore(spos->second, rank_count));
 	}
@@ -348,8 +347,8 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	}
 
 	if (debug)
-		cout << "Output: " << ordering_to_text(output, fakecand, true)
-			<< endl;
+		std::cout << "Output: " << ordering_to_text(output, fakecand, true)
+			<< std::endl;
 
 	return (output);
 }
@@ -372,14 +371,14 @@ bool ordering_tools::has_equal_rank(const ordering & to_check) const {
 	return (equal_rank);
 }
 
-string ordering_tools::ordering_to_text(const ordering & rank_ballot,
-	const map<size_t, string> & reverse_cand_lookup,
+std::string ordering_tools::ordering_to_text(const ordering & rank_ballot,
+	const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
 	double oldscore = -INFINITY;
 	bool first = true;
 
-	string out;
+	std::string out;
 
 	for (ordering::const_iterator pos = rank_ballot.begin(); pos !=
 		rank_ballot.end(); ++pos) {
@@ -412,20 +411,21 @@ string ordering_tools::ordering_to_text(const ordering & rank_ballot,
 	return (out);
 }
 
-string ordering_tools::ordering_to_text(const ordering & rank_ballot,
+std::string ordering_tools::ordering_to_text(const ordering & rank_ballot,
 	bool numeric) const {
 
 	return ordering_to_text(rank_ballot,
 			get_default_candidate_labeling(), numeric);
 }
 
-ordering ordering_tools::direct_vector_to_ordering(const vector<double> &
+ordering ordering_tools::direct_vector_to_ordering(const
+	std::vector<double> &
 	in,
-	const vector<bool> & hopefuls) const {
+	const std::vector<bool> & hopefuls) const {
 
 	ordering toRet;
 
-	for (size_t counter = 0; counter < min(in.size(), hopefuls.size());
+	for (size_t counter = 0; counter < std::min(in.size(), hopefuls.size());
 		++counter)
 		if (hopefuls[counter]) {
 			toRet.insert(candscore(counter, in[counter]));
@@ -435,8 +435,8 @@ ordering ordering_tools::direct_vector_to_ordering(const vector<double> &
 }
 
 ordering ordering_tools::indirect_vector_to_ordering(
-	const vector<double> & in,
-	const vector<int> & mapping) const {
+	const std::vector<double> & in,
+	const std::vector<int> & mapping) const {
 
 	ordering toRet;
 
@@ -451,9 +451,10 @@ ordering ordering_tools::indirect_vector_to_ordering(
 ///// Ballot tools.
 //
 
-list<ballot_group> ballot_tools::sort_ballots(const list<ballot_group> &
+std::list<ballot_group> ballot_tools::sort_ballots(const
+	std::list<ballot_group> &
 	to_sort) const {
-	list<ballot_group> sorted = to_sort;
+	std::list<ballot_group> sorted = to_sort;
 
 	sorted.sort(otools.sorter);
 
@@ -461,7 +462,8 @@ list<ballot_group> ballot_tools::sort_ballots(const list<ballot_group> &
 }
 
 
-list<ballot_group> ballot_tools::compress(const list<ballot_group> &
+std::list<ballot_group> ballot_tools::compress(const
+	std::list<ballot_group> &
 	uncompressed) const {
 
 	// You asked for n log n, here it is.
@@ -470,8 +472,8 @@ list<ballot_group> ballot_tools::compress(const list<ballot_group> &
 		return (uncompressed);
 	}
 
-	list<ballot_group> compressed = sort_ballots(uncompressed);
-	list<ballot_group>::iterator check, check_against;
+	std::list<ballot_group> compressed = sort_ballots(uncompressed);
+	std::list<ballot_group>::iterator check, check_against;
 
 	for (check = compressed.begin(); check != compressed.end(); ++check) {
 		check_against = check;
@@ -494,12 +496,12 @@ list<ballot_group> ballot_tools::compress(const list<ballot_group> &
 	return (compressed);
 }
 
-string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
-	const map<size_t, string> & reverse_cand_lookup,
+std::string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
+	const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
-	string out = dtos(rank_ballot.weight) + ": ";
-	string order = otools.ordering_to_text(rank_ballot.contents,
+	std::string out = dtos(rank_ballot.weight) + ": ";
+	std::string order = otools.ordering_to_text(rank_ballot.contents,
 			reverse_cand_lookup, numeric);
 
 	if (order == "ERR") {
@@ -509,44 +511,47 @@ string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
 	}
 }
 
-vector<string> ballot_tools::ballots_to_text(string prefix,
-	const list<ballot_group> & rank_ballots,
-	const map<size_t, string> & reverse_cand_lookup,
+std::vector<std::string> ballot_tools::ballots_to_text(std::string prefix,
+	const std::list<ballot_group> & rank_ballots,
+	const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
-	vector<string> output;
+	std::vector<std::string> output;
 
-	for (list<ballot_group>::const_iterator pos = rank_ballots.begin();
+	for (std::list<ballot_group>::const_iterator pos = rank_ballots.begin();
 		pos != rank_ballots.end(); ++pos) {
 		output.push_back(prefix + ballot_to_text(*pos,
 				reverse_cand_lookup, numeric));
 
 		if (*output.rbegin() == "ERR") {
-			return (vector<string>(1, "ERR"));
+			return (std::vector<std::string>(1, "ERR"));
 		}
 	}
 
 	return (output);
 }
 
-vector<string> ballot_tools::ballots_to_text(const list<ballot_group> &
-	rank_ballots, const map<size_t, string> & reverse_cand_lookup,
+std::vector<std::string> ballot_tools::ballots_to_text(
+	const std::list<ballot_group> &
+	rank_ballots, const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
 	return (ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
 }
 
-void ballot_tools::print_ranked_ballots(const list<ballot_group> &
+void ballot_tools::print_ranked_ballots(const std::list<ballot_group> &
 	rank_ballots) const {
 
-	map<size_t, string> fakecand = get_default_candidate_labeling();
+	std::map<size_t, std::string> fakecand = get_default_candidate_labeling();
 
-	vector<string> fv = ballots_to_text(rank_ballots, fakecand, false);
-	copy(fv.begin(), fv.end(), ostream_iterator<string>(cout, "\n"));
+	std::vector<std::string> fv = ballots_to_text(rank_ballots, fakecand,
+			false);
+	copy(fv.begin(), fv.end(), std::ostream_iterator<std::string>(std::cout,
+			"\n"));
 }
 
 std::list<ballot_group> ballot_tools::rescale(
-	const list<ballot_group> & ballots, double factor) const {
+	const std::list<ballot_group> & ballots, double factor) const {
 	std::list<ballot_group> out;
 
 	for (ballot_group ballot: ballots) {

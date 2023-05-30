@@ -6,11 +6,10 @@
 
 #include "randball.h"
 
-using namespace std;
 
-pair<ordering, bool> random_ballot::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates,
+std::pair<ordering, bool> random_ballot::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// We need two rounds through, first one to determine the number of
@@ -20,7 +19,7 @@ pair<ordering, bool> random_ballot::elect_inner(
 	// in genetic algorithms.
 
 	double num_voters = 0;
-	list<ballot_group>::const_iterator pos;
+	std::list<ballot_group>::const_iterator pos;
 	ordering::const_iterator opos;
 
 	for (pos = papers.begin(); pos != papers.end(); ++pos) {
@@ -66,11 +65,11 @@ pair<ordering, bool> random_ballot::elect_inner(
 	// until we get someting.
 
 	if (prelim.empty()) {
-		vector<ballot_group> rnd_papers;
+		std::vector<ballot_group> rnd_papers;
 		copy(papers.begin(), papers.end(), back_inserter(rnd_papers));
 		random_shuffle(rnd_papers.begin(), rnd_papers.end());
 
-		for (vector<ballot_group>::const_iterator vpos =
+		for (std::vector<ballot_group>::const_iterator vpos =
 				rnd_papers.begin(); vpos != rnd_papers.end() &&
 			prelim.empty(); ++vpos) {
 
@@ -86,7 +85,7 @@ pair<ordering, bool> random_ballot::elect_inner(
 	// all others in random order below those that are already present.
 	// If nobody has a preference, we get random candidate.
 
-	vector<bool> already_seen(num_candidates, false);
+	std::vector<bool> already_seen(num_candidates, false);
 
 	for (opos = prelim.begin(); opos != prelim.end(); ++opos) {
 		already_seen[opos->get_candidate_num()] = true;
@@ -103,5 +102,5 @@ pair<ordering, bool> random_ballot::elect_inner(
 			prelim.insert(candscore(counter, least_score -
 					fabs(least_score) * drand48()));
 
-	return (pair<ordering, bool>(prelim, false));
+	return (std::pair<ordering, bool>(prelim, false));
 }

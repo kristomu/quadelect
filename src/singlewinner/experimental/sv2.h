@@ -10,18 +10,17 @@
 
 #include <assert.h>
 
-using namespace std;
 
 class sv_att_second : public election_method {
 
 	public:
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string name() const {
+		std::string name() const {
 			return ("EXP:SV Attempt 2");
 		}
 };

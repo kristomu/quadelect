@@ -2,9 +2,9 @@
 #include "../positional/simple_methods.h"
 #include "../pairwise/simple_methods.h"
 
-pair<ordering, bool> three_experimental::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls,
+std::pair<ordering, bool> three_experimental::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
@@ -41,7 +41,7 @@ pair<ordering, bool> three_experimental::elect_inner(
 
 	// IDEA: multiply the score term by plur_scores[counter]*plur_scores[sec]
 
-	vector<double> plur_scores(num_candidates, 0);
+	std::vector<double> plur_scores(num_candidates, 0);
 	double numvoters = 0;
 
 	for (ordering::const_iterator pos = plur_ordering.begin(); pos !=
@@ -50,7 +50,7 @@ pair<ordering, bool> three_experimental::elect_inner(
 		numvoters += pos->get_score();
 	}
 
-	vector<double> plur_factors(num_candidates, 0);
+	std::vector<double> plur_factors(num_candidates, 0);
 	int counter;
 	for (counter = 0; counter < num_candidates; ++counter) {
 		plur_factors[counter] = 0.5 - plur_scores[counter]/numvoters;
@@ -120,60 +120,62 @@ pair<ordering, bool> three_experimental::elect_inner(
 							(eps+plur_scores[sec]);
 						break;
 					case TEXP_SV_VAR_7:
-						score += min(plur_scores[sec],
-								plur_scores[counter]) + eps * max(plur_scores[sec], plur_scores[counter]);
+						score += std::min(plur_scores[sec],
+								plur_scores[counter]) + eps * std::max(plur_scores[sec],
+								plur_scores[counter]);
 						break;
 					case TEXP_SV_VAR_8:
-						score += min(plur_scores[sec],
-								plur_scores[third_party]) + eps * max(plur_scores[sec],
+						score += std::min(plur_scores[sec],
+								plur_scores[third_party]) + eps * std::max(plur_scores[sec],
 								plur_scores[third_party]);
 						break;
 					case TEXP_SV_VAR_9: // REMOVE
-						score += min(plur_scores[counter],
-								plur_scores[third_party]) + eps * max(plur_scores[counter],
+						score += std::min(plur_scores[counter],
+								plur_scores[third_party]) + eps * std::max(plur_scores[counter],
 								plur_scores[third_party]);
 						break;
 					case TEXP_SV_VAR_10:
-						score += max(plur_scores[sec],
-								plur_scores[counter]) + eps * min(plur_scores[sec], plur_scores[counter]);
+						score += std::max(plur_scores[sec],
+								plur_scores[counter]) + eps * std::min(plur_scores[sec],
+								plur_scores[counter]);
 						break;
 					case TEXP_SV_VAR_11:
-						score += max(plur_scores[sec],
-								plur_scores[third_party]) + eps * min(plur_scores[sec],
+						score += std::max(plur_scores[sec],
+								plur_scores[third_party]) + eps * std::min(plur_scores[sec],
 								plur_scores[third_party]);
 						break;
 					case TEXP_SV_VAR_12: // REMOVE
-						//score += max(plur_scores[counter], plur_scores[third_party]) + eps * min(plur_scores[counter], plur_scores[third_party]);
+						//score += std::max(plur_scores[counter], plur_scores[third_party]) + eps * std::min(plur_scores[counter], plur_scores[third_party]);
 						score += plur_scores[counter] - plur_scores[third_party];
 						break;
 					case TEXP_SV_VAR_13: // REMOVE
-						score += min(plur_factors[sec],
-								plur_factors[counter]) + eps * max(plur_factors[sec],
+						score += std::min(plur_factors[sec],
+								plur_factors[counter]) + eps * std::max(plur_factors[sec],
 								plur_factors[counter]);
 						break;
 					case TEXP_SV_VAR_14:
-						score += min(plur_factors[sec],
-								plur_factors[third_party]) + eps * max(plur_factors[sec],
+						score += std::min(plur_factors[sec],
+								plur_factors[third_party]) + eps * std::max(plur_factors[sec],
 								plur_factors[third_party]);
 						break;
 					case TEXP_SV_VAR_15:
-						score += min(plur_factors[counter],
-								plur_factors[third_party]) + eps * max(plur_factors[counter],
+						score += std::min(plur_factors[counter],
+								plur_factors[third_party]) + eps * std::max(plur_factors[counter],
 								plur_factors[third_party]);
 						break;
 					case TEXP_SV_VAR_16: // REMOVE
-						score += max(plur_factors[sec],
-								plur_factors[counter]) + eps * min(plur_factors[sec],
+						score += std::max(plur_factors[sec],
+								plur_factors[counter]) + eps * std::min(plur_factors[sec],
 								plur_factors[counter]);
 						break;
 					case TEXP_SV_VAR_17:
-						score += max(plur_factors[sec],
-								plur_factors[third_party]) + eps * min(plur_factors[sec],
+						score += std::max(plur_factors[sec],
+								plur_factors[third_party]) + eps * std::min(plur_factors[sec],
 								plur_factors[third_party]);
 						break;
 					case TEXP_SV_VAR_18:
-						score += max(plur_factors[counter],
-								plur_factors[third_party]) + eps * min(plur_factors[counter],
+						score += std::max(plur_factors[counter],
+								plur_factors[third_party]) + eps * std::min(plur_factors[counter],
 								plur_factors[third_party]);
 						break;
 					case TEXP_SV_VAR_19:
@@ -217,9 +219,9 @@ pair<ordering, bool> three_experimental::elect_inner(
 						// Another possibility
 						//score += (1+eps) * condorcet_matrix.get_magnitude(counter, sec) + plur_scores[counter] + 2 * plur_scores[sec];
 						// score += 2 * (plur_scores[sec] + condorcet_matrix.get_magnitude(counter, sec)) - plur_scores[third_party];
-						// A>B * min(C>A, A>B)/fpC
+						// A>B * std::min(C>A, A>B)/fpC
 						score += condorcet_matrix.get_magnitude(counter,
-								sec) * min(condorcet_matrix.get_magnitude(counter, sec),
+								sec) * std::min(condorcet_matrix.get_magnitude(counter, sec),
 								condorcet_matrix.get_magnitude(third_party,
 									counter))/(plur_scores[third_party]+eps);
 						break;
@@ -238,7 +240,7 @@ pair<ordering, bool> three_experimental::elect_inner(
 
 						//score -= ABC/(ACB+eps) + CBA/(BCA+eps);
 						// CBA BCA ABC MIN CBA MAX /
-						score += max(CBA, min(BCA, ABC)) / (CBA+eps);
+						score += std::max(CBA, std::min(BCA, ABC)) / (CBA+eps);
 
 						break;
 					}
@@ -263,5 +265,5 @@ pair<ordering, bool> three_experimental::elect_inner(
 		out.insert(candscore(counter, score));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

@@ -6,7 +6,7 @@
 		*/
 
 basic_strategy StrategyTest::strategize_for_election(
-	const list<ballot_group> & ballots,
+	const std::list<ballot_group> & ballots,
 	ordering honest_outcome, size_t numcands, bool verbose) const {
 
 	// NOTE! Does not work if there's a tie!
@@ -19,10 +19,10 @@ basic_strategy StrategyTest::strategize_for_election(
 	ordering::const_iterator pos;
 
 	if (verbose) {
-		cout << "Trying to strategize for this election: " << endl;
+		std::cout << "Trying to strategize for this election: " << std::endl;
 		ballot_tools().print_ranked_ballots(ballots);
-		cout << "Honest outcome is " << ordering_tools().ordering_to_text(
-				honest_outcome, true) << endl;
+		std::cout << "Honest outcome is " << ordering_tools().ordering_to_text(
+				honest_outcome, true) << std::endl;
 	}
 
 	for (size_t challenger = 0; challenger < numcands && !strategy_worked;
@@ -32,17 +32,17 @@ basic_strategy StrategyTest::strategize_for_election(
 		}
 
 		if (verbose) {
-			cout << "Trying to rig in favor of " << challenger << endl;
+			std::cout << "Trying to rig in favor of " << challenger << std::endl;
 		}
 
-		list<ballot_group> prefers_winner, prefers_challenger;
+		std::list<ballot_group> prefers_winner, prefers_challenger;
 		double num_prefers_challenger = 0;
 
 		// Find those who prefer the challenger. Add those that
 		// don't into prefers_winner and add up the score of those that
 		// do.
 
-		for (list<ballot_group>::const_iterator bgpos = ballots.begin();
+		for (std::list<ballot_group>::const_iterator bgpos = ballots.begin();
 			bgpos != ballots.end(); ++bgpos) {
 			int saw_winner = -1, saw_challenger = -1;
 			int rank = 0;
@@ -72,8 +72,8 @@ basic_strategy StrategyTest::strategize_for_election(
 			}
 		}
 
-		/*cout << num_prefers_challenger << " prefers " << challenger
-		    << endl;*/
+		/*std::cout << num_prefers_challenger << " prefers " << challenger
+		    << std::endl;*/
 
 		if (num_prefers_challenger == 0) {
 			continue;
@@ -107,16 +107,16 @@ basic_strategy StrategyTest::strategize_for_election(
 				case ST_BURIAL: // Burial
 					for (ballot_group strategic_ballot: prefers_challenger) {
 						if (verbose) {
-							cout << "Burial for " << challenger << " against " << winner <<
+							std::cout << "Burial for " << challenger << " against " << winner <<
 								": ballot used to be " <<
 								ordering_tools().ordering_to_text(strategic_ballot.contents, false);
 						}
 						strategic_ballot.replace_score(winner,
 							strategic_ballot.get_min_score()-1);
 						if (verbose) {
-							cout << " --> " <<
+							std::cout << " --> " <<
 								ordering_tools().ordering_to_text(strategic_ballot.contents, false)
-								<< endl;
+								<< std::endl;
 						}
 						prefers_winner.push_back(strategic_ballot);
 					}
@@ -127,16 +127,16 @@ basic_strategy StrategyTest::strategize_for_election(
 				case ST_COMPROMISING: // Compromise
 					for (ballot_group strategic_ballot: prefers_challenger) {
 						if (verbose) {
-							cout << "Compromise for " << challenger << " against " << winner <<
+							std::cout << "Compromise for " << challenger << " against " << winner <<
 								": ballot used to be " <<
 								ordering_tools().ordering_to_text(strategic_ballot.contents, false);
 						}
 						strategic_ballot.replace_score(challenger,
 							strategic_ballot.get_max_score()+1);
 						if (verbose) {
-							cout << " --> " <<
+							std::cout << " --> " <<
 								ordering_tools().ordering_to_text(strategic_ballot.contents, false)
-								<< endl;
+								<< std::endl;
 						}
 						prefers_winner.push_back(strategic_ballot);
 					}
@@ -175,14 +175,15 @@ basic_strategy StrategyTest::strategize_for_election(
 			}
 
 			if (already_strategized && verbose) {
-				string strategies[] = {"burial", "compromise", "two-sided", "reverse"};
-				cout << "DEBUG: Trying strategy " << strategies[tries] << endl;
-				cout << "After transformation, the ballot set looks like this:" << endl;
+				std::string strategies[] = {"burial", "compromise", "two-sided", "reverse"};
+				std::cout << "DEBUG: Trying strategy " << strategies[tries] << std::endl;
+				std::cout << "After transformation, the ballot set looks like this:" <<
+					std::endl;
 				ballot_tools().print_ranked_ballots(prefers_winner);
 			}
 
 			for (q = 0; q < max_strat_ballots && !already_strategized; ++q) {
-				list<ballot_group> strategy;
+				std::list<ballot_group> strategy;
 				while (strategy.empty())
 					strategy = strat_generator->generate_ballots(1, numcands,
 							*randomizer);
@@ -207,9 +208,9 @@ basic_strategy StrategyTest::strategize_for_election(
 			ordering strat_result = method->elect(prefers_winner,
 					numcands, true);
 
-			/*cout << ordering_tools().ordering_to_text(
+			/*std::cout << ordering_tools().ordering_to_text(
 			  strat_result,
-			        rcl, true) << endl;*/
+			        rcl, true) << std::endl;*/
 
 			// Then remove the strategic coalition ballot so another
 			// one can be inserted later.
@@ -228,11 +229,11 @@ basic_strategy StrategyTest::strategize_for_election(
 			}
 
 			if (verbose && strategy_worked) {
-				cout << "Strategy to elect " << challenger
-					<< " worked!" << endl;
-				cout << "Outcome after strategy: " <<
-					ordering_tools().ordering_to_text(strat_result, false) << endl;
-				cout << "After strategy: " << endl;
+				std::cout << "Strategy to elect " << challenger
+					<< " worked!" << std::endl;
+				std::cout << "Outcome after strategy: " <<
+					ordering_tools().ordering_to_text(strat_result, false) << std::endl;
+				std::cout << "After strategy: " << std::endl;
 				ballot_tools().print_ranked_ballots(prefers_winner);
 			}
 
@@ -247,7 +248,7 @@ basic_strategy StrategyTest::strategize_for_election(
 	}
 
 	if (verbose && !strategy_worked) {
-		cout << "Strategy didn't work!" << endl;
+		std::cout << "Strategy didn't work!" << std::endl;
 	}
 
 	return ST_NONE;
@@ -278,7 +279,7 @@ StrategyTest::attempt_execute_strategy() { // Mega method, fix later TODO
 		ranks = 0;
 		++ties_in_a_row;
 		if (ties_in_a_row > 100) {
-			cout << "Too many ties in a row. Aborting!" << endl;
+			std::cout << "Too many ties in a row. Aborting!" << std::endl;
 			too_many_ties = true;
 			// Should be a third option here, not true or false.
 			// TODO that. Kinda done now.

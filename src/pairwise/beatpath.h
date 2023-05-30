@@ -17,9 +17,9 @@
 class beatpath : public abstract_condmat {
 
 	private:
-		vector<vector<double> > contents;
+		std::vector<std::vector<double> > contents;
 		void make_beatpaths(const abstract_condmat & input,
-			const vector<bool> & hopefuls);
+			const std::vector<bool> & hopefuls);
 
 	protected:
 		double get_internal(size_t candidate, size_t against, bool raw) const;
@@ -36,8 +36,8 @@ class beatpath : public abstract_condmat {
 	public:
 		beatpath(const abstract_condmat & input, pairwise_type type_in);
 		beatpath(const abstract_condmat & input, pairwise_type type_in,
-			const vector<bool> & hopefuls);
-		beatpath(const list<ballot_group> & scores, size_t num_candidates,
+			const std::vector<bool> & hopefuls);
+		beatpath(const std::list<ballot_group> & scores, size_t num_candidates,
 			pairwise_type kind);
 
 		double get_num_candidates() const {

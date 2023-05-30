@@ -7,17 +7,16 @@
 
 #include "method.h"
 
-using namespace std;
 
 // The default way of electing if we only have the "with hopefuls" method
 // implemented is to call it with every candidate being a hopeful, so do that
 // here. If the method in question wishes, it can override the function with a
 // quicker one - that's why it's virtual.
-pair<ordering, bool> election_method::elect_inner(
-	const list<ballot_group> & papers, int num_candidates,
+std::pair<ordering, bool> election_method::elect_inner(
+	const std::list<ballot_group> & papers, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
-	vector<bool> hopefuls(num_candidates, true);
+	std::vector<bool> hopefuls(num_candidates, true);
 
 	return (elect_inner(papers, hopefuls, num_candidates, cache,
 				winner_only));
@@ -25,8 +24,8 @@ pair<ordering, bool> election_method::elect_inner(
 
 // Cache wrappers.
 
-pair<ordering, bool> election_method::elect_detailed(
-	const list<ballot_group> & papers, int num_candidates,
+std::pair<ordering, bool> election_method::elect_detailed(
+	const std::list<ballot_group> & papers, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// Do a few sanity checks.
@@ -44,7 +43,7 @@ pair<ordering, bool> election_method::elect_detailed(
 	// If we have a cache, try to look up the answer. We have to do it
 	// this way because has_outcome wastes another name() call or in some
 	// other way becomes too slow. Let's hear it for eager evaluation!
-	pair<ordering, bool> toRet;
+	std::pair<ordering, bool> toRet;
 
 	if (cache != NULL) {
 		toRet = cache->get_outcome(name(), winner_only);
@@ -64,7 +63,7 @@ pair<ordering, bool> election_method::elect_detailed(
 
 	// There were none, so set the cache...
 	if (cache != NULL) {
-		//cout << "Setting cache for " << name() << endl;
+		//std::cout << "Setting cache for " << name() << std::endl;
 		cache->set_outcome(name(), toRet);
 	}
 
@@ -72,9 +71,9 @@ pair<ordering, bool> election_method::elect_detailed(
 	return (toRet);
 }
 
-pair<ordering, bool> election_method::elect_detailed(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls,
+std::pair<ordering, bool> election_method::elect_detailed(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
 	// A few sanity checks...
@@ -90,7 +89,7 @@ pair<ordering, bool> election_method::elect_detailed(
 	// make use of the cache. Detect that.
 
 	int num_hopefuls = 0, last_hopeful = -1, counter = 0;
-	vector<bool>::const_iterator hpos;
+	std::vector<bool>::const_iterator hpos;
 
 	for (hpos = hopefuls.begin(); hpos != hopefuls.end(); ++hpos) {
 		if (*hpos) {
@@ -104,7 +103,7 @@ pair<ordering, bool> election_method::elect_detailed(
 	// are in play, go directly to elect so that we may make use of a cached
 	// entry.
 	if (num_hopefuls <= 1) {
-		pair<ordering, bool> toRet;
+		std::pair<ordering, bool> toRet;
 		toRet.second = false;
 		toRet.first.insert(candscore(last_hopeful, 1));
 		return (toRet);
@@ -116,7 +115,7 @@ pair<ordering, bool> election_method::elect_detailed(
 
 	// Otherwise, go about it the hard way.
 
-	pair<ordering, bool> toRet = elect_inner(papers, hopefuls,
+	std::pair<ordering, bool> toRet = elect_inner(papers, hopefuls,
 			num_candidates, cache, winner_only);
 
 	// Check that there are no errors.
@@ -133,7 +132,7 @@ pair<ordering, bool> election_method::elect_detailed(
 }
 
 // Public wrappers.
-ordering election_method::elect(const list<ballot_group> & papers,
+ordering election_method::elect(const std::list<ballot_group> & papers,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
@@ -141,8 +140,8 @@ ordering election_method::elect(const list<ballot_group> & papers,
 			first);
 }
 
-ordering election_method::elect(const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates,
+ordering election_method::elect(const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	return (elect_detailed(papers, hopefuls, num_candidates, cache,

@@ -6,7 +6,8 @@
 #include "rank_order.h"
 #include <iostream>
 
-bool rank_order_int::is_this_format(const vector<string> & inputs) const {
+bool rank_order_int::is_this_format(const std::vector<std::string> &
+	inputs) const {
 
 	// if the first line is RANK_ORDER, we know it's this format.
 	if (inputs.empty()) {
@@ -51,9 +52,9 @@ bool rank_order_int::is_this_format(const vector<string> & inputs) const {
 			}
 
 			if (!accepted) {
-				cerr << "Not accepted" << endl;
-				cerr << "\t" << inputs[line] << " at " <<
-					inputs[line][sec] << endl;
+				std::cerr << "Not accepted" << std::endl;
+				std::cerr << "\t" << inputs[line] << " at " <<
+					inputs[line][sec] << std::endl;
 				return (false);
 			}
 		}
@@ -62,9 +63,9 @@ bool rank_order_int::is_this_format(const vector<string> & inputs) const {
 	return (true);
 }
 
-pair<map<size_t, string>, list<ballot_group> >
+std::pair<std::map<size_t, std::string>, std::list<ballot_group> >
 rank_order_int::interpret_ballots(
-	const vector<string> & inputs, bool debug) const {
+	const std::vector<std::string> & inputs, bool debug) const {
 
 	// For each line: If it's RANK_ORDER, ignore. Otherwise, check if
 	// there's a : preceded by only numbers (or . in case it's decimal).
@@ -79,13 +80,13 @@ rank_order_int::interpret_ballots(
 	// the proper name and rank to the ballot, and repeat until the line is
 	// done.
 
-	map<string, size_t> fwd;
-	pair<map<size_t, string>, list<ballot_group> > to_ret;
+	std::map<std::string, size_t> fwd;
+	std::pair<std::map<size_t, std::string>, std::list<ballot_group> > to_ret;
 	int candidates = 0;
 
 	if (debug) {
-		cout << "Interpreting...." << endl;
-		cout << "Input size: " << inputs.size() << endl;
+		std::cout << "Interpreting...." << std::endl;
+		std::cout << "Input size: " << inputs.size() << std::endl;
 	}
 
 	int min_rank = 0;
@@ -96,7 +97,7 @@ rank_order_int::interpret_ballots(
 		}
 
 		if (debug) {
-			cout << "Debug parse: " << inputs[counter] << endl;
+			std::cout << "Debug parse: " << inputs[counter] << std::endl;
 		}
 
 		size_t sec;
@@ -124,9 +125,9 @@ rank_order_int::interpret_ballots(
 		// Starting from either 0 or after the :...
 		int cur_rank = 0;
 		while (num_end+1 < (int)inputs[counter].size()) {
-			string cur_name;
+			std::string cur_name;
 			int term = -1;
-			min_rank = min(min_rank, cur_rank);
+			min_rank = std::min(min_rank, cur_rank);
 			for (sec = num_end+1; sec < inputs[counter].size() &&
 				term == -1; ++sec) {
 				// Slurp letters to form the current candidate
@@ -207,7 +208,7 @@ rank_order_int::interpret_ballots(
 
 	// Postprocess the ballots so the ratings are all positive (seems to
 	// make a diff for median, etc).
-	for (list<ballot_group>::iterator lbpos = to_ret.second.begin();
+	for (std::list<ballot_group>::iterator lbpos = to_ret.second.begin();
 		lbpos != to_ret.second.end(); ++lbpos) {
 		ordering replacement;
 

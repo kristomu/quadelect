@@ -18,15 +18,14 @@
 #include "../method.h"
 #include "../pairwise/method.h"
 
-using namespace std;
 
 class partition_set : public pairwise_method {
 	private:
 		bool is_random;
 
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
 		void set_random(bool be_random);
@@ -35,7 +34,7 @@ class partition_set : public pairwise_method {
 			set_random(be_random);
 		}
 
-		string pw_name() const;
+		std::string pw_name() const;
 };
 
 #endif

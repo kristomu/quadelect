@@ -14,7 +14,7 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 	libconfig::Config cfg;
 
 	// TODO?? somehow report the error in a throw instead of writing
-	// directly to cerr?
+	// directly to std::cerr?
 	try {
 		cfg.readFile(config_filename.c_str());
 	} catch (libconfig::FileIOException & fioex) {

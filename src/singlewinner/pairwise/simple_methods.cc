@@ -15,8 +15,9 @@
 // This produces a social ordering according to the greatest opponent magnitude,
 // negated (so as to keep with the convention that higher score is better).
 
-pair<ordering, bool> ord_minmax::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> ord_minmax::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	ordering toRet;
@@ -57,13 +58,14 @@ pair<ordering, bool> ord_minmax::pair_elect(const abstract_condmat & input,
 		}
 	}
 
-	return (pair<ordering, bool>(toRet, false));
+	return (std::pair<ordering, bool>(toRet, false));
 }
 
 // Ext-minmax and minmin.
 
-pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	// For all candidates, generate a vector of scores against them.
@@ -75,11 +77,11 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 
 	bool debug = false;
 
-	vector<pair<vector<double>, int> > scores;
+	std::vector<std::pair<std::vector<double>, int> > scores;
 
 	size_t counter;
 
-	pair<vector<double>, int> beat_data;
+	std::pair<std::vector<double>, int> beat_data;
 	beat_data.first.resize(input.get_num_candidates());
 
 	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
@@ -97,19 +99,19 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 			}
 
 		if (debug) {
-			cout << "Before sorting: " << counter << "\t";
+			std::cout << "Before sorting: " << counter << "\t";
 			copy(beat_data.first.begin(), beat_data.first.end(),
-				ostream_iterator<int>(cout, "   "));
-			cout << endl;
+				std::ostream_iterator<int>(std::cout, "   "));
+			std::cout << std::endl;
 		}
 
 		// Sort this descending if Minmax, ascending if Minmin
 		if (minmin)
 			sort(beat_data.first.begin(), beat_data.first.end(),
-				less<double>());
+				std::less<double>());
 		else
 			sort(beat_data.first.begin(), beat_data.first.end(),
-				greater<double>());
+				std::greater<double>());
 
 		beat_data.second = counter;
 		scores.push_back(beat_data);
@@ -121,12 +123,12 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 
 	if (debug) {
 		for (size_t counter = 0; counter < scores.size(); ++counter) {
-			cout << "After sorting: " << scores[counter].second
+			std::cout << "After sorting: " << scores[counter].second
 				<< "\t";
 			copy(scores[counter].first.begin(),
 				scores[counter].first.end(),
-				ostream_iterator<int>(cout, "   "));
-			cout << endl;
+				std::ostream_iterator<int>(std::cout, "   "));
+			std::cout << std::endl;
 		}
 	}
 
@@ -146,12 +148,13 @@ pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat & input,
 		to_ret.insert(candscore(scores[counter].second, rank));
 	}
 
-	return (pair<ordering, bool>(to_ret, false));
+	return (std::pair<ordering, bool>(to_ret, false));
 }
 
 // "Maxmin"
-pair<ordering, bool> maxmin::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> maxmin::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	ordering toRet;
@@ -193,13 +196,13 @@ pair<ordering, bool> maxmin::pair_elect(const abstract_condmat & input,
 
 	}
 
-	return (pair<ordering, bool>(toRet, false));
+	return (std::pair<ordering, bool>(toRet, false));
 }
 
 // Copeland and n-th order Copeland. WV, Margins, PO doesn't matter.
 // Also may be extended to sports versions (3-1 and 2-1).
-string copeland::pw_name() const {
-	string base;
+std::string copeland::pw_name() const {
+	std::string base;
 	if (order == 1) {
 		base = "Copeland";
 	} else	{
@@ -213,11 +216,11 @@ string copeland::pw_name() const {
 	}
 }
 
-vector<double> copeland::get_copeland(const abstract_condmat & input,
-	const vector<bool> & hopefuls,
-	const vector<double> & counterscores) const {
+std::vector<double> copeland::get_copeland(const abstract_condmat & input,
+	const std::vector<bool> & hopefuls,
+	const std::vector<double> & counterscores) const {
 
-	vector<double> scores(input.get_num_candidates(), 0);
+	std::vector<double> scores(input.get_num_candidates(), 0);
 
 	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
 		if (!hopefuls[counter]) {
@@ -245,14 +248,15 @@ vector<double> copeland::get_copeland(const abstract_condmat & input,
 	return (scores);
 }
 
-pair<ordering, bool> copeland::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> copeland::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	ordering toRet;
 
 	// To make ordinary Copeland for the first round.
-	vector<double> scores(input.get_num_candidates(), 1);
+	std::vector<double> scores(input.get_num_candidates(), 1);
 
 	for (unsigned int cur_order = 0; cur_order < order; ++cur_order) {
 		scores = get_copeland(input, hopefuls, scores);
@@ -264,20 +268,21 @@ pair<ordering, bool> copeland::pair_elect(const abstract_condmat & input,
 			toRet.insert(candscore(counter, scores[counter]));
 		}
 
-	return (pair<ordering, bool>(toRet, false));
+	return (std::pair<ordering, bool>(toRet, false));
 }
 
 // Schulze!
 
-pair<ordering, bool> schulze::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> schulze::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	beatpath bpath(input, CM_PAIRWISE_OPP, hopefuls);
 
 	// Count defeats.
 	int i, j, numcand = bpath.get_num_candidates();
-	vector<int> defeats(numcand, 0);
+	std::vector<int> defeats(numcand, 0);
 
 	for (i = 0; i < numcand; ++i)
 		for (j = 0; j < numcand; ++j)
@@ -297,5 +302,5 @@ pair<ordering, bool> schulze::pair_elect(const abstract_condmat & input,
 			social_ordering.insert(candscore(i, -defeats[i]));
 		}
 
-	return (pair<ordering, bool>(social_ordering, false));
+	return (std::pair<ordering, bool>(social_ordering, false));
 }

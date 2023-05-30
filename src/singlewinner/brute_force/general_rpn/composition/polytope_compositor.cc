@@ -307,13 +307,13 @@ int main(int argc, char ** argv) {
 		results.allocate_space(fn_prefix);
 
 		// Write metadata
-		ofstream out_meta(fn_prefix + ".meta");
+		std::ofstream out_meta(fn_prefix + ".meta");
 
 		out_meta << fn_prefix << " ";
 		grp.print_scenarios(out_meta);
 		out_meta << " " << results.num_tests << " ";
 		std::copy(results.num_methods.begin(), results.num_methods.end(),
-			ostream_iterator<int>(out_meta, " "));
+			std::ostream_iterator<int>(out_meta, " "));
 		out_meta << "\n";
 
 		out_meta.close();

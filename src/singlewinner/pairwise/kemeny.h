@@ -19,21 +19,20 @@
 #include <iostream>
 #include <vector>
 
-using namespace std;
 
 class kemeny : public pairwise_method {
 	private:
-		vector<vector<bool> > solve_kemeny(
+		std::vector<std::vector<bool> > solve_kemeny(
 			const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+			const std::vector<bool> & hopefuls,
 			bool debug) const;
 
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const {
+		std::string pw_name() const {
 			return ("Kemeny");
 		}
 

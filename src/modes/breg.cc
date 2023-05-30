@@ -110,8 +110,8 @@ void bayesian_regret::clear_methods(bool do_delete) {
 void bayesian_regret::set_parameters(size_t maxiters_in, size_t curiter_in,
 	size_t min_cand_in, size_t max_cand_in, size_t min_voters_in,
 	size_t max_voters_in, bool show_median_in, stats_type br_type_in,
-	list<pure_ballot_generator *> & generators_in,
-	list<const election_method *> & methods_in) {
+	std::list<pure_ballot_generator *> & generators_in,
+	std::list<const election_method *> & methods_in) {
 
 	curiter = curiter_in;
 	set_maxiters(maxiters_in, false);
@@ -133,8 +133,8 @@ void bayesian_regret::set_parameters(size_t maxiters_in, size_t curiter_in,
 bayesian_regret::bayesian_regret(size_t maxiters_in, size_t min_cand_in,
 	size_t max_cand_in, size_t min_voters, size_t max_voters,
 	bool show_median_in, stats_type br_type_in,
-	list<pure_ballot_generator *> & generators_in,
-	list<const election_method *> & methods_in) {
+	std::list<pure_ballot_generator *> & generators_in,
+	std::list<const election_method *> & methods_in) {
 
 	inited = false;
 	set_parameters(maxiters_in, 0, min_cand_in, max_cand_in, min_voters,
@@ -183,14 +183,14 @@ bool bayesian_regret::init(rng & randomizer) {
 	return (inited);
 }
 
-string bayesian_regret::do_round(bool give_brief_status, bool reseed,
+std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 	rng & randomizer, cache_map * cache) {
 
 	if (curiter >= maxiters) {
 		return ("");    // All done, so signal it.
 	}
 
-	string toRet_denied = "", toRet = "OK";
+	std::string toRet_denied = "", toRet = "OK";
 
 	if (reseed) {
 		randomizer.s_rand(curiter);
@@ -204,9 +204,9 @@ string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 			dtos(numcands) + " cands and " + dtos(numvoters) +
 			" voters.";
 
-	// This lets the test use multiple generators, whereupon they are each
+	// This lets the test use multiple generators; they are each
 	// used (numrounds)/(num_generators) times.
-	list<ballot_group> ballots = generators[curiter % generators.size()]->
+	std::list<ballot_group> ballots = generators[curiter % generators.size()]->
 		generate_ballots(numvoters, numcands, randomizer);
 
 	// Get the utility scores, maximum and minimum. (TODO?? If we're
@@ -229,9 +229,9 @@ string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 
 	// Get the winner/s and Bayesian regret for each method.
 
-	vector<stats<float> >::iterator mstat_pos = method_stats.begin();
+	std::vector<stats<float> >::iterator mstat_pos = method_stats.begin();
 
-	for (vector<const election_method *>::const_iterator pos =
+	for (std::vector<const election_method *>::const_iterator pos =
 			methods.begin(); pos != methods.end(); ++pos) {
 		out = (*pos)->elect(ballots, numcands, cache, true);
 
@@ -255,8 +255,8 @@ string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 			minval);
 
 		/*if (counter % report_frequency == (report_frequency-1))
-			cout << mstat_pos->display_stats(false, 0.05)
-				<< endl;*/
+			std::cout << mstat_pos->display_stats(false, 0.05)
+				<< std::endl;*/
 
 		++mstat_pos;
 	}
@@ -266,27 +266,27 @@ string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 	return (toRet);
 }
 
-string bayesian_regret::do_round(bool give_brief_status, bool reseed,
+std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 	rng & randomizer) {
 	cache_map cache;
 
 	return (do_round(give_brief_status, reseed, randomizer, &cache));
 }
 
-vector<string> bayesian_regret::provide_status() const {
+std::vector<std::string> bayesian_regret::provide_status() const {
 
 	// If we aren't inited, then there's nothing we can do.
 
 	if (!inited) {
-		return (vector<string>());
+		return (std::vector<std::string>());
 	}
 
 	// Otherwise, just dump the stats' info. TODO: some way of specifying
 	// the confidence interval. For now, just use 0.05 (95%).
 
-	vector<string> information;
+	std::vector<std::string> information;
 
-	for (vector<stats<float> >::const_iterator pos = method_stats.begin();
+	for (std::vector<stats<float> >::const_iterator pos = method_stats.begin();
 		pos != method_stats.end(); ++pos)
 		information.push_back(pos->display_stats(show_median,
 				0.05));

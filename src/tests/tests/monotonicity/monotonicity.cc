@@ -21,8 +21,8 @@ ordering::const_iterator monotonicity::find_cand(const ordering &
 	return (place_cand);
 }
 
-vector<size_t> monotonicity::generate_aux_data(
-	const list<ballot_group> & input, size_t numcands) const {
+std::vector<size_t> monotonicity::generate_aux_data(
+	const std::list<ballot_group> & input, size_t numcands) const {
 
 	assert(!input.empty());
 
@@ -34,11 +34,11 @@ vector<size_t> monotonicity::generate_aux_data(
 		orders_to_modify = 1 + random() % (num_ballots-1);
 	}
 
-	vector<bool> to_alter(num_ballots, false);
+	std::vector<bool> to_alter(num_ballots, false);
 
 	size_t counter = 0;
 
-	vector<size_t> output(2 + orders_to_modify + 1, 0);
+	std::vector<size_t> output(2 + orders_to_modify + 1, 0);
 
 	while (counter < orders_to_modify) {
 		int possible = random() % to_alter.size();
@@ -65,10 +65,10 @@ vector<size_t> monotonicity::generate_aux_data(
 // number_to_add < 0 means "find out on your own". It's ugly and
 // it doesn't really belong here but eh...
 
-pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
-	const list<ballot_group> & input,
+std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
+	const std::list<ballot_group> & input,
 	size_t numcands, size_t number_to_add,
-	const vector<size_t> & data) const {
+	const std::vector<size_t> & data) const {
 
 	size_t seed = *(data.rbegin());
 
@@ -77,12 +77,12 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 
 	int counter = -1, ballot_idx = 0;
 
-	pair<bool, list<ballot_group> > output;
+	std::pair<bool, std::list<ballot_group> > output;
 	output.first = false;
 
 	double total_weight = 0;
 
-	for (list<ballot_group>::const_iterator pos = input.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
 		total_weight += pos->weight;
 
@@ -173,15 +173,15 @@ pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
 	return (output);
 }
 
-pair<bool, list<ballot_group> > monotonicity::rearrange_ballots(
-	const list<ballot_group> & input,
-	size_t numcands, const vector<size_t> & data) const {
+std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
+	const std::list<ballot_group> & input,
+	size_t numcands, const std::vector<size_t> & data) const {
 
 	return rearrange_ballots(input, numcands, -1, data);
 }
 
 bool monotonicity::applicable(const ordering & check,
-	const vector<size_t> & data, bool orig) const {
+	const std::vector<size_t> & data, bool orig) const {
 
 	ordering::const_iterator pos;
 
@@ -222,7 +222,7 @@ bool monotonicity::applicable(const ordering & check,
 }
 
 bool monotonicity::pass_internal(const ordering & original, const ordering &
-	modified, const vector<size_t> & data, size_t numcands) const {
+	modified, const std::vector<size_t> & data, size_t numcands) const {
 
 	// Get the candidate we have raised/lowered.
 	size_t cand = data[0];
@@ -315,20 +315,20 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 
 	//if (raise && (a_score > b_score) || !raise && (a_score < b_score) ) {
 	if (preliminary_nonmonotonic) {
-		/*cout << "Intended candidate was " << cand << endl;
-		cout << "Got score " << a_score << " from original, " << b_score << " from modified." << endl;
-		cout << "Raise type is " << raise << endl;
-		cout << "Orig:\t";
+		/*std::cout << "Intended candidate was " << cand << std::endl;
+		std::cout << "Got score " << a_score << " from original, " << b_score << " from modified." << std::endl;
+		std::cout << "Raise type is " << raise << std::endl;
+		std::cout << "Orig:\t";
 		ordering::const_iterator mah, maha;
 		for (mah = scrub_orig.begin(); mah != scrub_orig.end(); ++mah)
-			cout << "(" << mah->get_candidate_num() << ", " << mah->get_score() << ") ";
-		cout << endl << "Mod:\t";
+			std::cout << "(" << mah->get_candidate_num() << ", " << mah->get_score() << ") ";
+		std::cout << std::endl << "Mod:\t";
 		for (maha = scrub_mod.begin(); maha != scrub_mod.end(); ++maha)
-			                        cout << "(" << maha->get_candidate_num() << ", " << maha->get_score() << ") ";
-		cout << endl << endl;
-		if (raise) cout << "R"; else cout << "L";
-		        if (a_winner) cout << "-aw-"; else cout << "-al-";
-			        if (b_winner) cout << "bw" << endl; else cout << "bl" << endl;
+			                        std::cout << "(" << maha->get_candidate_num() << ", " << maha->get_score() << ") ";
+		std::cout << std::endl << std::endl;
+		if (raise) std::cout << "R"; else std::cout << "L";
+		        if (a_winner) std::cout << "-aw-"; else std::cout << "-al-";
+			        if (b_winner) std::cout << "bw" << std::endl; else std::cout << "bl" << std::endl;
 		*/
 		return (false);
 	}
@@ -336,15 +336,16 @@ bool monotonicity::pass_internal(const ordering & original, const ordering &
 	return (true);
 }
 
-string monotonicity::explain_change_int(const vector<size_t> & data,
-	const map<size_t, string> & cand_names) const {
+std::string monotonicity::explain_change_int(const std::vector<size_t> &
+	data,
+	const std::map<size_t, std::string> & cand_names) const {
 
 	size_t cand = data[0];
 	bool raise = (data[1] == 1);
 
 	assert(cand_names.find(cand) != cand_names.end());
 
-	string event = cand_names.find(cand)->second + " was ";
+	std::string event = cand_names.find(cand)->second + " was ";
 
 	if (raise) {
 		event += "raised";
@@ -355,8 +356,8 @@ string monotonicity::explain_change_int(const vector<size_t> & data,
 	return (event);
 }
 
-string monotonicity::name() const {
-	string base = basename() + "(";
+std::string monotonicity::name() const {
+	std::string base = basename() + "(";
 
 	if (winner_only()) {
 		base += "winner, ";

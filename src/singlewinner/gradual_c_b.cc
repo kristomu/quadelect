@@ -6,10 +6,9 @@
 
 #include "gradual_c_b.h"
 
-using namespace std;
 
-string gradual_cond_borda::determine_name() const {
-	string base = "Gradual-[" + base_method->name() + "](";
+std::string gradual_cond_borda::determine_name() const {
+	std::string base = "Gradual-[" + base_method->name() + "](";
 	switch (completion) {
 		case GF_NONE: base += "None";
 			break;
@@ -31,8 +30,8 @@ string gradual_cond_borda::determine_name() const {
 	return (base + ")");
 }
 
-pair<ordering, bool> gradual_cond_borda::elect_inner(const
-	list<ballot_group> & papers, const vector<bool> & hopefuls,
+std::pair<ordering, bool> gradual_cond_borda::elect_inner(const
+	std::list<ballot_group> & papers, const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
 	size_t num_hopefuls = 0;
@@ -52,47 +51,47 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 	if (debug) {
 		condmat gcond(papers, num_candidates, CM_PAIRWISE_OPP);
 
-		cout << "Gradual Cond-Borda debug :" << endl;
-		cout << "GCB (row against column): " << endl;
+		std::cout << "Gradual Cond-Borda debug :" << std::endl;
+		std::cout << "GCB (row against column): " << std::endl;
 
 		int counter, sec;
 		for (counter = 0; counter < num_candidates; ++counter) {
 			for (sec = 0; sec < num_candidates; ++sec) {
 				double favor = gcb.get_magnitude(counter, sec);
 				if (favor > 0) {
-					cout << "+";
+					std::cout << "+";
 				}
 				if (favor == 0) {
-					cout << " ";
+					std::cout << " ";
 				}
 
-				cout << favor;
+				std::cout << favor;
 				if (gcb.get_magnitude(counter, sec) >
 					gcb.get_magnitude(sec, counter)) {
-					cout << "* ";
+					std::cout << "* ";
 				} else {
-					cout << "  ";
+					std::cout << "  ";
 				}
 			}
-			cout << endl;
+			std::cout << std::endl;
 		}
 
-		cout << endl << "Condorcet matrix (row against column): "
-			<< endl;
+		std::cout << std::endl << "Condorcet matrix (row against column): "
+			<< std::endl;
 
 		for (counter = 0; counter < num_candidates; ++counter) {
 			for (sec = 0; sec < num_candidates; ++sec) {
-				cout << gcond.get_magnitude(counter, sec);
+				std::cout << gcond.get_magnitude(counter, sec);
 				if (gcond.get_magnitude(counter, sec) > gcond.
 					get_magnitude(sec, counter)) {
-					cout << "* ";
+					std::cout << "* ";
 				} else {
-					cout << "  ";
+					std::cout << "  ";
 				}
 			}
-			cout << endl;
+			std::cout << std::endl;
 		}
-		cout << endl << endl;
+		std::cout << std::endl << std::endl;
 	}
 
 	// HACK HACK
@@ -110,7 +109,7 @@ pair<ordering, bool> gradual_cond_borda::elect_inner(const
 		base = otools.ranked_tiebreak(base, current, num_candidates);
 	}
 
-	return (pair<ordering, bool>(base, false));
+	return (std::pair<ordering, bool>(base, false));
 }
 
 gradual_cond_borda::gradual_cond_borda(pairwise_method * base_method_in,

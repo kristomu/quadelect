@@ -11,7 +11,7 @@
 
 void custom_function::decode_function(
 	unsigned long long function_number,
-	vector<custom_funct_atom> & output) const {
+	std::vector<custom_funct_atom> & output) const {
 
 	if (function_number == 0) {
 		return;
@@ -28,7 +28,8 @@ void custom_function::decode_function(
 	return;
 }
 
-string custom_function::atom_to_word(const custom_funct_atom in) const {
+std::string custom_function::atom_to_word(const custom_funct_atom in)
+const {
 
 	// we should also have had modulo here, although I could only
 	// conceivably see it being used in some sort of IRVesque system.
@@ -87,9 +88,9 @@ string custom_function::atom_to_word(const custom_funct_atom in) const {
 // CBA is 0.
 // (However, in practice, this makes very strange methods come in first
 // at the strategy evaluation.)
-double custom_function::evaluate(vector<double> & stack,
+double custom_function::evaluate(std::vector<double> & stack,
 	const custom_funct_atom & cur_atom,
-	const vector<double> & input_values,
+	const std::vector<double> & input_values,
 	bool generous_to_asymptotes) const {
 
 	switch (cur_atom) {
@@ -118,7 +119,7 @@ double custom_function::evaluate(vector<double> & stack,
 
 	// Unary functions go here.
 	if (stack.empty()) {
-		return (numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 		//throw runtime_error("stack error");
 	}
 
@@ -152,7 +153,7 @@ double custom_function::evaluate(vector<double> & stack,
 
 	// Binary
 	if (stack.empty()) {
-		return (numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 		//throw runtime_error("stack error");
 	}
 
@@ -183,18 +184,18 @@ double custom_function::evaluate(vector<double> & stack,
 			// except when x = 0, in which case it's undefined.
 			// inf/inf is also similarly undefined.
 			if (!finite(middle_arg) && !finite(right_arg)) {
-				return (numeric_limits<double>::quiet_NaN());
+				return (std::numeric_limits<double>::quiet_NaN());
 			}
 			if (right_arg == 0) {
 				if (generous_to_asymptotes) {
 					return (middle_arg/(right_arg+1e-9));
 				}
-				//return(numeric_limits<double>::quiet_NaN());
+				//return(std::numeric_limits<double>::quiet_NaN());
 				return (INFINITY); // could also be -infty
 			}
 			return (middle_arg/right_arg);
-		case BINARY_FUNC_MAX: return (max(middle_arg, right_arg));
-		case BINARY_FUNC_MIN: return (min(middle_arg, right_arg));
+		case BINARY_FUNC_MAX: return (std::max(middle_arg, right_arg));
+		case BINARY_FUNC_MIN: return (std::min(middle_arg, right_arg));
 
 		case BINARY_FUNC_LT: return (make_bool(middle_arg < right_arg));
 		case BINARY_FUNC_LEQ: return (make_bool(middle_arg <= right_arg));
@@ -205,7 +206,7 @@ double custom_function::evaluate(vector<double> & stack,
 	}
 
 	if (stack.empty()) {
-		return (numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 	}
 
 	double left_arg = *(stack.rbegin());
@@ -228,7 +229,7 @@ double custom_function::evaluate(vector<double> & stack,
 	// Error, should never happen. This happens if the atom is not caught
 	// anywhere, which means I forgot to implement the code after adding
 	// one.
-	throw runtime_error("RPN token not matched anywhere!");
+	throw std::logic_error("RPN token not matched anywhere!");
 
 	return (0);
 }
@@ -238,21 +239,21 @@ double custom_function::evaluate(vector<double> & stack,
 // been pared down).
 // I tried exceptions, but it's too slow. We return NaN on error.
 double custom_function::evaluate_function(
-	const vector<custom_funct_atom> & function,
-	const vector<double> & input_values, bool reject_large_stack,
+	const std::vector<custom_funct_atom> & function,
+	const std::vector<double> & input_values, bool reject_large_stack,
 	bool generous_to_asymptotes) const {
 
 	double result;
 
 	//assert(funct_stack.empty());	// wouldn't want anything to carry over
 
-	for (vector<custom_funct_atom>::const_iterator pos = function.begin();
+	for (std::vector<custom_funct_atom>::const_iterator pos = function.begin();
 		pos != function.end(); ++pos) {
 		result = evaluate(funct_stack, *pos, input_values,
 				generous_to_asymptotes);
 		if (isnan(result)) {
 			// propagate error
-			return (numeric_limits<double>::quiet_NaN());
+			return (std::numeric_limits<double>::quiet_NaN());
 		} else {
 			funct_stack.push_back(result);
 		}
@@ -260,12 +261,12 @@ double custom_function::evaluate_function(
 
 	// stack is empty
 	if (funct_stack.empty()) {
-		return (numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 	}
 
 	// multiple outputs for function
 	if (reject_large_stack && *funct_stack.begin() != *funct_stack.rbegin()) {
-		return (numeric_limits<double>::quiet_NaN());
+		return (std::numeric_limits<double>::quiet_NaN());
 	}
 
 	return (*funct_stack.rbegin());
@@ -288,14 +289,14 @@ custom_function::custom_function(bool generous_in) {
 	set_id(0);
 }
 
-double custom_function::evaluate(const vector<double> & input_values,
+double custom_function::evaluate(const std::vector<double> & input_values,
 	bool reject_large_stack, bool generous_to_asymptotes) const {
 	funct_stack.clear();
 	return (evaluate_function(our_function, input_values,
 				reject_large_stack, generous_to_asymptotes));
 }
 
-double custom_function::evaluate(const vector<double> & input_values,
+double custom_function::evaluate(const std::vector<double> & input_values,
 	bool reject_large_stack) const {
 	funct_stack.clear();
 	return (evaluate_function(our_function, input_values,
@@ -309,8 +310,9 @@ double custom_function::evaluate(const vector<double> & input_values,
 
 bool custom_function::update_suitability(const custom_function &
 	funct_to_test,
-	const vector<vector<double> > & test_in_vectors,
-	map<vector<double>, unsigned long long> & results_already_seen) const {
+	const std::vector<std::vector<double> > & test_in_vectors,
+	std::map<std::vector<double>, unsigned long long> & results_already_seen)
+const {
 
 	test_results.resize(test_in_vectors.size());
 	size_t i;
@@ -319,15 +321,15 @@ bool custom_function::update_suitability(const custom_function &
 
 	for (i = 0; i < test_in_vectors.size(); ++i) {
 		/*copy(test_in_vectors[i].begin(), test_in_vectors[i].end(),
-			ostream_iterator<double>(cout, " "));
-		cout << " => ";*/
+			std::ostream_iterator<double>(std::cout, " "));
+		std::cout << " => ";*/
 		test_results[i] = funct_to_test.evaluate(test_in_vectors[i],
 				true);
-		//cout << test_results[i] << endl;
+		//std::cout << test_results[i] << std::endl;
 		if (isnan(test_results[i])) {
 			return (false); // error during evaluation
 		}
-		//cout << results[results.size()-1] << "\t";
+		//std::cout << results[results.size()-1] << "\t";
 	}
 
 	bool something_differs = false;
@@ -339,7 +341,7 @@ bool custom_function::update_suitability(const custom_function &
 		if (results_already_seen.find(test_results) !=
 			results_already_seen.end()) {
 			// Ew.
-			// cout << our_value << ": cardinally shadowed by " << results_already_seen.find(test_results)->second << endl;
+			// std::cout << our_value << ": cardinally shadowed by " << results_already_seen.find(test_results)->second << std::endl;
 			return (false);
 		}
 		results_already_seen[test_results] = funct_to_test.get_value();
@@ -357,11 +359,12 @@ bool custom_function::update_suitability(const custom_function &
 // have a match by hash.
 // Or we could use a Bloomier filter.
 bool custom_function::update_ordinal_suitability(const custom_function &
-	funct_to_test, const vector<vector<double> > & test_in_vectors,
-	map<vector<bool>, unsigned long long> & results_already_seen) const {
+	funct_to_test, const std::vector<std::vector<double> > & test_in_vectors,
+	std::map<std::vector<bool>, unsigned long long> & results_already_seen)
+const {
 
-	vector<double> test_results;
-	vector<bool> results_ordinal;
+	std::vector<double> test_results;
+	std::vector<bool> results_ordinal;
 
 	size_t num_vectors = test_in_vectors.size();
 	test_results.resize(num_vectors);
@@ -396,11 +399,11 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 		}
 	}
 
-	//cout << endl;
+	//std::cout << std::endl;
 
 	if (results_already_seen.find(results_ordinal) !=
 		results_already_seen.end()) {
-		//cout << our_value << ": ordinally shadowed by " << results_already_seen.find(results_ordinal)->second << endl;
+		//std::cout << our_value << ": ordinally shadowed by " << results_already_seen.find(results_ordinal)->second << std::endl;
 		return (false);
 	} else {
 		results_already_seen[results_ordinal] = funct_to_test.get_value();
@@ -409,10 +412,11 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 	return (true);
 }
 
-vector<string> custom_function::get_atom_printout() const {
-	vector<string> printable_funct;
+std::vector<std::string> custom_function::get_atom_printout() const {
+	std::vector<std::string> printable_funct;
 
-	for (vector<custom_funct_atom>::const_iterator pos = our_function.begin();
+	for (std::vector<custom_funct_atom>::const_iterator pos =
+			our_function.begin();
 		pos != our_function.end(); ++pos) {
 		printable_funct.push_back(atom_to_word(*pos));
 	}

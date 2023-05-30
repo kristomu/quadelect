@@ -13,35 +13,35 @@
 #include <vector>
 #include <list>
 
-using namespace std;
 
 class gaussian_generator : public spatial_generator {
 	private:
 		// TODO: Ziggurat instead.
-		pair<double, double> grnd(double sigma) const;
-		pair<double, double> grnd(double mean, double sigma) const;
-		pair<double, double> grnd(double xmean, double ymean,
+		std::pair<double, double> grnd(double sigma) const;
+		std::pair<double, double> grnd(double mean, double sigma) const;
+		std::pair<double, double> grnd(double xmean, double ymean,
 			double sigma) const;
 		// Get preferences according to distance.
 		// BLUESKY: Permit different norms.
-		ballot_group get_dist_pref(const vector<double> & center,
-			const vector<vector<double> > & cand_pos,
+		ballot_group get_dist_pref(const std::vector<double> & center,
+			const std::vector<std::vector<double> > & cand_pos,
 			double sigma) const;
 
 		double sigma_set;
-		vector<double> mean_set;
+		std::vector<double> mean_set;
 
 	public:
 		gaussian_generator();
 		gaussian_generator(bool do_truncate);
 		gaussian_generator(bool do_truncate,
-			const vector<double> & center, double sigma);
+			const std::vector<double> & center, double sigma);
 
-		list<ballot_group> get_gaussians(const vector<vector<double> > &
+		std::list<ballot_group> get_gaussians(const
+			std::vector<std::vector<double> > &
 			cand_positions, int num_voters) const;
 };
 
-pair<double, double> gaussian_generator::grnd(double sigma) const {
+std::pair<double, double> gaussian_generator::grnd(double sigma) const {
 
 	// Box-Mueller, dammit. We really should have something that requires
 	// only a single invocation of the RNG, but bah.
@@ -61,38 +61,39 @@ pair<double, double> gaussian_generator::grnd(double sigma) const {
 	// Okay, now we have (x,y) within the unit circle. Transform to get a
 	// random Gaussian distributed variable.
 	double conv_factor = sigma * sqrt(-2.0 * log(rad) / rad);
-	return (pair<double, double>(x * conv_factor, y * conv_factor));
+	return (std::pair<double, double>(x * conv_factor, y * conv_factor));
 }
 
-pair<double, double> gaussian_generator::grnd(double xmean, double ymean,
+std::pair<double, double> gaussian_generator::grnd(double xmean,
+	double ymean,
 	double sigma) const {
-	pair<double, double> unadorned = grnd(sigma);
+	std::pair<double, double> unadorned = grnd(sigma);
 
-	return (pair<double, double>(unadorned.first + xmean,
+	return (std::pair<double, double>(unadorned.first + xmean,
 				unadorned.second + ymean));
 }
 
-pair<double, double> gaussian_generator::grnd(double mean,
+std::pair<double, double> gaussian_generator::grnd(double mean,
 	double sigma) const {
 	return (grnd(mean, mean, sigma));
 }
 
 
-ballot_group gaussian_generator::get_dist_pref(const vector<double> &
+ballot_group gaussian_generator::get_dist_pref(const std::vector<double> &
 	center,
-	const vector<vector<double> > & cand_pos, double sigma) const {
+	const std::vector<std::vector<double> > & cand_pos, double sigma) const {
 
-	vector<double> mypos(center.size());
+	std::vector<double> mypos(center.size());
 	// mean is mypos
 	int counter, sec;
 
-	//cout << center[0] << " " << center[1] << endl;
+	//std::cout << center[0] << " " << center[1] << std::endl;
 
 	for (counter = 0; counter < center.size(); counter += 2) {
 		if (counter == center.size()-1) {
 			mypos[counter] = grnd(center[counter], sigma).first;
 		} else {
-			pair<double, double> coords = grnd(center[counter],
+			std::pair<double, double> coords = grnd(center[counter],
 					center[counter+1], sigma);
 			mypos[counter] = coords.first;
 			mypos[counter+1] = coords.second;
@@ -114,16 +115,16 @@ ballot_group gaussian_generator::get_dist_pref(const vector<double> &
 gaussian_generator();
                 gaussian_generator(bool do_truncate);
 		                gaussian_generator(bool do_truncate,
-						                                const vector<double> & center, double sigma);
+						                                const std::vector<double> & center, double sigma);
 */
 // Oops, is this indiv after all?
 
-list<ballot_group> gaussian_generator::get_gaussians(
-	const vector<vector<double> > & cand_positions,
-	const vector<double> & center, int num_voters,
+std::list<ballot_group> gaussian_generator::get_gaussians(
+	const std::vector<std::vector<double> > & cand_positions,
+	const std::vector<double> & center, int num_voters,
 	double sigma) const {
 
-	list<ballot_group> to_ret; // uncompressed
+	std::list<ballot_group> to_ret; // uncompressed
 
 	for (int counter = 0; counter < num_voters; ++counter) {
 		to_ret.push_back(get_dist_pref(center, cand_positions, sigma));

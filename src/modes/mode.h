@@ -12,11 +12,11 @@
 //				    probably see where I'm going with this).
 //	- bool do_round() - does just that; runs a round. Returns false if not
 //			    inited or everything's finished.
-//	- v<string> provide_status() - Gives a set of strings that inform the
+//	- v<std::string> provide_status() - Gives a set of strings that inform the
 //			user about status so far. In BR this is just the stats.
 
 // BLUESKY: Merge operator so we can split this among multiple processes. Real
-// Bluesky^n: v<string> op for dumping the data that needs to be synced - then
+// Bluesky^n: v<std::string> op for dumping the data that needs to be synced - then
 // we can do client-server! (Albeit without redundancy.)
 
 #ifndef _VOTE_MODE
@@ -27,7 +27,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
 
 class mode {
 
@@ -37,10 +36,10 @@ class mode {
 		virtual int get_max_rounds() const = 0;
 		virtual int get_current_round() const = 0;
 
-		virtual string do_round(bool give_brief_status,
+		virtual std::string do_round(bool give_brief_status,
 			bool reseed, rng & randomizer) = 0;
 
-		virtual vector<string> provide_status() const = 0;
+		virtual std::vector<std::string> provide_status() const = 0;
 };
 
 #endif

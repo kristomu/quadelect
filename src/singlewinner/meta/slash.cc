@@ -11,19 +11,20 @@
 
 #include "slash.h"
 
-pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates, cache_map *
+std::pair<ordering, bool> slash::elect_inner(const std::list<ballot_group>
+	& papers,
+	const std::vector<bool> & hopefuls, int num_candidates, cache_map *
 	cache, bool winner_only) const {
 
 	// First get the ordering for the set method, using cache. If we have
 	// cached the set result, this will be very quick.
 
-	pair<ordering, bool> set_result = set_method->elect_detailed(papers,
+	std::pair<ordering, bool> set_result = set_method->elect_detailed(papers,
 			hopefuls, num_candidates, cache, winner_only);
 
 	// Adjust hopefuls according to the results from the set. "As long as
 	// the score is different from top rank, exclude that candidate".
-	vector<bool> specified_hopefuls = hopefuls;
+	std::vector<bool> specified_hopefuls = hopefuls;
 	for (ordering::const_reverse_iterator rpos = set_result.first.rbegin();
 		rpos != set_result.first.rend() && rpos->get_score() !=
 		set_result.first.begin()->get_score(); ++rpos) {
@@ -38,7 +39,7 @@ pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
 	// indicate (in cache) which candidates are used and which aren't, so
 	// the issue disappears.
 
-	pair<ordering, bool> spec_result = specific_method->elect_detailed(
+	std::pair<ordering, bool> spec_result = specific_method->elect_detailed(
 			papers, specified_hopefuls, num_candidates, NULL, winner_only);
 
 	// The rest goes as in comma: we complete one of the ballots with the
@@ -46,7 +47,7 @@ pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
 	// the specified method can only have opinions about the candidates
 	// that are ranked equal first by the first.
 
-	pair<ordering, bool> toRet;
+	std::pair<ordering, bool> toRet;
 
 	// If either of the methods take a shortcut due to winner_only, the
 	// result can only be counted as winner_only. But if neither does, then
@@ -61,7 +62,7 @@ pair<ordering, bool> slash::elect_inner(const list<ballot_group> & papers,
 	return (toRet);
 }
 
-string slash::determine_name() const {
+std::string slash::determine_name() const {
 	return ("[" + set_method->name() + "]//[" + specific_method->name()
 			+ "]");
 }

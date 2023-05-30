@@ -160,11 +160,11 @@ relative_test_instance test_generator::sample_instance(
 	relative_test_instance out;
 	size_t i;
 
-	// This is kinda unwieldy: we go from vector<double> to
-	// list<ballot_group> only so we can rotate and determine scenarios;
-	// then we go right back because gen_custom_function takes vector<double>.
+	// This is kinda unwieldy: we go from std::vector<double> to
+	// std::list<ballot_group> only so we can rotate and determine scenarios;
+	// then we go right back because gen_custom_function takes std::vector<double>.
 	// TODO at some later time: skip the middle man. Probably will involve
-	// making a vector<double> election class.
+	// making a std::vector<double> election class.
 
 	// It's now better handled to do cloning. But note that if we clone A
 	// into say, A and D, then for vote-splitting, we should check that if

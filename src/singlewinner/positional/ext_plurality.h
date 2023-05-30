@@ -21,9 +21,9 @@ class ext_plurality : public positional {
 		}
 
 	public:
-		ordering pos_elect(const vector<vector<double> > &
+		ordering pos_elect(const std::vector<std::vector<double> > &
 			positional_matrix, int num_hopefuls,
-			const vector<bool> * hopefuls) const {
+			const std::vector<bool> * hopefuls) const {
 
 			// We want to find the permutation x_1..x_n so that
 			// the x_ith row of the positional matrix is always >=
@@ -71,7 +71,7 @@ class ext_plurality : public positional {
 
 		ext_plurality(positional_type kind_in) : positional(kind_in) {}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Ext-Plurality");
 		}
 };

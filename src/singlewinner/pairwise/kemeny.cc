@@ -23,8 +23,9 @@
 #include <vector>
 #include <glpk.h>
 
-vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
-	const vector<bool> & hopefuls, bool debug) const {
+std::vector<std::vector<bool> > kemeny::solve_kemeny(
+	const abstract_condmat & input,
+	const std::vector<bool> & hopefuls, bool debug) const {
 
 	// The output is an adjacency matrix where [a][b] is true if a beats b
 	// in the transitive Kemeny ordering.
@@ -115,7 +116,7 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	int running_count = 1;
 
 	int counter, sec, tri;
-	string name;
+	std::string name;
 
 	// Set columns as binary and give them proper names. Excess columns
 	// (x[1][1], [2][2] etc) are left alone so they won't slow things too
@@ -238,8 +239,8 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	}
 
 	// Proceed to load the constraints into the IP solver.
-	//cout << "Running count: " << running_count << " of " <<
-	//	entries << endl;
+	//std::cout << "Running count: " << running_count << " of " <<
+	//	entries << std::endl;
 	if (running_count > entries + 1) {
 		throw std::logic_error("Kemeny: Got out of bounds"
 			" while preparing problem!");
@@ -311,9 +312,10 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 
 	// Now populate the return matrix.
 
-	vector<vector<bool> > adjacency;
+	std::vector<std::vector<bool> > adjacency;
 
-	adjacency = vector<vector<bool> > (n, vector<bool>(n, false));
+	adjacency = std::vector<std::vector<bool> > (n, std::vector<bool>(n,
+				false));
 
 	for (counter = 0; counter < n; ++counter) {
 		if (!hopefuls[counter]) {
@@ -352,12 +354,13 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	return (adjacency);
 }
 
-pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> kemeny::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	// First, get the transitive adjacency matrix for Kemeny.
-	vector<vector<bool> > adj = solve_kemeny(input, hopefuls, true);
+	std::vector<std::vector<bool> > adj = solve_kemeny(input, hopefuls, true);
 
 	// If we start with at least one candidate, we should finish with
 	// at least one.
@@ -365,7 +368,7 @@ pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
 
 	// If there's nothing here, abort as that's an error.
 	if (adj.empty()) {
-		return (pair<ordering, bool>(ordering(), false));
+		return (std::pair<ordering, bool>(ordering(), false));
 	}
 
 	// Otherwise, each's score is the number of candidates he ranks above.
@@ -391,5 +394,5 @@ pair<ordering, bool> kemeny::pair_elect(const abstract_condmat & input,
 		out.insert(candscore(counter, candcount));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

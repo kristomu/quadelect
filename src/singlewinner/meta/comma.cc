@@ -9,21 +9,22 @@
 
 #include "comma.h"
 
-pair<ordering, bool> comma::elect_inner(const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates, cache_map *
+std::pair<ordering, bool> comma::elect_inner(const std::list<ballot_group>
+	& papers,
+	const std::vector<bool> & hopefuls, int num_candidates, cache_map *
 	cache, bool winner_only) const {
 
 	// First get the orderings for the two base methods. Note the power of
 	// cache: if we've calculated either before, that base method will
 	// reduce to a simple lookup and so be very fast.
 
-	pair<ordering, bool> set_result = set_method->elect_detailed(papers,
+	std::pair<ordering, bool> set_result = set_method->elect_detailed(papers,
 			hopefuls, num_candidates, cache, winner_only);
 
-	pair<ordering, bool> spec_result = specific_method->elect_detailed(
+	std::pair<ordering, bool> spec_result = specific_method->elect_detailed(
 			papers, hopefuls, num_candidates, cache, winner_only);
 
-	pair<ordering, bool> toRet;
+	std::pair<ordering, bool> toRet;
 
 	// If either of the methods take a shortcut due to winner_only, the
 	// result can only be counted as winner_only. But if neither does, then
@@ -38,7 +39,7 @@ pair<ordering, bool> comma::elect_inner(const list<ballot_group> & papers,
 	return (toRet);
 }
 
-string comma::determine_name() const {
+std::string comma::determine_name() const {
 	return ("[" + set_method->name() + "],[" + specific_method->name()
 			+ "]");
 }

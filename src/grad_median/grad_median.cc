@@ -13,7 +13,6 @@
 
 #include "grad_median.h"
 
-using namespace std;
 
 // Private
 
@@ -29,9 +28,9 @@ using namespace std;
 // and the right of the sweep line in the algorithm itself.
 
 double grad_fracile::get_center(
-	list<pair<double, double> >::const_iterator & lower,
-	list<pair<double, double> >::const_iterator & upper,
-	const list<pair<double, double> > & source,
+	std::list<std::pair<double, double> >::const_iterator & lower,
+	std::list<std::pair<double, double> >::const_iterator & upper,
+	const std::list<std::pair<double, double> > & source,
 	double numvoters, double fracile) const {
 
 	double sum = 0;
@@ -82,14 +81,15 @@ void grad_fracile::add_score(size_t candidate, double left, double right) {
 // This function does run length encoding of the sorted list, so that if the
 // number of ratings is fixed, the structure will be polyspace summable.
 
-void grad_fracile::compress_candidate(list<pair<double, double> > &
+void grad_fracile::compress_candidate(std::list<std::pair<double, double> >
+	&
 	cand_scores, bool sorted) {
 
 	if (!sorted) {
 		cand_scores.sort();
 	}
 
-	list<pair<double, double> > ::iterator pos, advance;
+	std::list<std::pair<double, double> > ::iterator pos, advance;
 
 	advance = cand_scores.begin();
 	pos = advance++;
@@ -125,22 +125,22 @@ grad_fracile::grad_fracile() {
 	// so that they are always below or above the most extreme rank
 	// possible.
 
-	minscorev.push_back(pair<double, double>(-INFINITY, INFINITY));
-	maxscorev.push_back(pair<double, double>(INFINITY, INFINITY));
+	minscorev.push_back(std::pair<double, double>(-INFINITY, INFINITY));
+	maxscorev.push_back(std::pair<double, double>(INFINITY, INFINITY));
 
 	num_hopefuls = 0;
 }
 
 int grad_fracile::add_candidate() {
-	sorted_lists.push_back(list<pair<double, double> >());
+	sorted_lists.push_back(std::list<std::pair<double, double> >());
 	hopefuls.push_back(true);
 	++num_hopefuls;
 
-	finite_min_sentinels.push_back(list<pair<double, double> >());
-	finite_min_sentinels.rbegin()->push_back(pair<double, double>(0,
+	finite_min_sentinels.push_back(std::list<std::pair<double, double> >());
+	finite_min_sentinels.rbegin()->push_back(std::pair<double, double>(0,
 			INFINITY));
-	finite_max_sentinels.push_back(list<pair<double, double> >());
-	finite_max_sentinels.rbegin()->push_back(pair<double, double>(0,
+	finite_max_sentinels.push_back(std::list<std::pair<double, double> >());
+	finite_max_sentinels.rbegin()->push_back(std::pair<double, double>(0,
 			INFINITY));
 	left_indices.push_back(minscorev.begin());
 	right_indices.push_back(minscorev.begin());
@@ -202,7 +202,7 @@ bool grad_fracile::add_rating(size_t candidate, double weight,
 	// If the candidate's entry is empty, insert and we're done.
 	// Sorted remains true but a reset will be needed.
 	if (sorted_lists[candidate].empty()) {
-		sorted_lists[candidate].push_back(pair<double, double>(rating,
+		sorted_lists[candidate].push_back(std::pair<double, double>(rating,
 				weight));
 		return (true);
 	}
@@ -223,14 +223,14 @@ bool grad_fracile::add_rating(size_t candidate, double weight,
 	// If the rating is less than the first block, we can insert at the
 	// beginning without turning the list unsorted, so do so.
 	if (sorted_lists[candidate].begin()->first > rating) {
-		sorted_lists[candidate].push_front(pair<double, double>(rating,
+		sorted_lists[candidate].push_front(std::pair<double, double>(rating,
 				weight));
 		return (true);
 	}
 
 	// Same for last.
 	if (sorted_lists[candidate].rbegin()->first < rating) {
-		sorted_lists[candidate].push_back(pair<double, double>(rating,
+		sorted_lists[candidate].push_back(std::pair<double, double>(rating,
 				weight));
 		return (true);
 	}
@@ -238,7 +238,8 @@ bool grad_fracile::add_rating(size_t candidate, double weight,
 	// Okay, so neither is true. Invalidate the sorted-order invariant
 	// and insert at the end.
 	all_sorted = false;
-	sorted_lists[candidate].push_back(pair<double, double>(rating, weight));
+	sorted_lists[candidate].push_back(std::pair<double, double>(rating,
+			weight));
 	return (true);
 }
 
@@ -320,7 +321,8 @@ double grad_fracile::lget_eff_voters(size_t candidate) const {
 
 	double sum = 0;
 
-	for (list<pair<double, double> >::const_iterator pos = sorted_lists[
+	for (std::list<std::pair<double, double> >::const_iterator pos =
+			sorted_lists[
 				candidate].begin(); pos != sorted_lists[candidate].
 		end(); ++pos) {
 		sum += pos->second;
@@ -350,10 +352,10 @@ bool grad_fracile::init(double fracile, completion_type completion_in) {
 	}
 
 	// Clear the priority queue and iterators.
-	left_pq = priority_queue<priority_entry, vector<priority_entry>,
-	greater<priority_entry> >();
-	right_pq = priority_queue<priority_entry, vector<priority_entry>,
-	greater<priority_entry> >();
+	left_pq = std::priority_queue<priority_entry, std::vector<priority_entry>,
+	std::greater<priority_entry> >();
+	right_pq = std::priority_queue<priority_entry, std::vector<priority_entry>,
+	std::greater<priority_entry> >();
 
 	left_indices.clear();
 	right_indices.clear();
@@ -363,7 +365,7 @@ bool grad_fracile::init(double fracile, completion_type completion_in) {
 	changed = false;
 
 	// For all candidates, find the generalized median (center point).
-	list<pair<double, double> >::const_iterator cur_right, cur_left;
+	std::list<std::pair<double, double> >::const_iterator cur_right, cur_left;
 	double cumul, left_dist, right_dist;
 
 	for (counter = 0; counter < sorted_lists.size(); ++counter) {
@@ -438,10 +440,10 @@ bool grad_fracile::ordinal_changed() const {
 
 void grad_fracile::print_next_pair(size_t cand, bool left) const {
 	if (left)
-		cout << "(s: " << left_indices[cand]->first << ", len: " <<
+		std::cout << "(s: " << left_indices[cand]->first << ", len: " <<
 			left_indices[cand]->second << ")";
 	else
-		cout << "(s: " << right_indices[cand]->first << ", len: " <<
+		std::cout << "(s: " << right_indices[cand]->first << ", len: " <<
 			right_indices[cand]->second << ")";
 }
 
@@ -477,7 +479,7 @@ bool grad_fracile::update(bool debug) {
 	// If either priority queue is empty, something is wrong; outta here.
 	if (right_pq.empty() || left_pq.empty()) {
 		if (debug) {
-			cout << "ERROR: Empty priority queue!!" << endl;
+			std::cout << "ERROR: Empty priority queue!!" << std::endl;
 		}
 		return (false);
 	}
@@ -485,7 +487,7 @@ bool grad_fracile::update(bool debug) {
 	// Peek at the top of the queue to find the position/s with the shortest
 	// distance.
 
-	double minimum_distance = min(left_pq.top().distance,
+	double minimum_distance = std::min(left_pq.top().distance,
 			right_pq.top().distance);
 
 	// If neither is finite, that means that we have a sentinel value; in
@@ -496,13 +498,13 @@ bool grad_fracile::update(bool debug) {
 	}
 
 	if (debug) {
-		cout << "Left minimum distance is " <<
-			left_pq.top().distance << endl;
-		cout << "Right minimum distance is " <<
-			right_pq.top().distance << endl;
-		cout << "Minimum distance is " << minimum_distance <<
+		std::cout << "Left minimum distance is " <<
+			left_pq.top().distance << std::endl;
+		std::cout << "Right minimum distance is " <<
+			right_pq.top().distance << std::endl;
+		std::cout << "Minimum distance is " << minimum_distance <<
 			" with difference " << left_pq.top().distance -
-			right_pq.top().distance << endl;
+			right_pq.top().distance << std::endl;
 	}
 
 	// Assume that no change in score has occurred. If that is still the
@@ -529,14 +531,14 @@ bool grad_fracile::update(bool debug) {
 		// otherwise it's the current rating (??)
 		if (left_indices[cand] == sorted_lists[cand].begin()) {
 			if (debug) {
-				cout << cand << " reached beginning" << endl;
+				std::cout << cand << " reached beginning" << std::endl;
 			}
 			if (completion == GF_BOTH || completion == GF_LEAST) {
 				left_indices[cand] = minscorev.begin();
 			} else {
 				if (debug)
-					cout << "Setting min sentinel to "
-						<< new_event.score << endl;
+					std::cout << "Setting min sentinel to "
+						<< new_event.score << std::endl;
 				// HACK HACK
 				finite_min_sentinels[cand].begin()->first =
 					new_event.score;
@@ -557,9 +559,9 @@ bool grad_fracile::update(bool debug) {
 		left_pq.push(new_event);
 
 		if (debug)
-			cout << "Updated candidate " << cand <<
+			std::cout << "Updated candidate " << cand <<
 				"'s left distance to " << new_event.distance <<
-				endl;
+				std::endl;
 	}
 
 
@@ -587,15 +589,15 @@ bool grad_fracile::update(bool debug) {
 		// half vote every candidate zero.)
 		if (right_indices[cand] == sorted_lists[cand].end()) {
 			if (debug) {
-				cout << cand << " reached end." << endl;
+				std::cout << cand << " reached end." << std::endl;
 			}
 
 			if (completion == GF_BOTH || completion == GF_GREATEST) {
 				right_indices[cand] = maxscorev.begin();
 			} else {
 				if (debug)
-					cout << "Setting max sentinel to "
-						<< new_event.score << endl;
+					std::cout << "Setting max sentinel to "
+						<< new_event.score << std::endl;
 				// HACK HACK
 				finite_max_sentinels[cand].begin()->first =
 					new_event.score;
@@ -613,9 +615,9 @@ bool grad_fracile::update(bool debug) {
 		right_pq.push(new_event);
 
 		if (debug)
-			cout << "Updated candidate " << cand <<
+			std::cout << "Updated candidate " << cand <<
 				"'s right distance to " << new_event.distance <<
-				endl;
+				std::endl;
 	}
 
 	return (true);

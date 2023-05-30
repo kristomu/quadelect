@@ -21,11 +21,11 @@ class tup : public pairwise_method {
 		tup_type type;
 
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const {
+		std::string pw_name() const {
 			switch (type) {
 				case TUP_TUP: return ("EXP:Tup");
 				case TUP_SV: return ("EXP:Tup-SV");

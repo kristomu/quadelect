@@ -143,7 +143,7 @@ double confidence_int::incbeta_inverse(double alpha, double p, double q,
 		xin = xinbta;
 		y = (y-a)*exp(beta+r*log(xin)+t*log(1.0-xin));
 		if (y*yprev <= 0.0) {
-			prev = max(sq, fpu);
+			prev = std::max(sq, fpu);
 		}
 		g = 1.0;
 

@@ -18,15 +18,14 @@
 
 #include "least_rev.h"
 
-using namespace std;
-
-pair<ordering, bool> least_rev::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> least_rev::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	ordering toRet;
 
-	complex<double> comp_score(0, 0), cpwr(power, 0);
+	std::complex<double> comp_score(0, 0), cpwr(power, 0);
 	double real_score, cur_off, cur_def;
 
 	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
@@ -84,11 +83,11 @@ pair<ordering, bool> least_rev::pair_elect(const abstract_condmat & input,
 		toRet.insert(candscore(counter, real_score));
 	}
 
-	return (pair<ordering, bool>(toRet, false));
+	return (std::pair<ordering, bool>(toRet, false));
 }
 
-string least_rev::pw_name() const {
-	string stub;
+std::string least_rev::pw_name() const {
+	std::string stub;
 
 	if (offense && defense) {
 		stub = "L-R both/";

@@ -47,7 +47,7 @@ class first_pref_copeland : public election_method {
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string name() const {
+		std::string name() const {
 			return ("First pref. Copeland");
 		}
 };

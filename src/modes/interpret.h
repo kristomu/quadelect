@@ -20,24 +20,24 @@
 class interpreter_mode : public mode {
 
 	private:
-		vector<const election_method *> methods;
-		list<const interpreter *> interpreters;
-		list<ballot_group> input_ballots;
-		vector<string> input_ballots_unparsed;
-		list<ordering> results;
-		map<size_t, string> cand_lookup;
+		std::vector<const election_method *> methods;
+		std::list<const interpreter *> interpreters;
+		std::list<ballot_group> input_ballots;
+		std::vector<std::string> input_ballots_unparsed;
+		std::list<ordering> results;
+		std::map<size_t, std::string> cand_lookup;
 		cache_map cache_inside;
 		int cur_iter;
 		bool inited, needs_interpreting;
 
-		string base26(int number) const;
-		void complete_default_lookup(map<size_t, string> & to_complete,
+		std::string base26(int number) const;
+		void complete_default_lookup(std::map<size_t, std::string> & to_complete,
 			size_t how_many) const;
-		map<size_t, string> gen_default_lookup(size_t how_many) const;
+		std::map<size_t, std::string> gen_default_lookup(size_t how_many) const;
 
 		// Get an upper bound on how many candidates we need to have
 		// mapped.
-		int get_max_candidates(const list<ballot_group> & in) const;
+		int get_max_candidates(const std::list<ballot_group> & in) const;
 
 		// Interpret unparsed ballots. If it can't find any suitable
 		// methods, it'll return false.
@@ -47,9 +47,9 @@ class interpreter_mode : public mode {
 		void invalidate();
 
 	public:
-		void set_ballots(const list<ballot_group> & ballot_in);
-		bool set_ballots(const list<ballot_group> & ballot_in,
-			const map<size_t, string> & candidate_names);
+		void set_ballots(const std::list<ballot_group> & ballot_in);
+		bool set_ballots(const std::list<ballot_group> & ballot_in,
+			const std::map<size_t, std::string> & candidate_names);
 		// ... set_unparsed_ballots ...
 
 		// Seen this before?
@@ -68,14 +68,14 @@ class interpreter_mode : public mode {
 			inited = false;
 			cur_iter = 0;
 		}
-		interpreter_mode(list<const interpreter *> & interpreters_in,
-			list<const election_method *> & methods_in,
-			list<ballot_group> & ballots_in);
-		interpreter_mode(list<const interpreter *> & interpreters_in,
-			list<const election_method *> & methods_in,
-			vector<string> & ballots_in_unparsed);
-		interpreter_mode(list<const interpreter *> & interpreters_in,
-			list<const election_method *> & methods_in);
+		interpreter_mode(std::list<const interpreter *> & interpreters_in,
+			std::list<const election_method *> & methods_in,
+			std::list<ballot_group> & ballots_in);
+		interpreter_mode(std::list<const interpreter *> & interpreters_in,
+			std::list<const election_method *> & methods_in,
+			std::vector<std::string> & ballots_in_unparsed);
+		interpreter_mode(std::list<const interpreter *> & interpreters_in,
+			std::list<const election_method *> & methods_in);
 
 		// There really isn't much to do but init.
 		bool init(rng & randomizer);
@@ -84,13 +84,13 @@ class interpreter_mode : public mode {
 		// 0 if nothing's going on.
 		int get_current_round() const;
 
-		string do_round(bool give_brief_status, bool reseed,
+		std::string do_round(bool give_brief_status, bool reseed,
 			rng & randomizer, cache_map * cache);
 
-		string do_round(bool give_brief_status, bool reseed,
+		std::string do_round(bool give_brief_status, bool reseed,
 			rng & randomizer);
 
-		vector<string> provide_status() const;
+		std::vector<std::string> provide_status() const;
 };
 
 template<typename T> void interpreter_mode::add_methods(T start_iter,

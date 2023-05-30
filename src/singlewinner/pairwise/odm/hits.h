@@ -16,7 +16,6 @@
 
 #include "odm_gen.h"
 
-using namespace std;
 
 class hits : public odm_gen {
 
@@ -24,11 +23,11 @@ class hits : public odm_gen {
 		double nltrans(double pairwise_value,
 			double opposing_strength) const;
 
-		void ir_norm(vector<double> & factors) const;
+		void ir_norm(std::vector<double> & factors) const;
 
 		double get_score(double offense, double defense) const;
 
-		string odm_name() const;
+		std::string odm_name() const;
 
 	public:
 		hits(pairwise_type def_type_in, double tolerance_in) :

@@ -8,7 +8,6 @@
 
 #include "simple_methods.h"
 
-using namespace std;
 
 /////////////////////////////////////////////
 

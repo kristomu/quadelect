@@ -18,18 +18,18 @@
 
 #include "interpreter.h"
 
-using namespace std;
 
 class rank_order_int : public interpreter {
 
 	public:
-		bool is_this_format(const vector<string> & inputs) const;
+		bool is_this_format(const std::vector<std::string> & inputs) const;
 
-		pair<map<size_t, string>, list<ballot_group> > interpret_ballots(
-			const vector<string> & inputs,
+		std::pair<std::map<size_t, std::string>, std::list<ballot_group> >
+		interpret_ballots(
+			const std::vector<std::string> & inputs,
 			bool debug) const;
 
-		string name() const {
+		std::string name() const {
 			return ("Raw rank-ballot input");
 		}
 };

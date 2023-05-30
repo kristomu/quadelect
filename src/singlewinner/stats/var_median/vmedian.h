@@ -35,37 +35,36 @@
 
 #include "comparand.h"
 
-using namespace std;
 
 class vi_median_ratings : public election_method {
 
 	private:
-		grad_fracile aggregate_ratings(const list<ballot_group> &
-			papers, int num_candidates, const vector<bool> &
+		grad_fracile aggregate_ratings(const std::list<ballot_group> &
+			papers, int num_candidates, const std::vector<bool> &
 			hopefuls, bool do_norm, double minimum,
 			double maximum) const;
 
-		pair<ordering, bool> get_ranks(grad_fracile & source,
+		std::pair<ordering, bool> get_ranks(grad_fracile & source,
 			double fracile, bool tiebreak,
 			bool winner_only, bool debug) const;
 
-		string cached_name;
+		std::string cached_name;
 		bool use_tiebreak, normalize;
 		int med_maximum; // minimum is 0.
 
 	protected:
 
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string determine_name() const;
+		std::string determine_name() const;
 
 	public:
 
-		string name() const {
+		std::string name() const {
 			return (cached_name);
 		}
 

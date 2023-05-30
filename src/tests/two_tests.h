@@ -53,44 +53,44 @@ enum ternary {TFALSE = -1, TINAPP = 0, TTRUE = 1};
 
 class twotest {
 	private:
-		ordering synthesize_single_winner(const list<int> &
+		ordering synthesize_single_winner(const std::list<int> &
 			mw_council, int num_candidates) const;
 
 	protected:
 
 		// Pick a candidate to move for mono-raise, a ranking to add
 		// for mono-add-top, etc., and then seed for random raising.
-		virtual vector<size_t> generate_aux_data(
-			const list<ballot_group> & input,
+		virtual std::vector<size_t> generate_aux_data(
+			const std::list<ballot_group> & input,
 			size_t numcands) const {
-			return (vector<size_t>(0));
+			return (std::vector<size_t>(0));
 		}
 
 		// Always provides the same modification with the same data.
 		// The boolean is false if we couldn't alter the ballots
 		// according to the data (i.e. symmetric ballots in reversal).
-		virtual pair<bool, list<ballot_group> > rearrange_ballots(
-			const list<ballot_group> & input,
+		virtual std::pair<bool, std::list<ballot_group> > rearrange_ballots(
+			const std::list<ballot_group> & input,
 			size_t numcands,
-			const vector<size_t> & data) const = 0;
+			const std::vector<size_t> & data) const = 0;
 
 		// We give access to data so that mono-raise with a given
 		// candidate to raise and only winners considered can return
 		// false if the candidate in question isn't ranked top in
 		// the social ordering.
 		virtual bool applicable(const ordering & check,
-			const vector<size_t> & data, bool orig) const = 0;
+			const std::vector<size_t> & data, bool orig) const = 0;
 
 		virtual bool pass_internal(const ordering & original,
 			const ordering & modified,
-			const vector<size_t> & data,
+			const std::vector<size_t> & data,
 			size_t numcands) const = 0;
 
 		// For disproof.
 		disproof disproof_out;
 
-		virtual string explain_change_int(const vector<size_t> & data,
-			const map<size_t, string> & cand_names) const = 0;
+		virtual std::string explain_change_int(const std::vector<size_t> & data,
+			const std::map<size_t, std::string> & cand_names) const = 0;
 
 	public:
 
@@ -104,11 +104,11 @@ class twotest {
 			cache_map * unmod_cache, cache_map * mod_cache);
 
 		virtual ternary pass(const election_method * base,
-			const list<ballot_group> & input,
+			const std::list<ballot_group> & input,
 			int num_candidates, cache_map * unmod_cache,
 			cache_map * mod_cache);
 		ternary pass(const election_method * base,
-			const list<ballot_group> & input,
+			const std::list<ballot_group> & input,
 			int num_candidates);
 		// Run a test with the same ballot and modified as last time.
 		// If unmod_last_set is true, we don't try to find the outcome
@@ -124,19 +124,19 @@ class twotest {
 		// compliance_data.
 		// Returns false if/when all methods have disproofs if
 		// skip_already_false is true, otherwise returns true.
-		bool pass_many(const vector<ordering> & base_outcomes,
-			const list<ballot_group> & original_ballots,
+		bool pass_many(const std::vector<ordering> & base_outcomes,
+			const std::list<ballot_group> & original_ballots,
 			int num_candidates, int num_nc_iters, const
-			vector<const election_method *> &
+			std::vector<const election_method *> &
 			methods_to_test,
-			vector<method_test_info> & compliance_data,
+			std::vector<method_test_info> & compliance_data,
 			bool skip_already_false);
 
 		/*virtual ternary pass_multiwinner_last(const multiwinner_method *
 				mwbase, int council_size, int num_candidates);
 
 		virtual ternary pass_multiwinner(const multiwinner_method *
-				mwbase, const list<ballot_group> & input,
+				mwbase, const std::list<ballot_group> & input,
 				int council_size, int num_candidates);*/
 		// Pass_multiwinner. Also enable winner_only in the case
 		// of MW, since it's just [winning council ] > [all others].
@@ -158,21 +158,21 @@ class twotest {
 			disproof_out.unmodified_ordering = in;
 		}
 
-		virtual string name() const = 0;
+		virtual std::string name() const = 0;
 
 		// Return true if the test only needs to know who the winners
 		// are, otherwise false.
 		virtual bool winner_only() const = 0;
 
-		string explain_last_change(const map<size_t, string> &
+		std::string explain_last_change(const std::map<size_t, std::string> &
 			cand_names) const {
 			return (explain_change_int(disproof_out.
 						modification_data,
 						cand_names));
 		}
 
-		string explain_change(const disproof & disproof_in,
-			const map<size_t, string> & cand_names) const {
+		std::string explain_change(const disproof & disproof_in,
+			const std::map<size_t, std::string> & cand_names) const {
 			return (explain_change_int(disproof_in.
 						modification_data,
 						cand_names));

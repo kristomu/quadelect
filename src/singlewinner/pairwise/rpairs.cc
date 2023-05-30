@@ -19,12 +19,11 @@
 
 #include "rpairs.h"
 
-using namespace std;
 
 // TODO? Return number of steps required or -1 if not there. Then if # steps
 // == num candidates, we can bail early.
 bool ranked_pairs::st_connectivity(int source, int dest,
-	const vector<list<int> > & adjacency_lists) const {
+	const std::vector<std::list<int> > & adjacency_lists) const {
 
 	// If we're at the destination, all done. Otherwise recurse into every
 	// node connected to ours. Note: if the graph has a cycle, we'll be
@@ -35,7 +34,7 @@ bool ranked_pairs::st_connectivity(int source, int dest,
 		return (true);
 	}
 
-	for (list<int>::const_iterator pos = adjacency_lists[source].begin();
+	for (std::list<int>::const_iterator pos = adjacency_lists[source].begin();
 		pos != adjacency_lists[source].end(); ++pos)
 		if (st_connectivity(*pos, dest, adjacency_lists)) {
 			return (true);
@@ -45,18 +44,19 @@ bool ranked_pairs::st_connectivity(int source, int dest,
 }
 
 // A breadth-first traversal might be quicker, but would also be more complex.
-void ranked_pairs::traverse_tree(vector<int> & places, int node, int depth,
-	const vector<list<int> > & adjacency_lists) const {
+void ranked_pairs::traverse_tree(std::vector<int> & places, int node,
+	int depth,
+	const std::vector<std::list<int> > & adjacency_lists) const {
 
-	places[node] = max(places[node], depth);
+	places[node] = std::max(places[node], depth);
 
-	for (list<int>::const_iterator pos = adjacency_lists[node].begin();
+	for (std::list<int>::const_iterator pos = adjacency_lists[node].begin();
 		pos != adjacency_lists[node].end(); ++pos) {
 		traverse_tree(places, *pos, depth + 1, adjacency_lists);
 	}
 }
 
-string ranked_pairs::pw_name() const {
+std::string ranked_pairs::pw_name() const {
 
 	if (is_river) {
 		return ("River");
@@ -65,14 +65,14 @@ string ranked_pairs::pw_name() const {
 	}
 }
 
-pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat &
+std::pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat &
 	input,
-	const vector<bool> & hopefuls, cache_map * cache,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	// First dump the n^2 - n different contests into a vector.
 
-	vector<beat_component> contests;
+	std::vector<beat_component> contests;
 	int numcand = input.get_num_candidates();
 	contests.reserve(numcand * (numcand - 1));
 
@@ -95,18 +95,18 @@ pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat &
 
 	// Then sort them so greatest magnitude comes first.
 
-	sort(contests.begin(), contests.end(), greater<beat_component>());
+	sort(contests.begin(), contests.end(), std::greater<beat_component>());
 
 	// For each contest: check if it would induce a cycle (or would cause
 	// a branching, if River). If not, add it to the adjacency lists.
 
-	vector<list<int> > adjacency_lists(numcand);
-	vector<bool> can_win(numcand, true);
+	std::vector<std::list<int> > adjacency_lists(numcand);
+	std::vector<bool> can_win(numcand, true);
 
 	int num_admitted = 0;
 	int max_admissible = (numcand * (numcand + 1))/2;
 
-	for (vector<beat_component>::const_iterator pos = contests.begin();
+	for (std::vector<beat_component>::const_iterator pos = contests.begin();
 		pos != contests.end() && num_admitted <= max_admissible;
 		++pos) {
 		if ((!is_river || can_win[pos->loser]) &&
@@ -133,13 +133,13 @@ pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat &
 				out.insert(candscore(counter, 0));
 			}
 
-		return (pair<ordering, bool>(out, true));
+		return (std::pair<ordering, bool>(out, true));
 	}
 
 	// If we want a full ordering, we need to traverse the tree to get the
 	// rank.
 
-	vector<int> places(numcand, -1);
+	std::vector<int> places(numcand, -1);
 	int idzero = -1;
 
 	for (counter = 0; counter < (size_t)numcand && idzero == -1; ++counter)
@@ -153,6 +153,6 @@ pair<ordering, bool> ranked_pairs::pair_elect(const abstract_condmat &
 		out.insert(candscore(counter, -places[counter]));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }
 

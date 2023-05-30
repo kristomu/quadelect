@@ -11,12 +11,11 @@
 #include "../singlewinner/method.h"
 #include <vector>
 
-using namespace std;
 
 struct disproof {
-	list<ballot_group> unmodified_ballots, modified_ballots;
+	std::list<ballot_group> unmodified_ballots, modified_ballots;
 	ordering unmodified_ordering, modified_ordering;
-	vector<size_t> modification_data;
+	std::vector<size_t> modification_data;
 	bool complete;
 };
 

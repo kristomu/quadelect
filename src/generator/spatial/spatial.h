@@ -22,7 +22,6 @@
 
 #include "../ballotgen.h"
 
-using namespace std;
 
 // TODO: Provide "get_minimum_value" and "get_maximum_value" functions.
 // Will have to do something about the Gaussian's infinite tail in that case.
@@ -46,29 +45,29 @@ class spatial_generator : public pure_ballot_generator {
 		size_t num_dimensions; // Number of axes
 		bool warren_utility;   // Use Warren's utility model?
 
-		double distance(const vector<double> & a,
-			const vector<double> & b) const;
+		double distance(const std::vector<double> & a,
+			const std::vector<double> & b) const;
 
 		// If true, the candidate positions are fixed. This is used
 		// for drawing Yee diagrams (since they'd be fairly useless
 		// if the candidate positions were to drift around).
 		bool fixed;
-		vector<vector<double> > fixed_cand_positions;
+		std::vector<std::vector<double> > fixed_cand_positions;
 
 	protected:
 		bool uses_center, uses_dispersion;
-		vector<double> center;
-		vector<double> dispersion;
+		std::vector<double> center;
+		std::vector<double> dispersion;
 
-		virtual vector<double> rnd_vector(size_t size, rng &
+		virtual std::vector<double> rnd_vector(size_t size, rng &
 			random_source) const = 0;
-		virtual vector<double> max_dim_vector(size_t dimensions) const;
+		virtual std::vector<double> max_dim_vector(size_t dimensions) const;
 		// TODO: "get random coordinate" which would be used for
 		// sampling the circle of truncation in a manner consistent with
 		// the points distribution.
 
 	protected:
-		list<ballot_group> generate_ballots_int(int num_voters,
+		std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
 			rng & random_source) const;
 
@@ -113,29 +112,29 @@ class spatial_generator : public pure_ballot_generator {
 			fixed = false;
 		}
 		bool fix_candidate_positions(int num_cands,
-			const vector<vector<double> > cand_positions);
+			const std::vector<std::vector<double> > cand_positions);
 		bool fix_candidate_positions(int num_cands, rng & randomizer);
-		vector<vector<double> > get_fixed_candidate_pos() const;
+		std::vector<std::vector<double> > get_fixed_candidate_pos() const;
 
 		// For setting parameters of the associated distribution.
 		// If the distribution doesn't make use of those parameters,
 		// say sigma for a uniform distribution, nothing happens.
 
-		virtual bool set_center(const vector<double> center_in);
-		virtual bool set_dispersion(const vector<double> dispersion_in);
+		virtual bool set_center(const std::vector<double> center_in);
+		virtual bool set_dispersion(const std::vector<double> dispersion_in);
 
 		bool set_center(double center_in) {
-			return (set_center(vector<double>(num_dimensions,
+			return (set_center(std::vector<double>(num_dimensions,
 							center_in)));
 		}
 
 		bool set_dispersion(double dispersion_in) {
-			return (set_dispersion(vector<double>(num_dimensions,
+			return (set_dispersion(std::vector<double>(num_dimensions,
 							dispersion_in)));
 		}
 
 		// Should also return dimensions, etc.
-		virtual string name() const = 0;
+		virtual std::string name() const = 0;
 };
 
 #endif

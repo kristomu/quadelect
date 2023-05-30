@@ -6,12 +6,12 @@
 #include <iostream>
 #include <list>
 
-pair<ordering, bool> minmaxy_experimental::pair_elect(
-	const abstract_condmat & input, const vector<bool> & hopefuls,
+std::pair<ordering, bool> minmaxy_experimental::pair_elect(
+	const abstract_condmat & input, const std::vector<bool> & hopefuls,
 	cache_map * cache, bool winner_only) const {
 
 	// Each candidate A has a leximax ordering over all other candidates X
-	// min(X>A, A>X) - X>A. This is then sorted in order of smallest to
+	// std::min(X>A, A>X) - X>A. This is then sorted in order of smallest to
 	// greatest, and the maximum wins. Note that a CW has no negative
 	// components and so wins outright.
 
@@ -55,6 +55,6 @@ pair<ordering, bool> minmaxy_experimental::pair_elect(
 		out.insert(candscore(score_lists[i].second, score));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }
 

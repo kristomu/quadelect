@@ -10,7 +10,6 @@
 
 #include "../two_tests.h"
 
-using namespace std;
 
 class test_reversal_symmetry : public twotest {
 
@@ -21,24 +20,24 @@ class test_reversal_symmetry : public twotest {
 	protected:
 		// No data needed, hence we don't need to redef
 		// generate_aux_data.
-		pair<bool, list<ballot_group> > rearrange_ballots(
-			const list<ballot_group> & input,
+		std::pair<bool, std::list<ballot_group> > rearrange_ballots(
+			const std::list<ballot_group> & input,
 			int numcands,
-			const vector<int> & data) const;
+			const std::vector<int> & data) const;
 
 		bool applicable(const ordering & check,
-			const vector<int> & data, bool orig) const;
+			const std::vector<int> & data, bool orig) const;
 
 		bool pass_internal(const ordering & original, const ordering &
-			modified, const vector<int> & data,
+			modified, const std::vector<int> & data,
 			int numcands) const;
 
-		string explain_change_int(const vector<int> & data,
-			const map<int, string> & cand_names) const;
+		std::string explain_change_int(const std::vector<int> & data,
+			const std::map<int, std::string> & cand_names) const;
 
 	public:
 
-		string name() const;
+		std::string name() const;
 
 		test_reversal_symmetry(bool winner_only_in,
 			bool permit_ties_in) {

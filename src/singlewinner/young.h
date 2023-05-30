@@ -41,33 +41,32 @@
 #include <glpk.h>
 #include <assert.h>
 
-using namespace std;
 
 class young : public election_method {
 	private:
-		string cached_name;
+		std::string cached_name;
 		bool is_sym_comp, is_relaxed;
 
 		// returns (-1, -1) on error. The first of the pair is the
 		// linear programming score. The second is the integer
 		// programming score, or -1 if running relaxed.
-		pair<double, double> get_young_score(
-			const list<ballot_group> & papers,
+		std::pair<double, double> get_young_score(
+			const std::list<ballot_group> & papers,
 			size_t candidate, size_t num_candidates,
-			size_t num_ballots, const vector<bool> & hopefuls,
+			size_t num_ballots, const std::vector<bool> & hopefuls,
 			bool relaxed, bool symmetric_completion,
 			bool debug) const;
 
-		string determine_name() const;
+		std::string determine_name() const;
 
 	public:
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string name() const {
+		std::string name() const {
 			return (cached_name);
 		}
 

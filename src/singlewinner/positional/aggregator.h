@@ -13,7 +13,6 @@
 
 #include "types.h"
 
-using namespace std;
 
 // PT_WHOLE gives equal score to all that are equally ranked. PT_FRACTIONAL
 // shares the point among all of them.
@@ -27,7 +26,7 @@ using namespace std;
 // class. Actually, we need to do so, as otherwise there will be cache
 // collisions whenever we use both.
 
-// This turns a ballot group into a vector<double> of size equal to
+// This turns a ballot group into a std::vector<double> of size equal to
 // num_candidates. The vector is used both in ordinary positional methods,
 // and in sweep-ones like Bucklin, where it reduces the naive n^3 complexity
 // to n^2.
@@ -35,31 +34,31 @@ class positional_aggregator {
 
 	private:
 		// Used for moving back and forth on equal rank.
-		template<typename T> T first(T cur, T end, const vector<bool> *
+		template<typename T> T first(T cur, T end, const std::vector<bool> *
 			hopefuls) const;
-		template<typename T> T next(T cur, T end, const vector<bool> *
+		template<typename T> T next(T cur, T end, const std::vector<bool> *
 			hopefuls) const;
 
 	public:
 		void aggregate(const ballot_group & input,
 			int num_candidates, int num_hopefuls,
-			const vector<bool> * hopefuls,
-			vector<vector<double> > & positional_array,
+			const std::vector<bool> * hopefuls,
+			std::vector<std::vector<double> > & positional_array,
 			positional_type kind,
 			int zero_run_advice) const;
 		// Perhaps protected, with only the one without zero_run_advice
 		// available to the public.
-		vector<vector<double> > get_positional_matrix(const
-			list<ballot_group> & ballots,
+		std::vector<std::vector<double> > get_positional_matrix(const
+			std::list<ballot_group> & ballots,
 			int num_candidates, int num_hopefuls,
-			const vector<bool> * hopefuls,
+			const std::vector<bool> * hopefuls,
 			positional_type kind,
 			int zero_run_advice) const;
 
-		vector<vector<double> > get_positional_matrix(const
-			list<ballot_group> & ballots,
+		std::vector<std::vector<double> > get_positional_matrix(const
+			std::list<ballot_group> & ballots,
 			int num_candidates, int num_hopefuls,
-			const vector<bool> * hopefuls,
+			const std::vector<bool> * hopefuls,
 			positional_type kind) const;
 };
 

@@ -2,7 +2,7 @@
 #include "condorcet.h"
 
 int condorcet_set::get_CW(const abstract_condmat & input,
-	const vector<bool> & hopefuls) const {
+	const std::vector<bool> & hopefuls) const {
 
 	// First, we go through every candidate, where the winner of a one-on
 	// one between the first and second in line wins. If there's a CW, we'll
@@ -45,9 +45,9 @@ int condorcet_set::get_CW(const abstract_condmat & input,
 	return (curcand);
 }
 
-pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat &
+std::pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat &
 	input,
-	const vector<bool> & hopefuls, cache_map * cache,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	// We start with the hopefuls we have. Find the CW, insert into the
@@ -55,8 +55,8 @@ pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat &
 	// hopeful, and repeat. Stop when we get a -1 or all candidates have
 	// been added.
 
-	vector<bool> iter_hopefuls = hopefuls;
-	vector<bool> cws(input.get_num_candidates(), false);
+	std::vector<bool> iter_hopefuls = hopefuls;
+	std::vector<bool> cws(input.get_num_candidates(), false);
 	ordering to_ret;
 	int rank = 0, cw;
 	size_t counter = 0;
@@ -81,5 +81,5 @@ pair<ordering, bool> condorcet_set::pair_elect(const abstract_condmat &
 			to_ret.insert(candscore(counter, rank));
 		}
 
-	return (pair<ordering, bool>(to_ret, winner_only));
+	return (std::pair<ordering, bool>(to_ret, winner_only));
 }

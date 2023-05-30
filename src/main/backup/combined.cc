@@ -43,17 +43,17 @@
 #include "../images/color/color.h"
 #include <openssl/sha.h>
 
-list<pairwise_method *> get_pairwise_methods(
-	const list<pairwise_type> & types) {
+std::list<pairwise_method *> get_pairwise_methods(
+	const std::list<pairwise_type> & types) {
 
 	// For each type, and for each pairwise method, dump that combination
 	// to the output. Possible feature request: have the method determine
 	// if it supports the type in question (e.g. types that can give < 0
 	// wrt stuff like Keener).
 
-	list<pairwise_method *> out;
+	std::list<pairwise_method *> out;
 
-	for (list<pairwise_type>::const_iterator pos = types.begin(); pos !=
+	for (std::list<pairwise_type>::const_iterator pos = types.begin(); pos !=
 		types.end(); ++pos) {
 		out.push_back(new dquick(*pos));
 		out.push_back(new kemeny(*pos));
@@ -87,16 +87,16 @@ list<pairwise_method *> get_pairwise_methods(
 
 // Positional methods.
 
-list<positional *> get_positional_methods() {
+std::list<positional *> get_positional_methods() {
 	// Put that elsewhere?
-	list<positional_type> types;
+	std::list<positional_type> types;
 	for (int p = PT_FIRST; p <= PT_LAST; ++p) {
 		types.push_back(positional_type(p));
 	}
 
-	list<positional *> out;
+	std::list<positional *> out;
 
-	for (list<positional_type>::const_iterator pos = types.begin(); pos !=
+	for (std::list<positional_type>::const_iterator pos = types.begin(); pos !=
 		types.end(); ++pos) {
 		out.push_back(new plurality(*pos));
 		out.push_back(new borda(*pos));
@@ -115,9 +115,9 @@ list<positional *> get_positional_methods() {
 	return (out);
 }
 
-list<pairwise_method *> get_sets() {
+std::list<pairwise_method *> get_sets() {
 
-	list<pairwise_method *> out;
+	std::list<pairwise_method *> out;
 
 	out.push_back(new condorcet_set());
 	out.push_back(new mdd_set(true));
@@ -136,14 +136,14 @@ list<pairwise_method *> get_sets() {
 	return (out);
 }
 
-template <typename T, typename Q> list<election_method *> expand_meta(
-	const list<T *> & base_methods, const list<Q *> & sets,
+template <typename T, typename Q> std::list<election_method *> expand_meta(
+	const std::list<T *> & base_methods, const std::list<Q *> & sets,
 	bool is_positional) {
 
-	list<election_method *> kombinat;
-	typename list<Q *>::const_iterator spos;
+	std::list<election_method *> kombinat;
+	typename std::list<Q *>::const_iterator spos;
 
-	for (typename list<T *>::const_iterator pos = base_methods.begin();
+	for (typename std::list<T *>::const_iterator pos = base_methods.begin();
 		pos != base_methods.end(); ++pos) {
 		for (spos = sets.begin(); spos != sets.end(); ++spos) {
 			if ((*pos)->name() == (*spos)->name()) {
@@ -174,21 +174,22 @@ template <typename T, typename Q> list<election_method *> expand_meta(
 }
 
 
-list<election_method *> get_singlewinner_methods() {
+std::list<election_method *> get_singlewinner_methods() {
 
-	list<election_method *> toRet;
+	std::list<election_method *> toRet;
 
-	list<pairwise_method *> pairwise = get_pairwise_methods(
+	std::list<pairwise_method *> pairwise = get_pairwise_methods(
 			pairwise_producer().provide_all_strategies());
 
 	copy(pairwise.begin(), pairwise.end(), back_inserter(toRet));
 
-	list<positional *> positional_methods = get_positional_methods();
-	list<pairwise_method *> pairwise_sets = get_sets();
+	std::list<positional *> positional_methods = get_positional_methods();
+	std::list<pairwise_method *> pairwise_sets = get_sets();
 
 	// We have to do it in this clumsy manner because of possible bugs in
 	// handling methods with some candidates excluded.
-	list<election_method *> posnl_expanded = expand_meta(positional_methods,
+	std::list<election_method *> posnl_expanded = expand_meta(
+			positional_methods,
 			pairwise_sets, true);
 
 	// Now add other methods here...
@@ -198,7 +199,7 @@ list<election_method *> get_singlewinner_methods() {
 	// The completion method doesn't really matter. Also, MDD* doesn't
 	// really work here, and sets that can't handle negatives shouldn't
 	// be applied to it.
-	for (list<pairwise_method *>::const_iterator basis = pairwise_sets.
+	for (std::list<pairwise_method *>::const_iterator basis = pairwise_sets.
 			begin(); basis != pairwise_sets.end(); ++basis) {
 		toRet.push_back(new gradual_cond_borda(*basis, false, GF_BOTH));
 		toRet.push_back(new gradual_cond_borda(*basis, true, GF_BOTH));
@@ -217,7 +218,7 @@ list<election_method *> get_singlewinner_methods() {
 	toRet.push_back(new vi_median_ratings(10, true, true));
 
 	// Then expand:
-	list<election_method *> expanded = expand_meta(toRet, pairwise_sets,
+	std::list<election_method *> expanded = expand_meta(toRet, pairwise_sets,
 			false);
 
 	// and
@@ -232,12 +233,12 @@ list<election_method *> get_singlewinner_methods() {
 	return (toRet);
 }
 
-void do_regret(list<election_method *> & methods) {
+void do_regret(std::list<election_method *> & methods) {
 
 	// Kludge together something with Bayesian regret here. DONE: Move over
 	// to modes.
 
-	list<pure_ballot_generator *> generators;
+	std::list<pure_ballot_generator *> generators;
 	generators.push_back(new spatial_generator(true, false));
 	generators.push_back(new impartial(true, false));
 
@@ -247,7 +248,7 @@ void do_regret(list<election_method *> & methods) {
 
 	int report_frequency = 200;
 
-	list<const election_method *> rtmethods; // What a kludge.
+	std::list<const election_method *> rtmethods; // What a kludge.
 	copy(methods.begin(), methods.end(), back_inserter(rtmethods));
 
 	bayesian_regret br(maxiters, min_candidates, max_candidates,
@@ -267,12 +268,12 @@ void do_regret(list<election_method *> & methods) {
 	do {
 		cache.clear();
 		status = br.do_round(true, true, randomizer, cache);
-		cout << status << endl;
+		std::cout << status << std::endl;
 
 		if (++counter % report_frequency == (report_frequency - 1)) {
-			vector<string> report = br.provide_status();
+			std::vector<std::string> report = br.provide_status();
 			copy(report.begin(), report.end(),
-				ostream_iterator<string>(cout, "\n"));
+				std::ostream_iterator<std::string>(std::cout, "\n"));
 		}
 	} while (status != "");
 }
@@ -299,9 +300,10 @@ void do_regret(list<election_method *> & methods) {
 // should diminish salt-and-pepper noise. BLUESKY: Render using PNG
 // interpolation order to maximize effect.
 
-int check_pixel(int x, int y, int xsize, int ysize, const vector<const
+int check_pixel(int x, int y, int xsize, int ysize, const std::vector<const
 	election_method *> & methods, spatial_generator & ballotgen,
-	vector<vector<vector<vector<bool > > > > & am_ac_winners,
+	std::vector<std::vector<std::vector<std::vector<bool > > > > &
+	am_ac_winners,
 	int min_num_voters, int max_num_voters, bool use_autopilot,
 	double autopilot_factor, int autopilot_history, cache_map &
 	cache, rng & randomizer) {
@@ -309,12 +311,12 @@ int check_pixel(int x, int y, int xsize, int ysize, const vector<const
 	size_t num_cands = am_ac_winners[0].size(),
 		   num_methods = am_ac_winners.size();
 
-	vector<list<ballot_group> > autopilot_am(num_methods);
-	vector<int> num_identical(num_methods, 0);
-	list<ballot_group> ballots;
+	std::vector<std::list<ballot_group> > autopilot_am(num_methods);
+	std::vector<int> num_identical(num_methods, 0);
+	std::list<ballot_group> ballots;
 
 	// Arrange these so (0,0) is at the bottom left?
-	vector<double> relative(2);
+	std::vector<double> relative(2);
 	relative[0] = x / (double) xsize;
 	relative[1] = y / (double) ysize;
 
@@ -382,7 +384,7 @@ int check_pixel(int x, int y, int xsize, int ysize, const vector<const
 			bottom_line += cur_num_voters;
 		}
 
-		cur_num_voters *= max(1.01, autopilot_factor);
+		cur_num_voters *= std::max(1.01, autopilot_factor);
 	}
 
 	// Now simply paint the appropriate pixels depending on who won.
@@ -404,9 +406,10 @@ int check_pixel(int x, int y, int xsize, int ysize, const vector<const
 	return (bottom_line);
 }
 
-bool draw_pictures(string prefix, const vector<vector<vector<bool > > > &
-	ac_winners, vector<vector<double> > & cand_colors,
-	vector<vector<double> > & cand_locations,
+bool draw_pictures(string prefix,
+	const std::vector<std::vector<std::vector<bool > > > &
+	ac_winners, std::vector<std::vector<double> > & cand_colors,
+	std::vector<std::vector<double> > & cand_locations,
 	bool draw_binaries, bool ignore_errors) {
 
 	// First draw all the binary pictures (if so requested).
@@ -420,13 +423,13 @@ bool draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 
 	for (counter = 0; counter < numcands && draw_binaries; ++counter) {
 		outfn = prefix + "_bin_c" + dtos(counter) + "won.pgm";
-		ofstream outfile(outfn.c_str());
+		std::ofstream outfile(outfn.c_str());
 
 		if (!outfile) {
 			okay_so_far = false;
 			if (!ignore_errors && !okay_so_far) {
-				cerr << "Couldn't open binary picture file "
-					<< outfn << " for writing." << endl;
+				std::cerr << "Couldn't open binary picture file "
+					<< outfn << " for writing." << std::endl;
 				return (false);
 			}
 
@@ -434,8 +437,8 @@ bool draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 		}
 
 		// Header!
-		outfile << "P5 " << endl << xsize << " " << ysize << endl
-			<< 255 << endl;
+		outfile << "P5 " << std::endl << xsize << " " << ysize << std::endl
+			<< 255 << std::endl;
 
 		// Dump the boolean.
 		for (y = 0; y < ysize; ++y)
@@ -453,22 +456,23 @@ bool draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 	// Build the color picture.
 
 	outfn = prefix + "_yee.ppm";
-	ofstream color_pic(outfn.c_str());
+	std::ofstream color_pic(outfn.c_str());
 
 	if (!color_pic) {
 		// Couldn't open that file.
-		cerr << "Couldn't open color picture file " << outfn <<
-			" for writing." << endl;
+		std::cerr << "Couldn't open color picture file " << outfn <<
+			" for writing." << std::endl;
 		// Since we've got nothing more to do, we can just return false
 		// no matter what here.
 		return (false);
 	}
 
 	// Write the header.
-	color_pic << "P6 " << endl << xsize << " " << ysize << endl << 255
-		<< endl;
+	color_pic << "P6 " << std::endl << xsize << " " << ysize << std::endl <<
+		255
+		<< std::endl;
 
-	vector<double> adj_coords(2);
+	std::vector<double> adj_coords(2);
 
 	for (y = 0; y < ysize; ++y) {
 		adj_coords[1] = y / (double)ysize;
@@ -477,7 +481,7 @@ bool draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 			// If there's a tie, we output the mean color. If we
 			// go to LAB at some later point, this may become more
 			// complex.
-			vector<double> prosp_RGB(3);
+			std::vector<double> prosp_RGB(3);
 			int num_winners = 0;
 
 			// We set these if any of the candidates have their
@@ -546,20 +550,21 @@ bool draw_pictures(string prefix, const vector<vector<vector<bool > > > &
 
 }
 
-vector<vector<double> > get_candidate_colors(int numcands, bool debug) {
+std::vector<std::vector<double> > get_candidate_colors(int numcands,
+	bool debug) {
 
 	if (numcands <= 0) {
-		return (vector<vector<double> >());
+		return (std::vector<std::vector<double> >());
 	}
 
-	vector<vector<double> > candidate_RGB(numcands);
+	std::vector<std::vector<double> > candidate_RGB(numcands);
 
 	// The candidates are each given colors at hues spaced equally from
 	// each other, and with full saturation and value. If you want
 	// IEVS-style sphere packing, feel free to alter (call a class), but
 	// it might be better in LAB color space -- if I could get LAB to work.
 
-	vector<double> HSV(3, 1);
+	std::vector<double> HSV(3, 1);
 	HSV[0] = 0;
 
 	color_conv converter;
@@ -568,12 +573,12 @@ vector<vector<double> > get_candidate_colors(int numcands, bool debug) {
 		candidate_RGB[cand] = converter.convert(HSV, CS_HSV, CS_RGB);
 
 		if (debug) {
-			cout << "RGB values for " << cand << ": ";
+			std::cout << "RGB values for " << cand << ": ";
 			copy(candidate_RGB[cand].begin(),
 				candidate_RGB[cand].end(),
-				ostream_iterator<double>(cout, "\t"));
+				std::ostream_iterator<double>(std::cout, "\t"));
 
-			cout << endl;
+			std::cout << std::endl;
 		}
 
 		// It must be +1 because the Hue aspect is circular, leaving
@@ -586,7 +591,7 @@ vector<vector<double> > get_candidate_colors(int numcands, bool debug) {
 	return (candidate_RGB);
 }
 
-string get_sha_code(const election_method & in, int bytes) {
+std::string get_sha_code(const election_method & in, int bytes) {
 
 	string method_name = in.name();
 
@@ -614,7 +619,7 @@ string get_sha_code(const election_method & in, int bytes) {
 
 	// For however many bytes we want, use itos_hex to construct a string.
 	string outstr;
-	for (int counter = 0; counter < min(bytes, 256/8); ++counter) {
+	for (int counter = 0; counter < std::min(bytes, 256/8); ++counter) {
 		outstr += itos_hex(output[counter], 2);
 	}
 
@@ -629,14 +634,14 @@ int main() {
 	// DONE: Use first 32 bits or so of MD5sum in hex as prefix. Or SHA,
 	// since we're already using it.
 
-	list<election_method *> methods = get_singlewinner_methods();
-	list<election_method *>::const_iterator pos;
+	std::list<election_method *> methods = get_singlewinner_methods();
+	std::list<election_method *>::const_iterator pos;
 
 	for (pos = methods.begin(); pos != methods.end(); ++pos) {
-		cout << (*pos)->name() << "\t" << get_sha_code(**pos, 5) << endl;
+		std::cout << (*pos)->name() << "\t" << get_sha_code(**pos, 5) << std::endl;
 	}
 
-	cout << "Something new!" << endl;
+	std::cout << "Something new!" << std::endl;
 
 	// Hack something resembling Yee here.
 	// For the first method (don't want to kill ourselves in one stroke)
@@ -646,7 +651,7 @@ int main() {
 
 	// Then do something with libpng and colors and whatever afterwards.
 
-	vector<const election_method *> test;
+	std::vector<const election_method *> test;
 	test.push_back(new vi_median_ratings(10, true, true));
 	test.push_back(new plurality(PT_WHOLE));
 	test.push_back(new loser_elimination(new plurality(PT_WHOLE), false,
@@ -672,12 +677,13 @@ int main() {
 
 	// For each point, generate associated ballots, determine who wins,
 	// and plot that point.
-	vector<vector<vector<vector<bool> > > > winner(test.size(),
-		vector<vector<vector<bool> > >(numcands,
-			vector<vector<bool> >(xsize,
-				vector<bool>(ysize, false))));
+	std::vector<std::vector<std::vector<std::vector<bool> > > > winner(
+		test.size(),
+		std::vector<std::vector<std::vector<bool> > >(numcands,
+			std::vector<std::vector<bool> >(xsize,
+				std::vector<bool>(ysize, false))));
 
-	vector<double> coords(2);
+	std::vector<double> coords(2);
 
 	cache_map cache;
 	int x, y;
@@ -687,7 +693,7 @@ int main() {
 	double start_new = get_abs_time();
 
 	for (x = 0; x < xsize; ++x) {
-		cout << "Yee test: x = " << x << " of " << xsize << "\t" <<
+		std::cout << "Yee test: x = " << x << " of " << xsize << "\t" <<
 			flush;
 		int grand_sum = 0;
 		for (y = 0; y < ysize; ++y) {
@@ -695,38 +701,40 @@ int main() {
 					gaussian, winner, 24, numvoters, true,
 					1.3, 4, cache, randomizer);
 			if (contrib == -1) {
-				cout << "Error at x " << x << ", y " << y <<
-					endl;
+				std::cout << "Error at x " << x << ", y " << y <<
+					std::endl;
 				return (-1);
 			}
 			grand_sum += contrib;
 		}
 		in_all += grand_sum;
-		cout << "for " << grand_sum << endl;
+		std::cout << "for " << grand_sum << std::endl;
 	}
 
-	cout << in_all << " in all. " << endl;
+	std::cout << in_all << " in all. " << std::endl;
 	double start_old = get_abs_time();
-	cout << "Time: " << start_old - start_new << endl;
+	std::cout << "Time: " << start_old - start_new << std::endl;
 
 	// Determine colors for each candidate.
 
-	vector<vector<double> > candidate_RGB = get_candidate_colors(numcands,
+	std::vector<std::vector<double> > candidate_RGB = get_candidate_colors(
+			numcands,
 			false);
 
-	vector<vector<double> > cand_locs = uniform.get_fixed_candidate_pos();
+	std::vector<std::vector<double> > cand_locs =
+		uniform.get_fixed_candidate_pos();
 
 	for (int method_no = 0; method_no < test.size(); ++method_no) {
 		string code = get_sha_code(*test[method_no], 5);
 
-		cout << "Yee: " << test[method_no]->name() << " has code "
-			<< code << ". Drawing... " << flush;
+		std::cout << "Yee: " << test[method_no]->name() << " has code "
+			<< code << ". Drawing... " << std::flush;
 		if (draw_pictures("k2_" + code, winner[method_no],
 				candidate_RGB, cand_locs, true,
 				false)) {
-			cout << " OK. " << endl;
+			std::cout << " OK. " << std::endl;
 		} else {
-			cout << " error!" << endl;
+			std::cout << " error!" << std::endl;
 		}
 	}
 }

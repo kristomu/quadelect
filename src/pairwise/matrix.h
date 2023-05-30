@@ -10,7 +10,6 @@
 #include <iterator>
 #include <iostream>
 
-using namespace std;
 
 // TODO in some way or other: Cardinal weighted pairwise.
 // Direction of defeat is determined as in Copeland. Say A > B. Then the magn.
@@ -50,7 +49,7 @@ using namespace std;
 
 class condmat : public abstract_condmat {
 	private:
-		vector<vector<double> > contents;
+		std::vector<std::vector<double> > contents;
 
 	protected:
 		double get_internal(size_t candidate, size_t against, bool raw) const;
@@ -58,7 +57,7 @@ class condmat : public abstract_condmat {
 
 	public:
 		condmat(pairwise_type type_in);
-		condmat(const list<ballot_group> & scores, size_t num_candidates,
+		condmat(const std::list<ballot_group> & scores, size_t num_candidates,
 			pairwise_type kind);
 		// Should we permit condmat(input, kind)? Does that break
 		// or enhance encapsulation?
@@ -74,7 +73,7 @@ class condmat : public abstract_condmat {
 						value));
 		}
 
-		void count_ballots(const list<ballot_group> & scores,
+		void count_ballots(const std::list<ballot_group> & scores,
 			size_t num_candidates);
 
 		// Perhaps "expand candidates by one, contract by one" here?

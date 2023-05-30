@@ -9,11 +9,10 @@
 #include <assert.h>
 #include <vector>
 
-using namespace std;
 
 // TODO: FIX!!! Needs to have multidimensional sigma or none at all!
 
-pair<double, double> gaussian_generator::grnd(double sigma_in,
+std::pair<double, double> gaussian_generator::grnd(double sigma_in,
 	rng & random_source) const {
 
 	// Box-Mueller, dammit. We really should have something that requires
@@ -34,33 +33,34 @@ pair<double, double> gaussian_generator::grnd(double sigma_in,
 	// Okay, now we have (x,y) within the unit circle. Transform to get a
 	// random Gaussian distributed variable.
 	double conv_factor = sigma_in * sqrt(-2.0 * log(rad) / rad);
-	return (pair<double, double>(x * conv_factor, y * conv_factor));
+	return (std::pair<double, double>(x * conv_factor, y * conv_factor));
 }
 
-pair<double, double> gaussian_generator::grnd(double xmean, double ymean,
+std::pair<double, double> gaussian_generator::grnd(double xmean,
+	double ymean,
 	double sigma_in, rng & random_source) const {
-	pair<double, double> unadorned = grnd(sigma_in, random_source);
+	std::pair<double, double> unadorned = grnd(sigma_in, random_source);
 
-	return (pair<double, double>(unadorned.first + xmean,
+	return (std::pair<double, double>(unadorned.first + xmean,
 				unadorned.second + ymean));
 }
 
-pair<double, double> gaussian_generator::grnd(double mean_in,
+std::pair<double, double> gaussian_generator::grnd(double mean_in,
 	double sigma_in, rng & random_source) const {
 	return (grnd(mean_in, mean_in, sigma_in, random_source));
 }
 
-vector<double> gaussian_generator::rnd_vector(size_t size,
+std::vector<double> gaussian_generator::rnd_vector(size_t size,
 	rng & random_source) const {
 
 	// assert size > 0 blah de blah.
 	assert(size > 0);
 
-	vector<double> toRet;
+	std::vector<double> toRet;
 	toRet.reserve(size);
 
 	for (size_t counter = 0; counter < size; counter += 2) {
-		pair<double, double> gaussian_sample;
+		std::pair<double, double> gaussian_sample;
 		if (!center.empty() && center.size() >= 2)
 			gaussian_sample = grnd(center[0], center[1], dispersion[0],
 					random_source);
@@ -79,9 +79,9 @@ vector<double> gaussian_generator::rnd_vector(size_t size,
 	return (toRet);
 }
 
-string gaussian_generator::name() const {
+std::string gaussian_generator::name() const {
 
-	string stub = "Gaussian, ";
+	std::string stub = "Gaussian, ";
 
 	if (!center.empty()) {
 		stub += "mu = [";

@@ -202,7 +202,7 @@ void test_results::swap(size_t first_test, size_t second_test) {
 					second_test, (test_election)type);
 			assert(first_loc < total_num_entries);
 			assert(second_loc < total_num_entries);
-			// BEWARE! Using swap() without std:: in front causes a
+			// BEWARE! Using std::swap() without std:: in front causes a
 			// segfault!
 			std::swap(results[first_loc], results[second_loc]);
 		}

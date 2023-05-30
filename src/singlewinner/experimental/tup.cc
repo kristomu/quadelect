@@ -8,8 +8,8 @@
 #include "tup.h"
 #include "../pairwise/simple_methods.h"
 
-pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	ordering out;
@@ -66,7 +66,7 @@ pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
 						score += bc/(eps + ca);
 						break;
 					case TUP_MIN:
-						score -= min(ab, bc) + eps * max(ab, bc);
+						score -= std::min(ab, bc) + eps * std::max(ab, bc);
 						break;
 					case TUP_ALT_1:
 						score -= ca/(eps+bc);
@@ -103,5 +103,5 @@ pair<ordering, bool> tup::pair_elect(const abstract_condmat & input,
 		out.insert(candscore(counter, score));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

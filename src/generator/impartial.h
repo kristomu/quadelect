@@ -9,7 +9,6 @@
 #include "impartial_gen.h"
 #include <list>
 
-using namespace std;
 
 class impartial : public impartial_gen {
 
@@ -19,7 +18,7 @@ class impartial : public impartial_gen {
 		}
 
 	public:
-		string name() const {
+		std::string name() const {
 			return ("Impartial Culture");
 		}
 

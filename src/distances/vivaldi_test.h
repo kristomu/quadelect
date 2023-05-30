@@ -16,9 +16,8 @@
 #include <vector>
 #include <math.h>
 
-using namespace std;
 
-typedef vector<long double> coord;
+typedef std::vector<long double> coord;
 
 class synth_coordinates {
 	private:
@@ -29,28 +28,29 @@ class synth_coordinates {
 		void update(coord & me, coord & scratch, const coord & other,
 			double Lp, int my_index, int other_index,
 			double delta, double noise_factor,
-			const vector<vector<double> > &
+			const std::vector<std::vector<double> > &
 			recorded_distances) const;
 		// Determine accuracy (RMSE) between given distances and
 		// synthetic coordinate distances. This is used to report to
 		// the user how accurate the estimate is.
-		double get_rmse_accuracy(const vector<coord> & coordinates,
-			const vector<vector<double> > &
+		double get_rmse_accuracy(const std::vector<coord> & coordinates,
+			const std::vector<std::vector<double> > &
 			recorded_distances, double Lp) const;
 
 		// Testing
-		vector<vector<double> > construct_distances(const vector<coord>
+		std::vector<std::vector<double> > construct_distances(
+			const std::vector<coord>
 			& coords, double Lp) const;
 
 	public:
 		// Used for testing purposes.
-		vector<coord> generate_random_coords(int how_many,
+		std::vector<coord> generate_random_coords(int how_many,
 			int dimensions) const;
 
-		double recover_coords(vector<coord> & coordinates_out,
+		double recover_coords(std::vector<coord> & coordinates_out,
 			double Lp, double mindelta, double delta,
 			double delta_stepsize,
-			int numiters, const vector<vector<double> > &
+			int numiters, const std::vector<std::vector<double> > &
 			recorded_distances, bool verbose) const;
 
 		// Also for testing. If Lp_generation == Lp_recovery, the

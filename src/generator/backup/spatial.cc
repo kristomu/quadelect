@@ -17,16 +17,15 @@
 #include "ballotgen.cc"
 #include <iostream>
 
-using namespace std;
 
 class spatial_generator : public pure_ballot_generator {
 	private:
-		double distance(const vector<double> & a,
-			const vector<double> & b) const;
-		vector<double> rnd_vector(int size) const;
+		double distance(const std::vector<double> & a,
+			const std::vector<double> & b) const;
+		std::vector<double> rnd_vector(int size) const;
 
 	protected:
-		list<ballot_group> generate_ballots_int(int num_voters,
+		std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate) const;
 
 	public:
@@ -38,8 +37,8 @@ class spatial_generator : public pure_ballot_generator {
 
 };
 
-double spatial_generator::distance(const vector<double> & a,
-	const vector<double> & b) const {
+double spatial_generator::distance(const std::vector<double> & a,
+	const std::vector<double> & b) const {
 
 	double sum = 0;
 
@@ -52,9 +51,9 @@ double spatial_generator::distance(const vector<double> & a,
 	return (sqrt(sum));
 }
 
-vector<double> spatial_generator::rnd_vector(int size) const {
+std::vector<double> spatial_generator::rnd_vector(int size) const {
 
-	vector<double> output(size, 0);
+	std::vector<double> output(size, 0);
 
 	for (int counter = 0; counter < size; ++counter) {
 		output[counter] = drand48();
@@ -63,15 +62,16 @@ vector<double> spatial_generator::rnd_vector(int size) const {
 	return (output);
 }
 
-list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
+std::list<ballot_group> spatial_generator::generate_ballots_int(
+	int num_voters,
 	int numcands, bool do_truncate) const {
 
-	list<ballot_group> toRet;
+	std::list<ballot_group> toRet;
 
 	int dimension = 2;
 
 	// First generate the candidate positions.
-	vector<vector<double> > cand_positions;
+	std::vector<std::vector<double> > cand_positions;
 
 	int counter, sec;
 
@@ -85,8 +85,8 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 
 	// TODO: Move to another function.
 
-	vector<double> voter_pos, max_dist(dimension, 0),
-		   distances_to_cand(numcands, 0);
+	std::vector<double> voter_pos, max_dist(dimension, 0),
+		distances_to_cand(numcands, 0);
 
 	for (counter = 0; counter < num_voters; ++counter) {
 		ballot_group our_entry;
@@ -102,7 +102,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 			distances_to_cand[sec] = distance(voter_pos,
 					cand_positions[sec]);
 
-			mindist = min(mindist, distances_to_cand[sec]);
+			mindist = std::min(mindist, distances_to_cand[sec]);
 		}
 
 		// Report all distances within this area. If we're not going

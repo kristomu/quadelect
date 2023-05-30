@@ -8,18 +8,18 @@
 #include "../two_tests.h"
 #include "rev_symmetry.h"
 
-using namespace std;
 
-pair<bool, list<ballot_group> > test_reversal_symmetry::rearrange_ballots(
-	const list<ballot_group> & input, int numcands,
-	const vector<int> & data) const {
+std::pair<bool, std::list<ballot_group> >
+test_reversal_symmetry::rearrange_ballots(
+	const std::list<ballot_group> & input, int numcands,
+	const std::vector<int> & data) const {
 
 	// Very simple (if perhaps slow) - just insert the candidates with
 	// negated scores.
 
-	pair<bool, list<ballot_group> > modified;
+	std::pair<bool, std::list<ballot_group> > modified;
 
-	for (list<ballot_group>::const_iterator pos = input.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
 		ballot_group to_insert;
 		to_insert.weight = pos->weight;
@@ -34,7 +34,7 @@ pair<bool, list<ballot_group> > test_reversal_symmetry::rearrange_ballots(
 }
 
 bool test_reversal_symmetry::applicable(const ordering & check,
-	const vector<int> & data, bool orig) const {
+	const std::vector<int> & data, bool orig) const {
 
 	if (permit_ties) {
 		return (true);
@@ -78,7 +78,7 @@ bool test_reversal_symmetry::applicable(const ordering & check,
 }
 
 bool test_reversal_symmetry::pass_internal(const ordering & original,
-	const ordering & modified, const vector<int> & data,
+	const ordering & modified, const std::vector<int> & data,
 	int numcands) const {
 
 	// Now, there are three ways to fail Reversal Symmetry. One may have
@@ -118,8 +118,8 @@ bool test_reversal_symmetry::pass_internal(const ordering & original,
 	}
 }
 
-string test_reversal_symmetry::name() const {
-	string base = "Reversal Symmetry(";
+std::string test_reversal_symmetry::name() const {
+	std::string base = "Reversal Symmetry(";
 
 	if (winner_only) {
 		base += "winner, ";
@@ -136,8 +136,9 @@ string test_reversal_symmetry::name() const {
 	return (base);
 }
 
-string test_reversal_symmetry::explain_change_int(const vector<int> & data,
-	const map<int, string> & cand_names) const {
+std::string test_reversal_symmetry::explain_change_int(
+	const std::vector<int> & data,
+	const std::map<int, std::string> & cand_names) const {
 
 	return ("the ballots were reversed");
 }

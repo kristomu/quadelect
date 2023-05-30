@@ -122,7 +122,7 @@ int main() {
 	for (method_idx = 0; method_idx < methods.size(); ++method_idx) {
 		std::cout << methods[method_idx]->name() << ";";
 		std::copy(pw_results[method_idx].begin(), pw_results[method_idx].end(),
-			std::ostream_iterator<int>(cout, " "));
+			std::ostream_iterator<int>(std::cout, " "));
 		std::cout << std::endl;
 	}
 

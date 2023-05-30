@@ -5,7 +5,6 @@
 #include <string>
 #include <math.h>
 
-using namespace std;
 
 // Margins calculation types (wv, margins, lv, etc). Let's try using a
 // Strategy pattern - a base class for these as well as inherited classes for
@@ -53,7 +52,7 @@ enum pairwise_ident { CM_FIRST = 0,
 class pairwise_strategy {
 	public:
 		virtual pairwise_ident get() const = 0;
-		virtual string explain() const = 0;
+		virtual std::string explain() const = 0;
 
 		virtual double transform(double favor, double oppose,
 			double num_voters) const = 0;
@@ -69,7 +68,7 @@ class pws_wv : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_WV);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("wv");
 		}
 
@@ -88,7 +87,7 @@ class pws_lv : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_LV);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("lv");
 		}
 
@@ -107,13 +106,13 @@ class pws_margins : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_MARGINS);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("margins");
 		}
 
 		double transform(double favor, double oppose,
 			double /*num_voters*/) const {
-			return (max(0.0, favor - oppose));
+			return (std::max(0.0, favor - oppose));
 		}
 };
 
@@ -122,7 +121,7 @@ class pws_lmargins : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_LMARGINS);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("l-margins");
 		}
 
@@ -137,7 +136,7 @@ class pws_pairwise_opp : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_PAIRWISE_OPP);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("PO");
 		}
 
@@ -152,7 +151,7 @@ class pws_wtv : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_WTV);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("w/tv");
 		}
 
@@ -171,7 +170,7 @@ class pws_tourn_wv : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_TOURN_WV);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("tourn-wv");
 		}
 
@@ -190,7 +189,7 @@ class pws_tourn_sym : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_TOURN_SYM);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("tourn-sym");
 		}
 
@@ -212,7 +211,7 @@ class pws_fractional_wv : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_FRACTIONAL_WV);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("fwv");
 		}
 
@@ -231,13 +230,13 @@ class pws_rel_margins : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_RELATIVE_MARGINS);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("rel-margins");
 		}
 
 		double transform(double favor, double oppose,
 			double /*num_voters*/) const {
-			return (max(0.0, (favor-oppose)/(favor+oppose)));
+			return (std::max(0.0, (favor-oppose)/(favor+oppose)));
 		}
 };
 
@@ -246,7 +245,7 @@ class pws_keener_margins : public pairwise_strategy {
 		pairwise_ident get() const {
 			return (CM_KEENER_MARGINS);
 		}
-		string explain() const {
+		std::string explain() const {
 			return ("keener");
 		}
 
@@ -276,7 +275,7 @@ class pairwise_type {
 			return (kind->get());
 		}
 		void set(const pairwise_ident & in);
-		string explain() const {
+		std::string explain() const {
 			return (kind->explain());
 		}
 		double transform(double favor, double oppose,
@@ -308,7 +307,7 @@ class pairwise_type {
 
 class pairwise_producer {
 	public:
-		list<pairwise_type> provide_all_strategies() const;
+		std::list<pairwise_type> provide_all_strategies() const;
 };
 
 #endif

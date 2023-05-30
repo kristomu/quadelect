@@ -15,12 +15,11 @@
 #include "ballotgen.h"
 #include <list>
 
-using namespace std;
 
 class impartial_gen : public pure_ballot_generator {
 
 	private:
-		list<ballot_group> generate_ballots_int(
+		std::list<ballot_group> generate_ballots_int(
 			int num_voters, int numcands,
 			bool do_truncate, rng & random_source) const;
 

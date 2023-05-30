@@ -81,7 +81,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 	//uniform_generator spatial(true, false);
 	impartial true_ic(true, false);
 
-	list<ballot_group> ballots;
+	std::list<ballot_group> ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
@@ -90,10 +90,10 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 
 	int counter;
 
-	vector<election_method *> condorcets;
+	std::vector<election_method *> condorcets;
 
 	condorcets.push_back(to_test);
-	cerr << "Now trying " << to_test->name() << endl;
+	std::cerr << "Now trying " << to_test->name() << std::endl;
 
 	cache_map cache;
 
@@ -101,7 +101,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 	int numvoters = 29;
 	int initial_numcands = 4, numcands = initial_numcands;
 
-	map<int, string> rcl;
+	std::map<int, std::string> rcl;
 	for (counter = 0; counter < 26; ++counter) {
 		string foo = "A";
 		foo[0] = 'A' + counter;
@@ -112,7 +112,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 	int worked = 0, f;
 	for (f = 0; f < 1000; ++f) {
 		if ((f & 31) == 31) {
-			cerr << "." << flush;
+			std::cerr << "." << std::flush;
 		}
 		srandom(f);
 		srand(f);
@@ -152,16 +152,16 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 				++ranks;
 			}
 
-			/*cout << ordering_tools().ordering_to_text(honest, rcl,
-					true) << endl;
+			/*std::cout << ordering_tools().ordering_to_text(honest, rcl,
+					true) << std::endl;
 
-			cout << "Ranks: " << ranks << endl;*/
+			std::cout << "Ranks: " << ranks << std::endl;*/
 			// TODO: Give up after n tries.
 		}
 
 		int winner = honest.begin()->get_candidate_num();
 
-		//cout << "The winner is " << winner << endl;
+		//std::cout << "The winner is " << winner << std::endl;
 
 		bool strategy_worked = false;
 
@@ -171,16 +171,16 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 				continue;
 			}
 
-			//cout << "Trying to rig in favor of " << counter << endl;
+			//std::cout << "Trying to rig in favor of " << counter << std::endl;
 
-			list<ballot_group> prefers_winner;
+			std::list<ballot_group> prefers_winner;
 			double num_prefers_challenger = 0;
 
 			// Find those who prefer the challenger. Add those that
 			// don't into prefers_winner and add up the score of those that
 			// do.
 
-			for (list<ballot_group>::const_iterator bgpos = ballots.begin();
+			for (std::list<ballot_group>::const_iterator bgpos = ballots.begin();
 				bgpos != ballots.end(); ++bgpos) {
 				int saw_winner = -1, saw_challenger = -1;
 				int rank = 0;
@@ -209,8 +209,8 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 				}
 			}
 
-			/*cout << num_prefers_challenger << " prefers " << counter
-				<< endl;*/
+			/*std::cout << num_prefers_challenger << " prefers " << counter
+				<< std::endl;*/
 
 			if (num_prefers_challenger == 0) {
 				continue;
@@ -221,7 +221,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 				int iterations = 1 + tries % 3, q;
 				double cumul = 0;
 				for (q = 0; q < iterations; ++q) {
-					list<ballot_group> strategy;
+					std::list<ballot_group> strategy;
 					while (strategy.empty()) {
 						strategy = ic.generate_ballots(1, numcands, randomizer);
 					}
@@ -247,9 +247,9 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 				ordering strat_result = condorcets[0]->elect(
 						prefers_winner, numcands, NULL, true);
 
-				/*cout << ordering_tools().ordering_to_text(
+				/*std::cout << ordering_tools().ordering_to_text(
 				  strat_result,
-						rcl, true) << endl;*/
+						rcl, true) << std::endl;*/
 
 				// Then remove the strategic coalition ballot so another
 				// one can be inserted later.
@@ -267,23 +267,23 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 					}
 			}
 			/*if (strategy_worked)
-				cout << "Strategy to elect " << counter << " worked!" << endl;*/
+				std::cout << "Strategy to elect " << counter << " worked!" << std::endl;*/
 		}
 
 		if (strategy_worked) {
-			//	cout << "Strategy worked!" << endl;
+			//	std::cout << "Strategy worked!" << std::endl;
 			++worked;
 		}
-		//else	cout << "Didn't work." << endl;
-		//cout << endl << endl;
+		//else	std::cout << "Didn't work." << std::endl;
+		//std::cout << std::endl << std::endl;
 	}
 
-	cout << "Worked in " << worked << " out of " << f << " for " <<
-		condorcets[0]->name() << endl;
+	std::cout << "Worked in " << worked << " out of " << f << " for " <<
+		condorcets[0]->name() << std::endl;
 }
 
 int main() {
-	vector<election_method *> condorcets; // Although they aren't.
+	std::vector<election_method *> condorcets; // Although they aren't.
 
 	double power_min = 0.25;
 	double power_max = 2.5;
@@ -293,7 +293,7 @@ int main() {
 
 	rng randomizer(1);
 
-	vector<pairwise_ident> types;
+	std::vector<pairwise_ident> types;
 	//types.push_back(CM_KEENER_MARGINS);
 	types.push_back(CM_WV);
 	types.push_back(CM_PAIRWISE_OPP);
@@ -340,7 +340,7 @@ int main() {
 		condorcets.push_back(new odm_atan(types[counter], 0.001));
 	}
 
-	vector<completion_type> ct;
+	std::vector<completion_type> ct;
 	ct.push_back(GF_NONE);
 	// Doesn't matter, only slows us down.
 	/*ct.push_back(GF_LEAST);
@@ -408,7 +408,7 @@ int main() {
 	condorcets.push_back(new vi_median_ratings(10, false, false));
 
 	condorcets.push_back(new mode_ratings());
-	vector<election_method *> condorcetsp;
+	std::vector<election_method *> condorcetsp;
 	condorcetsp.push_back(new plurality(PT_WHOLE));
 	condorcetsp.push_back(new borda(PT_WHOLE));
 	condorcetsp.push_back(new antiplurality(PT_WHOLE));
@@ -454,13 +454,13 @@ int main() {
 		condorcets.push_back(new comma(condorcets[counter], &xi));
 	}
 
-	cout << "There are " << condorcets.size() << " methods." << endl;
+	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
 
 	/*test_strategy(new antiplurality(PT_WHOLE));
 	return(-1);*/
 
 	for (counter = 0; counter < condorcets.size(); ++counter) {
-		cout << counter << ": " << flush;
+		std::cout << counter << ": " << std::flush;
 		test_strategy(condorcets[counter], randomizer);
 	}
 

@@ -34,8 +34,8 @@ class StrategyTest : public Test {
 		size_t numcands_min, numcands_max;
 		int total_generation_attempts;
 		election_method * method;
-		list<ballot_group> ballots;
-		vector<pure_ballot_generator *> ballot_gens;
+		std::list<ballot_group> ballots;
+		std::vector<pure_ballot_generator *> ballot_gens;
 		pure_ballot_generator * strat_generator;
 		int strategy_attempts_per_try;
 
@@ -46,7 +46,7 @@ class StrategyTest : public Test {
 
 	public:
 
-		StrategyTest(vector<pure_ballot_generator *> ballot_gens_in,
+		StrategyTest(std::vector<pure_ballot_generator *> ballot_gens_in,
 			pure_ballot_generator * strat_generator_in,
 			int numvoters_in, int numcands_in_min, int numcands_in_max,
 			rng & randomizer_in, election_method * method_in, int index,
@@ -73,7 +73,7 @@ class StrategyTest : public Test {
 			strategy_attempts_per_try = strat_attempts_per_try_in;
 		}
 
-		StrategyTest(vector<pure_ballot_generator *> ballot_gens_in,
+		StrategyTest(std::vector<pure_ballot_generator *> ballot_gens_in,
 			pure_ballot_generator * strat_generator_in,
 			int numvoters_in, int numcands_in,
 			rng & randomizer_in, election_method * method_in, int index,
@@ -84,7 +84,8 @@ class StrategyTest : public Test {
 		// Used mostly for debugging, maybe clean up later. This returns
 		// true if it's possible to make someone besides the winner win.
 		// XXX: UB may happen if there's a tie.
-		basic_strategy strategize_for_election(const list<ballot_group> & ballots,
+		basic_strategy strategize_for_election(const std::list<ballot_group> &
+			ballots,
 			ordering honest_outcome, size_t numcands,
 			bool verbose) const;
 
@@ -101,7 +102,7 @@ class StrategyTest : public Test {
 				case STRAT_FAILED:
 					return (1);
 				default:
-					throw invalid_argument(
+					throw std::invalid_argument(
 						"unknown strategy type");
 			}
 		}

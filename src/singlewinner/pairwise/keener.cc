@@ -14,14 +14,15 @@
 
 // Observations from Yee: norm = true leads to some very weird results.
 
-pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> keener::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	// Because the iteration accesses the matrix so many times, it's
 	// preferrable to dump it into an actual matrix so we won't have
 	// to pay for the indirect calls every time.
-	vector<int> permitted_candidates;
+	std::vector<int> permitted_candidates;
 	permitted_candidates.reserve(input.get_num_candidates());
 
 	size_t counter;
@@ -33,8 +34,8 @@ pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
 			permitted_candidates.push_back(counter);
 		}
 
-	vector<vector<double> > A(permitted_candidates.size(),
-		vector<double>(permitted_candidates.size(), 0));
+	std::vector<std::vector<double> > A(permitted_candidates.size(),
+		std::vector<double>(permitted_candidates.size(), 0));
 
 	// Copy from the Condorcet matrix to A. We copy in the "opposite"
 	// manner to what is usual, so that normalizing diagonals become easy
@@ -74,8 +75,8 @@ pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
 	// Okay, we have the matrix. Now make use of the power method to find
 	// the Perron eigenvector.
 
-	vector<double> scores(permitted_candidates.size(), 1),
-		   tmp(permitted_candidates.size());
+	std::vector<double> scores(permitted_candidates.size(), 1),
+		tmp(permitted_candidates.size());
 	double oldnf = INFINITY, norm_factor = 0;
 
 	// To ensure termination, we give up after a certain number of
@@ -106,8 +107,8 @@ pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
 			}
 
 		if (debug)
-			cout << "CONVERGENCE: " << pw_name() << ": " <<
-				fabs(norm_factor - oldnf) << endl;
+			std::cout << "CONVERGENCE: " << pw_name() << ": " <<
+				fabs(norm_factor - oldnf) << std::endl;
 	}
 
 	// Okay, we now have our scores. Spool into an order.
@@ -120,12 +121,12 @@ pair<ordering, bool> keener::pair_elect(const abstract_condmat & input,
 		out.insert(candscore(permitted_candidates[counter],
 				scores[counter]));
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }
 
-string keener::pw_name() const {
+std::string keener::pw_name() const {
 
-	string ret = "Keener(";
+	std::string ret = "Keener(";
 	ret += dtos(tolerance) + ", ";
 	if (add_one) {
 		ret += "+1, ";

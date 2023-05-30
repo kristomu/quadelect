@@ -11,7 +11,6 @@
 
 #include "positional.h"
 
-using namespace std;
 
 // This one is used for Bucklin and QLTD. Not. We can still use it for
 // "fractional approval". TODO: Make a true Bucklin wrapper around it.
@@ -35,8 +34,8 @@ class sweep : public positional {
 			}
 		}
 
-		string pos_name() const {
-			return ((string)"Sweep(" + dtos(sweep_point) + ")");
+		std::string pos_name() const {
+			return ("Sweep(" + dtos(sweep_point) + ")");
 		}
 
 	public:
@@ -60,7 +59,7 @@ class plurality : public positional {
 				return (0);
 			}
 		}
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Plurality");
 		}
 	public:
@@ -72,7 +71,7 @@ class borda : public positional {
 		double pos_weight(size_t position, size_t last_position) const {
 			return (last_position - position);
 		}
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Borda");
 		}
 
@@ -89,7 +88,7 @@ class antiplurality : public positional {
 				return (1);
 			}
 		}
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Antiplurality");
 		}
 
@@ -108,7 +107,7 @@ class for_and_against : public positional {
 			}
 			return (0);
 		}
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("VoteForAgainst");
 		}
 
@@ -124,7 +123,7 @@ class nauru : public positional {
 			return (1/(double)(position +1));
 		}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Nauru Borda");
 		}
 
@@ -144,7 +143,7 @@ class heismantrophy : public positional {
 			return (0);
 		}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Heisman Trophy");
 		}
 
@@ -167,7 +166,7 @@ class baseballmvp : public positional {
 			return (0);
 		}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Baseball MVP");
 		}
 
@@ -194,7 +193,7 @@ class eurovision : public positional {
 			return (0);
 		}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Eurovision");
 		}
 
@@ -215,7 +214,7 @@ class dabagh : public positional {
 			return (2 - position);
 		}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Dabagh");
 		}
 
@@ -231,7 +230,7 @@ class nrem : public positional {
 		// This one is zero-indexed
 		double pos_weight(size_t position, size_t last_position) const;
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("NREM-Opt");
 		}
 
@@ -252,7 +251,7 @@ class worstpos : public positional {
 			}
 		}
 
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Worst Plurality");
 		}
 
@@ -265,7 +264,7 @@ class worstborda : public positional {
 		double pos_weight(size_t position, size_t last_position) const {
 			return (position);
 		}
-		string pos_name() const {
+		std::string pos_name() const {
 			return ("Worst Borda");
 		}
 

@@ -18,28 +18,27 @@
 #include "../../tools/tools.h"
 #include "../../ballots.h"
 
-using namespace std;
 
 class mode_ratings : public election_method {
 
 	private:
-		string cached_name;
+		std::string cached_name;
 
 	protected:
 
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string determine_name() const {
+		std::string determine_name() const {
 			return ("Mode-Ratings");
 		}
 
 	public:
 
-		string name() const {
+		std::string name() const {
 			return (cached_name);
 		}
 

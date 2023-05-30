@@ -38,7 +38,8 @@ void inc_ballot_vector(const ballot_group & ballot_to_add,
 			numcands, 0)] += ballot_to_add.weight;
 }
 
-std::vector<double> get_ballot_vector(const list<ballot_group> & election,
+std::vector<double> get_ballot_vector(const std::list<ballot_group> &
+	election,
 	size_t numcands) {
 
 	std::vector<double> ballot_vector(factorial(numcands));
@@ -58,7 +59,7 @@ std::vector<double> get_ballot_vector(const election_scenario_pair & esp) {
 
 
 std::list<ballot_group> relabel_election_candidates(
-	const list<ballot_group> & election_in,
+	const std::list<ballot_group> & election_in,
 	const std::vector<int> & candidate_relabeling,
 	bool disallow_elimination) {
 
@@ -76,7 +77,7 @@ std::list<ballot_group> relabel_election_candidates(
 		inv_relabeling[candidate_relabeling[i]] = i;
 	}
 
-	list<ballot_group> election_out;
+	std::list<ballot_group> election_out;
 
 	// Now just go through and relabel everything.
 	for (const ballot_group & ballot_in: election_in) {
@@ -108,7 +109,7 @@ std::list<ballot_group> relabel_election_candidates(
 
 // A pure permutation is bijective, so no elimination allowed.
 std::list<ballot_group> permute_election_candidates(
-	const list<ballot_group> & election_in,
+	const std::list<ballot_group> & election_in,
 	const std::vector<int> & candidate_permutation) {
 
 	return relabel_election_candidates(election_in, candidate_permutation,

@@ -30,9 +30,9 @@ enum stats_type { MS_UNNORM, MS_INTRAROUND, MS_INTERROUND };
 
 template<typename T> class stats {
 	private:
-		string name;
-		vector<T> scores;
-		vector<T> normalized_scores;
+		std::string name;
+		std::vector<T> scores;
+		std::vector<T> normalized_scores;
 
 		int num_scores;    // if we opt not to save them all.
 
@@ -56,7 +56,7 @@ template<typename T> class stats {
 		stats_type normalization;
 
 		// SLOW!
-		T calc_median(vector<T> in) const;
+		T calc_median(std::vector<T> in) const;
 
 		// Private now because getting the median of INTRAROUND is not
 		// possible if we're INTERROUND and vice versa, nor can you get
@@ -67,12 +67,12 @@ template<typename T> class stats {
 		T get_median(stats_type norm_type) const;
 
 	protected:
-		void initialize(stats_type norm_type, string name_in,
+		void initialize(stats_type norm_type, std::string name_in,
 			bool only_sum);
 
 	public:
-		stats(stats_type norm_type, string name_in, bool only_sum);
-		stats(stats_type norm_type, string name_in);
+		stats(stats_type norm_type, std::string name_in, bool only_sum);
+		stats(stats_type norm_type, std::string name_in);
 
 		void add_result(T minimum, T result, T maximum);
 
@@ -101,13 +101,15 @@ template<typename T> class stats {
 			return (get_last(normalization));
 		}
 
-		string display_stats(bool show_median, double interval) const;
-		virtual string get_name() const {
+		std::string display_stats(bool show_median,
+			double interval) const;
+
+		virtual std::string get_name() const {
 			return (name);
 		}
 };
 
-template <typename T> T stats<T>::calc_median(vector<T> in) const {
+template <typename T> T stats<T>::calc_median(std::vector<T> in) const {
 
 	// If the number of members isn't divisible by two, then pick the
 	// middle (floor(x/2)+1). Since we index from 0, it's just floor(x/2).
@@ -115,7 +117,7 @@ template <typename T> T stats<T>::calc_median(vector<T> in) const {
 	// floor(x/2).
 
 	if (in.size() % 2 == 0) {
-		typename vector<T>::iterator fpos = in.begin() +
+		typename std::vector<T>::iterator fpos = in.begin() +
 			(in.size() / 2) - 1, spos = fpos + 1;
 
 		nth_element(in.begin(), fpos, in.end());
@@ -123,7 +125,7 @@ template <typename T> T stats<T>::calc_median(vector<T> in) const {
 		return ((*fpos + *spos) * 0.5);
 	}
 
-	typename vector<T>::iterator pos = in.begin() +
+	typename std::vector<T>::iterator pos = in.begin() +
 		(int)floor(in.size() * 0.5);
 	nth_element(in.begin(), pos, in.end());
 	return (*pos);
@@ -131,7 +133,7 @@ template <typename T> T stats<T>::calc_median(vector<T> in) const {
 
 
 template <typename T> void stats<T>::initialize(stats_type norm_type,
-	string name_in, bool only_sum) {
+	std::string name_in, bool only_sum) {
 
 	normalization = norm_type;
 	name = name_in;
@@ -180,12 +182,12 @@ template <typename T> void stats<T>::initialize(stats_type norm_type,
 }
 
 template <typename T> stats<T>::stats(stats_type norm_type,
-	string name_in, bool only_sum) {
+	std::string name_in, bool only_sum) {
 	initialize(norm_type, name_in, only_sum);
 }
 
 template <typename T> stats<T>::stats(stats_type norm_type,
-	string name_in) {
+	std::string name_in) {
 	initialize(norm_type, name_in, false);
 }
 
@@ -334,12 +336,12 @@ template <typename T> T stats<T>::get_last(stats_type norm_type) const {
 
 // If show_median is true, we show the mean and median, otherwise we show the
 // mean and its confidence interval.
-template<typename T> string stats<T>::display_stats(bool show_median,
+template<typename T> std::string stats<T>::display_stats(bool show_median,
 	double interval) const {
 
 	confidence_int ci;
 
-	string stats;
+	std::string stats;
 	if (show_median)
 		stats = s_padded(dtos(get_mean(), 5), 7) + " med: " +
 			s_padded(dtos(get_median(), 5), 7);

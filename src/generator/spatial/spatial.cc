@@ -4,10 +4,9 @@
 #include "spatial.h"
 #include <iostream>
 
-using namespace std;
 
-double spatial_generator::distance(const vector<double> & a,
-	const vector<double> & b) const {
+double spatial_generator::distance(const std::vector<double> & a,
+	const std::vector<double> & b) const {
 
 	double sum = 0;
 
@@ -20,18 +19,20 @@ double spatial_generator::distance(const vector<double> & a,
 	return (sqrt(sum));
 }
 
-vector<double> spatial_generator::max_dim_vector(size_t dimensions) const {
+std::vector<double> spatial_generator::max_dim_vector(
+	size_t dimensions) const {
 
 	// Same as above, only generate the max vector. Slow? Perhaps.
 
-	vector<double> toRet(ceil(dimensions), 1);
+	std::vector<double> toRet(ceil(dimensions), 1);
 	return (toRet);
 }
 
-list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
+std::list<ballot_group> spatial_generator::generate_ballots_int(
+	int num_voters,
 	int numcands, bool do_truncate, rng & random_source) const {
 
-	list<ballot_group> toRet;
+	std::list<ballot_group> toRet;
 
 	// First generate the candidate positions.
 	// Hm, perhaps this is where JGA's strategy test differs from mine.
@@ -40,10 +41,10 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 
 	// Optimize: could make this part of the class, and mutable.
 	// Optimize: could also make this take a list<..>& as input and then
-	// have an auxiliary generate_ballots_int create list<ballot_group>,
+	// have an auxiliary generate_ballots_int create std::list<ballot_group>,
 	// run this on it, and return it. Probably not worth too much, given
 	// that we have to compress anyway.
-	vector<vector<double> > cand_positions;
+	std::vector<std::vector<double> > cand_positions;
 
 	// If they're fixed and the number of candidates are right, then
 	// defer to the fixed position.
@@ -66,10 +67,10 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 
 	size_t eff_dimensions = ceil(num_dimensions);
 
-	vector<double> voter_pos, max_dist(eff_dimensions, 0),
-		   distances_to_cand(numcands, 0);
+	std::vector<double> voter_pos, max_dist(eff_dimensions, 0),
+		distances_to_cand(numcands, 0);
 
-	vector<double> max_vector = max_dim_vector(num_dimensions);
+	std::vector<double> max_vector = max_dim_vector(num_dimensions);
 
 	for (counter = 0; counter < (size_t)num_voters; ++counter) {
 		ballot_group our_entry;
@@ -85,7 +86,7 @@ list<ballot_group> spatial_generator::generate_ballots_int(int num_voters,
 			distances_to_cand[sec] = distance(voter_pos,
 					cand_positions[sec]);
 
-			mindist = min(mindist, distances_to_cand[sec]);
+			mindist = std::min(mindist, distances_to_cand[sec]);
 		}
 
 		// Report all distances within this area. If we're not going
@@ -182,7 +183,7 @@ bool spatial_generator::set_params(size_t num_dimensions_in,
 }
 
 bool spatial_generator::fix_candidate_positions(int num_cands,
-	const vector<vector<double> > cand_positions) {
+	const std::vector<std::vector<double> > cand_positions) {
 	// If we have the wrong number of candidates or the wrong number of
 	// dimensions, no go.
 
@@ -210,7 +211,7 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 		return (false);    // Surely you jest!
 	}
 
-	vector<vector<double> > cand_positions;
+	std::vector<std::vector<double> > cand_positions;
 
 	for (int counter = 0; counter < num_cands; ++counter)
 		cand_positions.push_back(rnd_vector(num_dimensions,
@@ -219,18 +220,19 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 	return (fix_candidate_positions(num_cands, cand_positions));
 }
 
-vector<vector<double> > spatial_generator::get_fixed_candidate_pos()
+std::vector<std::vector<double> >
+spatial_generator::get_fixed_candidate_pos()
 const {
 
 	// If no positions have been fixed, there's nothing we can do!
 	if (!fixed) {
-		return (vector<vector<double> >());
+		return (std::vector<std::vector<double> >());
 	}
 
 	return (fixed_cand_positions);
 }
 
-bool spatial_generator::set_center(const vector<double> center_in) {
+bool spatial_generator::set_center(const std::vector<double> center_in) {
 	if (!uses_center) {
 		return (false);
 	}
@@ -245,7 +247,7 @@ bool spatial_generator::set_center(const vector<double> center_in) {
 	return (true);
 }
 
-bool spatial_generator::set_dispersion(const vector<double>
+bool spatial_generator::set_dispersion(const std::vector<double>
 	dispersion_in) {
 	if (!uses_dispersion) {
 		return (false);

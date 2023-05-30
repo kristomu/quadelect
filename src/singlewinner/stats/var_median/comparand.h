@@ -18,8 +18,8 @@ class gf_comparand {
 			ref = ref_in;
 		}
 
-		bool operator()(const pair<double, int> & a,
-			const pair<double, int> & b) const {
+		bool operator()(const std::pair<double, int> & a,
+			const std::pair<double, int> & b) const {
 			if (a.first != b.first) {
 				return (a.first < b.first);
 			}
@@ -27,8 +27,8 @@ class gf_comparand {
 					ref->get_score(b.second));
 		}
 
-		bool equals(const pair<double, int> & a,
-			const pair<double, int> & b) const {
+		bool equals(const std::pair<double, int> & a,
+			const std::pair<double, int> & b) const {
 			if (a.first != b.first) {
 				return (a.first == b.first);
 			}

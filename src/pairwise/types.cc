@@ -3,7 +3,6 @@
 
 #include "types.h"
 
-using namespace std;
 
 // Margins calculation types (wv, margins, lv, etc). Let's try using a
 // Strategy pattern - a base class for these as well as inherited classes for
@@ -53,9 +52,10 @@ void pairwise_type::set(const pairwise_ident & in) {
 
 // Pairwise producer, whose purpose is to list every possible strategy.
 
-list<pairwise_type> pairwise_producer::provide_all_strategies() const {
+std::list<pairwise_type> pairwise_producer::provide_all_strategies()
+const {
 
-	list<pairwise_type> output;
+	std::list<pairwise_type> output;
 
 	// This is what CM_FIRST and CM_LAST is for!
 

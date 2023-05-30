@@ -9,9 +9,9 @@
 
 // Functions for generating standard candidate names.
 
-string interpreter_mode::base26(int number) const {
+std::string interpreter_mode::base26(int number) const {
 
-	string output;
+	std::string output;
 
 	do {
 		int remnant = number % 26;
@@ -22,7 +22,8 @@ string interpreter_mode::base26(int number) const {
 	return (output);
 }
 
-void interpreter_mode::complete_default_lookup(map<size_t, string> &
+void interpreter_mode::complete_default_lookup(
+	std::map<size_t, std::string> &
 	to_complete,
 	size_t how_many) const {
 
@@ -32,9 +33,9 @@ void interpreter_mode::complete_default_lookup(map<size_t, string> &
 		}
 }
 
-map<size_t, std::string> interpreter_mode::gen_default_lookup(
+std::map<size_t, std::string> interpreter_mode::gen_default_lookup(
 	size_t how_many) const {
-	map<size_t, std::string> toRet;
+	std::map<size_t, std::string> toRet;
 
 	complete_default_lookup(toRet, how_many);
 
@@ -46,17 +47,18 @@ map<size_t, std::string> interpreter_mode::gen_default_lookup(
 // candidate names; and if there's a score involving candidate q, we're going
 // to need at least q.
 
-int interpreter_mode::get_max_candidates(const list<ballot_group> & in)
+int interpreter_mode::get_max_candidates(const std::list<ballot_group> &
+	in)
 const {
 	size_t maxval = 0;
 
-	for (list<ballot_group>::const_iterator pos = in.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = in.begin(); pos !=
 		in.end(); ++pos) {
-		maxval = max(maxval, pos->contents.size());
+		maxval = std::max(maxval, pos->contents.size());
 
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos) {
-			maxval = max(maxval, (size_t)opos->get_candidate_num());
+			maxval = std::max(maxval, (size_t)opos->get_candidate_num());
 		}
 	}
 
@@ -72,7 +74,7 @@ bool interpreter_mode::parse_ballots(bool debug) {
 	const interpreter * to_use = NULL;
 
 	// Try to find an interpreter.
-	for (list<const interpreter *>::const_iterator cand_int =
+	for (std::list<const interpreter *>::const_iterator cand_int =
 			interpreters.begin(); cand_int != interpreters.end() &&
 		to_use == NULL;	++cand_int)
 		if ((*cand_int)->is_this_format(input_ballots_unparsed)) {
@@ -86,7 +88,8 @@ bool interpreter_mode::parse_ballots(bool debug) {
 
 	// Otherwise, let's get going!
 
-	pair<map<size_t, std::string>, list<ballot_group> > parsed = to_use->
+	std::pair<std::map<size_t, std::string>, std::list<ballot_group> > parsed =
+		to_use->
 		interpret_ballots(input_ballots_unparsed, debug);
 
 	if (parsed.second.empty()) {
@@ -109,7 +112,8 @@ void interpreter_mode::invalidate() {
 }
 
 // Add ballots we want to count.
-void interpreter_mode::set_ballots(const list<ballot_group> & ballot_in) {
+void interpreter_mode::set_ballots(const std::list<ballot_group> &
+	ballot_in) {
 
 	invalidate();
 	input_ballots = ballot_in; // Simple enough.
@@ -123,8 +127,9 @@ void interpreter_mode::set_ballots(const list<ballot_group> & ballot_in) {
 	cand_lookup = gen_default_lookup(maxval);
 }
 
-bool interpreter_mode::set_ballots(const list<ballot_group> & ballot_in,
-	const map<size_t, std::string> & candidate_names) {
+bool interpreter_mode::set_ballots(const std::list<ballot_group> &
+	ballot_in,
+	const std::map<size_t, std::string> & candidate_names) {
 
 	// First add the ballots themselves. Then check if the needed map to
 	// cover every candidate is larger than the one we've got provided. If
@@ -160,7 +165,7 @@ void interpreter_mode::add_interpreter(const interpreter * to_add) {
 void interpreter_mode::clear_methods(bool do_delete) {
 
 	if (do_delete)
-		for (vector<const election_method *>::iterator pos =
+		for (std::vector<const election_method *>::iterator pos =
 				methods.begin(); pos != methods.end();
 			++pos) {
 			delete *pos;
@@ -173,7 +178,7 @@ void interpreter_mode::clear_methods(bool do_delete) {
 void interpreter_mode::clear_interpreters(bool do_delete) {
 
 	if (do_delete)
-		for (list<const interpreter *>::iterator pos =
+		for (std::list<const interpreter *>::iterator pos =
 				interpreters.begin(); pos != interpreters.end();
 			++pos) {
 			delete *pos;
@@ -183,10 +188,10 @@ void interpreter_mode::clear_interpreters(bool do_delete) {
 	invalidate();
 }
 
-interpreter_mode::interpreter_mode(list<const interpreter *> &
+interpreter_mode::interpreter_mode(std::list<const interpreter *> &
 	interpreters_in,
-	list<const election_method *> & methods_in,
-	list<ballot_group> & ballots_in) {
+	std::list<const election_method *> & methods_in,
+	std::list<ballot_group> & ballots_in) {
 
 	interpreters = interpreters_in;
 	add_methods(methods_in.begin(), methods_in.end());
@@ -196,10 +201,10 @@ interpreter_mode::interpreter_mode(list<const interpreter *> &
 
 }
 
-interpreter_mode::interpreter_mode(list<const interpreter *> &
+interpreter_mode::interpreter_mode(std::list<const interpreter *> &
 	interpreters_in,
-	list<const election_method *> & methods_in,
-	vector<string> & ballots_in_unparsed) {
+	std::list<const election_method *> & methods_in,
+	std::vector<std::string> & ballots_in_unparsed) {
 
 	interpreters = interpreters_in;
 	add_methods(methods_in.begin(), methods_in.end());
@@ -208,9 +213,9 @@ interpreter_mode::interpreter_mode(list<const interpreter *> &
 	inited = false;
 }
 
-interpreter_mode::interpreter_mode(list<const interpreter *> &
+interpreter_mode::interpreter_mode(std::list<const interpreter *> &
 	interpreters_in,
-	list<const election_method *> & methods_in) {
+	std::list<const election_method *> & methods_in) {
 
 	interpreters = interpreters_in;
 	add_methods(methods_in.begin(), methods_in.end());
@@ -271,7 +276,7 @@ int interpreter_mode::get_current_round() const {
 	}
 }
 
-string interpreter_mode::do_round(bool give_brief_status, bool reseed,
+std::string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 	rng & randomizer, cache_map * cache) {
 
 	// If we aren't inited, return to tell them no go.
@@ -287,7 +292,7 @@ string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 		randomizer.s_rand(cur_iter);
 	}
 
-	string output = "OK";
+	std::string output = "OK";
 
 	// Just elect and increment. If we get here, the lookup map will already
 	// have been completed, so we can use its size for number of candidates.
@@ -308,23 +313,24 @@ string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 	return (output);
 }
 
-string interpreter_mode::do_round(bool give_brief_status, bool reseed,
+std::string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 	rng & randomizer) {
 	return (do_round(give_brief_status, reseed, randomizer, NULL));
 }
 
 // More results than status, so more in the vein of the Bayesian Regret mode
 // than the Yee mode.
-vector<string> interpreter_mode::provide_status() const {
+std::vector<std::string> interpreter_mode::provide_status() const {
 
 	if (!inited) {
-		return (vector<string>(1, "Not inited!"));
+		return (std::vector<std::string>(1, "Not inited!"));
 	}
 
-	vector<string> toRet;
+	std::vector<std::string> toRet;
 
-	list<ordering>::const_iterator opos = results.begin();
-	vector<const election_method *>::const_iterator empos = methods.begin();
+	std::list<ordering>::const_iterator opos = results.begin();
+	std::vector<const election_method *>::const_iterator empos =
+		methods.begin();
 
 	ordering_tools otool;
 
@@ -332,7 +338,7 @@ vector<string> interpreter_mode::provide_status() const {
 	// on whether the method returns numeric values.
 
 	while (opos != results.end() && empos != methods.end()) {
-		string this_result = "Result for " + (*empos)->name() + " : " +
+		std::string this_result = "Result for " + (*empos)->name() + " : " +
 			otool.ordering_to_text(*opos, cand_lookup, false);
 		toRet.push_back(this_result);
 		++opos;

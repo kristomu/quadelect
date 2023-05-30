@@ -35,30 +35,30 @@ class barycentric : public pure_ballot_generator {
 			bool do_truncate) const = 0;
 };
 
-using namespace std;
 
 // These are the reference points - the vertices of the triangle.
-vector<pair<double, double> > reference_points() {
-	vector<pair<double, double> > out;
+std::vector<std::pair<double, double> > reference_points() {
+	std::vector<std::pair<double, double> > out;
 
 	// first point is at (0.5, 0) (top middle)
 	// second point is at (0, 1) (lower left)
 	// third point is at (1, 1) (lower right)
 
-	out.push_back(pair<double, double>(0.5, 0));
-	out.push_back(pair<double, double>(0, 1));
-	out.push_back(pair<double, double>(1, 1));
+	out.push_back(std::pair<double, double>(0.5, 0));
+	out.push_back(std::pair<double, double>(0, 1));
+	out.push_back(std::pair<double, double>(1, 1));
 
 	return (out);
 }
 
 // Transform a Cartesian coordinate to a barycentric one.
-vector<double> from_cartesian(const pair<double, double> & coords) {
+std::vector<double> from_cartesian(const std::pair<double, double> &
+	coords) {
 	assert(coords.first >= 0 && coords.first <= 1);
 	assert(coords.second >= 0 && coords.second <= 1);
 
-	vector<double> out(3);
-	vector<pair<double, double> > base = reference_points();
+	std::vector<double> out(3);
+	std::vector<std::pair<double, double> > base = reference_points();
 
 	// l_1 = (y2-y3)(x-x3) - (x2-x3)(y-y3)
 	// l_2 = -(y1-y3)(x-x3) + (x1-x3)(y-y3)
@@ -84,7 +84,7 @@ vector<double> from_cartesian(const pair<double, double> & coords) {
 	return (out);
 }
 
-bool is_inside(const vector<double> & bary_coords) {
+bool is_inside(const std::vector<double> & bary_coords) {
 
 	for (int counter = 0; counter < bary_coords.size(); ++counter)
 		if (bary_coords[counter] < 0 || bary_coords[counter] > 1) {
@@ -94,11 +94,11 @@ bool is_inside(const vector<double> & bary_coords) {
 	return (true);
 }
 
-pair<double, double> to_cartesian(const vector<double> & input) {
+std::pair<double, double> to_cartesian(const std::vector<double> & input) {
 
-	vector<pair<double, double> > base = reference_points();
+	std::vector<std::pair<double, double> > base = reference_points();
 
-	pair<double, double> cartesian;
+	std::pair<double, double> cartesian;
 
 	// x = l_1 * x1 + l_2 * x2 + l_3 * x3
 	// y = l_1 * y1 + l_2 * y2 + l_3 * y3
@@ -113,16 +113,16 @@ pair<double, double> to_cartesian(const vector<double> & input) {
 
 main() {
 
-	pair<double, double> init;
+	std::pair<double, double> init;
 	init.first = 0.5;
 	init.second = 0.3;
 
-	vector<double> converted = from_cartesian(init);
+	std::vector<double> converted = from_cartesian(init);
 
-	cout << converted[0] << "\t" << converted[1] << "\t" << converted[2]
-		<< endl;
+	std::cout << converted[0] << "\t" << converted[1] << "\t" << converted[2]
+		<< std::endl;
 
 	init = to_cartesian(converted);
 
-	cout << init.first << "\t" << init.second << endl;
+	std::cout << init.first << "\t" << init.second << std::endl;
 }

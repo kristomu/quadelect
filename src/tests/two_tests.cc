@@ -4,11 +4,12 @@
 
 // Should this be a pseudo-singlewinner method? Nah, because then we lose the
 // capacity of picking number of seats as needed.
-ordering twotest::synthesize_single_winner(const list<int> & mw_council,
+ordering twotest::synthesize_single_winner(const std::list<int> &
+	mw_council,
 	int num_candidates) const {
 
-	vector<bool> members(num_candidates, false);
-	list<int>::const_iterator lpos;
+	std::vector<bool> members(num_candidates, false);
+	std::list<int>::const_iterator lpos;
 	for (lpos = mw_council.begin(); lpos != mw_council.end(); ++lpos) {
 		members[*lpos] = true;
 	}
@@ -26,7 +27,7 @@ ordering twotest::synthesize_single_winner(const list<int> & mw_council,
 
 
 ternary twotest::pass(const election_method * base,
-	const list<ballot_group> & input,
+	const std::list<ballot_group> & input,
 	int num_candidates, cache_map * unmod_cache,
 	cache_map * mod_cache) {
 
@@ -35,7 +36,7 @@ ternary twotest::pass(const election_method * base,
 	disproof_out.unmodified_ordering.clear();
 
 	// Get some random data.
-	pair<bool, list<ballot_group> > arrangement;
+	std::pair<bool, std::list<ballot_group> > arrangement;
 	arrangement.first = false;
 
 	disproof_out.modification_data = generate_aux_data(input,
@@ -70,7 +71,7 @@ ternary twotest::pass(const election_method * base,
 }
 
 ternary twotest::pass(const election_method * base,
-	const list<ballot_group> & input,
+	const std::list<ballot_group> & input,
 	int num_candidates) {
 
 	return (pass(base, input, num_candidates, NULL, NULL));
@@ -83,7 +84,7 @@ ternary twotest::pass_specd(const election_method * base,
 	disproof_out = to_test;
 
 	// Generate the modified ballots.
-	pair<bool, list<ballot_group> > arrangement;
+	std::pair<bool, std::list<ballot_group> > arrangement;
 	arrangement = rearrange_ballots(disproof_out.unmodified_ballots,
 			num_candidates, disproof_out.modification_data);
 
@@ -104,7 +105,7 @@ ternary twotest::pass_last(const election_method * base,
 	// We assume the data structure (ballot and modified, and data) have
 	// been filled out.
 
-	/*map<int, string> fakecand;
+	/*std::map<int, std::string> fakecand;
 	        int sec;
 
 	        string f = "!";
@@ -113,12 +114,12 @@ ternary twotest::pass_last(const election_method * base,
 	                fakecand[counter] = f;
 	        }
 
-	cout << "DEBUG: Checking " << endl;
+	std::cout << "DEBUG: Checking " << std::endl;
 	ballot_tools btools;
-	vector<string> fv = btools.ballots_to_text(disproof_out.
+	std::vector<std::string> fv = btools.ballots_to_text(disproof_out.
 			unmodified_ballots, fakecand, false);
 	copy(fv.begin(), fv.end(),
-			ostream_iterator<string>(cout, "\n"));*/
+			std::ostream_iterator<std::string>(std::cout, "\n"));*/
 
 	// Produce the orderings
 	if (!unmod_already_set)
@@ -193,17 +194,17 @@ ternary twotest::pass_last(const election_method * base,
 
 // Possible TODO: pass mod_cache instead of making it. Depends on how much time
 // it takes to create a new map vs clearing it.
-bool twotest::pass_many(const vector<ordering> & base_outcomes,
-	const list<ballot_group> & original_ballots,
+bool twotest::pass_many(const std::vector<ordering> & base_outcomes,
+	const std::list<ballot_group> & original_ballots,
 	int num_candidates, int num_nc_iters,
-	const vector<const election_method *> & methods_to_test,
-	vector<method_test_info> & compliance_data,
+	const std::vector<const election_method *> & methods_to_test,
+	std::vector<method_test_info> & compliance_data,
 	bool skip_already_false) {
 
-	//cout << "Debug: test is " << name() << endl;
+	//std::cout << "Debug: test is " << name() << std::endl;
 
 	// Start out knowing nothing about the methods.
-	vector<ternary> status(methods_to_test.size(), TINAPP);
+	std::vector<ternary> status(methods_to_test.size(), TINAPP);
 
 	size_t counter;
 	int methods_left = methods_to_test.size();
@@ -224,7 +225,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 	disproof_out.unmodified_ballots = original_ballots;
 
 	while (methods_left > 0 && num_uninterrupted < num_nc_iters) {
-		//cout << "-dbg-" << endl;
+		//std::cout << "-dbg-" << std::endl;
 		++num_uninterrupted;
 
 		// Generate some data for the test.
@@ -275,7 +276,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 		// Otherwise, generate the actual modified ballot group and
 		// start testing! It might still not be applicable or even
 		// possible,  but we don't know that yet.
-		pair<bool, list<ballot_group> > arrangement =
+		std::pair<bool, std::list<ballot_group> > arrangement =
 			rearrange_ballots(disproof_out.unmodified_ballots,
 				num_candidates,
 				disproof_out.modification_data);
@@ -320,16 +321,17 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 					num_candidates, true, NULL, &mod_cache);
 
 			if (result != TINAPP) {
-				//cout << methods_to_test[counter]->name() << endl;
+				//std::cout << methods_to_test[counter]->name() << std::endl;
 				status[counter] = result;
 				--methods_left;
 
 				// Update compliance data.
 				++compliance_data[counter].iters_run;
 				if (result == TFALSE) {
-					cout << "result for " << methods_to_test[counter]->name() << " and " <<
+					std::cout << "result for " << methods_to_test[counter]->name() << " and "
+						<<
 						name() << " is " << result << " at iter " <<
-						compliance_data[counter].iters_run << endl;
+						compliance_data[counter].iters_run << std::endl;
 					compliance_data[counter].
 					passes_so_far =	false;
 					compliance_data[counter].
@@ -337,10 +339,10 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 				}
 			}
 		}
-		//cout << methods_left << endl;
+		//std::cout << methods_left << std::endl;
 	}
 
-	//cout << "---" << endl;
+	//std::cout << "---" << std::endl;
 
 	return (true);
 }
@@ -354,7 +356,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 	// Some methods (Schulze STV etc) provide for a full ranking of every
 	// possible council, but that's exponential and so we don't support it.
 
-	list<int> unmodified_council = base_mw->get_council(council_size,
+	std::list<int> unmodified_council = base_mw->get_council(council_size,
 			num_candidates, disproof_out.unmodified_ballots);
 	disproof_out.unmodified_ordering = synthesize_single_winner(
 			unmodified_council, num_candidates);
@@ -363,7 +365,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 		return(TINAPP);
 
 	// Modified council
-	list<int> modified_council = base_mw->get_council(council_size,
+	std::list<int> modified_council = base_mw->get_council(council_size,
 			num_candidates, disproof_out.modified_ballots);
 	disproof_out.modified_ordering = synthesize_single_winner(
 			modified_council, num_candidates);
@@ -382,7 +384,7 @@ bool twotest::pass_many(const vector<ordering> & base_outcomes,
 }
 
 ternary twotest::pass_multiwinner(const multiwinner_method * base_mw,
-		const list<ballot_group> & input, int council_size,
+		const std::list<ballot_group> & input, int council_size,
 		int num_candidates) {
 
 	// Second verse, same as the first. (See above)
@@ -393,7 +395,7 @@ ternary twotest::pass_multiwinner(const multiwinner_method * base_mw,
         disproof_out.unmodified_ballots = input;
 
         // Get some random data.
-        pair<bool, list<ballot_group> > arrangement;
+        std::pair<bool, std::list<ballot_group> > arrangement;
         arrangement.first = false;
 
         disproof_out.modification_data = generate_aux_data(input,

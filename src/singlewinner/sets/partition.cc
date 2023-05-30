@@ -1,16 +1,15 @@
 #include "partition.h"
 
-using namespace std;
 
-pair<ordering, bool> partition_set::pair_elect(const abstract_condmat &
+std::pair<ordering, bool> partition_set::pair_elect(const abstract_condmat &
 	input,
-	const vector<bool> & hopefuls, cache_map * cache,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	// Start with a candidate schedule that goes 0..n. This means that
 	// unless we randomize, 0 will be compared to 1, 2 to 3, etc.
 
-	vector<int> schedule;
+	std::vector<int> schedule;
 	schedule.reserve(input.get_num_candidates());
 
 	size_t counter;
@@ -25,7 +24,7 @@ pair<ordering, bool> partition_set::pair_elect(const abstract_condmat &
 		random_shuffle(schedule.begin(), schedule.end());
 	}
 
-	pair<ordering, bool> toRet;
+	std::pair<ordering, bool> toRet;
 	// Since it's a partition, it gives the same result whether or not
 	// winner_only is true.
 	toRet.second = false;
@@ -45,7 +44,7 @@ pair<ordering, bool> partition_set::pair_elect(const abstract_condmat &
 		if (input.get_magnitude(prosp_winner, prosp_loser, hopefuls) <
 			input.get_magnitude(prosp_loser, prosp_winner,
 				hopefuls)) {
-			swap(prosp_winner, prosp_loser);
+			std::swap(prosp_winner, prosp_loser);
 		}
 
 		toRet.first.insert(candscore(prosp_winner, 1));
@@ -62,7 +61,7 @@ void partition_set::set_random(bool be_random) {
 	update_name();
 }
 
-string partition_set::pw_name() const {
+std::string partition_set::pw_name() const {
 
 	if (is_random) {
 		return ("Partition/rand");

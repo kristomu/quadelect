@@ -28,7 +28,6 @@
 #include <assert.h>
 #include <iostream>
 
-using namespace std;
 
 class cond_tournament : public election_method {
 
@@ -42,37 +41,37 @@ class cond_tournament : public election_method {
 
 		// This is used to recurse in order to get the winner.
 		int get_victor(int check_a, int check_b, int level, int
-			numcands, const vector<int> & seed_order,
-			const condmat & to_check, vector<int> &
+			numcands, const std::vector<int> & seed_order,
+			const condmat & to_check, std::vector<int> &
 			lasted_how_long) const;
 
 		// We need to run it multiple times to get a full ordering.
 		// Not yet, though; gotta crawl etc.
-		ordering internal_elect(const list<ballot_group> & papers,
+		ordering internal_elect(const std::list<ballot_group> & papers,
 			const condmat & matrix, const ordering & seed,
-			const vector<bool> & hopefuls, int
+			const std::vector<bool> & hopefuls, int
 			num_candidates, bool winner_only) const;
 
 	protected:
 		cond_tournament(election_method * base_method,
 			bool single_round);
 		// TODO, make these into elect_inner.
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
 			const ordering & seed, const condmat &
 			matrix, bool winner_only) const;
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
 	public:
-		string name() const;
+		std::string name() const;
 };
 
 #endif

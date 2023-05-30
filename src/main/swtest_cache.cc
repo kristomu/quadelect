@@ -37,23 +37,25 @@ int main() {
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
+	std::list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;
 
 	string f = "!";
 	int counter;
-	map<int, string> fakecand;
+	std::map<int, std::string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
 		f[0] = (char)('A' + counter);
 		fakecand[counter] = f;
 	}
 
-	vector<string> printable = btools.ballots_to_text(btools.compress(
+	std::vector<std::string> printable = btools.ballots_to_text(
+			btools.compress(
 				ballots), fakecand, true);
-	copy(printable.begin(), printable.end(), ostream_iterator<string>(cout,
+	copy(printable.begin(), printable.end(),
+		std::ostream_iterator<std::string>(std::cout,
 			"\n"));
 
 	cache_map cache;
@@ -65,10 +67,10 @@ int main() {
 		out = eminmax.elect(ballots, 4, cache, false);
 	}*/
 
-	cout << "---" << endl;
+	std::cout << "---" << std::endl;
 	ordering_tools otools;
-	cout << eminmax.name() << ": ";
-	cout << otools.ordering_to_text(out, fakecand, true) << endl;
+	std::cout << eminmax.name() << ": ";
+	std::cout << otools.ordering_to_text(out, fakecand, true) << std::endl;
 
 	// -------------------- //
 
@@ -78,19 +80,21 @@ int main() {
 	for (counter = 0; counter < 400000; ++counter) {
 		cache.clear();
 		int numcand = 4;
-		list<ballot_group> orig = ic.generate_ballots(
+		std::list<ballot_group> orig = ic.generate_ballots(
 				random() % 17 + 2, numcand, randomizer);
 
 		if (mrtest.pass(&le_plur, orig,
 				numcand/*, cache, *(cache_map *)NULL*/) == TFALSE) {
-			cout << "Found IRV failure with " << numcand << " cands, counter = " <<
-				counter << endl;
+			std::cout << "Found IRV failure with " << numcand << " cands, counter = "
+				<<
+				counter << std::endl;
 		}
-		//cout << "After that: " << cache.size() << endl;
+		//std::cout << "After that: " << cache.size() << std::endl;
 		if (mrtest.pass(&plur, orig,
 				numcand/*, cache, *(cache_map *)NULL*/) == TFALSE) {
-			cout << "Found Plurality failure with " << numcand << " cands, counter = "
-				<< counter << endl;
+			std::cout << "Found Plurality failure with " << numcand <<
+				" cands, counter = "
+				<< counter << std::endl;
 		}
 	}
 	return (0);

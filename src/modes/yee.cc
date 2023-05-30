@@ -39,9 +39,10 @@
 // interpolation order to maximize effect.
 
 long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
-	const vector<const election_method *> & methods,
+	const std::vector<const election_method *> & methods,
 	spatial_generator & ballotgen,
-	vector<vector<vector<vector<bool > > > > & am_ac_winners,
+	std::vector<std::vector<std::vector<std::vector<bool > > > > &
+	am_ac_winners,
 	int min_num_voters_in, int max_num_voters_in,
 	bool use_autopilot_in, double autopilot_factor_in,
 	int autopilot_history_in, cache_map * cache,
@@ -50,12 +51,12 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	size_t num_cands = am_ac_winners[0].size(),
 		   num_methods = am_ac_winners.size();
 
-	vector<list<ballot_group> > autopilot_am(num_methods);
-	vector<int> num_identical(num_methods, 0);
-	list<ballot_group> ballots;
+	std::vector<std::list<ballot_group> > autopilot_am(num_methods);
+	std::vector<int> num_identical(num_methods, 0);
+	std::list<ballot_group> ballots;
 
 	// Arrange these so (0,0) is at the bottom left?
-	vector<double> relative(2);
+	std::vector<double> relative(2);
 	relative[0] = x / (double) xsize_in;
 	relative[1] = y / (double) ysize_in;
 
@@ -129,11 +130,11 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 		}
 
 		if (cur_num_voters != max_num_voters)
-			cur_num_voters = min((double)max_num_voters,
-					cur_num_voters * max(def_autopilot_factor,
+			cur_num_voters = std::min((double)max_num_voters,
+					cur_num_voters * std::max(def_autopilot_factor,
 						autopilot_factor_in));
 		else
-			cur_num_voters *= max(def_autopilot_factor,
+			cur_num_voters *= std::max(def_autopilot_factor,
 					autopilot_factor_in);
 	}
 
@@ -159,10 +160,10 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	return (bottom_line);
 }
 
-bool yee::draw_pictures(string prefix,
-	const vector<vector<vector<bool > > > &
-	ac_winners, vector<vector<double> > & cand_colors,
-	vector<vector<double> > & cand_locations,
+bool yee::draw_pictures(std::string prefix,
+	const std::vector<std::vector<std::vector<bool > > > &
+	ac_winners, std::vector<std::vector<double> > & cand_colors,
+	std::vector<std::vector<double> > & cand_locations,
 	bool draw_binaries_in, bool ignore_errors_in,
 	double inner_radius_in, double outer_radius_in,
 	double hue_factor) const {
@@ -174,17 +175,17 @@ bool yee::draw_pictures(string prefix,
 		   xsize_in = ac_winners[0].size(), ysize_in = ac_winners[0][0].size();
 
 	bool okay_so_far = true;
-	string outfn;
+	std::string outfn;
 
 	for (counter = 0; counter < numcands && draw_binaries_in; ++counter) {
 		outfn = prefix + "_bin_c" + dtos(counter) + "won.pgm";
-		ofstream outfile(outfn.c_str());
+		std::ofstream outfile(outfn.c_str());
 
 		if (!outfile) {
 			okay_so_far = false;
 			if (!ignore_errors_in && !okay_so_far) {
-				cerr << "Couldn't open binary picture file "
-					<< outfn << " for writing." << endl;
+				std::cerr << "Couldn't open binary picture file "
+					<< outfn << " for writing." << std::endl;
 				return (false);
 			}
 
@@ -192,8 +193,8 @@ bool yee::draw_pictures(string prefix,
 		}
 
 		// Header!
-		outfile << "P5 " << endl << xsize_in << " " << ysize_in << endl
-			<< 255 << endl;
+		outfile << "P5 " << std::endl << xsize_in << " " << ysize_in << std::endl
+			<< 255 << std::endl;
 
 		// Dump the boolean.
 		for (y = 0; y < ysize_in; ++y)
@@ -211,22 +212,23 @@ bool yee::draw_pictures(string prefix,
 	// Build the color picture.
 
 	outfn = prefix + "_yee.ppm";
-	ofstream color_pic(outfn.c_str());
+	std::ofstream color_pic(outfn.c_str());
 
 	if (!color_pic) {
 		// Couldn't open that file.
-		cerr << "Couldn't open color picture file " << outfn <<
-			" for writing." << endl;
+		std::cerr << "Couldn't open color picture file " << outfn <<
+			" for writing." << std::endl;
 		// Since we've got nothing more to do, we can just return false
 		// no matter what here.
 		return (false);
 	}
 
 	// Write the header.
-	color_pic << "P6 " << endl << xsize_in << " " << ysize_in << endl << 255
-		<< endl;
+	color_pic << "P6 " << std::endl << xsize_in << " " << ysize_in << std::endl
+		<< 255
+		<< std::endl;
 
-	vector<double> adj_coords(2);
+	std::vector<double> adj_coords(2);
 
 	// sqrt here etc.
 	double adj_outer_radius = 2.5/(double)xsize_in + 2.5/(double)ysize_in;
@@ -239,7 +241,7 @@ bool yee::draw_pictures(string prefix,
 			// If there's a tie, we output the mean color. If we
 			// go to LAB at some later point, this may become more
 			// complex.
-			vector<double> prosp_RGB(3);
+			std::vector<double> prosp_RGB(3);
 			int num_winners = 0;
 
 			// We set these if any of the candidates have their
@@ -306,21 +308,21 @@ bool yee::draw_pictures(string prefix,
 
 }
 
-vector<vector<double> > yee::get_candidate_colors(int numcands,
+std::vector<std::vector<double> > yee::get_candidate_colors(int numcands,
 	bool debug) const {
 
 	if (numcands <= 0) {
-		return (vector<vector<double> >());
+		return (std::vector<std::vector<double> >());
 	}
 
-	vector<vector<double> > candidate_RGB(numcands);
+	std::vector<std::vector<double> > candidate_RGB(numcands);
 
 	// The candidates are each given colors at hues spaced equally from
 	// each other, and with full saturation and value. If you want
 	// IEVS-style sphere packing, feel free to alter (call a class), but
 	// it might be better in LAB color space -- if I could get LAB to work.
 
-	vector<double> HSV(3, 1);
+	std::vector<double> HSV(3, 1);
 	HSV[0] = 0;
 
 	color_conv converter;
@@ -329,12 +331,12 @@ vector<vector<double> > yee::get_candidate_colors(int numcands,
 		candidate_RGB[cand] = converter.convert(HSV, CS_HSV, CS_RGB);
 
 		if (debug) {
-			cout << "RGB values for " << cand << ": ";
+			std::cout << "RGB values for " << cand << ": ";
 			copy(candidate_RGB[cand].begin(),
 				candidate_RGB[cand].end(),
-				ostream_iterator<double>(cout, "\t"));
+				std::ostream_iterator<double>(std::cout, "\t"));
 
-			cout << endl;
+			std::cout << std::endl;
 		}
 
 		// It must be +1 because the Hue aspect is circular, leaving
@@ -390,7 +392,7 @@ yee::yee() {
 bool yee::set_params(int min_voters_in, int max_voters_in,
 	int num_cands, bool do_use_autopilot,
 	double autopilot_factor_in, int autopilot_history_in,
-	bool do_draw_binaries, string case_prefix, int xsize_in,
+	bool do_draw_binaries, std::string case_prefix, int xsize_in,
 	int ysize_in, double sigma_in) {
 
 	// Do some sanity checks. Bail if the user is giving us silly values.
@@ -443,14 +445,14 @@ bool yee::set_params(int min_voters_in, int max_voters_in,
 }
 
 bool yee::set_params(int num_voters, int num_cands, bool do_use_autopilot,
-	string case_prefix, int picture_size, double sigma_in) {
+	std::string case_prefix, int picture_size, double sigma_in) {
 
-	// These parameters seem to work well: min_voters = min(24,
+	// These parameters seem to work well: min_voters = std::min(24,
 	// maxvoters), autopilot_factor 1.3, history length 4 (needs 4 in a
 	// row with same winners before it accepts early), don't draw binaries,
 	// xsize = ysize.
 
-	return (set_params(min(24, num_voters), num_voters, num_cands,
+	return (set_params(std::min(24, num_voters), num_voters, num_cands,
 				do_use_autopilot, 1.3, 4, false, case_prefix,
 				picture_size, picture_size, sigma_in));
 }
@@ -465,7 +467,8 @@ void yee::set_candidate_pdf(spatial_generator * input_gen) {
 	candidate_pdf = input_gen;
 }
 
-bool yee::set_candidate_positions(vector<vector<double> > & positions) {
+bool yee::set_candidate_positions(std::vector<std::vector<double> > &
+	positions) {
 
 	if (!specified_params) {
 		return (false);
@@ -529,10 +532,11 @@ bool yee::init(rng & randomizer) {
 
 	// Alright. Reset the winner arrays, get candidate colors, and
 	// reset cur_round.
-	winners_all_m_all_cand = vector<vector<vector<vector<bool> > > >(
-			e_methods.size(), vector<vector<vector<bool> > >(
-				num_candidates, vector<vector<bool> >(
-					x_size, vector<bool>(y_size,
+	winners_all_m_all_cand =
+		std::vector<std::vector<std::vector<std::vector<bool> > > >(
+			e_methods.size(), std::vector<std::vector<std::vector<bool> > >(
+				num_candidates, std::vector<std::vector<bool> >(
+					x_size, std::vector<bool>(y_size,
 						false))));
 
 	candidate_colors = get_candidate_colors(num_candidates, false);
@@ -576,7 +580,7 @@ int yee::get_max_rounds() const {
 	return (x_size + e_methods.size());
 }
 
-string yee::do_round(bool give_brief_status, bool reseed,
+std::string yee::do_round(bool give_brief_status, bool reseed,
 	rng & randomizer) {
 
 	if (!inited) {
@@ -584,7 +588,7 @@ string yee::do_round(bool give_brief_status, bool reseed,
 			"initialized first");
 	}
 
-	string output;
+	std::string output;
 
 	// Still determining points?
 	if (cur_round < x_size) {
@@ -602,8 +606,8 @@ string yee::do_round(bool give_brief_status, bool reseed,
 					randomizer);
 
 			if (contrib == -1) {
-				cerr << "Yee: error at x " << cur_round <<
-					", y " << y << endl;
+				std::cerr << "Yee: error at x " << cur_round <<
+					", y " << y << std::endl;
 				return ("");
 			}
 
@@ -622,7 +626,7 @@ string yee::do_round(bool give_brief_status, bool reseed,
 
 		++cur_round;
 
-		string code = get_codename(*e_methods[method_no], code_length);
+		std::string code = get_codename(*e_methods[method_no], code_length);
 
 		output = "Yee: " + e_methods[method_no]->name() + " has code "
 			+ code + ". Drawing...";
@@ -630,7 +634,7 @@ string yee::do_round(bool give_brief_status, bool reseed,
 		// Don't give up immediately if it's impossible to write a
 		// certain file.
 		bool ignore_file_errors = true;
-		vector<vector<double> > candidate_posns = candidate_pdf->
+		std::vector<std::vector<double> > candidate_posns = candidate_pdf->
 			get_fixed_candidate_pos();
 
 		if (draw_pictures(run_prefix + "_" + code,
@@ -648,12 +652,12 @@ string yee::do_round(bool give_brief_status, bool reseed,
 	return (output);
 }
 
-vector<string> yee::provide_status() const {
+std::vector<std::string> yee::provide_status() const {
 
-	string out = "Yee: Done " + itos(cur_round) + " of " + itos(x_size +
+	std::string out = "Yee: Done " + itos(cur_round) + " of " + itos(x_size +
 			e_methods.size()) + " rounds, or " + dtos(100.0 *
 			cur_round/(x_size + e_methods.size())) + "%";
 
-	return (vector<string>(1, out));
+	return (std::vector<std::string>(1, out));
 }
 

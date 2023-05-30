@@ -12,7 +12,7 @@
 
 class vector_test_instance {
 	public:
-		std::vector<vector<double> > ballot_vectors;
+		std::vector<std::vector<double> > ballot_vectors;
 		relative_test_instance ti;
 
 		vector_test_instance(const relative_test_instance in) {

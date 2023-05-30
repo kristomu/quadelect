@@ -8,9 +8,9 @@
 #include <iterator>
 #include <vector>
 
-using namespace std;
 
-vector<double> color_conv::HSV_to_RGB(const vector<double> HSV) const {
+std::vector<double> color_conv::HSV_to_RGB(const std::vector<double> HSV)
+const {
 
 	double m, n, f;
 	int i;
@@ -21,7 +21,7 @@ vector<double> color_conv::HSV_to_RGB(const vector<double> HSV) const {
 	h *= 6;
 
 	if (s == 0) {
-		return (vector<double>(3, v));    // No color, so it's all value.
+		return (std::vector<double>(3, v));    // No color, so it's all value.
 	}
 
 	i = floor(h);
@@ -32,7 +32,7 @@ vector<double> color_conv::HSV_to_RGB(const vector<double> HSV) const {
 	m = v * (1 - s);
 	n = v * (1 - s * f);
 
-	vector<double> RGB(3);
+	std::vector<double> RGB(3);
 
 	switch (i) {
 		case 6:
@@ -71,15 +71,16 @@ vector<double> color_conv::HSV_to_RGB(const vector<double> HSV) const {
 	return (RGB);
 }
 
-vector<double> color_conv::RGB_to_HSV(const vector<double> RGB) const {
+std::vector<double> color_conv::RGB_to_HSV(const std::vector<double> RGB)
+const {
 	// By convention, we set h to 0 if s is 0.
 
 	double minval, maxval, delta;
 
-	vector<double> HSV(3);
+	std::vector<double> HSV(3);
 
-	minval = min(RGB[0], min(RGB[1], RGB[2]));
-	maxval = max(RGB[0], min(RGB[1], RGB[2]));
+	minval = std::min(RGB[0], std::min(RGB[1], RGB[2]));
+	maxval = std::max(RGB[0], std::min(RGB[1], RGB[2]));
 	HSV[2] = maxval; // v
 
 	delta = maxval - minval;
@@ -118,14 +119,15 @@ double color_conv::labgamma(double x, double kappa, double eps) const {
 	return ((kappa*x + 16)/116.0);
 }
 
-vector<double> color_conv::XYZ_to_RGB(const vector<double> XYZ) const {
+std::vector<double> color_conv::XYZ_to_RGB(const std::vector<double> XYZ)
+const {
 
 	if (XYZ.size() < 3) {
 		throw std::invalid_argument(
 			"XYZ_to_RGB: input doesn't contain all three coordinates!");
 	}
 
-	vector<double> RGB(3);
+	std::vector<double> RGB(3);
 
 	RGB[0] = 3.2404542 * XYZ[0] + -1.5371385 * XYZ[1] + -0.4985314 * XYZ[2];
 	RGB[1] =-0.9692660 * XYZ[0] +  1.8760108 * XYZ[1] +  0.0415560 * XYZ[2];
@@ -143,9 +145,9 @@ vector<double> color_conv::XYZ_to_RGB(const vector<double> XYZ) const {
 	return (RGB);
 }
 
-vector<double> color_conv::RGB_to_XYZ(vector<double> RGB) const {
+std::vector<double> color_conv::RGB_to_XYZ(std::vector<double> RGB) const {
 
-	vector<double> XYZ(3);
+	std::vector<double> XYZ(3);
 
 	// Linearize. Stolen from easyrgb.com. Apparently this is according to
 	// the sRGB gamma function.
@@ -165,7 +167,8 @@ vector<double> color_conv::RGB_to_XYZ(vector<double> RGB) const {
 	return (XYZ);
 }
 
-vector<double> color_conv::XYZ_to_LAB(const vector<double> XYZ) const {
+std::vector<double> color_conv::XYZ_to_LAB(const std::vector<double> XYZ)
+const {
 	// D65 reference white. Perhaps I should use D50 instead.
 
 	double xadj = XYZ[0] / 0.95047,
@@ -178,7 +181,7 @@ vector<double> color_conv::XYZ_to_LAB(const vector<double> XYZ) const {
 	double fy = labgamma(yadj, kappa, eps);
 	double fz = labgamma(zadj, kappa, eps);
 
-	vector<double> LAB(3);
+	std::vector<double> LAB(3);
 
 	LAB[0] = 116 * fy - 16;
 	LAB[1] = 500 * (fx - fy);
@@ -194,7 +197,8 @@ vector<double> color_conv::XYZ_to_LAB(const vector<double> XYZ) const {
 	return (LAB);
 }
 
-vector<double> color_conv::LAB_to_XYZ(const vector<double> LAB) const {
+std::vector<double> color_conv::LAB_to_XYZ(const std::vector<double> LAB)
+const {
 
 	if (LAB.size() < 3) {
 		throw std::invalid_argument(
@@ -203,7 +207,7 @@ vector<double> color_conv::LAB_to_XYZ(const vector<double> LAB) const {
 
 	// Custom conversion. See XYZ_to_LAB.
 
-	vector<double> cLAB = LAB;
+	std::vector<double> cLAB = LAB;
 	cLAB[0] *= 100.0;
 	cLAB[1] *= 110.0;
 	cLAB[2] *= 110.0;
@@ -230,7 +234,7 @@ vector<double> color_conv::LAB_to_XYZ(const vector<double> LAB) const {
 		Z = (var_Z - 16 / 116) / 7.787;
 	}
 
-	vector<double> XYZ(3);
+	std::vector<double> XYZ(3);
 
 	// D65 reference point
 	XYZ[0] = X * 0.95047;
@@ -240,14 +244,14 @@ vector<double> color_conv::LAB_to_XYZ(const vector<double> LAB) const {
 	return (XYZ);
 }
 
-vector<double> color_conv::convert(const vector<double> & in,
+std::vector<double> color_conv::convert(const std::vector<double> & in,
 	color_space from, color_space to) const {
 
 	if (from == to) {
 		return (in);
 	}
 
-	vector<double> translator;
+	std::vector<double> translator;
 
 	switch (from) {
 		case CS_RGB:
@@ -282,7 +286,7 @@ vector<double> color_conv::convert(const vector<double> & in,
 
 main() {
 
-	vector<double> RGB(3);
+	std::vector<double> RGB(3);
 	RGB[0] = 0.20;
 	RGB[1] = 0.34;
 	RGB[2] = 1;
@@ -290,29 +294,33 @@ main() {
 	// Should have XYZ: 0.22799 0.14692 0.96242 (22.799, 14.692, 96.242)
 	// L*ab 0.452045, 0.425643, -0.785422 (45.2045 46.8207 -86.3965).
 
-	cout << "RGB: ";
-	copy(RGB.begin(), RGB.end(), ostream_iterator<double>(cout, " "));
-	cout << endl;
+	std::cout << "RGB: ";
+	copy(RGB.begin(), RGB.end(), std::ostream_iterator<double>(std::cout,
+			" "));
+	std::cout << std::endl;
 
 	color_conv conversion;
 
-	vector<double> XYZ = conversion.convert(RGB, CS_RGB, CS_XYZ);
-	cout << "XYZ: ";
-	copy(XYZ.begin(), XYZ.end(), ostream_iterator<double>(cout, " "));
-	cout << endl;
+	std::vector<double> XYZ = conversion.convert(RGB, CS_RGB, CS_XYZ);
+	std::cout << "XYZ: ";
+	copy(XYZ.begin(), XYZ.end(), std::ostream_iterator<double>(std::cout,
+			" "));
+	std::cout << std::endl;
 
-	vector<double> LAB = conversion.convert(RGB, CS_RGB, CS_LAB);
-	cout << "LAB: ";
-	copy(LAB.begin(), LAB.end(), ostream_iterator<double>(cout, " "));
-	cout << endl;
+	std::vector<double> LAB = conversion.convert(RGB, CS_RGB, CS_LAB);
+	std::cout << "LAB: ";
+	copy(LAB.begin(), LAB.end(), std::ostream_iterator<double>(std::cout,
+			" "));
+	std::cout << std::endl;
 
 	LAB[0] = 0.6;
 	LAB[1] = 0.8;
 	LAB[2] = 0.9;
 	RGB = conversion.convert(LAB, CS_LAB, CS_RGB);
-	cout << "RGB: ";
-	copy(RGB.begin(), RGB.end(), ostream_iterator<double>(cout, " "));
-	cout << endl;
+	std::cout << "RGB: ";
+	copy(RGB.begin(), RGB.end(), std::ostream_iterator<double>(std::cout,
+			" "));
+	std::cout << std::endl;
 }
 
 #endif

@@ -12,21 +12,20 @@
 #include <vector>
 #include <list>
 
-using namespace std;
 
 class gaussian_generator : public spatial_generator {
 	private:
 		// TODO: Ziggurat instead.
-		pair<double, double> grnd(double sigma_in,
+		std::pair<double, double> grnd(double sigma_in,
 			rng & random_source) const;
-		pair<double, double> grnd(double mean_in, double sigma_in,
+		std::pair<double, double> grnd(double mean_in, double sigma_in,
 			rng & random_source) const;
-		pair<double, double> grnd(double xmean, double ymean,
+		std::pair<double, double> grnd(double xmean, double ymean,
 			double sigma_in, rng & random_source) const;
 		// Get preferences according to distance.
 
 	protected:
-		vector<double> rnd_vector(size_t size,
+		std::vector<double> rnd_vector(size_t size,
 			rng & random_source) const;
 
 	public:
@@ -53,6 +52,6 @@ class gaussian_generator : public spatial_generator {
 			set_dispersion(0.2);
 		}
 
-		string name() const;
+		std::string name() const;
 };
 #endif

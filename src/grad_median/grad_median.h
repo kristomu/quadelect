@@ -43,7 +43,6 @@
 #include <queue>
 #include <list>
 
-using namespace std;
 
 class priority_entry {
 	public:
@@ -67,32 +66,32 @@ enum completion_type { GF_GREATEST, GF_LEAST, GF_BOTH, GF_NONE };
 class grad_fracile {
 
 	private:
-		vector<list<pair<double, double> > > sorted_lists;
-		vector<bool> hopefuls;
-		vector<double> scores;
+		std::vector<std::list<std::pair<double, double> > > sorted_lists;
+		std::vector<bool> hopefuls;
+		std::vector<double> scores;
 		bool does_need_reinit, all_sorted, changed;
 		size_t num_hopefuls;
 		completion_type completion;
 
-		list<pair<double, double> > minscorev, maxscorev;
-		vector<list<pair<double, double> > > finite_min_sentinels,
-			   finite_max_sentinels;
+		std::list<std::pair<double, double> > minscorev, maxscorev;
+		std::vector<std::list<std::pair<double, double> > > finite_min_sentinels,
+			finite_max_sentinels;
 
-		priority_queue<priority_entry, vector<priority_entry>,
-					   greater<priority_entry> > left_pq, right_pq;
-		vector<list<pair<double, double> >::const_iterator >
+		std::priority_queue<priority_entry, std::vector<priority_entry>,
+			std::greater<priority_entry> > left_pq, right_pq;
+		std::vector<std::list<std::pair<double, double> >::const_iterator >
 		left_indices, right_indices;
 
-		double get_center(list<pair<double, double> >::const_iterator &
-			lower, list<pair<double, double> >::
+		double get_center(std::list<std::pair<double, double> >::const_iterator &
+			lower, std::list<std::pair<double, double> >::
 			const_iterator & upper,
-			const list<pair<double, double > > & source,
+			const std::list<std::pair<double, double > > & source,
 			double numvoters, double fracile) const;
 
 		void add_score(size_t candidate, double left, double right);
 
 		// Required for summability
-		void compress_candidate(list<pair<double, double> > &
+		void compress_candidate(std::list<std::pair<double, double> > &
 			cand_scores, bool sorted);
 
 	public:

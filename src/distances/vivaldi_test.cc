@@ -15,12 +15,11 @@
 
 #include "vivaldi_test.h"
 
-using namespace std;
 
-vector<coord> synth_coordinates::generate_random_coords(int how_many,
+std::vector<coord> synth_coordinates::generate_random_coords(int how_many,
 	int dimensions) const {
 
-	vector<coord> coordinates;
+	std::vector<coord> coordinates;
 
 	for (int counter = 0; counter < how_many; ++counter) {
 		coord to_add;
@@ -39,7 +38,7 @@ long double synth_coordinates::dist(const coord & a, const coord & b,
 
 	long double error = 0;
 
-	int dimension = min(a.size(), b.size());
+	int dimension = std::min(a.size(), b.size());
 
 	for (int counter = 0; counter < dimension; ++counter) {
 		error += (a[counter]-b[counter])*(a[counter]-b[counter]);
@@ -53,10 +52,10 @@ long double synth_coordinates::dist(const coord & a, const coord & b,
 	return (fabs(pow(error, 1.0/Lp)));
 }
 
-vector<vector<double> > synth_coordinates::construct_distances(
-	const vector<coord> & coords, double Lp) const {
+std::vector<std::vector<double> > synth_coordinates::construct_distances(
+	const std::vector<coord> & coords, double Lp) const {
 
-	vector<vector<double> > toRet(coords.size(), vector<double>(
+	std::vector<std::vector<double> > toRet(coords.size(), std::vector<double>(
 			coords.size(), 0));
 
 	for (size_t counter = 0; counter < coords.size(); ++counter)
@@ -71,7 +70,7 @@ void synth_coordinates::update(coord & me, coord & to_target,
 	const coord & other, double Lp,
 	int my_index, int other_index, double delta,
 	double noise_factor,
-	const vector<vector<double> > & recorded_distances) const {
+	const std::vector<std::vector<double> > & recorded_distances) const {
 
 	// Get unit vector from ourselves to the target
 	// (Construct a polar form of (target - me) with magnitude 1)
@@ -110,9 +109,9 @@ void synth_coordinates::update(coord & me, coord & to_target,
 	}
 }
 
-double synth_coordinates::get_rmse_accuracy(const vector<coord> &
+double synth_coordinates::get_rmse_accuracy(const std::vector<coord> &
 	coordinates,
-	const vector<vector<double> > & recorded_distances,
+	const std::vector<std::vector<double> > & recorded_distances,
 	double Lp) const {
 
 	double error = 0;
@@ -130,23 +129,23 @@ double synth_coordinates::get_rmse_accuracy(const vector<coord> &
 	return (sqrt(error / (double)sumcount));
 }
 
-double synth_coordinates::recover_coords(vector<coord> & coordinates,
+double synth_coordinates::recover_coords(std::vector<coord> & coordinates,
 	double Lp, double mindelta, double delta, double delta_stepsize,
 	int numiters,
-	const vector<vector<double> > & recorded_distances,
+	const std::vector<std::vector<double> > & recorded_distances,
 	bool verbose) const {
 
-	vector<double> our_deltas(coordinates.size(), delta);
-	vector<coord> record_coordinates;
+	std::vector<double> our_deltas(coordinates.size(), delta);
+	std::vector<coord> record_coordinates;
 	double record_error = INFINITY, cur_error;
 
 	// Set up the update coordinate so that it'll have the right number
 	// of dimensions.
 	coord scratch(coordinates[0].size());
 
-	vector<int> one(coordinates.size());
+	std::vector<int> one(coordinates.size());
 	iota(one.begin(), one.end(), 0);
-	vector<int> vs = one;
+	std::vector<int> vs = one;
 
 	for (int iter = 0; iter < numiters && record_error > 0; ++iter) {
 
@@ -176,7 +175,7 @@ double synth_coordinates::recover_coords(vector<coord> & coordinates,
 					1 - (iter/(double)numiters),
 					recorded_distances);
 
-				our_deltas[vs_point] = max(
+				our_deltas[vs_point] = std::max(
 						our_deltas[vs_point] -
 						delta_stepsize,	mindelta);
 			}
@@ -186,14 +185,14 @@ double synth_coordinates::recover_coords(vector<coord> & coordinates,
 				Lp);
 
 		if (verbose)
-			cout << "After iteration " << iter << ": error is " <<
-				cur_error << endl;
+			std::cout << "After iteration " << iter << ": error is " <<
+				cur_error << std::endl;
 
 		if (cur_error < record_error) {
 			if (verbose)
-				cout << "New record! " << cur_error
+				std::cout << "New record! " << cur_error
 					<< " is better than " << record_error
-					<< endl;
+					<< std::endl;
 
 			record_coordinates = coordinates;
 			record_error = cur_error;
@@ -208,8 +207,9 @@ double synth_coordinates::recover_coords(vector<coord> & coordinates,
 double synth_coordinates::test_recovery(int num_coords, int dimensions,
 	double Lp_generation, double Lp_recovery, bool verbose) const {
 
-	vector<coord> attempt = generate_random_coords(num_coords, dimensions);
-	vector<vector<double> > exogenous = construct_distances(attempt,
+	std::vector<coord> attempt = generate_random_coords(num_coords,
+			dimensions);
+	std::vector<std::vector<double> > exogenous = construct_distances(attempt,
 			Lp_generation);
 	attempt = generate_random_coords(num_coords, dimensions); // Scramble.
 	return (recover_coords(attempt, Lp_recovery, 0.025, 1.0, 0.015,

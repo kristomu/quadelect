@@ -12,10 +12,10 @@ class mono_append : public monotonicity {
 	private:
 		bool alter_ballot(const ordering & input,
 			ordering & output, int numcands,
-			const vector<size_t> & data,
+			const std::vector<size_t> & data,
 			rng & randomizer) const;
 
-		string basename() const {
+		std::string basename() const {
 			return ("Mono-append");
 		}
 

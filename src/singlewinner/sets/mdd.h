@@ -19,13 +19,13 @@ class mdd_set : public pairwise_method {
 		bool sum_defeats;
 
 	public:
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
 		mdd_set(bool sum_defeats_in);
 
-		string pw_name() const;
+		std::string pw_name() const;
 };
 
 #endif

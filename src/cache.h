@@ -20,32 +20,32 @@
 #include "pairwise/cache_matrix.h"
 
 // This is for the outcome. First is full, second is winner only.
-typedef pair<ordering, ordering> cache_orderings;
+typedef std::pair<ordering, ordering> cache_orderings;
 
 class cache_map {
 
 	private:
-		unordered_map<string, cache_orderings> outcomes;
+		std::unordered_map<std::string, cache_orderings> outcomes;
 
 		// This is a list so we can detect it if it's empty. We'll
 		// do something more proper later, possibly with links to names
 		// for beatpath etc.
 
-		list<condmat> condorcet_cache;
+		std::list<condmat> condorcet_cache;
 
 	public:
 		// The set/get functions are inline because they get called
 		// *a lot*.
 
-		inline void set_outcome(const string & name, bool winner_only,
+		inline void set_outcome(const std::string & name, bool winner_only,
 			const ordering & outcome);
-		inline void set_outcome(const string & name,
-			const pair<ordering, bool> & outcome_inf);
+		inline void set_outcome(const std::string & name,
+			const std::pair<ordering, bool> & outcome_inf);
 
-		bool has_outcome(const string & name) const;
-		bool has_outcome(const string & name, bool winner_only) const;
+		bool has_outcome(const std::string & name) const;
+		bool has_outcome(const std::string & name, bool winner_only) const;
 
-		inline pair<ordering, bool> get_outcome(const string & name,
+		inline std::pair<ordering, bool> get_outcome(const std::string & name,
 			bool winner_only) const;
 
 		// Condorcet cache
@@ -60,7 +60,8 @@ class cache_map {
 // Inline functions go here because otherwise the compiler can't find them in
 // time.
 
-inline void cache_map::set_outcome(const string & name, bool winner_only,
+inline void cache_map::set_outcome(const std::string & name,
+	bool winner_only,
 	const ordering & outcome) {
 
 	if (winner_only) {
@@ -70,9 +71,8 @@ inline void cache_map::set_outcome(const string & name, bool winner_only,
 	}
 }
 
-inline void cache_map::set_outcome(const string & name,
-	const pair<ordering,
-	bool> & outcome_inf) {
+inline void cache_map::set_outcome(const std::string & name,
+	const std::pair<ordering, bool> & outcome_inf) {
 
 	set_outcome(name, outcome_inf.second, outcome_inf.first);
 }
@@ -83,25 +83,26 @@ inline void cache_map::set_outcome(const string & name,
 //              otherwise a winner-only, otherwise nothing. (We might want
 //              to make it work the opposite way to uncover bugs with
 //              winner_only, but well.. not yet.)
-inline pair<ordering, bool> cache_map::get_outcome(const string & name,
+inline std::pair<ordering, bool> cache_map::get_outcome(
+	const std::string & name,
 	bool winner_only) const {
 
-	unordered_map<string, cache_orderings>::const_iterator lookup =
+	std::unordered_map<std::string, cache_orderings>::const_iterator lookup =
 		outcomes.find(name);
 
 	if (lookup == outcomes.end()) {
-		return (pair<ordering, bool>(ordering(), false));
+		return (std::pair<ordering, bool>(ordering(), false));
 	}
 
 	if (!lookup->second.first.empty()) {
-		return (pair<ordering, bool>(lookup->second.first, false));
+		return (std::pair<ordering, bool>(lookup->second.first, false));
 	}
 
 	if (winner_only && !lookup->second.second.empty()) {
-		return (pair<ordering, bool>(lookup->second.second, true));
+		return (std::pair<ordering, bool>(lookup->second.second, true));
 	}
 
-	return (pair<ordering, bool>(lookup->second.first, false));
+	return (std::pair<ordering, bool>(lookup->second.first, false));
 }
 
 #endif

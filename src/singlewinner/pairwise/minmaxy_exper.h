@@ -21,12 +21,12 @@ class minmaxy_experimental : public pairwise_method {
 			pairwise_method(CM_PAIRWISE_OPP) {
 			update_name();
 		}
-		string pw_name() const {
+		std::string pw_name() const {
 			return ("Minmaxy-Experimental");
 		}
 
-		pair<ordering, bool> pair_elect(const abstract_condmat & iput,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & iput,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 };
 

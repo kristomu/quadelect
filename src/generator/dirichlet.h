@@ -14,7 +14,6 @@
 #include "impartial_gen.h"
 #include <list>
 
-using namespace std;
 
 class dirichlet : public impartial_gen {
 
@@ -24,7 +23,7 @@ class dirichlet : public impartial_gen {
 		}
 
 	public:
-		string name() const {
+		std::string name() const {
 			return ("Dirichlet");
 		}
 

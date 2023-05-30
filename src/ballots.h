@@ -12,7 +12,6 @@
 #include <set>
 #include <map>
 
-using namespace std;
 
 // Ballot components. An ordering is just that, but it also includes ratings
 // (if so declared), so that loser-elimination/average-elimination can work,
@@ -63,9 +62,9 @@ class candscore {
 
 };
 
-typedef set<candscore, greater<candscore> > ordering;
+typedef std::set<candscore, std::greater<candscore> > ordering;
 
-typedef pair<ordering, ordering>
+typedef std::pair<ordering, ordering>
 cache_orderings; // first is full, second is winner only.
 
 // Does this doom all our matrices to use doubles? Seems like it - the problem

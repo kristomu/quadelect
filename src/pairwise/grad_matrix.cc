@@ -70,7 +70,8 @@ bool cond_borda_matrix::set_internal(size_t candidate, size_t against,
 	return (set_internal(candidate, against, 1, value));
 }
 
-cond_borda_matrix::cond_borda_matrix(const list<ballot_group> & scores,
+cond_borda_matrix::cond_borda_matrix(const std::list<ballot_group> &
+	scores,
 	size_t num_candidates_in, pairwise_type kind, bool cardinal,
 	completion_type completion_in) : abstract_condmat(kind) {
 
@@ -100,7 +101,8 @@ cond_borda_matrix::cond_borda_matrix(const cond_borda_matrix & in,
 	num_candidates = in.num_candidates;
 }
 
-void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
+void cond_borda_matrix::count_ballots(const std::list<ballot_group> &
+	scores,
 	size_t num_candidates_in, bool cardinal, completion_type
 	completion) {
 
@@ -124,10 +126,10 @@ void cond_borda_matrix::count_ballots(const list<ballot_group> & scores,
 	//			add(pri, sec, pri_count - sec_count)
 	//			add(sec, pri, sec_count - pri_count)
 
-	vector<bool> seen(num_candidates);
+	std::vector<bool> seen(num_candidates);
 	size_t counter;
 
-	for (list<ballot_group>::const_iterator pos = scores.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = scores.begin(); pos !=
 		scores.end(); ++pos) {
 
 		num_voters += pos->weight;

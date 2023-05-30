@@ -10,7 +10,6 @@
 
 #include "sinkhorn.h"
 
-using namespace std;
 
 // Like Keener, tolerance specifies the error before convergence is assumed.
 // While Sinkhorn converges to 1, to keep compatible with Keener, the input
@@ -20,7 +19,7 @@ using namespace std;
 // converges quickly. WDS also considers that more likely to give a good result.
 
 sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
-	vector<vector<double> > & input_matrix, bool debug) const {
+	std::vector<std::vector<double> > & input_matrix, bool debug) const {
 
 	// This function returns the Sinkhorn factors we use for determining
 	// the actual scores. Ordinarily, one can only perform the Sinkhorn
@@ -31,12 +30,13 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 	// normalization to a separate function makes that much easier.
 
 	int numcands = input_matrix.size();
-	vector<vector<double> > sink_matrix(numcands, vector<double>(numcands,
+	std::vector<std::vector<double> > sink_matrix(numcands,
+		std::vector<double>(numcands,
 			0));
 	sinkhorn_factor factor;
 	// The row and column vectors must be initialized to 1.
-	factor.row = vector<double>(numcands, 1);
-	factor.col = vector<double>(numcands, 1);
+	factor.row = std::vector<double>(numcands, 1);
+	factor.col = std::vector<double>(numcands, 1);
 	sinkhorn_factor old_factor = factor;
 
 	double maxmin = INFINITY, maxsum, minsum, sum;
@@ -133,7 +133,7 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 		// tolerance of 0/0 - undefined. Just make it 0 instead by
 		// setting minsum to a finite value.
 		if (!finite(minsum)) {
-			minsum = min(maxsum, 1.0);
+			minsum = std::min(maxsum, 1.0);
 		}
 
 		assert(maxsum >= minsum);
@@ -144,8 +144,9 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 	return (factor);
 }
 
-pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	bool debug = false;
@@ -161,7 +162,7 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 	// store the hopefuls.
 
 	size_t counter, sec;
-	vector<int> permitted_candidates;
+	std::vector<int> permitted_candidates;
 	permitted_candidates.reserve(input.get_num_candidates());
 
 	for (counter = 0; counter < hopefuls.size(); ++counter)
@@ -170,7 +171,7 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 		}
 
 	size_t num_hopefuls = permitted_candidates.size();
-	vector<vector<double> > A(num_hopefuls, vector<double>(
+	std::vector<std::vector<double> > A(num_hopefuls, std::vector<double>(
 			num_hopefuls, 0));
 
 	for (counter = 0; counter < num_hopefuls; ++counter)
@@ -182,8 +183,8 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 
 	// Allocate the row and column factors as well as the Sinkhorn (doubly
 	// stochastic) matrix itself.
-	/*vector<double> sink_col(num_hopefuls, 1), sink_row(num_hopefuls, 1);
-	vector<vector<double> > sink_matrix(num_hopefuls, vector<double>(
+	/*std::vector<double> sink_col(num_hopefuls, 1), sink_row(num_hopefuls, 1);
+	std::vector<std::vector<double> > sink_matrix(num_hopefuls, std::vector<double>(
 				num_hopefuls, 0));*/
 
 	int maxiter = 500;
@@ -192,7 +193,7 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 	// Determine the scores. If any go out of bounds because of
 	// over/underflow, handle that by normalizing. NOTE! Not compatible
 	// with MSVC whose long double is just a double.
-	vector<double> scores(permitted_candidates.size());
+	std::vector<double> scores(permitted_candidates.size());
 	bool isfinite = true;
 	for (counter = 0; counter < permitted_candidates.size() &&
 		isfinite; ++counter) {
@@ -200,12 +201,12 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 		isfinite = finite(scores[counter]);
 
 		if (debug)
-			cout << "Candidate " << permitted_candidates[counter] <<
-				": score is " << scores[counter] << endl;
+			std::cout << "Candidate " << permitted_candidates[counter] <<
+				": score is " << scores[counter] << std::endl;
 	}
 
 	if (!isfinite) {
-		vector<long double> ldscores(permitted_candidates.size());
+		std::vector<long double> ldscores(permitted_candidates.size());
 		long double ldmin = INFINITY, ldmax = -INFINITY;
 
 		for (counter = 0; counter < permitted_candidates.size();
@@ -215,14 +216,14 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 				factor.col[counter] / (long double)
 				factor.row[counter];
 			if (debug)
-				cout << "Renorm cand scores: " <<
+				std::cout << "Renorm cand scores: " <<
 					permitted_candidates[counter] << ": "
 					<< factor.col[counter] << " / "
 					<< factor.row[counter] << " = "
-					<< ldscores[counter] << endl;
+					<< ldscores[counter] << std::endl;
 
-			ldmin = min(ldscores[counter], ldmin);
-			ldmax = max(ldscores[counter], ldmax);
+			ldmin = std::min(ldscores[counter], ldmin);
+			ldmax = std::max(ldscores[counter], ldmax);
 		}
 
 		for (counter = 0; counter < permitted_candidates.size();
@@ -231,21 +232,21 @@ pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat & input,
 					ldscores[counter], (long double)DBL_MIN,
 					(long double)DBL_MAX);
 			if (debug)
-				cout << "Renormed " << permitted_candidates[
+				std::cout << "Renormed " << permitted_candidates[
 						counter] << ": " << scores[counter]
-					<< endl;
+					<< std::endl;
 		}
 	}
 
 	// All done, return the results.
-	return (pair<ordering, bool>(ordering_tools().
+	return (std::pair<ordering, bool>(ordering_tools().
 				indirect_vector_to_ordering(scores,
 					permitted_candidates), false));
 }
 
-string sinkhorn::pw_name() const {
+std::string sinkhorn::pw_name() const {
 
-	string ret = "Sinkhorn(";
+	std::string ret = "Sinkhorn(";
 	ret += dtos(tolerance) + ", ";
 	if (add_one) {
 		ret += "+1)";

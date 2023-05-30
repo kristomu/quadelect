@@ -4,9 +4,8 @@
 #include "impartial_gen.h"
 #include <list>
 
-using namespace std;
 
-list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
+std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 	int numcands, bool do_truncate, rng & random_source) const {
 
 	// Fill a vector with 0...numcands, then shuffle randomly, then turn
@@ -15,10 +14,10 @@ list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 	// allocation and iota every single time, which would really eat up
 	// the cycles.
 
-	vector<int> candidates(numcands, 0);
+	std::vector<int> candidates(numcands, 0);
 	iota(candidates.begin(), candidates.end(), 0);
 
-	list<ballot_group> toRet;
+	std::list<ballot_group> toRet;
 	ballot_group to_add;
 	to_add.weight = 1;
 
@@ -26,7 +25,7 @@ list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 	// them properly once I know how. (Truncation: perhaps by choosing a
 	// subset of candidates uniformly at random and then ranking them in
 	// random order?)
-	vector<bool> equal_rank(numcands);
+	std::vector<bool> equal_rank(numcands);
 
 	double total_weight = 0;
 

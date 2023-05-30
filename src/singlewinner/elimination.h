@@ -8,7 +8,6 @@
 
 #include <list>
 
-using namespace std;
 
 // Loser-elimination meta-method. This method takes a base method and
 // repeatedly disqualifies the loser (if loser-elimination) or those with a
@@ -36,27 +35,27 @@ class loser_elimination : public election_method {
 		// candidates.
 		bool first_differences;
 
-		string cached_name;
+		std::string cached_name;
 
 		ordering break_tie(const ordering & original_ordering,
-			const list<ordering> & past_ordering,
+			const std::list<ordering> & past_ordering,
 			int num_candidates) const;
 
 	protected:
-		pair<ordering, bool> elect_inner(const
-			list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(const
+			std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string determine_name() const;
+		std::string determine_name() const;
 
 	public:
 
 		loser_elimination(const election_method * base_method,
 			bool average_loser, bool use_first_diff);
 
-		string name() const {
+		std::string name() const {
 			return (cached_name);
 		}
 };

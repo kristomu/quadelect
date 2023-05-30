@@ -6,7 +6,6 @@
 #include <list>
 #include <vector>
 
-using namespace std;
 
 // DONE: Handle equal ranks.
 // Two options for rank: Equal rank, fractional rank. Two for truncated
@@ -15,10 +14,11 @@ using namespace std;
 // Perhaps also a function that returns how many nonzero positions exist, so
 // that it only counts the first votes for Plurality. DONE.
 
-double positional::get_weight_sum(const list<ballot_group> & input) const {
+double positional::get_weight_sum(const std::list<ballot_group> & input)
+const {
 	double weight_sum = 0;
 
-	for (list<ballot_group>::const_iterator pos = input.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
 		weight_sum += pos->weight;
 	}
@@ -29,7 +29,7 @@ double positional::get_weight_sum(const list<ballot_group> & input) const {
 // Used to prepend the type to the name of the method. ER is equivalent to
 // WHOLE, <> indicates FRACTIONAL.
 
-string positional::show_type(const positional_type & kind_in) const {
+std::string positional::show_type(const positional_type & kind_in) const {
 
 	switch (kind_in) {
 		case PT_WHOLE: return ("ER-");
@@ -40,9 +40,10 @@ string positional::show_type(const positional_type & kind_in) const {
 
 // TODO: Bail if it's of the wrong type, because the same ballots will give
 // different positional matrices depending on whether we're ER or FR.
-ordering positional::pos_elect(const vector<vector<double> > & matrix,
+ordering positional::pos_elect(const std::vector<std::vector<double> > &
+	matrix,
 	int num_hopefuls, //double weight_sum,
-	const vector<bool> * hopefuls) const {
+	const std::vector<bool> * hopefuls) const {
 
 	// Turn it into a social ordering.
 
@@ -66,9 +67,10 @@ ordering positional::pos_elect(const vector<vector<double> > & matrix,
 	return (social_order);
 }
 
-ordering positional::elect_to_ordering(const list<ballot_group> & input,
+ordering positional::elect_to_ordering(const std::list<ballot_group> &
+	input,
 	size_t num_candidates, size_t num_hopefuls,
-	const vector<bool> * hopefuls) const {
+	const std::vector<bool> * hopefuls) const {
 
 	return (pos_elect(positional_aggregator().get_positional_matrix(input,
 					num_candidates, num_hopefuls, hopefuls,
@@ -76,19 +78,21 @@ ordering positional::elect_to_ordering(const list<ballot_group> & input,
 				num_hopefuls, hopefuls));
 }
 
-pair<ordering, bool> positional::elect_inner(const list<ballot_group> &
+std::pair<ordering, bool> positional::elect_inner(const
+	std::list<ballot_group> &
 	input,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
-	return (pair<ordering, bool>(
+	return (std::pair<ordering, bool>(
 				elect_to_ordering(input, num_candidates, num_candidates,
 					NULL),
 				false));
 }
 
-pair<ordering, bool> positional::elect_inner(const list<ballot_group> &
+std::pair<ordering, bool> positional::elect_inner(const
+	std::list<ballot_group> &
 	input,
-	const vector<bool> & hopefuls, int num_candidates,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// Same as above, only pos_weight must be adjusted by however many
@@ -107,14 +111,14 @@ pair<ordering, bool> positional::elect_inner(const list<ballot_group> &
 			++num_hopefuls;
 		}
 
-	return (pair<ordering, bool>(
+	return (std::pair<ordering, bool>(
 				elect_to_ordering(input, num_candidates, num_hopefuls,
 					&hopefuls),
 				false));
 };
 
 double positional::get_pos_score(const ballot_group & input,
-	size_t candidate_number, const vector<bool> * hopefuls,
+	size_t candidate_number, const std::vector<bool> * hopefuls,
 	size_t num_hopefuls) const {
 
 	// Going down the ordering, increment a counter for each new rank.
@@ -150,6 +154,6 @@ double positional::get_pos_score(const ballot_group & input,
 	return (get_pos_score(input, candidate_number, NULL, num_candidates));
 }
 
-string positional::name() const {
+std::string positional::name() const {
 	return (show_type(kind) + pos_name());
 }

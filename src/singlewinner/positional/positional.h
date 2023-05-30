@@ -10,25 +10,24 @@
 
 #include "types.h"
 
-using namespace std;
 
 class positional : public election_method {
 
 	private:
 		// Used for quota methods.
-		double get_weight_sum(const list<ballot_group> & input) const;
+		double get_weight_sum(const std::list<ballot_group> & input) const;
 
-		ordering elect_to_ordering(const list<ballot_group> & input,
+		ordering elect_to_ordering(const std::list<ballot_group> & input,
 			size_t num_candidates, size_t num_hopefuls,
-			const vector<bool> * hopefuls) const;
+			const std::vector<bool> * hopefuls) const;
 
-		string show_type(const positional_type & kind_in) const;
+		std::string show_type(const positional_type & kind_in) const;
 
 		// Perhaps this should be in positional_aggregator.
 		// It should be. Fix later.
 		double get_pos_score(const ballot_group & input,
 			size_t candidate_number,
-			const vector<bool> * hopefuls,
+			const std::vector<bool> * hopefuls,
 			size_t num_hopefuls) const;
 		double get_pos_score(const ballot_group & input,
 			size_t candidate_number, size_t num_candidates) const;
@@ -41,7 +40,7 @@ class positional : public election_method {
 	protected:
 		positional_type kind;
 
-		virtual string pos_name() const = 0;
+		virtual std::string pos_name() const = 0;
 
 		// For things like Plurality, this returns the position at
 		// which all further weights will be zero.
@@ -55,28 +54,28 @@ class positional : public election_method {
 	public:
 		// Interfaces
 		// Beware: still uses int for numcands.
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & input,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & input,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & input,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
 		// Particular interface to all positional methods.
-		virtual ordering pos_elect(const vector<vector<double> > &
+		virtual ordering pos_elect(const std::vector<std::vector<double> > &
 			positional_matrix, int num_hopefuls,
 			//double weight_sum,
-			const vector<bool> * hopefuls) const;
+			const std::vector<bool> * hopefuls) const;
 
 		positional(positional_type kind_in) {
 			kind = kind_in;
 		}
 
-		string name() const;
+		std::string name() const;
 
 };
 

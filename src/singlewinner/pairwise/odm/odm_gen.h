@@ -24,13 +24,13 @@ class odm_gen : public pairwise_method {
 			double opposing_strength) const = 0;
 
 		// Intra-round normalization
-		virtual void ir_norm(vector<double> & factors) const = 0;
+		virtual void ir_norm(std::vector<double> & factors) const = 0;
 
 		// Score function.
 		virtual double get_score(double offense,
 			double defense) const = 0;
 
-		virtual string odm_name() const = 0;
+		virtual std::string odm_name() const = 0;
 
 	public:
 		odm_gen(pairwise_type def_type_in, double tolerance_in) :
@@ -38,11 +38,11 @@ class odm_gen : public pairwise_method {
 			tolerance = tolerance_in;
 		}
 
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 
-		string pw_name() const;
+		std::string pw_name() const;
 
 		void set_tolerance(double tolerance_in) {
 			tolerance = tolerance_in; update_name();

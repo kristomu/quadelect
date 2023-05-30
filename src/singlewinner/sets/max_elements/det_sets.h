@@ -17,15 +17,15 @@ class det_sets_relation {
 
 	protected:
 		virtual bool relation(const abstract_condmat & input, int a,
-			int b, const vector<bool> & hopefuls) const = 0;
+			int b, const std::vector<bool> & hopefuls) const = 0;
 
 		// Is this - to have nested sets - required? Make it an
 		// option when invoking these set methods.
 
 		ordering nested_sets(const abstract_condmat & input,
-			const vector<bool> & hopefuls, size_t limit) const;
+			const std::vector<bool> & hopefuls, size_t limit) const;
 		ordering nested_sets(const abstract_condmat & input,
-			const vector<bool> & hopefuls) const {
+			const std::vector<bool> & hopefuls) const {
 			return (nested_sets(input, hopefuls,
 						input.get_num_candidates()));
 		}

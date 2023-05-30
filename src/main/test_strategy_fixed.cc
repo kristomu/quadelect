@@ -82,13 +82,14 @@
 // correction. Place everything in an object so that we don't have to bother
 // about it again. Ideally we should use something more ANOVA-like than
 // Bonferroni, but eh.
-pair<double, double> confidence_interval(int n, double p_mean, double z) {
+std::pair<double, double> confidence_interval(int n, double p_mean,
+	double z) {
 
 	double p_mark = (p_mean * n + 0.5 * z * z) / (n + z * z);
 
 	double W = sqrt(p_mark * (1 - p_mark) / (n + z * z));
 
-	return (pair<double, double>(p_mark - W, p_mark + W));
+	return (std::pair<double, double>(p_mark - W, p_mark + W));
 }
 
 void test_strategy(election_method * to_test, rng & randomizer,
@@ -110,7 +111,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	impartial iic(true, false);
 	//impartial ballot_gen(true, false);
 
-	list<ballot_group> ballots;
+	std::list<ballot_group> ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
@@ -119,10 +120,10 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
 	int counter;
 
-	vector<election_method *> condorcets;
+	std::vector<election_method *> condorcets;
 
 	condorcets.push_back(to_test);
-	cerr << "Now trying " << to_test->name() << endl;
+	std::cerr << "Now trying " << to_test->name() << std::endl;
 
 	cache_map cache;
 
@@ -130,16 +131,16 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	int numvoters = 97; // was 29
 	int initial_numcands = 5, numcands = initial_numcands;
 
-	map<int, string> rcl;
+	std::map<int, std::string> rcl;
 	for (counter = 0; counter < 26; ++counter) {
-		string foo = "A";
+		std::string foo = "A";
 		foo[0] = 'A' + counter;
 		rcl[counter] = foo;
 	}
 
 	// --- //
 
-	vector<pure_ballot_generator *> ballotgens;
+	std::vector<pure_ballot_generator *> ballotgens;
 	ballotgens.push_back(ballot_gen);
 	//ballotgens.push_back(&iic);
 	///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
@@ -156,10 +157,10 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	for (f = 0; f < fmax; ++f) {
 
 		if ((f & 63) == 63) {
-			cerr << "." << flush;
+			std::cerr << "." << std::flush;
 		}
 		if ((f & 4095) == 4095) {
-			cerr << f/(double)fmax << flush;
+			std::cerr << f/(double)fmax << std::flush;
 		}
 
 		/*if (test_once(ballots, ballot_gen, numvoters, numcands,
@@ -180,7 +181,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	double significance = 0.05;
 	double zv = ppnd7(1-significance/num_methods);
 
-	pair<double, double> c_i = confidence_interval(f, prop, zv);
+	std::pair<double, double> c_i = confidence_interval(f, prop, zv);
 
 	double lower_bound = c_i.first;
 	double upper_bound = c_i.second;
@@ -191,19 +192,20 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	double tiefreq = (total_generation_attempts-f)/(double)f;
 	tiefreq = round(tiefreq*10000)/1000.0;
 
-	cout << "Worked in " << worked << " ("<< lower_bound << ", " << upper_bound
+	std::cout << "Worked in " << worked << " ("<< lower_bound << ", " <<
+		upper_bound
 		<< ") out of " << f << " for " <<
 		condorcets[0]->name() << " ties: " << total_generation_attempts-f << " ("
-		<< tiefreq << ")" << endl;
+		<< tiefreq << ")" << std::endl;
 }
 
 int main(int argc, const char ** argv) {
-	vector<election_method *> condorcets; // Although they aren't.
-	vector<election_method *> condorcetsrc;
+	std::vector<election_method *> condorcets; // Although they aren't.
+	std::vector<election_method *> condorcetsrc;
 
 	size_t counter;
 
-	vector<pairwise_ident> types;
+	std::vector<pairwise_ident> types;
 	types.push_back(CM_WV);
 
 	condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE),
@@ -211,7 +213,7 @@ int main(int argc, const char ** argv) {
 	/*condorcetsrc.push_back(new plurality(PT_WHOLE));
 	condorcetsrc.push_back(new antiplurality(PT_WHOLE));*/
 
-	cout << "Test time!" << endl;
+	std::cout << "Test time!" << std::endl;
 
 	smith_set xd;
 
@@ -226,12 +228,12 @@ int main(int argc, const char ** argv) {
 	//condorcets.push_back(new ranked_pairs(CM_WV, false));
 	//condorcets.push_back(new ranked_pairs(CM_WV, true));
 
-	cout << "There are " << condorcets.size() << " methods." << endl;
+	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
 
-	vector<rng> randomizers;
+	std::vector<rng> randomizers;
 	randomizers.push_back(rng(1));
 
-	vector<pure_ballot_generator *> ballotgens;
+	std::vector<pure_ballot_generator *> ballotgens;
 	int dimensions = 4;
 	ballotgens.push_back(new impartial(true, false));
 	// Something is wrong with this one. Check later.
@@ -240,9 +242,9 @@ int main(int argc, const char ** argv) {
 	//ballotgens.push_back(new dirichlet(false));
 
 	for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
-		cout << "Using ballot domain " << ballotgens[bg]->name() << endl;
+		std::cout << "Using ballot domain " << ballotgens[bg]->name() << std::endl;
 		for (counter = 0; counter < condorcets.size(); counter ++) {
-			cout << "\t" << counter << ": " << flush;
+			std::cout << "\t" << counter << ": " << std::flush;
 			test_strategy(condorcets[counter], randomizers[0],
 				condorcets.size(), ballotgens[bg]);
 		}

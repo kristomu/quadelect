@@ -9,8 +9,9 @@
 // pairwise matrix. The calculation of the row and column factors is alternated,
 // and the score ultimately converges.
 
-pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	bool debug = false;
@@ -29,7 +30,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 	// Like Sinkhorn and Keener, we'll be using the matrix a lot of times,
 	// so copy it over. Sic transit mathematical elegance.
 
-	vector<int> permitted_candidates;
+	std::vector<int> permitted_candidates;
 	permitted_candidates.reserve(input.get_num_candidates());
 
 	for (counter = 0; counter < hopefuls.size(); ++counter)
@@ -38,10 +39,10 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		}
 
 	size_t num_hopefuls = permitted_candidates.size();
-	vector<double> offense(num_hopefuls, eps), defense(num_hopefuls, eps);
-	vector<double> score(num_hopefuls, INFINITY), old_score;
+	std::vector<double> offense(num_hopefuls, eps), defense(num_hopefuls, eps);
+	std::vector<double> score(num_hopefuls, INFINITY), old_score;
 
-	vector<vector<double> > matrix(num_hopefuls, vector<double>(
+	std::vector<std::vector<double> > matrix(num_hopefuls, std::vector<double>(
 			num_hopefuls, 0));
 
 	for (counter = 0; counter < num_hopefuls; ++counter)
@@ -59,7 +60,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 			// Hack for now: return an all-empty ballot. "I refuse
 			// to make that call."
 			if (curval < 0) {
-				pair<ordering, bool> retval;
+				std::pair<ordering, bool> retval;
 				for (counter = 0; counter < num_hopefuls;
 					++counter)
 					retval.first.insert(candscore(
@@ -73,7 +74,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 
 	do {
 		if (debug) {
-			cout << name() << " at iter " << iter << endl;
+			std::cout << name() << " at iter " << iter << std::endl;
 		}
 
 		old_score = score;
@@ -92,9 +93,9 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 							defense[sec]);
 
 			if (debug)
-				cout << permitted_candidates[counter] << ": " <<
+				std::cout << permitted_candidates[counter] << ": " <<
 					"offense is " << offense[counter]
-					<< endl;
+					<< std::endl;
 		}
 
 		// Renorm if required.
@@ -114,9 +115,9 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 							offense[sec]);
 
 			if (debug)
-				cout << permitted_candidates[counter] << ": " <<
+				std::cout << permitted_candidates[counter] << ": " <<
 					"defense is " << defense[counter]
-					<< endl;
+					<< std::endl;
 		}
 
 		// Again, renorm if required.
@@ -134,9 +135,9 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 			}
 
 			if (debug)
-				cout << "Score for " <<
+				std::cout << "Score for " <<
 					permitted_candidates[counter]
-					<< " is " << score[counter] << endl;
+					<< " is " << score[counter] << std::endl;
 		}
 
 		// And then check that.
@@ -159,8 +160,8 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		std::cout << "Convergence " << convergence << std::endl;
 		if (!finite(convergence)) {
 			if (debug) // error
-				cout << "ERROR: Failed to converge, bailing."
-					<< endl;
+				std::cout << "ERROR: Failed to converge, bailing."
+					<< std::endl;
 
 			score = old_score;
 			convergence = -1;
@@ -169,7 +170,7 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		++iter;
 
 		if (debug) {
-			cout << "Convergence is " << convergence << endl;
+			std::cout << "Convergence is " << convergence << std::endl;
 		}
 
 	} while (convergence > tolerance && iter < maxiter);
@@ -197,20 +198,20 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 		}
 
 		if (debug)
-			cout << "Final score for " <<
+			std::cout << "Final score for " <<
 				permitted_candidates[counter] << ": "
-				<< score[counter] << endl;
+				<< score[counter] << std::endl;
 	}
 
 	// All done, return the results.
-	return (pair<ordering, bool>(ordering_tools().
+	return (std::pair<ordering, bool>(ordering_tools().
 				indirect_vector_to_ordering(score,
 					permitted_candidates), false));
 }
 
-string odm_gen::pw_name() const {
+std::string odm_gen::pw_name() const {
 
-	string ret = odm_name() + "(" + dtos(tolerance) + ")";
+	std::string ret = odm_name() + "(" + dtos(tolerance) + ")";
 
 	return (ret);
 }

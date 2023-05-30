@@ -397,7 +397,7 @@ bool get_test_instance(const copeland_scenario * desired_A_scenario,
 		// TODO: Geometric distribution or something? Everything that gives
 		// us wider coverage is good.
 		int num_to_add = randomizer.lrand(2, num_ballots);
-		std::pair<bool, list<ballot_group> > alteration = mono_test->
+		std::pair<bool, std::list<ballot_group> > alteration = mono_test->
 			rearrange_ballots(before.election, numcands, num_to_add,
 				mono_data);
 

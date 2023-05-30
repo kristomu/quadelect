@@ -9,8 +9,9 @@
 #include <map>
 #include <iterator>
 
-pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
-	papers, const vector<bool> & hopefuls,
+std::pair<ordering, bool> mode_ratings::elect_inner(const
+	std::list<ballot_group> &
+	papers, const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * /*cache*/, bool /*winner_only*/) const {
 
 	// Since we don't know the number of buckets we need in advance to find
@@ -20,9 +21,9 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 
 	bool debug = false;
 
-	vector<map<double, double> > mode_maps(num_candidates);
+	std::vector<std::map<double, double> > mode_maps(num_candidates);
 
-	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos)
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos)
@@ -32,12 +33,12 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 
 	// Dump into lists.
 
-	vector<pair<list<double>, int> > candidate_scores;
+	std::vector<std::pair<std::list<double>, int> > candidate_scores;
 
 	for (size_t counter = 0; counter < mode_maps.size(); ++counter) {
 
 		if (debug) {
-			cout << "Candidate " << counter << endl;
+			std::cout << "Candidate " << counter << std::endl;
 		}
 
 		if (!hopefuls[counter]) {
@@ -48,42 +49,42 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 		// We'll sort this list so that the highest frequency comes
 		// first, and then just read off it.
 		// (Are ties going to be a problem?)
-		list<pair<double, double> > rearranged;
+		std::list<std::pair<double, double> > rearranged;
 
-		for (map<double, double>::const_iterator mpos =
+		for (std::map<double, double>::const_iterator mpos =
 				mode_maps[counter].begin(); mpos !=
 			mode_maps[counter].end(); ++mpos) {
 
 			if (debug)
-				cout << "\t Adding (val: " << mpos->first
+				std::cout << "\t Adding (val: " << mpos->first
 					<< " freq: " << mpos->second << ")"
-					<< endl;
+					<< std::endl;
 
-			rearranged.push_back(pair<double, double>(mpos->second,
+			rearranged.push_back(std::pair<double, double>(mpos->second,
 					mpos->first));
 		}
 
-		rearranged.sort(greater<pair<double, double> >());
+		rearranged.sort(std::greater<std::pair<double, double> >());
 
-		list<double> this_cand_score;
+		std::list<double> this_cand_score;
 
-		for (list<pair<double, double> >::const_iterator lpos =
+		for (std::list<std::pair<double, double> >::const_iterator lpos =
 				rearranged.begin(); lpos != rearranged.end();
 			++lpos) {
 			this_cand_score.push_back(lpos->second);
 		}
 
 		if (debug) {
-			cout << "Values in frequency order: ";
+			std::cout << "Values in frequency order: ";
 			copy(this_cand_score.begin(), this_cand_score.end(),
-				ostream_iterator<double>(cout, " "));
-			cout << endl;
+				std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;
 		}
 
 		// To sort, we have to mark the list by what candidate it
 		// belongs to, so moving the lists around won't make it unclear
 		// who is actually at top.
-		candidate_scores.push_back(pair<list<double>, int>(
+		candidate_scores.push_back(std::pair<std::list<double>, int>(
 				this_cand_score, counter));
 	}
 
@@ -96,18 +97,18 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 
 	int lincount = 0, last_shown = 0;
 
-	vector<pair<list<double>, int> >::const_iterator vpos, prev;
+	std::vector<std::pair<std::list<double>, int> >::const_iterator vpos, prev;
 	ordering out;
 
 	for (vpos = candidate_scores.begin(); vpos != candidate_scores.end();
 		++vpos) {
 
 		if (debug) {
-			cout << "Assigning ranks: Candidate " << vpos->second
+			std::cout << "Assigning ranks: Candidate " << vpos->second
 				<< " has these values: ";
 			copy(vpos->first.begin(), vpos->first.end(),
-				ostream_iterator<double>(cout, " "));
-			cout << endl;
+				std::ostream_iterator<double>(std::cout, " "));
+			std::cout << std::endl;
 		}
 
 		// If it's the first (in which case it doesn't matter what we
@@ -120,13 +121,13 @@ pair<ordering, bool> mode_ratings::elect_inner(const list<ballot_group> &
 		}
 
 		if (debug)
-			cout << "\tThe candidate thus gets rank " << last_shown
-				<< endl;
+			std::cout << "\tThe candidate thus gets rank " << last_shown
+				<< std::endl;
 
 		out.insert(candscore(vpos->second, last_shown));
 		++lincount;
 		prev = vpos;
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

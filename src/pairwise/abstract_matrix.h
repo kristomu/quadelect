@@ -13,7 +13,6 @@
 #include <iterator>
 #include <iostream>
 
-using namespace std;
 
 class abstract_condmat {
 
@@ -39,7 +38,7 @@ class abstract_condmat {
 
 		double get_magnitude(size_t candidate, size_t against) const;
 		double get_magnitude(size_t candidate, size_t against,
-			const vector<bool> & hopefuls) const;
+			const std::vector<bool> & hopefuls) const;
 
 		virtual double get_num_voters() const {
 			return (num_voters);

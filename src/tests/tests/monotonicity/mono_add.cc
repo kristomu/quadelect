@@ -14,8 +14,8 @@
 ///// Mono-add-plump
 ////////////////////
 
-bool mono_add_plump::add_ballots(const vector<int> & data,
-	rng & randomizer, list<ballot_group> & input,
+bool mono_add_plump::add_ballots(const std::vector<int> & data,
+	rng & randomizer, std::list<ballot_group> & input,
 	double total_weight, int numcands) const {
 
 	// Logarithmic hack for weight. If the random choice < 0.2, then 1.
@@ -44,8 +44,8 @@ bool mono_add_plump::add_ballots(const vector<int> & data,
 // We might want to have it add multiple random ballots.. then on the other
 // hand, the random input ballot could handle that...
 
-bool mono_add_top::add_ballots(const vector<int> & data,
-	rng & randomizer, list<ballot_group> & input,
+bool mono_add_top::add_ballots(const std::vector<int> & data,
+	rng & randomizer, std::list<ballot_group> & input,
 	double total_weight, int numcands) const {
 
 	// See above.
@@ -65,7 +65,7 @@ bool mono_add_top::add_ballots(const vector<int> & data,
 	// Generate a random ordering for the other candidates.
 	// TODO: Use a ballot generator for this, and let it be specified.
 	// Bluesky: Use same generator as the test.
-	vector<int> other_candidates(numcands);
+	std::vector<int> other_candidates(numcands);
 	iota(other_candidates.begin(), other_candidates.end(), 0);
 	random_shuffle(other_candidates.begin(), other_candidates.end());
 

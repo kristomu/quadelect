@@ -22,7 +22,6 @@
 
 enum color_space { CS_RGB, CS_HSV, CS_XYZ, CS_LAB}; // CS_LCh?
 
-using namespace std;
 
 class color_conv {
 
@@ -33,27 +32,27 @@ class color_conv {
 		// ones (e.g LAB to LCh), but the conversion function goes from
 		// source to RGB and then from RGB to dest.
 
-		vector<double> HSV_to_RGB(const vector<double> HSV) const;
-		vector<double> RGB_to_HSV(const vector<double> RGB) const;
+		std::vector<double> HSV_to_RGB(const std::vector<double> HSV) const;
+		std::vector<double> RGB_to_HSV(const std::vector<double> RGB) const;
 
-		vector<double> XYZ_to_RGB(const vector<double> XYZ) const;
-		vector<double> RGB_to_XYZ(vector<double> RGB) const;
+		std::vector<double> XYZ_to_RGB(const std::vector<double> XYZ) const;
+		std::vector<double> RGB_to_XYZ(std::vector<double> RGB) const;
 
 		double labgamma(double x, double kappa, double eps) const;
-		vector<double> XYZ_to_LAB(const vector<double> XYZ) const;
-		vector<double> LAB_to_XYZ(const vector<double> LAB) const;
+		std::vector<double> XYZ_to_LAB(const std::vector<double> XYZ) const;
+		std::vector<double> LAB_to_XYZ(const std::vector<double> LAB) const;
 
-		vector<double> LAB_to_RGB(const vector<double> LAB) const {
+		std::vector<double> LAB_to_RGB(const std::vector<double> LAB) const {
 			return (XYZ_to_RGB(LAB_to_XYZ(LAB)));
 		}
 
-		vector<double> RGB_to_LAB(const vector<double> RGB) const {
+		std::vector<double> RGB_to_LAB(const std::vector<double> RGB) const {
 			return (XYZ_to_LAB(RGB_to_XYZ(RGB)));
 		}
 
 	public:
 
-		vector<double> convert(const vector<double> & in,
+		std::vector<double> convert(const std::vector<double> & in,
 			color_space from, color_space to) const;
 };
 

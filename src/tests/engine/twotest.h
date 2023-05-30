@@ -22,26 +22,25 @@
 #include <vector>
 #include <map>
 
-using namespace std;
 
 class twotest_engine {
 
 	private:
 		// Tests, methods, and generator in use.
-		vector<twotest *> tests;
-		vector<const election_method *> methods;
+		std::vector<twotest *> tests;
+		std::vector<const election_method *> methods;
 		pure_ballot_generator * generator;
 
 		// Map from name to vector index
-		map<string, int> test_index;
-		map<string, int> method_index;
+		std::map<std::string, int> test_index;
+		std::map<std::string, int> method_index;
 
 		// Data about which methods fail which criteria, and if so,
 		// disproofs of criterion compliance. This is test-major, i.e.
 		// data for method x and criterion y is [y][x].
 		// TODO BLUESKY: Some kind of way we can specify beforehand
 		// criteria we do know the method fails.
-		vector<vector<method_test_info> > method_pass_status;
+		std::vector<std::vector<method_test_info> > method_pass_status;
 
 		// TODO: Distinguish between internal iterations and external
 		// ones.

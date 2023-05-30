@@ -6,7 +6,6 @@
 
 #include <complex>
 
-using namespace std;
 
 // DONE: Make a generic name() function that asks for a specific pair_name()
 // function and adds stuff like Margins afterwards unless overridden by a bool
@@ -34,51 +33,51 @@ using namespace std;
 class pairwise_method : public election_method {
 	protected:
 		pairwise_type default_type;
-		string cached_name;
+		std::string cached_name;
 
 		bool type_matters; // TODO, make a criterion thing instead.
 		bool do_cache_name;
 
-		string type_suffix() const;
+		std::string type_suffix() const;
 
 		// Handle cached names. This is required because cache ops
 		// request names for every hit/miss check, there are a lot of
 		// them, and merging strings is *slow*.
-		string determine_name() const;
+		std::string determine_name() const;
 		void update_name();
 
 	public:
 		// This one's extended by the method in question.
 		// DONE: Support winner_only by passing it on.
 		// TODO: Refuse if the input matrix is of the wrong type. (??)
-		virtual pair<ordering, bool> pair_elect(
+		virtual std::pair<ordering, bool> pair_elect(
 			const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache,
 			bool winner_only) const = 0;
 
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls,
 			bool winner_only) const {
 			return (pair_elect(input, hopefuls, NULL, winner_only));
 		}
 
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
 			cache_map * cache,
 			bool winner_only) const;
 
-		pair<ordering, bool> pair_elect(const abstract_condmat & input,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
 			bool winner_only) const {
 			return (pair_elect(input, NULL, winner_only));
 		}
 
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
@@ -97,9 +96,9 @@ class pairwise_method : public election_method {
 		// called if one performs delete ops on that array.
 		virtual ~pairwise_method() {}
 
-		virtual string pw_name() const = 0;
+		virtual std::string pw_name() const = 0;
 
-		string name() const;
+		std::string name() const;
 };
 
 #endif

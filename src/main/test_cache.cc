@@ -38,23 +38,25 @@ int main() {
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = ic.generate_ballots(4, 4, randomizer);
+	std::list<ballot_group> ballots = ic.generate_ballots(4, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;
 
 	string f = "!";
 	size_t counter;
-	map<int, string> fakecand;
+	std::map<int, std::string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
 		f[0] = (char)('A' + counter);
 		fakecand[counter] = f;
 	}
 
-	vector<string> printable = btools.ballots_to_text(btools.compress(
+	std::vector<std::string> printable = btools.ballots_to_text(
+			btools.compress(
 				ballots), fakecand, false);
-	copy(printable.begin(), printable.end(), ostream_iterator<string>(cout,
+	copy(printable.begin(), printable.end(),
+		std::ostream_iterator<std::string>(std::cout,
 			"\n"));
 
 	cache_map cache;
@@ -67,9 +69,9 @@ int main() {
 	}
 
 	for (ordering::const_iterator p = out.begin(); p != out.end(); ++p) {
-		cout << (char)('A' + p->get_candidate_num()) << "\t";
+		std::cout << (char)('A' + p->get_candidate_num()) << "\t";
 	}
-	cout << endl;
+	std::cout << std::endl;
 
 	return (0);
 }

@@ -2,13 +2,12 @@
 #include "../../pairwise/matrix.h"
 #include "method.h"
 
-using namespace std;
 
-string pairwise_method::type_suffix() const {
+std::string pairwise_method::type_suffix() const {
 	return ("(" + default_type.explain() + ")");
 }
 
-string pairwise_method::determine_name() const {
+std::string pairwise_method::determine_name() const {
 	if (type_matters) {
 		return (pw_name() + type_suffix());
 	} else {
@@ -22,11 +21,12 @@ void pairwise_method::update_name() {
 	}
 }
 
-pair<ordering, bool> pairwise_method::pair_elect(const abstract_condmat &
+std::pair<ordering, bool> pairwise_method::pair_elect(
+	const abstract_condmat &
 	input,
 	cache_map * cache, bool winner_only) const {
 
-	return (pair_elect(input, vector<bool>(input.get_num_candidates(),
+	return (pair_elect(input, std::vector<bool>(input.get_num_candidates(),
 					true), cache, winner_only));
 }
 
@@ -43,8 +43,8 @@ pair<ordering, bool> pairwise_method::pair_elect(const abstract_condmat &
 // Eugh, cut and paste code... maybe I should group these together with a v<b>
 // even though I'll then pay the price by having to allocate them all the time.
 
-pair<ordering, bool> pairwise_method::elect_inner(
-	const list<ballot_group> & papers, int num_candidates,
+std::pair<ordering, bool> pairwise_method::elect_inner(
+	const std::list<ballot_group> & papers, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// If the cache is non-NULL and it has a Condorcet matrix, make use of
@@ -77,9 +77,9 @@ pair<ordering, bool> pairwise_method::elect_inner(
 				cache, winner_only));
 }
 
-pair<ordering, bool> pairwise_method::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates,
+std::pair<ordering, bool> pairwise_method::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// DONE: Fix in matrix.cc so we can have things like Small. Very
@@ -109,7 +109,7 @@ pair<ordering, bool> pairwise_method::elect_inner(
 // scenes. The only thing the coder has to do is to call update_name() after any
 // parameter change.
 
-string pairwise_method::name() const {
+std::string pairwise_method::name() const {
 	if (do_cache_name) {
 		return (cached_name);
 	} else	{

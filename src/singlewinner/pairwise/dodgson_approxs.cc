@@ -8,8 +8,9 @@
 
 #include "dodgson_approxs.h"
 
-pair<ordering, bool> dquick::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> dquick::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	ordering out;
@@ -32,5 +33,5 @@ pair<ordering, bool> dquick::pair_elect(const abstract_condmat & input,
 		out.insert(candscore(counter, -sum));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

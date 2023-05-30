@@ -15,7 +15,6 @@
 
 #include "monotonicity.h"
 
-using namespace std;
 
 ///// Mono-raise
 ////////////////
@@ -24,10 +23,10 @@ class mono_raise : public monotonicity {
 
 	private:
 		bool alter_ballot(const ordering & input, ordering & output,
-			size_t numcands, const vector<size_t> & data,
+			size_t numcands, const std::vector<size_t> & data,
 			rng & randomizer) const;
 
-		string basename() const {
+		std::string basename() const {
 			return ("Mono-raise");
 		}
 
@@ -52,10 +51,10 @@ class mono_raise_delete : public monotonicity {
 	private:
 		bool alter_ballot(const ordering & input,
 			ordering & output, size_t numcands,
-			const vector<size_t> & data,
+			const std::vector<size_t> & data,
 			rng & randomizer) const;
 
-		string basename() const {
+		std::string basename() const {
 			return ("Mono-raise-delete");
 		}
 
@@ -80,10 +79,10 @@ class mono_raise_random : public monotonicity {
 	private:
 		bool alter_ballot(const ordering & input,
 			ordering & output, size_t numcands,
-			const vector<size_t> & data,
+			const std::vector<size_t> & data,
 			rng & randomizer) const;
 
-		string basename() const {
+		std::string basename() const {
 			return ("Mono-raise-random");
 		}
 

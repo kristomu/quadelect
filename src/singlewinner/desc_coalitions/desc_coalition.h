@@ -109,7 +109,7 @@ class desc_coalition_method : public election_method {
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		virtual string name() const = 0;
+		virtual std::string name() const = 0;
 };
 
 #endif

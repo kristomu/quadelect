@@ -30,11 +30,11 @@ void twotest_engine::add_method(const election_method * method_in) {
 	}
 }
 
-// Test-major, so add a new vector<method_test_info> to those we already have.
+// Test-major, so add a new std::vector<method_test_info> to those we already have.
 void twotest_engine::add_test(twotest * twotest_in) {
 
 	tests.push_back(twotest_in);
-	method_pass_status.push_back(vector<method_test_info>());
+	method_pass_status.push_back(std::vector<method_test_info>());
 }
 
 
@@ -55,7 +55,7 @@ twotest_engine::twotest_engine(unsigned int max_iters,
 	set_num_candidates(min_cands, max_cands);
 }
 
-// Should be vector<ternary> either inapp for inapplicable, or true/false.
+// Should be std::vector<ternary> either inapp for inapplicable, or true/false.
 // For the test in question, we generate random data and then check which
 // methods (method outcomes, really) that are applicable with regards to the
 // data. These are grouped together and we then generate a common modified
@@ -66,16 +66,16 @@ twotest_engine::twotest_engine(unsigned int max_iters,
 // If twotests could have a function that would coax data to fit a certain
 // outcome (e.g. set a given winner for monotonicity), then we could speed
 // up this part by a lot.
-/*void twotest_engine::run_single_test(const vector<ordering> & base_outcomes,
-		const list<ballot_group> & original_ballots, int num_candidates,
+/*void twotest_engine::run_single_test(const std::vector<ordering> & base_outcomes,
+		const std::list<ballot_group> & original_ballots, int num_candidates,
 		int num_nc_iters, const twotest * test, const
-		vector<election_method *> & methods_to_test, const
-		vector<method_test_info> & compliance_data,
+		std::vector<election_method *> & methods_to_test, const
+		std::vector<method_test_info> & compliance_data,
 		bool skip_already_false) {
 
 	// Perhaps pass this later. We'll see. Profile first, and only then
 	// optimize.
-	vector<ternary> status(methods_to_test.size(), TINAPP);
+	std::vector<ternary> status(methods_to_test.size(), TINAPP);
 
 	int methods_left = methods_to_test.size();
 
@@ -143,7 +143,7 @@ twotest_engine::twotest_engine(unsigned int max_iters,
 		// Otherwise, generate the modified ballot set and start
 		// testing! They might still not be applicable, but we don't
 		// know that yet.
-		pair<bool, list<ballot_group> > arrangement =
+		std::pair<bool, std::list<ballot_group> > arrangement =
 			test->rearrange_ballots(original_ballots,
 					num_candidates, data);
 
@@ -198,7 +198,7 @@ bool twotest_engine::run_tests(int iterations, rng & random_source) {
 	cache_map orig_cache;
 
 	size_t counter, sec;
-	vector<ordering> base_outcomes(methods.size());
+	std::vector<ordering> base_outcomes(methods.size());
 
 	// Generate a base ballot set.
 
@@ -206,7 +206,7 @@ bool twotest_engine::run_tests(int iterations, rng & random_source) {
 	int num_cands = random_source.irand(min_num_candidates,
 			max_num_candidates);
 
-	list<ballot_group> base_ballots = generator->generate_ballots(
+	std::list<ballot_group> base_ballots = generator->generate_ballots(
 			num_voters, num_cands, random_source);
 
 	// If every test is winner_only, then only count winners, otherwise
@@ -240,7 +240,7 @@ bool twotest_engine::run_tests(int iterations, rng & random_source) {
 
 	bool saw_change = false;
 
-	for (vector<twotest *>::iterator ltpos = tests.begin(); ltpos !=
+	for (std::vector<twotest *>::iterator ltpos = tests.begin(); ltpos !=
 		tests.end(); ++ltpos)
 		saw_change |= (*ltpos)->pass_many(base_outcomes, base_ballots,
 				num_cands, iterations, methods,

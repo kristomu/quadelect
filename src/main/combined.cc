@@ -58,10 +58,10 @@
 
 
 // This should really be put into a file associated with all.h
-list<pure_ballot_generator *> get_all_generators(bool compress,
+std::list<pure_ballot_generator *> get_all_generators(bool compress,
 	bool truncate) {
 
-	list<pure_ballot_generator *> toRet;
+	std::list<pure_ballot_generator *> toRet;
 
 	toRet.push_back(new dirichlet(compress, truncate));
 	toRet.push_back(new gaussian_generator(compress, truncate));
@@ -73,15 +73,15 @@ list<pure_ballot_generator *> get_all_generators(bool compress,
 	return (toRet);
 }
 
-bayesian_regret setup_regret(list<election_method *> & methods,
-	list<pure_ballot_generator *> & generators,
+bayesian_regret setup_regret(std::list<election_method *> & methods,
+	std::list<pure_ballot_generator *> & generators,
 	int maxiters, int min_candidates, int max_candidates,
 	int min_voters, int max_voters, rng & randomizer) {
 
 	// Do something with Bayesian regret here. DONE: Move over
 	// to modes.
 
-	list<const election_method *> rtmethods; // What a kludge.
+	std::list<const election_method *> rtmethods; // What a kludge.
 	copy(methods.begin(), methods.end(), back_inserter(rtmethods));
 
 	bayesian_regret br(maxiters, min_candidates, max_candidates,
@@ -98,9 +98,9 @@ bayesian_regret setup_regret(list<election_method *> & methods,
 
 // The hack with the generators is required so that C++ doesn't delete them
 // once the function is done.
-yee setup_yee(list<election_method *> & methods, int num_voters,
+yee setup_yee(std::list<election_method *> & methods, int num_voters,
 	int num_cands,
-	bool do_use_autopilot, string case_prefix, int picture_size,
+	bool do_use_autopilot, std::string case_prefix, int picture_size,
 	double sigma, gaussian_generator & gaussian,
 	uniform_generator & uniform, rng & randomizer) {
 
@@ -123,7 +123,7 @@ yee setup_yee(list<election_method *> & methods, int num_voters,
 	return (to_output);
 }
 
-barycentric setup_bary(list<election_method *> & methods,
+barycentric setup_bary(std::list<election_method *> & methods,
 	rng & randomizer) {
 
 	barycentric to_output;
@@ -137,13 +137,13 @@ barycentric setup_bary(list<election_method *> & methods,
 	return (to_output);
 }
 
-pair<bool, interpreter_mode> setup_interpreter(
-	list<election_method *> & methods,
-	list<const interpreter *> & interpreters,
-	vector<string> & unparsed, rng & randomizer) {
+std::pair<bool, interpreter_mode> setup_interpreter(
+	std::list<election_method *> & methods,
+	std::list<const interpreter *> & interpreters,
+	std::vector<std::string> & unparsed, rng & randomizer) {
 
 	// Kludge, again!
-	list<const election_method *> methods_const;
+	std::list<const election_method *> methods_const;
 	copy(methods.begin(), methods.end(), back_inserter(methods_const));
 
 	interpreter_mode toRet(interpreters, methods_const, unparsed);
@@ -151,31 +151,31 @@ pair<bool, interpreter_mode> setup_interpreter(
 	bool inited = toRet.init(randomizer);
 
 	if (!inited) {
-		cerr << "Interpreter mode error: Cannot parse ballot data!"
-			<< endl;
-		return (pair<bool, interpreter_mode>(false, toRet));
+		std::cerr << "Interpreter mode error: Cannot parse ballot data!"
+			<< std::endl;
+		return (std::pair<bool, interpreter_mode>(false, toRet));
 	}
 
-	return (pair<bool, interpreter_mode>(true, toRet));
+	return (std::pair<bool, interpreter_mode>(true, toRet));
 }
 
-pair<bool, interpreter_mode> setup_interpreter_from_file(
-	list<election_method *> & methods,
-	list<const interpreter *> & interpreters,
-	string file_name, rng & randomizer) {
+std::pair<bool, interpreter_mode> setup_interpreter_from_file(
+	std::list<election_method *> & methods,
+	std::list<const interpreter *> & interpreters,
+	std::string file_name, rng & randomizer) {
 
-	ifstream inf(file_name.c_str());
+	std::ifstream inf(file_name.c_str());
 
 	if (!inf) {
-		cerr << "Interpreter mode error: Could not open " <<
-			file_name << " for reading!" << endl;
-		return (pair<bool, interpreter_mode>(false, interpreter_mode()));
+		std::cerr << "Interpreter mode error: Could not open " <<
+			file_name << " for reading!" << std::endl;
+		return (std::pair<bool, interpreter_mode>(false, interpreter_mode()));
 	}
 
 	// Slurp the contents. Note, will crash the program if you feed it
 	// /dev/zero or somesuch.
 
-	vector<string> unparsed = slurp_file(inf, false);
+	std::vector<std::string> unparsed = slurp_file(inf, false);
 	inf.close();
 
 	return (setup_interpreter(methods, interpreters, unparsed, randomizer));
@@ -187,15 +187,15 @@ template<typename T> void list_names(const T & container) {
 
 	for (typename T::const_iterator pos = container.begin(); pos !=
 		container.end(); ++pos) {
-		cout << (*pos)->name() << endl;
+		std::cout << (*pos)->name() << std::endl;
 	}
 }
 
 // Get only those that appear on the list.
 
-string ignore_spaces_np(const string & a) {
+std::string ignore_spaces_np(const std::string & a) {
 
-	string toRet;
+	std::string toRet;
 
 	for (size_t counter = 0; counter < a.size(); ++counter) {
 		if (isprint(a[counter]) && a[counter] != ' ') {
@@ -206,25 +206,26 @@ string ignore_spaces_np(const string & a) {
 	return (toRet);
 }
 
-template</*typename T,*/typename Q> list<Q> get_name_intersection(
-	const list<Q> & container, const vector<string> accepted) {
+template</*typename T,*/typename Q> std::list<Q> get_name_intersection(
+	const std::list<Q> & container, const std::vector<std::string> accepted) {
 
 	// We do this by first building a map of Q (it's presumed that T is
 	// vector or list or something of Q), with Q's name as index. Then we
 	// go through the accepted list and dump those that we find.
 
-	map<string, Q> codebook;
+	std::map<std::string, Q> codebook;
 
-	for (typename list<Q>::const_iterator pos = container.begin(); pos !=
+	for (typename std::list<Q>::const_iterator pos = container.begin(); pos !=
 		container.end(); ++pos) {
 		codebook[ignore_spaces_np((*pos)->name())] = *pos;
 	}
 
-	list<Q> to_return;
+	std::list<Q> to_return;
 
-	for (vector<string>::const_iterator spos = accepted.begin(); spos !=
+	for (std::vector<std::string>::const_iterator spos = accepted.begin();
+		spos !=
 		accepted.end(); ++spos) {
-		typename map<string, Q>::const_iterator search =
+		typename std::map<std::string, Q>::const_iterator search =
 			codebook.find(ignore_spaces_np(*spos));
 
 		if (search != codebook.end()) {
@@ -235,94 +236,103 @@ template</*typename T,*/typename Q> list<Q> get_name_intersection(
 	return (to_return);
 }
 
-template<typename Q> list<Q> intersect_by_file(
-	const list<Q> & container, string filename) {
+template<typename Q> std::list<Q> intersect_by_file(
+	const std::list<Q> & container, std::string filename) {
 
 	// Returns a container of NULL if we can't open.
 
-	ifstream infile(filename.c_str());
+	std::ifstream infile(filename.c_str());
 
 	if (!infile) {
-		cerr << "Cannot open " << filename << " for reading!" << endl;
-		return (list<Q>(1, NULL));
+		std::cerr << "Cannot open " << filename << " for reading!" << std::endl;
+		return (std::list<Q>(1, NULL));
 	}
 
-	vector<string> accepted = slurp_file(infile, true);
+	std::vector<std::string> accepted = slurp_file(infile, true);
 	infile.close();
 
 	return (get_name_intersection(container, accepted));
 }
 
-void print_usage_info(string program_name) {
+void print_usage_info(std::string program_name) {
 
-	cout << "Quadelect, election method analysis tool." << endl << endl;
+	std::cout << "Quadelect, election method analysis tool." << std::endl <<
+		std::endl;
 
-	cout << "Usage: " << program_name << " [OPTIONS]... " << endl;
-	cout << endl;
+	std::cout << "Usage: " << program_name << " [OPTIONS]... " << std::endl;
+	std::cout << std::endl;
 
-	cout << "General enumeration options:" << endl;
-	cout << "\t-G\t\t List available ballot generators." << endl;
+	std::cout << "General enumeration options:" << std::endl;
+	std::cout << "\t-G\t\t List available ballot generators." << std::endl;
 	// todo, implement!
-	cout << "\t-I\t\t List available interpreters." << endl;
-	cout << "\t-M\t\t List available election methods." << endl;
-	cout << endl;
-	cout << "Random number generator options:" << endl;
-	cout << "\t-r [seed]\t Set the random number generator seed to [seed]."
-		<< endl << endl;
-	cout << "Constraint options: " << endl;
-	cout << "\t-e\t\tEnable experimental methods. These are not intended for"
+	std::cout << "\t-I\t\t List available interpreters." << std::endl;
+	std::cout << "\t-M\t\t List available election methods." << std::endl;
+	std::cout << std::endl;
+	std::cout << "Random number generator options:" << std::endl;
+	std::cout <<
+		"\t-r [seed]\t Set the random number generator seed to [seed]."
+		<< std::endl << std::endl;
+	std::cout << "Constraint options: " << std::endl;
+	std::cout <<
+		"\t-e\t\tEnable experimental methods. These are not intended for"
 		<<
-		"\n\t\t\tordinary use!" << endl;
-	cout << "\t-g [file]\tUse the generators listed in [file]. The " <<
+		"\n\t\t\tordinary use!" << std::endl;
+	std::cout << "\t-g [file]\tUse the generators listed in [file]. The " <<
 		"program will\n\t\t\tabort if that implies no generators " <<
-		"are to be used." << endl;
-	cout << "\t-ic [file]\tOnly use the interpreters listed in [file]."<<
+		"are to be used." << std::endl;
+	std::cout << "\t-ic [file]\tOnly use the interpreters listed in [file]."<<
 		" The\n\t\t\tprogram will abort if that implies no interpreters"
-		<<" are\n\t\t\tto be used." << endl;
-	cout << "\t-m [file]\tOnly use the election methods listed in [file]."<<
+		<<" are\n\t\t\tto be used." << std::endl;
+	std::cout <<
+		"\t-m [file]\tOnly use the election methods listed in [file]."<<
 		" The\n\t\t\tprogram will abort if that implies no methods " <<
-		"are to be\n\t\t\tused." << endl;
-	cout << endl;
-	cout << "Bayesian regret calculation options:" << endl;
-	cout << "\t-b\t\tEnable the Bayesian Regret calculation mode." << endl;
-	cout << "\t-bi [maxiters]\tDo a maximum of [maxiters] rounds.\n\t\t\t"<<
-		"Default is 20000." << endl;
-	cout << "\t-bcm [cands]\tUse a minimum of [cands] candidates when"
+		"are to be\n\t\t\tused." << std::endl;
+	std::cout << std::endl;
+	std::cout << "Bayesian regret calculation options:" << std::endl;
+	std::cout << "\t-b\t\tEnable the Bayesian Regret calculation mode." <<
+		std::endl;
+	std::cout <<
+		"\t-bi [maxiters]\tDo a maximum of [maxiters] rounds.\n\t\t\t"<<
+		"Default is 20000." << std::endl;
+	std::cout << "\t-bcm [cands]\tUse a minimum of [cands] candidates when"
 		<< " performing a\n\t\t\tBayesian regret round. Default is 3."
-		<< endl;
-	cout << "\t-bcx [cands]\tUse a maximum of [cands] candidates when"
+		<< std::endl;
+	std::cout << "\t-bcx [cands]\tUse a maximum of [cands] candidates when"
 		<< " performing a\n\t\t\tBayesian regret round. Default is 20."
-		<< endl;
-	cout << "\t-bvm [voters]\tUse a minimum of [voters] voters when"
+		<< std::endl;
+	std::cout << "\t-bvm [voters]\tUse a minimum of [voters] voters when"
 		<< " performing a\n\t\t\tBayesian regret round. Default is 4."
-		<< endl;
-	cout << "\t-bvx [voters]\tUse a maximum of [voters] voters when"
+		<< std::endl;
+	std::cout << "\t-bvx [voters]\tUse a maximum of [voters] voters when"
 		<< " performing a\n\t\t\tBayesian regret round. Default is 200."
-		<< endl;
-	cout << "\t-brf [rounds]\tPrint Bayesian regret statistics every " <<
-		"[rounds] rounds.\n\t\t\tDefault is 100." << endl;
-	cout << endl;
-	cout << "Interpreter (ballot counting) options: " << endl;
-	cout << "\t-i\t\tEnable the interpreter/ballot counting mode." << endl;
-	cout << "\t-if [file]\tUse [file] as the input file to interpret. The";
-	cout << "\n\t\t\tdefault is \"interpret.txt\"." << endl;
+		<< std::endl;
+	std::cout << "\t-brf [rounds]\tPrint Bayesian regret statistics every " <<
+		"[rounds] rounds.\n\t\t\tDefault is 100." << std::endl;
+	std::cout << std::endl;
+	std::cout << "Interpreter (ballot counting) options: " << std::endl;
+	std::cout << "\t-i\t\tEnable the interpreter/ballot counting mode." <<
+		std::endl;
+	std::cout <<
+		"\t-if [file]\tUse [file] as the input file to interpret. The";
+	std::cout << "\n\t\t\tdefault is \"interpret.txt\"." << std::endl;
 	// todo, more here!
-	cout << endl;
-	cout << "Yee diagram calculation options:" << endl;
-	cout << "\t-y\t\tEnable the Yee diagram calculation/rendering mode."
-		<< endl;
-	cout << "\t-ys [sigma]\tSet the standard deviation of the voter " <<
-		"Gaussian\n\t\t\tto [sigma]. Default is 0.3" << endl;
-	cout << "\t-yps [pixels]\tRender a [pixels]*[pixels] Yee diagram." <<
-		"\n\t\t\tDefault is 240." << endl;
-	cout << "\t-yna\t\tDon't use progressive sampling (\"autopilot\"). " <<
-		"Disabling\n\t\t\tthis will turn the rendering slower." << endl;
-	cout << "\t-yp [prefix]\tPrefix the rendered picture names by " <<
-		"[prefix].\n\t\t\tDefault is \"default\"" << endl;
-	cout << "\t-yv [voters]\tSample a maximum of [voters] voters per " <<
-		"pixel.\n\t\t\tDefault is 1000." << endl;
-	cout << "\t-yc [cands]\tPlace [cands] random candidates on the Yee"<<
-		" map.\n\t\t\tDefault is 4." << endl;
+	std::cout << std::endl;
+	std::cout << "Yee diagram calculation options:" << std::endl;
+	std::cout << "\t-y\t\tEnable the Yee diagram calculation/rendering mode."
+		<< std::endl;
+	std::cout << "\t-ys [sigma]\tSet the standard deviation of the voter " <<
+		"Gaussian\n\t\t\tto [sigma]. Default is 0.3" << std::endl;
+	std::cout << "\t-yps [pixels]\tRender a [pixels]*[pixels] Yee diagram." <<
+		"\n\t\t\tDefault is 240." << std::endl;
+	std::cout << "\t-yna\t\tDon't use progressive sampling (\"autopilot\"). "
+		<<
+		"Disabling\n\t\t\tthis will turn the rendering slower." << std::endl;
+	std::cout << "\t-yp [prefix]\tPrefix the rendered picture names by " <<
+		"[prefix].\n\t\t\tDefault is \"default\"" << std::endl;
+	std::cout << "\t-yv [voters]\tSample a maximum of [voters] voters per " <<
+		"pixel.\n\t\t\tDefault is 1000." << std::endl;
+	std::cout << "\t-yc [cands]\tPlace [cands] random candidates on the Yee"<<
+		" map.\n\t\t\tDefault is 4." << std::endl;
 	std::cout << std::endl;
 	std::cout << "Barycentric characterization options:" << std::endl;
 	std::cout << "\t-c\t\tEnable voter method barycentric visualization." <<
@@ -336,7 +346,7 @@ int main(int argc, char * * argv) {
 	double yee_sigma = 0.3;
 	int yee_size = 240, yee_voters = 1000, yee_candidates = 4;
 	bool yee_autopilot = true;
-	string yee_prefix = "default";
+	std::string yee_prefix = "default";
 
 	int breg_rounds = 20000, breg_min_cands = 3, breg_max_cands = 20,
 		breg_min_voters = 4, breg_max_voters = 200, breg_report_freq = 100;
@@ -351,16 +361,17 @@ int main(int argc, char * * argv) {
 
 	bool include_experimental = false;
 
-	string method_constraint_fn, generator_constraint_fn, int_constraint_fn;
+	std::string method_constraint_fn, generator_constraint_fn,
+		int_constraint_fn;
 
-	string int_source_file = "interpret.txt";
+	std::string int_source_file = "interpret.txt";
 
 	rng randomizer(get_abs_time());
 	uint64_t seed = randomizer.long_rand();
 
 	bool success = true;
 
-	string ext;
+	std::string ext;
 
 	static struct option long_options[] = {
 		// Long options (we'll do the rest after this struct).
@@ -548,16 +559,16 @@ int main(int argc, char * * argv) {
 				if (option_index != 0) {
 					option_index = 0;
 				} else {
-					/*cout << "I pity the foo. " << (char)c
-						<< endl;*/
+					/*std::cout << "I pity the foo. " << (char)c
+						<< std::endl;*/
 					success = false;
 				}
 		}
 	}
 
 	if (run_how_many > 1) {
-		cerr << argv[0] << ": more than one action specified. Please "
-			<< "be more specific." << endl;
+		std::cerr << argv[0] << ": more than one action specified. Please "
+			<< "be more specific." << std::endl;
 		return (-1);
 	}
 
@@ -573,24 +584,24 @@ int main(int argc, char * * argv) {
 	// consistent with the logic of the generators instead of just being
 	// something that's slapped on.
 
-	list<election_method *> methods = get_singlewinner_methods(false,
+	std::list<election_method *> methods = get_singlewinner_methods(false,
 			include_experimental);
-	list<election_method *>::const_iterator pos;
+	std::list<election_method *>::const_iterator pos;
 
-	list<pure_ballot_generator *> generators = get_all_generators(true,
+	std::list<pure_ballot_generator *> generators = get_all_generators(true,
 			false);
 
-	list<pure_ballot_generator *> default_br_generators;
+	std::list<pure_ballot_generator *> default_br_generators;
 	default_br_generators.push_back(new uniform_generator(true, false));
 
 	// These are used so it'll be possible to dealloc early if we so want.
 	// TODO later: have intersect provide two arrays: one for intersection,
 	// one for the rest. Then just free those in the "rest" category.
-	list<election_method *> methods_backup = methods;
-	list<pure_ballot_generator *> generators_backup = generators;
+	std::list<election_method *> methods_backup = methods;
+	std::list<pure_ballot_generator *> generators_backup = generators;
 
 	// Interpreters for the interpreter mode
-	list<interpreter *> interpreters = get_all_interpreters();
+	std::list<interpreter *> interpreters = get_all_interpreters();
 
 	if (list_gen) {
 		list_names(generators);
@@ -612,24 +623,24 @@ int main(int argc, char * * argv) {
 	if (constrain_methods) {
 		methods = intersect_by_file(methods, method_constraint_fn);
 		if (methods.empty()) {
-			cerr << argv[0] << ": Found no eligible method names in"
-				<< " " << method_constraint_fn << endl;
+			std::cerr << argv[0] << ": Found no eligible method names in"
+				<< " " << method_constraint_fn << std::endl;
 			return (-1);
 		}
 		if (*(methods.begin()) == NULL) {
 			return (-1);    // couldn't open file.
 		}
 
-		cout << "Method constraint: loaded " << methods.size()
-			<< " methods." << endl;
+		std::cout << "Method constraint: loaded " << methods.size()
+			<< " methods." << std::endl;
 	}
 
 	if (constrain_generators) {
 		generators = intersect_by_file(generators,
 				generator_constraint_fn);
 		if (generators.empty() || *generators.begin() == NULL) {
-			cerr << argv[0] << ": Found no eligible method names in"
-				<< " " << generator_constraint_fn << endl;
+			std::cerr << argv[0] << ": Found no eligible method names in"
+				<< " " << generator_constraint_fn << std::endl;
 			return (-1);
 		}
 
@@ -639,24 +650,24 @@ int main(int argc, char * * argv) {
 
 		default_br_generators = generators;
 
-		cout << "Generator constraint: loaded " << generators.size()
-			<< " generators." << endl;
+		std::cout << "Generator constraint: loaded " << generators.size()
+			<< " generators." << std::endl;
 	}
 
 	if (constrain_ints) {
 		interpreters = intersect_by_file(interpreters,
 				int_constraint_fn);
 		if (interpreters.empty() || *interpreters.begin() == NULL) {
-			cerr << argv[0] << ": Found no eligible interpreter " <<
-				"names in " << int_constraint_fn << endl;
+			std::cerr << argv[0] << ": Found no eligible interpreter " <<
+				"names in " << int_constraint_fn << std::endl;
 			return (-1);
 		}
 
-		cout << "Interpreter constraint: loaded " << interpreters.size()
-			<< " interpreters." << endl;
+		std::cout << "Interpreter constraint: loaded " << interpreters.size()
+			<< " interpreters." << std::endl;
 	}
 
-	cout << "Random number generator: using seed " << seed << endl;
+	std::cout << "Random number generator: using seed " << seed << std::endl;
 	randomizer.s_rand(seed);
 
 	// Run_yee, Run_breg, run_bary goes here.
@@ -667,30 +678,30 @@ int main(int argc, char * * argv) {
 	yee yee_mode;
 	bayesian_regret br_mode;
 	barycentric bary_mode;
-	pair<bool, interpreter_mode> int_mode;
+	std::pair<bool, interpreter_mode> int_mode;
 	mode * mode_running;
 
 	uniform_generator uniform(true, false);
 	gaussian_generator gaussian(true, false);
 
 	if (run_yee) {
-		cout << "Setting up Yee..." << endl;
-		cout << "\t\t- sigma: " << yee_sigma << endl;
-		cout << "\t\t- picture size: " << yee_size << endl;
-		cout << "\t\t- max number of voters: " << yee_voters << endl;
-		cout << "\t\t- number of candidates: " << yee_candidates << endl;
-		cout << "\t\t- autopilot: ";
+		std::cout << "Setting up Yee..." << std::endl;
+		std::cout << "\t\t- sigma: " << yee_sigma << std::endl;
+		std::cout << "\t\t- picture size: " << yee_size << std::endl;
+		std::cout << "\t\t- max number of voters: " << yee_voters << std::endl;
+		std::cout << "\t\t- number of candidates: " << yee_candidates << std::endl;
+		std::cout << "\t\t- autopilot: ";
 		if (yee_autopilot) {
-			cout << "yes" << endl;
+			std::cout << "yes" << std::endl;
 		} else	{
-			cout << "no" << endl;
+			std::cout << "no" << std::endl;
 		}
-		cout << "\t\t- picture prefix: " << yee_prefix << endl;
+		std::cout << "\t\t- picture prefix: " << yee_prefix << std::endl;
 
 		if (methods.size() > 10) {
-			cout << "WARNING: You have selected more than 10 " <<
+			std::cout << "WARNING: You have selected more than 10 " <<
 				"methods at once. This may take a *very* " <<
-				"long time." << endl;
+				"long time." << std::endl;
 		}
 
 		yee_mode = setup_yee(methods, yee_voters, yee_candidates,
@@ -706,17 +717,17 @@ int main(int argc, char * * argv) {
 	}
 
 	if (run_breg) {
-		cout << "Setting up Bayesian Regret..." << endl;
-		cout << "\t\t- rounds: " << breg_rounds << endl;
-		cout << "\t\t- minimum number of candidates: " << breg_min_cands
-			<< endl;
-		cout << "\t\t- maximum number of candidates: " << breg_max_cands
-			<< endl;
-		cout << "\t\t- minimum number of voters: " << breg_min_voters
-			<< endl;
-		cout << "\t\t- maximum number of voters: " << breg_max_voters
-			<< endl;
-		cout << "\t\t- report frequency: " << breg_report_freq << endl;
+		std::cout << "Setting up Bayesian Regret..." << std::endl;
+		std::cout << "\t\t- rounds: " << breg_rounds << std::endl;
+		std::cout << "\t\t- minimum number of candidates: " << breg_min_cands
+			<< std::endl;
+		std::cout << "\t\t- maximum number of candidates: " << breg_max_cands
+			<< std::endl;
+		std::cout << "\t\t- minimum number of voters: " << breg_min_voters
+			<< std::endl;
+		std::cout << "\t\t- maximum number of voters: " << breg_max_voters
+			<< std::endl;
+		std::cout << "\t\t- report frequency: " << breg_report_freq << std::endl;
 
 		br_mode = setup_regret(methods, default_br_generators,
 				breg_rounds, breg_min_cands, breg_max_cands,
@@ -741,14 +752,14 @@ int main(int argc, char * * argv) {
 	}
 
 	if (run_int) {
-		cout << "Setting up ballot interpretation..." << endl;
-		cout << "\t\t- input file: " << int_source_file << endl;
-		cout << "\t\t- number of interpreters: " << interpreters.size()
-			<< endl;
-		cout << "\t\t- number of methods: " << methods.size() << endl;
+		std::cout << "Setting up ballot interpretation..." << std::endl;
+		std::cout << "\t\t- input file: " << int_source_file << std::endl;
+		std::cout << "\t\t- number of interpreters: " << interpreters.size()
+			<< std::endl;
+		std::cout << "\t\t- number of methods: " << methods.size() << std::endl;
 
-		list<const interpreter *> int_temp; // yay conversion!
-		for (list<interpreter *>::const_iterator cpos =
+		std::list<const interpreter *> int_temp; // yay conversion!
+		for (std::list<interpreter *>::const_iterator cpos =
 				interpreters.begin();
 			cpos != interpreters.end(); ++cpos) {
 			int_temp.push_back(*cpos);
@@ -766,14 +777,14 @@ int main(int argc, char * * argv) {
 		use_exp_averaging = false;
 	}
 
-	string progress;
+	std::string progress;
 	double start_time = get_abs_time(), cur_checkpoint = start_time,
 		   cur_disp_checkpoint = start_time;
 	double per_round = -1;
 
 	while ((progress = mode_running->do_round(true, false, randomizer))
 		!= "") {
-		cout << progress << endl;
+		std::cout << progress << std::endl;
 
 		double this_instance = (get_abs_time() - cur_checkpoint);
 
@@ -782,7 +793,7 @@ int main(int argc, char * * argv) {
 		} else {
 			// Change more quickly if there are few values backing
 			// the result.
-			double factor = max(0.03, 1 / (double)(mode_running->
+			double factor = std::max(0.03, 1 / (double)(mode_running->
 						get_current_round()));
 			// Exponential averaging for ETA.
 			per_round = per_round * (1-factor) + this_instance *
@@ -798,13 +809,13 @@ int main(int argc, char * * argv) {
 				per_round = elapsed_time / (double)
 					mode_running->get_current_round();
 
-			cout << "\t [Has run for " << elapsed_time
+			std::cout << "\t [Has run for " << elapsed_time
 				<< "s. ETA: " << per_round * (mode_running->
 					get_max_rounds()-mode_running->
 					get_current_round()) << "s, "<<
 				" for a total of " <<
 				per_round * mode_running->get_max_rounds() <<
-				" s. ]" << endl;
+				" s. ]" << std::endl;
 
 			cur_disp_checkpoint = cur_checkpoint;
 		}
@@ -821,10 +832,10 @@ int main(int argc, char * * argv) {
 				breg_report_freq == (breg_report_freq-1);
 
 		if (should_display_stats) {
-			vector<string> report = mode_running->provide_status();
-			copy(report.begin(), report.end(), ostream_iterator<
-				string>(cout, "\n"));
-			cout << endl;
+			std::vector<std::string> report = mode_running->provide_status();
+			copy(report.begin(), report.end(), std::ostream_iterator<
+				std::string>(std::cout, "\n"));
+			std::cout << std::endl;
 		}
 	}
 }

@@ -12,26 +12,25 @@
 #include <glpk.h>
 #include <assert.h>
 
-using namespace std;
 
 class gradual_cond_borda : public election_method {
 	private:
 		const pairwise_method * base_method;
-		string cached_name;
+		std::string cached_name;
 		bool is_sym_comp, is_relaxed;
 		completion_type completion;
 		bool cardinal;
 
-		string determine_name() const;
+		std::string determine_name() const;
 
 	public:
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string name() const {
+		std::string name() const {
 			return (cached_name);
 		}
 

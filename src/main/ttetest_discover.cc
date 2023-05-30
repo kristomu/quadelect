@@ -62,23 +62,25 @@ int main() {
 	srandom(seed);
 	srand48(seed);
 
-	list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
+	std::list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;
 
 	string f = "!";
 	size_t counter, sec;
-	map<size_t, string> fakecand;
+	std::map<size_t, std::string> fakecand;
 
 	for (counter = 0; counter < 26; ++counter) {
 		f[0] = (char)('A' + counter);
 		fakecand[counter] = f;
 	}
 
-	vector<string> printable = btools.ballots_to_text(btools.compress(
+	std::vector<std::string> printable = btools.ballots_to_text(
+			btools.compress(
 				ballots), fakecand, true);
-	copy(printable.begin(), printable.end(), ostream_iterator<string>(cout,
+	copy(printable.begin(), printable.end(),
+		std::ostream_iterator<std::string>(std::cout,
 			"\n"));
 
 	cache_map cache;
@@ -90,10 +92,10 @@ int main() {
 		out = eminmax.elect(ballots, 4, cache, false);
 	}*/
 
-	cout << "---" << endl;
+	std::cout << "---" << std::endl;
 	ordering_tools otools;
-	cout << eminmax.name() << ": ";
-	cout << otools.ordering_to_text(out, fakecand, true) << endl;
+	std::cout << eminmax.name() << ": ";
+	std::cout << otools.ordering_to_text(out, fakecand, true) << std::endl;
 
 	// -------------------- //
 
@@ -116,7 +118,7 @@ int main() {
 	// so should be much quicker than the non-cache case. If not, something
 	// is wrong.
 
-	vector<election_method *> sets, methods;
+	std::vector<election_method *> sets, methods;
 	/*methods.push_back(&plur);*/
 	methods.push_back(&cpl);
 	methods.push_back(&eminmax);

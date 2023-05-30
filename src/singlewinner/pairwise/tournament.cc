@@ -25,7 +25,6 @@
 #include <stdexcept>
 #include <iostream>
 
-using namespace std;
 
 int cond_tournament::a_beats_b(int a, int b,
 	const condmat & to_check) const {
@@ -53,17 +52,19 @@ int cond_tournament::a_beats_b(int a, int b,
 }
 
 int cond_tournament::get_victor(int check_a, int check_b, int level, int
-	numcands, const vector<int> & seed_order, const condmat &
-	to_check, vector<int> & lasted_how_long) const {
+	numcands, const std::vector<int> & seed_order, const condmat &
+	to_check, std::vector<int> & lasted_how_long) const {
 	// If we're at the level so that 2^level >= numcands, then we do a
 	// simple Condorcet check to determine which candidate wins. Otherwise,
 	// we recurse down to the next level.
 
-	cout << "level " << level << ": " << check_a << " vs " << check_b << endl;
+	std::cout << "level " << level << ": " << check_a << " vs " << check_b <<
+		std::endl;
 
 	int num_at_level = (2 << level);
 
-	cout << "num at level: " << num_at_level << " out of " << numcands << endl;
+	std::cout << "num at level: " << num_at_level << " out of " << numcands <<
+		std::endl;
 
 	int resolv_a, resolv_b;
 
@@ -74,7 +75,7 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 
 		resolv_a = check_a, resolv_b = check_b;
 
-		cout << "entering test level" << endl;
+		std::cout << "entering test level" << std::endl;
 
 		if (resolv_a < numcands) {
 			resolv_a = seed_order[check_a];
@@ -83,8 +84,8 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 			resolv_b = seed_order[check_b];
 		}
 
-		cout << check_a << "(" << resolv_a << ")\t" <<
-			check_b << "(" << resolv_b << ")" << endl;
+		std::cout << check_a << "(" << resolv_a << ")\t" <<
+			check_b << "(" << resolv_b << ")" << std::endl;
 	} else {
 		// Otherwise, the candidates are whoever wins the next level
 		// down.
@@ -92,8 +93,8 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 		int neg_a = (num_at_level * 2) - (check_a + 1);
 		int neg_b = (num_at_level * 2) - (check_b + 1);
 
-		cout << "Recursion ops: " << check_a << " vs " << neg_a << endl;
-		cout << "Recursion ops: " << check_b << " vs " << neg_b << endl;
+		std::cout << "Recursion ops: " << check_a << " vs " << neg_a << std::endl;
+		std::cout << "Recursion ops: " << check_b << " vs " << neg_b << std::endl;
 
 		resolv_a = get_victor(check_a, neg_a,
 				level+1, numcands, seed_order, to_check,
@@ -103,22 +104,23 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 				lasted_how_long);
 	}
 
-	cout << "level " << level << ": " << "Checking who wins of " << resolv_a <<
-		" vs " << resolv_b << endl;
+	std::cout << "level " << level << ": " << "Checking who wins of " <<
+		resolv_a <<
+		" vs " << resolv_b << std::endl;
 
 	switch (a_beats_b(resolv_a, resolv_b, to_check)) {
 		default:
-		case 0: cout << "Tie." << endl;
+		case 0: std::cout << "Tie." << std::endl;
 			// Dunno what kind of tiebreaker to implement here...
 			throw std::runtime_error("Condorcet tournament: got a tie "
 				"between two contestants, but method has no tiebreaker.");
 			break;
-		case 1: cout << "First guy won. " << endl;
+		case 1: std::cout << "First guy won. " << std::endl;
 			if (resolv_b < numcands) {
 				lasted_how_long[resolv_b] = level;
 			}
 			return (resolv_a);
-		case -1: cout << "Second guy won." << endl;
+		case -1: std::cout << "Second guy won." << std::endl;
 			if (resolv_a < numcands) {
 				lasted_how_long[resolv_a] = level;
 			}
@@ -126,9 +128,10 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 	}
 }
 
-ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
+ordering cond_tournament::internal_elect(const std::list<ballot_group> &
+	papers,
 	const condmat &	matrix, const ordering & seed,
-	const vector<bool> & hopefuls, int num_candidates,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	bool winner_only) const {
 
 	// First determine the candidates that are still in the running, and
@@ -136,8 +139,8 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 	// provides a vector that tells at what level each candidate was
 	// removed. Finally, turn that into an ordering.
 
-	vector<int> seed_order(num_candidates, -1),
-		   lasted_how_long(num_candidates, -2);
+	std::vector<int> seed_order(num_candidates, -1),
+		lasted_how_long(num_candidates, -2);
 	size_t counter = 0;
 	double old_cand_score = 0;
 
@@ -207,14 +210,14 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 	ordering combined_order;
 	int norm_score = 0;
 	while (pos != return_order.end()) {
-		cout << "CHK " << pos->get_score() << ", " << oldscore << endl;
+		std::cout << "CHK " << pos->get_score() << ", " << oldscore << std::endl;
 		// If this is true, then we have a run involving the last
 		// candidate, this one, and possibly more.
 		if (pos->get_score() == oldscore) {
-			cout << "------ RECURSING ------" << endl;
+			std::cout << "------ RECURSING ------" << std::endl;
 			ordering::const_iterator first = pos;
 			--first;
-			vector<bool> hopefuls_recur(num_candidates, false);
+			std::vector<bool> hopefuls_recur(num_candidates, false);
 			while (first != return_order.end() && first->get_score()
 				== oldscore)
 				hopefuls_recur[(first++)->get_candidate_num()]
@@ -224,7 +227,7 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 			ordering subordering = internal_elect(papers, matrix,
 					seed, hopefuls_recur, num_candidates,
 					winner_only);
-			cout << "----- END RECURSION -----" << endl;
+			std::cout << "----- END RECURSION -----" << std::endl;
 
 			// Incorporate the subordering into the main order.
 			// This is kinda ugly and should perhaps be put
@@ -265,21 +268,21 @@ cond_tournament::cond_tournament(election_method * base_method,
 	//one_round_only = single_round;
 }
 
-pair<ordering, bool> cond_tournament::elect_inner(
-	const list<ballot_group> & papers, const ordering & seed,
+std::pair<ordering, bool> cond_tournament::elect_inner(
+	const std::list<ballot_group> & papers, const ordering & seed,
 	const condmat & matrix, bool winner_only) const {
 
-	vector<bool> all_hopeful(matrix.get_num_candidates(), true);
+	std::vector<bool> all_hopeful(matrix.get_num_candidates(), true);
 
-	return (pair<ordering, bool>(internal_elect(papers, matrix, seed,
+	return (std::pair<ordering, bool>(internal_elect(papers, matrix, seed,
 					all_hopeful,
 					matrix.get_num_candidates(),
 					winner_only), winner_only));
 }
 
-pair<ordering, bool> cond_tournament::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates,
+std::pair<ordering, bool> cond_tournament::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// Use implied Condorcet matrix with winning-votes. It really
@@ -290,22 +293,22 @@ pair<ordering, bool> cond_tournament::elect_inner(
 	ordering seed = base->elect(papers, num_candidates, cache, false);
 	condmat matrix(papers, num_candidates, CM_WV);
 
-	return (pair<ordering, bool>(internal_elect(papers, matrix, seed,
+	return (std::pair<ordering, bool>(internal_elect(papers, matrix, seed,
 					hopefuls, num_candidates, winner_only),
 				winner_only));
 }
 
-pair<ordering, bool> cond_tournament::elect_inner(
-	const list<ballot_group> & papers,
+std::pair<ordering, bool> cond_tournament::elect_inner(
+	const std::list<ballot_group> & papers,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
-	vector<bool> all_hopeful(num_candidates, true);
+	std::vector<bool> all_hopeful(num_candidates, true);
 
 	return (elect_inner(papers, all_hopeful, num_candidates, cache,
 				winner_only));
 }
 
-string cond_tournament::name() const {
+std::string cond_tournament::name() const {
 	return ("SE-Condorcet[" + base->name() + "]");
 }

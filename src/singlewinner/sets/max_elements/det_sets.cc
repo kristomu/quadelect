@@ -6,7 +6,7 @@
 // infinity.
 
 ordering det_sets_relation::nested_sets(const abstract_condmat & input,
-	const vector<bool> & hopefuls, size_t limit) const {
+	const std::vector<bool> & hopefuls, size_t limit) const {
 
 	// N^3 (Floyd-Warshall)
 	// If we only need the top set, we can do in N^2 (not implemented)
@@ -23,7 +23,8 @@ ordering det_sets_relation::nested_sets(const abstract_condmat & input,
 	}
 
 	// is extent if there's no path between x and y
-	vector<vector<size_t> > path_len(extent, vector<size_t>(extent, extent));
+	std::vector<std::vector<size_t> > path_len(extent,
+		std::vector<size_t>(extent, extent));
 
 	// Set up for paths of length 1
 	size_t i, j, k;
@@ -52,12 +53,12 @@ ordering det_sets_relation::nested_sets(const abstract_condmat & input,
 		}
 
 	// Count.
-	vector<int> path_score(extent, 0);
+	std::vector<int> path_score(extent, 0);
 
 	for (i = 0; i < extent; ++i)
 		for (j = 0; j < extent; ++j)
 			if (i != j)
-				if (path_len[i][j] >= min(extent, limit+1)) {
+				if (path_len[i][j] >= std::min(extent, limit+1)) {
 					--path_score[i];
 				}
 

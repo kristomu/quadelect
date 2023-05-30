@@ -1,12 +1,12 @@
 #include "topological.h"
 
-using namespace std;
 
-vector<int> topological_set::find_indegree(const abstract_condmat & input,
-	const vector<bool> & hopefuls) const {
+std::vector<int> topological_set::find_indegree(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls) const {
 
 	// Set all to 0.
-	vector<int> indegree(input.get_num_candidates(), 0);
+	std::vector<int> indegree(input.get_num_candidates(), 0);
 
 	// Then count incoming edges.
 	for (int counter = 0; counter < input.get_num_candidates(); ++counter)
@@ -20,27 +20,27 @@ vector<int> topological_set::find_indegree(const abstract_condmat & input,
 }
 
 ordering topological_set::topo_sort(const abstract_condmat & input,
-	const vector<bool> & hopefuls, vector<int> indegree) const {
+	const std::vector<bool> & hopefuls, std::vector<int> indegree) const {
 
-	// First of all, insert all with no incoming edges. The pair<int, int>
+	// First of all, insert all with no incoming edges. The std::pair<int, int>
 	// has the vertex (candidate) number as the first element, and a "count"
 	// as the second. This count is incremented for each new element we add,
 	// and thus is analogous to the "depth" of the breadth-first search.
 
-	list<pair<int, int> > running_list;
+	std::list<std::pair<int, int> > running_list;
 
 	size_t counter;
 	ordering toRet;
 
 	for (counter = 0; counter < indegree.size(); ++counter)
 		if (indegree[counter] == 0) {
-			running_list.push_back(pair<int, int>(counter, 0));
+			running_list.push_back(std::pair<int, int>(counter, 0));
 		}
 
 	// While there are candidates left...
 	while (!running_list.empty()) {
 		// Get one from the left.
-		pair<int, int> cur = *running_list.begin();
+		std::pair<int, int> cur = *running_list.begin();
 
 		// Remove it.
 		running_list.erase(running_list.begin());
@@ -52,7 +52,7 @@ ordering topological_set::topo_sort(const abstract_condmat & input,
 			if (relation(input, hopefuls, cur.first, counter)) {
 				--indegree[counter];
 				if (indegree[counter] == 0)
-					running_list.push_back(pair<int, int>(
+					running_list.push_back(std::pair<int, int>(
 							counter,
 							cur.second+1));
 			}

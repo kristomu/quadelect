@@ -62,10 +62,10 @@ class ranked_pairs : public pairwise_method {
 
 		// Cache *might* make this quicker, but who knows?
 		bool st_connectivity(int source, int dest,
-			const vector<list<int> > &
+			const std::vector<std::list<int> > &
 			adjacency_lists) const;
-		void traverse_tree(vector<int> & places, int node, int depth,
-			const vector<list<int> > &
+		void traverse_tree(std::vector<int> & places, int node, int depth,
+			const std::vector<std::list<int> > &
 			adjacency_lists) const;
 
 	public:
@@ -74,10 +74,10 @@ class ranked_pairs : public pairwise_method {
 			is_river = river_in;
 			update_name();
 		}
-		string pw_name() const;
+		std::string pw_name() const;
 
-		pair<ordering, bool> pair_elect(const abstract_condmat & iput,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> pair_elect(const abstract_condmat & iput,
+			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 };
 

@@ -1,10 +1,11 @@
 #include "mdd.h"
 
-pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat & input,
-	const vector<bool> & hopefuls, cache_map * cache,
+std::pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat &
+	input,
+	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
-	vector<int> num_defeats(input.get_num_candidates(), 0);
+	std::vector<int> num_defeats(input.get_num_candidates(), 0);
 
 	int counter, sec;
 
@@ -48,7 +49,7 @@ pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat & input,
 		toRet.insert(candscore(counter, score));
 	}
 
-	return (pair<ordering, bool>(toRet, false));
+	return (std::pair<ordering, bool>(toRet, false));
 }
 
 mdd_set::mdd_set(bool sum_defeats_in) : pairwise_method(CM_WV) {
@@ -56,8 +57,8 @@ mdd_set::mdd_set(bool sum_defeats_in) : pairwise_method(CM_WV) {
 	update_name();
 }
 
-string mdd_set::pw_name() const {
-	string base = "MDD";
+std::string mdd_set::pw_name() const {
+	std::string base = "MDD";
 	if (sum_defeats) {
 		base += "(sum)";
 	} else	{

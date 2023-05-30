@@ -3,7 +3,6 @@
 
 #include "odm_atan.h"
 
-using namespace std;
 
 double odm_atan::nltrans(double pairwise_value,
 	double opposing_strength) const {
@@ -18,6 +17,6 @@ double odm_atan::get_score(double offense, double defense) const {
 	return (offense / defense);
 }
 
-string odm_atan::odm_name() const {
+std::string odm_atan::odm_name() const {
 	return ("ODM-arctan");
 }

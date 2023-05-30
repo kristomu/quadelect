@@ -25,21 +25,20 @@
 #include "../method.h"
 #include "../pairwise/method.h"
 
-using namespace std;
 
 class topological_set {
 
 	private:
-		vector<int> find_indegree(const abstract_condmat & input,
-			const vector<bool> & hopefuls) const;
+		std::vector<int> find_indegree(const abstract_condmat & input,
+			const std::vector<bool> & hopefuls) const;
 
 		ordering topo_sort(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
-			vector<int> indegree) const;
+			const std::vector<bool> & hopefuls,
+			std::vector<int> indegree) const;
 
 	protected:
 		virtual bool relation(const abstract_condmat & input,
-			const vector<bool> & hopefuls,
+			const std::vector<bool> & hopefuls,
 			int from, int to) const = 0;
 };
 

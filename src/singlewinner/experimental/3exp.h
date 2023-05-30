@@ -10,7 +10,6 @@
 
 #include <assert.h>
 
-using namespace std;
 
 enum texp_type {		TEXP_BPW = 0, 		TEXP_SV_VAR_1 = 1,
 	TEXP_SV_VAR_2 = 2,	TEXP_SV_VAR_3 = 3,	TEXP_SV_VAR_4 = 4,
@@ -32,13 +31,13 @@ class three_experimental : public election_method {
 		texp_type type;
 
 	public:
-		pair<ordering, bool> elect_inner(
-			const list<ballot_group> & papers,
-			const vector<bool> & hopefuls,
+		std::pair<ordering, bool> elect_inner(
+			const std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		string name() const {
+		std::string name() const {
 			switch (type) {
 				case TEXP_BPW: return ("EXP:Beat Plurality Winner");
 				case TEXP_SV_VAR_1: return ("EXP:Three-Cand. Experiment (SV 1)");

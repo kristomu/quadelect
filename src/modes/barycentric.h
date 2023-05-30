@@ -17,28 +17,26 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 class barycentric : public mode {
 
 	private:
-		vector<const election_method *> e_methods;
-		vector<vector<double> > cand_colors;
+		std::vector<const election_method *> e_methods;
+		std::vector<std::vector<double> > cand_colors;
 
-		list<ballot_group>  generate_ballot_set(double x, double y,
-			double maxvoters, string first_group,
-			string sec_group, string third_group,
+		std::list<ballot_group>  generate_ballot_set(double x, double y,
+			double maxvoters, std::string first_group,
+			std::string sec_group, std::string third_group,
 			double x_1, double y_1, double x_2,
 			double y_2, double x_3, double y_3) const;
 
 		// Returns empty list if it's not inside the triangle.
-		list<ballot_group> generate_ballot_set(double x, double y,
+		std::list<ballot_group> generate_ballot_set(double x, double y,
 			double maxvoters) const;
 
-		vector<vector<double> > get_candidate_colors(int numcands,
+		std::vector<std::vector<double> > get_candidate_colors(int numcands,
 			bool debug) const;
 
-		string get_codename(const election_method & in,
+		std::string get_codename(const election_method & in,
 			size_t bytes) const;
 
 		bool inited;
@@ -54,10 +52,10 @@ class barycentric : public mode {
 		int get_max_rounds() const;
 		int get_current_round() const;
 
-		string do_round(bool give_brief_status, bool reseed,
+		std::string do_round(bool give_brief_status, bool reseed,
 			rng & randomizer);
 
-		vector<string> provide_status() const;
+		std::vector<std::string> provide_status() const;
 
 		// Add methods.
 		void add_method(const election_method * to_add);

@@ -7,18 +7,19 @@
 // This determines each candidate's rating. Ratings for candidates that are not
 // defined as hopeful will be zero. [TODO: Something about this when all scores
 // are negative.]
-vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group>
+std::vector<double> cardinal_ratings::aggregate_ratings(
+	const std::list<ballot_group>
 	&
 	papers, int num_candidates,
-	const vector<bool> & hopefuls) const {
+	const std::vector<bool> & hopefuls) const {
 
-	vector<double> ratings(num_candidates, 0);
+	std::vector<double> ratings(num_candidates, 0);
 
 	ordering::const_iterator sec;
 
 	double score;
 
-	for (list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 		// Assert that we're dealing with a rated ballot. Maybe using
 		// a throw would be better, but I don't know those.
@@ -72,7 +73,7 @@ vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group>
 				score = sec->get_score();
 			}
 
-			score = min((double)maximum, max((double)minimum,
+			score = std::min((double)maximum, std::max((double)minimum,
 						score));
 
 			ratings[sec->get_candidate_num()] += pos->weight *
@@ -83,19 +84,20 @@ vector<double> cardinal_ratings::aggregate_ratings(const list<ballot_group>
 	return (ratings);
 }
 
-pair<ordering, bool> cardinal_ratings::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls, int num_candidates,
+std::pair<ordering, bool> cardinal_ratings::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// No matter whether it's winner-only or not, return the full ranking
 	// (as we take only a very minor hit for doing so).
 
-	vector<double> rating_totals = aggregate_ratings(papers, num_candidates,
+	std::vector<double> rating_totals = aggregate_ratings(papers,
+			num_candidates,
 			hopefuls);
 
 	// Now all we have to do is turn that into an ordering.
-	pair<ordering, bool> toRet;
+	std::pair<ordering, bool> toRet;
 	toRet.second = false; // whole rank, not winner
 
 	for (size_t counter = 0; counter < rating_totals.size(); ++counter)
@@ -106,8 +108,8 @@ pair<ordering, bool> cardinal_ratings::elect_inner(
 	return (toRet);
 }
 
-string cardinal_ratings::determine_name() const {
-	string base = "Cardinal-" + dtos(maximum-minimum);
+std::string cardinal_ratings::determine_name() const {
+	std::string base = "Cardinal-" + dtos(maximum-minimum);
 	if (normalize) {
 		base += "(norm)";
 	}

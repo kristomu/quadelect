@@ -3,7 +3,6 @@
 
 #include "odm_tanh.h"
 
-using namespace std;
 
 double odm_tanh::nltrans(double pairwise_value,
 	double opposing_strength) const {
@@ -18,6 +17,6 @@ double odm_tanh::get_score(double offense, double defense) const {
 	return (offense / defense);
 }
 
-string odm_tanh::odm_name() const {
+std::string odm_tanh::odm_name() const {
 	return ("ODM-tanh");
 }

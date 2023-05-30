@@ -4,7 +4,8 @@
 
 #include <iterator>
 
-vector<int> cond_brute::decode_weight_code(int wcode, int base) const {
+std::vector<int> cond_brute::decode_weight_code(int wcode,
+	int base) const {
 	// We consider the int an integer in base 5. The integers 0,1,2,3,4
 	// correspond to weights -2, -1, 0, 1, 2 for the corresponding
 	// ballot ordering, which gives 5^6 (15625) different possibilities.
@@ -12,10 +13,10 @@ vector<int> cond_brute::decode_weight_code(int wcode, int base) const {
 	// Now we use an arbitrary (odd) base. More tangibly, we could consider
 	// wcode to be a number in balanced (base+1)/2-ary, and each digit gives
 	// a weight to use for the linear combination that makes the brute method.
-	vector<int> weights(6, 0);
+	std::vector<int> weights(6, 0);
 
 	for (int counter = 0; counter < 6 && wcode > 0; ++counter) {
-		//cout << wcode << "\t" << counter << "\t" << wcode%base<<endl;
+		//std::cout << wcode << "\t" << counter << "\t" << wcode%base<<std::endl;
 		int this_weight = wcode % base;    // 0 .. (base-1)
 		this_weight -= (base-1)/2;	   // centered on 0
 		weights[counter] = this_weight;
@@ -114,8 +115,8 @@ bool cond_brute::reversal_symmetric() const {
 			weights[3] == -weights[4]);
 }
 
-string cond_brute::get_compliances() const {
-	string compliances = "";
+std::string cond_brute::get_compliances() const {
+	std::string compliances = "";
 	if (is_monotone()) {
 		compliances +="M";
 	}
@@ -129,9 +130,10 @@ string cond_brute::get_compliances() const {
 	return (compliances);
 }
 
-pair<ordering, bool> cond_brute::elect_inner(const list<ballot_group> &
+std::pair<ordering, bool> cond_brute::elect_inner(const
+	std::list<ballot_group> &
 	papers,
-	const vector<bool> & hopefuls,
+	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
@@ -141,9 +143,9 @@ pair<ordering, bool> cond_brute::elect_inner(const list<ballot_group> &
 	condmat condorcet_matrix = condmat(papers, num_candidates,
 			CM_PAIRWISE_OPP);
 
-	vector<double> counts(6, 0); // ABC ACB BAC BCA CAB CBA
+	std::vector<double> counts(6, 0); // ABC ACB BAC BCA CAB CBA
 
-	for (list<ballot_group>::const_iterator bpos = papers.begin();
+	for (std::list<ballot_group>::const_iterator bpos = papers.begin();
 		bpos != papers.end(); ++bpos) {
 		// Go through the ballot in question and determine which category
 		// it falls into of the complete ballots above. If neither, get
@@ -152,7 +154,7 @@ pair<ordering, bool> cond_brute::elect_inner(const list<ballot_group> &
 		ordering::const_iterator order_pos = bpos->contents.begin();
 		double numvoters_this_paper = bpos->weight;
 
-		vector<int> candorder(3, -1);
+		std::vector<int> candorder(3, -1);
 		for (int i = 0; i < 3; ++i) {
 			assert(order_pos != bpos->contents.end());
 			candorder[i] = (order_pos++)->get_candidate_num();
@@ -188,9 +190,10 @@ pair<ordering, bool> cond_brute::elect_inner(const list<ballot_group> &
 				counts[5] += numvoters_this_paper;
 				break;
 			default:
-				cout << "Got a value of " << index << " not supposed to happen!" << endl;
-				cout << "Candorder: " << candorder[0] << " " << candorder[1] << " " <<
-					candorder[2] << endl;
+				std::cout << "Got a value of " << index << " not supposed to happen!" <<
+					std::endl;
+				std::cout << "Candorder: " << candorder[0] << " " << candorder[1] << " " <<
+					candorder[2] << std::endl;
 				assert(1!=1);
 		}
 	}
@@ -199,7 +202,7 @@ pair<ordering, bool> cond_brute::elect_inner(const list<ballot_group> &
 
 	ordering out;
 
-	vector<double> scores_by_cand(3, -1);
+	std::vector<double> scores_by_cand(3, -1);
 
 	for (int counter = 0; counter < 3; ++counter) {
 		double score = 0;
@@ -275,7 +278,7 @@ pair<ordering, bool> cond_brute::elect_inner(const list<ballot_group> &
 			//      CBA -> ABC  5->0
 
 			// Make the method satisfy anonymity.
-			vector<vector<int> > anonymity_permutations = {
+			std::vector<std::vector<int> > anonymity_permutations = {
 				{0, 1, 2, 3, 4, 5},
 				{1, 0, 4, 5, 2, 3},
 				{2, 3, 0, 1, 5, 4},
@@ -325,5 +328,5 @@ pair<ordering, bool> cond_brute::elect_inner(const list<ballot_group> &
 
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

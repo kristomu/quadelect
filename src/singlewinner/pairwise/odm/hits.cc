@@ -2,14 +2,13 @@
 
 #include "hits.h"
 
-using namespace std;
 
 double hits::nltrans(double pairwise_value,
 	double opposing_strength) const {
 	return (pairwise_value * opposing_strength);
 }
 
-void hits::ir_norm(vector<double> & factors) const {
+void hits::ir_norm(std::vector<double> & factors) const {
 
 	double sum = 0;
 
@@ -28,7 +27,7 @@ double hits::get_score(double offense, double defense) const {
 	return (offense); // Since they converge, o/d would be one.
 }
 
-string hits::odm_name() const {
+std::string hits::odm_name() const {
 	return ("HITS");
 }
 

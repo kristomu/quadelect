@@ -17,7 +17,7 @@
 
 bool mono_raise::alter_ballot(const ordering & input,
 	ordering & norm, size_t numcands,
-	const vector<size_t> & data,
+	const std::vector<size_t> & data,
 	rng & randomizer) const {
 
 	// Let's raise/lower the candidate to raise (unless he's already
@@ -65,7 +65,7 @@ bool mono_raise::alter_ballot(const ordering & input,
 ///////////////////////
 
 bool mono_raise_delete::alter_ballot(const ordering & input,
-	ordering & output, size_t numcands, const vector<size_t> & data,
+	ordering & output, size_t numcands, const std::vector<size_t> & data,
 	rng & randomizer) const {
 
 	// As in mono-raise, but we delete everything after the change.
@@ -100,7 +100,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 						highest_score);
 				// Always raise by at least one, unless
 				// we're already at top.
-				rand_displace = min((double)highest_score,
+				rand_displace = std::min((double)highest_score,
 						rand_displace + 1);
 			}
 
@@ -116,24 +116,24 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 
 	// Now mop up possible lower ranked.
 	// TODO: Check that!
-	//cout << endl;
-	/*cout << "A: " << input.size() << endl;
-	cout << "B: " << output.size() << endl;
-	cout << "RD: " << rand_displace << endl;*/
+	//std::cout << std::endl;
+	/*std::cout << "A: " << input.size() << std::endl;
+	std::cout << "B: " << output.size() << std::endl;
+	std::cout << "RD: " << rand_displace << std::endl;*/
 	/*ordering::iterator limit_pos = output.begin();
 
 	while (limit_pos->get_score() > rand_displace
 			&& limit_pos != output.end())
 		++limit_pos;
 
-	cout << "B: " << output.size() << endl;
+	std::cout << "B: " << output.size() << std::endl;
 	output.erase(limit_pos, output.end());*/
 	for (ordering::const_iterator xpos = input.begin(); xpos != input.end()
 		&& xpos->get_score() > rand_displace; ++xpos) {
 		output.insert(*xpos);
 	}
 
-	//cout << "BA: " << output.size() << endl;
+	//std::cout << "BA: " << output.size() << std::endl;
 
 	// Add ours and return.
 	output.insert(to_add);
@@ -147,7 +147,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 ///////////////////////
 
 bool mono_raise_random::alter_ballot(const ordering & input,
-	ordering & output, size_t numcands, const vector<size_t> & data,
+	ordering & output, size_t numcands, const std::vector<size_t> & data,
 	rng & randomizer) const {
 
 	// Lost of cut-n-paste code from MRD here. See mono-raise-delete for
@@ -179,7 +179,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 			int cur_score = spos->get_score();
 			rand_displace = cur_score;
 			if (highest_score != cur_score)
-				rand_displace = min((double)randomizer.
+				rand_displace = std::min((double)randomizer.
 						irand(cur_score, highest_score),
 						rand_displace + 1);
 
@@ -195,7 +195,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	// Mark those we have used, as we go down the list. The random
 	// fill afterwards will consist of those that remain.
 	// TODO: Handle truncation?
-	vector<bool> used(numcands, false);
+	std::vector<bool> used(numcands, false);
 	used[to_add.get_candidate_num()] = true;
 
 	for (ordering::const_iterator xpos = input.begin(); xpos != input.end()

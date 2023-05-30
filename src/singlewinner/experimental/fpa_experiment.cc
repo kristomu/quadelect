@@ -6,9 +6,9 @@
 #include <iterator>
 #include <vector>
 
-pair<ordering, bool> fpa_experiment::elect_inner(
-	const list<ballot_group> & papers,
-	const vector<bool> & hopefuls,
+std::pair<ordering, bool> fpa_experiment::elect_inner(
+	const std::list<ballot_group> & papers,
+	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
@@ -22,8 +22,8 @@ pair<ordering, bool> fpa_experiment::elect_inner(
 	ordering plurality_result = ((election_method *)&plur)->elect(papers,
 			hopefuls, num_candidates, NULL, false);
 
-	/*ordering elect(const list<ballot_group> & papers,
-	            const vector<bool> & hopefuls,
+	/*ordering elect(const std::list<ballot_group> & papers,
+	            const std::vector<bool> & hopefuls,
 	            int num_candidates, cache_map * cache,
 	            bool winner_only) const;*/
 
@@ -108,5 +108,5 @@ pair<ordering, bool> fpa_experiment::elect_inner(
 		out.insert(candscore(score_lists[i].second, score));
 	}
 
-	return (pair<ordering, bool>(out, false));
+	return (std::pair<ordering, bool>(out, false));
 }

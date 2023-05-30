@@ -8,7 +8,6 @@
 #include "random.h"
 #include "../tools/tools.h"
 
-using namespace std;
 
 uint64_t rng::rng64(uint64_t * s) {
 	uint64_t s1 = s[ 0 ];
@@ -178,5 +177,5 @@ uint32_t rng::irand(uint32_t min, uint32_t max) {
 	for (int counter = 0; counter < 100000; ++counter)
 		accumulated += myRNG.drand();
 
-	cout << accumulated << endl;
+	std::cout << accumulated << std::endl;
 }*/
