@@ -3,3 +3,6 @@
 
 # More reformatting
 fde375a94ecfcb573c87e220f6959e1668b0ee9c
+
+# Removal of using namespace std;
+c65be4e8f74c2ca66fd90ce16367e54b8bb904ac
