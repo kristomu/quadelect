@@ -3,7 +3,6 @@
 
 #include "../positional/simple_methods.h"
 
-#include <assert.h>
 #include <iostream>
 #include <list>
 

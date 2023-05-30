@@ -6,11 +6,8 @@
 #include "method.h"
 #include "../method.h"
 
-#include <assert.h>
 #include <iostream>
 #include <list>
-
-using namespace std;
 
 class minmaxy_experimental : public pairwise_method {
 

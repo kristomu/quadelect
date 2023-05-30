@@ -5,10 +5,7 @@
 #include "../method.h"
 #include "../../method.h"
 
-#include <assert.h>
 #include <iostream>
-
-using namespace std;
 
 // Generic class for methods similar to the Offense-Defense model of Govan et
 // al. These methods are Sinkhorn-esque: they involve determining row and column

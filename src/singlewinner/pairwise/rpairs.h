@@ -32,11 +32,8 @@
 #include "method.h"
 #include "../method.h"
 
-#include <assert.h>
 #include <iostream>
 #include <list>
-
-using namespace std;
 
 class beat_component {
 	public:

@@ -1,9 +1,7 @@
 #include "odm_gen.h"
 
-#include <assert.h>
 #include <iostream>
-
-using namespace std;
+#include <stdexcept>
 
 // Generic class for methods similar to the Offense-Defense model of Govan et
 // al. These methods are Sinkhorn-esque: they involve determining row and column
@@ -131,7 +129,9 @@ pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat & input,
 			score[counter] = get_score(offense[counter],
 					defense[counter]);
 
-			assert(!isnan(score[counter]));
+			if (isnan(score[counter])) {
+				throw std::runtime_error("ODM: Failed to converge!");
+			}
 
 			if (debug)
 				cout << "Score for " <<

@@ -11,7 +11,7 @@
 // "loser brackets" to determine the ordering beyond first place. This adds up
 // to log_2(n) runs.
 
-// It breaks (assertion failure) on a tie.
+// It throws an exception on a tie.
 
 // TODO (BLUESKY): In the same vein, have Kemenize, Insertion-sort-ize,
 // mergesort, etc. Init according to seeding, then sort based on the method in
@@ -22,7 +22,7 @@
 #include "method.h"
 #include "tournament.h"
 
-#include <assert.h>
+#include <stdexcept>
 #include <iostream>
 
 using namespace std;
@@ -109,7 +109,9 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 	switch (a_beats_b(resolv_a, resolv_b, to_check)) {
 		default:
 		case 0: cout << "Tie." << endl;
-			assert(1 != 1);  // dunno what to do here
+			// Dunno what kind of tiebreaker to implement here...
+			throw std::runtime_error("Condorcet tournament: got a tie "
+				"between two contestants, but method has no tiebreaker.");
 			break;
 		case 1: cout << "First guy won. " << endl;
 			if (resolv_b < numcands) {
@@ -157,14 +159,22 @@ ordering cond_tournament::internal_elect(const list<ballot_group> & papers,
 		}
 
 		// If equal rank, break on assert
-		assert(pos->get_score() != old_cand_score || counter == 0);
+		// The counter != 0 is so we don't get a false positive for
+		// the first candidate.
+		if (counter != 0 && pos->get_score() != old_cand_score) {
+			throw std::runtime_error("Condorcet tournament: got a tie "
+				"preparing the brackets, but method has no tiebreaker.");
+		}
 		old_cand_score = pos->get_score();
 	}
 
-	// truncated orderings are not permitted either.
-	// But note when only some are hopeful!
-	cout << counter << "\t" << num_hopefuls << endl;
-	assert(counter == num_hopefuls);
+	// Check that we processed every hopeful candidate.
+	// Perhaps this should be an assert? I should check later when to
+	// use assertions.
+	if (counter != num_hopefuls) {
+		throw std::logic_error("Condorcet tournament: did not process"
+			"every candidate when creating brackets!");
+	}
 
 	// SIDE EFFECT
 	int victor = get_victor(0, 1, 0, num_hopefuls, seed_order, matrix,

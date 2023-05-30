@@ -7,10 +7,7 @@
 #include "method.h"
 #include "../method.h"
 
-#include <assert.h>
 #include <iostream>
-
-using namespace std;
 
 // Like Keener, tolerance specifies the error before convergence is assumed.
 // While Sinkhorn converges to 1, to keep compatible with Keener, the input

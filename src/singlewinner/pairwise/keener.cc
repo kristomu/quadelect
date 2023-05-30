@@ -1,11 +1,7 @@
 // Keener Eigenvector method. Let's hope I get it right :-)
 
 #include "keener.h"
-
-#include <assert.h>
 #include <iostream>
-
-using namespace std;
 
 // Tolerance specifies the, well, tolerance before it assumes convergence.
 // Add_one adds 1 to all the Condorcet matrix entries so that the method always

@@ -13,6 +13,8 @@
 // TODO: Something wrong happens when numcands = 2. Find out what.
 // Probably related to criterion (3) below.
 
+// TODO: Also don't be so bloody verbose!
+
 #include "../../pairwise/matrix.h"
 #include "method.h"
 #include "kemeny.h"
@@ -20,9 +22,6 @@
 #include <iostream>
 #include <vector>
 #include <glpk.h>
-#include <assert.h>
-
-using namespace std;
 
 vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	const vector<bool> & hopefuls, bool debug) const {
@@ -74,7 +73,11 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 
 	// Create the problem.
 	ip = glp_create_prob();
-	assert(ip != NULL);
+
+	if (!ip) {
+		throw std::runtime_error("Kemeny: GLPK problem creation failed.");
+	}
+
 	glp_set_prob_name(ip, "Kemeny rank");
 	glp_set_obj_dir(ip, GLP_MAX); // Maximum score
 
@@ -179,7 +182,10 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 		}
 	}
 
-	assert(running_count < entries + 1);
+	if (running_count >= entries + 1) {
+		throw std::logic_error("Kemeny: Got out of bounds"
+			" while preparing problem!");
+	}
 
 	// Set triangle inequality constraints: x[i][j] + x[j][k] + x[k][i] >= 1
 	// This banishes cycles, verily.
@@ -234,7 +240,10 @@ vector<vector<bool> > kemeny::solve_kemeny(const abstract_condmat & input,
 	// Proceed to load the constraints into the IP solver.
 	//cout << "Running count: " << running_count << " of " <<
 	//	entries << endl;
-	assert(running_count <= entries + 1);
+	if (running_count > entries + 1) {
+		throw std::logic_error("Kemeny: Got out of bounds"
+			" while preparing problem!");
+	}
 	glp_load_matrix(ip, running_count - 1, ia, ja, ar);
 
 	// Set the objective coefficients.
