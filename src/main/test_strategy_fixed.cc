@@ -146,13 +146,13 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
 	/* ballotgens.push_back(new dirichlet(true));*/
 
-	int tests_per_ballot = 2048;
+	int tests_per_ballot = 256;
 	StrategyTest st(ballotgens, &iic, numvoters, numcands, numcands,
 		randomizer, to_test, 0, tests_per_ballot);
 
 
 	int worked = 0, f;
-	int fmax = 5000; //50000;
+	int fmax = 500; //50000;
 	int total_generation_attempts = 0;
 	for (f = 0; f < fmax; ++f) {
 
@@ -208,10 +208,10 @@ int main(int argc, const char ** argv) {
 	std::vector<pairwise_ident> types;
 	types.push_back(CM_WV);
 
-	condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE),
-			false, true));
-	/*condorcetsrc.push_back(new plurality(PT_WHOLE));
-	condorcetsrc.push_back(new antiplurality(PT_WHOLE));*/
+	condorcetsrc.push_back(new loser_elimination(
+		new plurality(PT_WHOLE), false, true));
+	condorcetsrc.push_back(new plurality(PT_WHOLE));
+	/*condorcetsrc.push_back(new antiplurality(PT_WHOLE));*/
 
 	std::cout << "Test time!" << std::endl;
 
