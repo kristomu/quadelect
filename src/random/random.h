@@ -23,6 +23,8 @@ class rng {
 		uint64_t rng64(uint64_t * s);
 
 	public:
+		typedef uint64_t result_type;
+
 		void s_rand(uint64_t seed_in); // Now passes Crush (not BigCrush)
 		void s_rand();                 // from entropy source
 
@@ -41,17 +43,28 @@ class rng {
 		double drand();
 		double drand(double min, double max);
 
-		// Ranges. Note that these are all half-open, i.e. [min, max)
+		// Ranges. Note that these are all half-open, i.e. [begin, end)
 		uint64_t lrand(uint64_t modulus);
-		uint64_t lrand(uint64_t min, uint64_t max);
+		uint64_t lrand(uint64_t begin, uint64_t end);
 
 		uint32_t irand(uint32_t modulus);
-		uint32_t irand(uint32_t min, uint32_t max);
+		uint32_t irand(uint32_t begin, uint32_t end);
 
 		// Used for random_shuffle etc. Assumes pointers are no longer
 		// than 64 bit. Perhaps using () is a bit of a hack, but the
-		// alternatives are worse.
-		ptrdiff_t operator()(ptrdiff_t max) {
-			return (lrand(max));
+		// alternatives are worse. (Is there an off-by-one here?)
+		uint64_t operator()(uint64_t end) {
+			return (lrand(end));
+		}
+
+		uint64_t operator()() {
+			return long_rand();
+		}
+
+		uint64_t max() const {
+			return UINT64_MAX;
+		}
+		uint64_t min() const {
+			return 0;
 		}
 };

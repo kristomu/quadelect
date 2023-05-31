@@ -1,13 +1,14 @@
 // Now uses xorshift128+, seeded by xorshift64*.
 
-#include <stdint.h>
+#include <stdexcept>
 #include <iostream>
 #include <cstddef>
 #include <random>
 
+#include <stdint.h>
 #include "random.h"
-#include "../tools/tools.h"
 
+using namespace std;
 
 uint64_t rng::rng64(uint64_t * s) {
 	uint64_t s1 = s[ 0 ];
@@ -30,7 +31,9 @@ void rng::s_rand(uint64_t seed_in) {
 		return;
 	}
 
-	assert(seed_in != 0);
+	if (seed_in == 0) {
+		throw std::logic_error("RNG: Seed is zero! (This shouldn't happen)");
+	}
 
 	// Xorshift64*
 	seed_in ^= seed_in >> 12; // a
@@ -131,12 +134,12 @@ uint64_t rng::lrand(uint64_t modulus) {
 	return ((randval - remainder)%modulus);
 }
 
-uint64_t rng::lrand(uint64_t min, uint64_t max) {
-	if (max < min) {
-		return (lrand(max, min));
+uint64_t rng::lrand(uint64_t begin, uint64_t end) {
+	if (end < begin) {
+		return (lrand(end, begin));
 	}
 
-	return (min + lrand(max-min));
+	return (begin + lrand(end-begin));
 }
 
 uint32_t rng::irand(uint32_t modulus) {
@@ -161,12 +164,12 @@ uint32_t rng::irand(uint32_t modulus) {
 	return ((randval - remainder)%modulus);
 }
 
-uint32_t rng::irand(uint32_t min, uint32_t max) {
-	if (max < min) {
-		return (irand(max, min));
+uint32_t rng::irand(uint32_t begin, uint32_t end) {
+	if (end < begin) {
+		return (irand(end, begin));
 	}
 
-	return (min + irand(max-min));
+	return (begin + irand(end-begin));
 }
 
 /*main() {
@@ -177,5 +180,5 @@ uint32_t rng::irand(uint32_t min, uint32_t max) {
 	for (int counter = 0; counter < 100000; ++counter)
 		accumulated += myRNG.drand();
 
-	std::cout << accumulated << std::endl;
+	cout << accumulated << endl;
 }*/
