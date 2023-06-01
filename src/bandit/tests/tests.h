@@ -13,7 +13,7 @@ class Test {
 		virtual std::string name() const = 0;
 
 		// Get the range of the random variable. This is required to
-		// calculate the lil'USB variance parameter in absence of actual
+		// calculate the lil'UCB variance parameter in absence of actual
 		// variance information.
 
 		virtual double get_minimum() const = 0;
