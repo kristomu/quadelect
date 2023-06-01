@@ -19,10 +19,10 @@
 #include "../singlewinner/sets/all.h"
 #include "../singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity/mono_raise.h"
-#include "../tests/tests/monotonicity/mono_add.h"
+#include "../reference_tests/tests/monotonicity/mono_raise.h"
+#include "../reference_tests/tests/monotonicity/mono_add.h"
 
-#include "../tests/engine/twotest.h"
+#include "../reference_tests/engine/twotest.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
 // though.

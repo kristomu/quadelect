@@ -115,14 +115,14 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/singlewinner/fpc.cc
 	src/singlewinner/desc_coalitions/dsc.cc
 	src/singlewinner/desc_coalitions/desc_coalition.cc
-	src/tests/engine/twotest.cc
-	src/tests/tests/monotonicity/mono_add.cc
-	src/tests/tests/monotonicity/mono_append.cc
-	src/tests/tests/monotonicity/mono_raise.cc
-	src/tests/tests/monotonicity/mono_sub.cc
-	src/tests/tests/monotonicity/monotonicity.cc
-	src/tests/tests/rev_symmetry.cc
-	src/tests/two_tests.cc
+	src/reference_tests/engine/twotest.cc
+	src/reference_tests/tests/monotonicity/mono_add.cc
+	src/reference_tests/tests/monotonicity/mono_append.cc
+	src/reference_tests/tests/monotonicity/mono_raise.cc
+	src/reference_tests/tests/monotonicity/mono_sub.cc
+	src/reference_tests/tests/monotonicity/monotonicity.cc
+	src/reference_tests/tests/rev_symmetry.cc
+	src/reference_tests/two_tests.cc
 	src/linear_model/lin_relation/lin_relation.cc
 	src/linear_model/lin_relation/constraint_set.cc
 	src/linear_model/polytope/equality_polytope.cc

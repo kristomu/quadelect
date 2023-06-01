@@ -23,8 +23,6 @@
 #include "../singlewinner/positional/positional.h"
 #include "../singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity/monotonicity.h"
-
 #include "../stats/stats.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
@@ -82,7 +80,7 @@
 // found using backroom dealing or whatnot.
 
 void test_with_bandits(std::vector<election_method *> & to_test,
-	rng & randomizer, std::vector<pure_ballot_generator *> & ballotgens,
+	rng & randomizer, pure_ballot_generator * & ballotgen,
 	pure_ballot_generator * strat_generator, bool find_most_susceptible) {
 
 	std::vector<BinomialBandit> bandits;
@@ -111,7 +109,7 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 		// the time).
 		int tries_to_get_strat = 2053; // was 4096
 
-		sts.push_back(StrategyTest(ballotgens, strat_generator,
+		sts.push_back(StrategyTest(ballotgen, strat_generator,
 				numvoters, numcands, numcands, randomizer, to_test[i], 0,
 				tries_to_get_strat));
 	}
@@ -244,8 +242,7 @@ int main(int argc, const char ** argv) {
 		randomizers.push_back(rng(startpt + counter));
 	}
 
-	std::vector<pure_ballot_generator *> ballotgens;
-	ballotgens.push_back(new impartial(true, false));
+	pure_ballot_generator * ballotgen = new impartial(true, false);
 	// Something is wrong with this one. TODO: Check later.
 	//ballotgens.push_back(new dirichlet(false));
 	// And this one; it trips num_prefers_challenger - cumul. Determine why.
@@ -253,7 +250,7 @@ int main(int argc, const char ** argv) {
 	//ballotgens.push_back(new gaussian_generator(true, false, dimensions,
 	//		false));
 
-	test_with_bandits(condorcets, randomizers[0], ballotgens, ballotgens[0],
+	test_with_bandits(condorcets, randomizers[0], ballotgen, ballotgen,
 		false);
 
 	return (0);

@@ -16,8 +16,6 @@
 
 #include "../../../../generator/impartial.h"
 #include "../../../../pairwise/matrix.h"
-#include "../../../../tests/tests/monotonicity/mono_add.h"
-#include "../../../../tests/tests/monotonicity/mono_raise.h"
 #include "../gen_custom_function.h"
 
 #include <numeric>

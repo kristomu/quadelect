@@ -25,8 +25,6 @@
 #include "../singlewinner/positional/positional.h"
 #include "../singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity/monotonicity.h"
-
 #include "../stats/stats.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
