@@ -18,9 +18,6 @@
 #include "../singlewinner/method.h"
 #include "../random/random.h"
 
-// TODO?: Use actual OO random number generators so we can control them for
-// reproducibility.
-
 enum strategy_result { STRAT_FAILED, STRAT_SUCCESS, STRAT_TIE };
 
 enum basic_strategy {ST_NONE = -1, ST_BURIAL = 0, ST_COMPROMISING = 1,
@@ -35,7 +32,7 @@ class StrategyTest : public Test {
 		int total_generation_attempts;
 		election_method * method;
 		std::list<ballot_group> ballots;
-		std::vector<pure_ballot_generator *> ballot_gens;
+		pure_ballot_generator * ballot_gen;
 		pure_ballot_generator * strat_generator;
 		int strategy_attempts_per_try;
 
@@ -46,7 +43,7 @@ class StrategyTest : public Test {
 
 	public:
 
-		StrategyTest(std::vector<pure_ballot_generator *> ballot_gens_in,
+		StrategyTest(pure_ballot_generator * ballot_gen_in,
 			pure_ballot_generator * strat_generator_in,
 			int numvoters_in, int numcands_in_min, int numcands_in_max,
 			rng & randomizer_in, election_method * method_in, int index,
@@ -64,7 +61,7 @@ class StrategyTest : public Test {
 			numvoters = numvoters_in;
 			numcands_min = numcands_in_min;
 			numcands_max = numcands_in_max;
-			ballot_gens = ballot_gens_in;
+			ballot_gen = ballot_gen_in;
 			strat_generator = strat_generator_in;
 			too_many_ties = false;
 			ballot_gen_idx = 0;
@@ -73,11 +70,11 @@ class StrategyTest : public Test {
 			strategy_attempts_per_try = strat_attempts_per_try_in;
 		}
 
-		StrategyTest(std::vector<pure_ballot_generator *> ballot_gens_in,
+		StrategyTest(pure_ballot_generator * ballot_gen_in,
 			pure_ballot_generator * strat_generator_in,
 			int numvoters_in, int numcands_in,
 			rng & randomizer_in, election_method * method_in, int index,
-			int strat_attempts_per_try_in) : StrategyTest(ballot_gens_in,
+			int strat_attempts_per_try_in) : StrategyTest(ballot_gen_in,
 					strat_generator_in, numvoters_in, numcands_in, numcands_in,
 					randomizer_in, method_in, index, strat_attempts_per_try_in) {}
 
@@ -92,8 +89,6 @@ class StrategyTest : public Test {
 		double perform_test() {
 			// We need to make a theoretically coherent system for handling
 			// ties. Ties should hurt more the more often they appear.
-			// (Also should find out how the cancellation method really
-			// worked to see if anything can be salvaged from it.)
 
 			switch (attempt_execute_strategy()) {
 				case STRAT_SUCCESS:

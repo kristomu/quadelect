@@ -147,9 +147,8 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	/* ballotgens.push_back(new dirichlet(true));*/
 
 	int tests_per_ballot = 256;
-	StrategyTest st(ballotgens, &iic, numvoters, numcands, numcands,
+	StrategyTest st(ballot_gen, &iic, numvoters, numcands, numcands,
 		randomizer, to_test, 0, tests_per_ballot);
-
 
 	int worked = 0, f;
 	int fmax = 500; //50000;
@@ -209,7 +208,7 @@ int main(int argc, const char ** argv) {
 	types.push_back(CM_WV);
 
 	condorcetsrc.push_back(new loser_elimination(
-		new plurality(PT_WHOLE), false, true));
+			new plurality(PT_WHOLE), false, true));
 	condorcetsrc.push_back(new plurality(PT_WHOLE));
 	/*condorcetsrc.push_back(new antiplurality(PT_WHOLE));*/
 

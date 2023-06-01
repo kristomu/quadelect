@@ -34,6 +34,8 @@ class ordering_tools {
 		// As above, but ties count, so A > B = C > D gives D -3 pts,
 		// not -2.
 		ordering scrub_scores_by_cand(const ordering & in) const;
+
+		static bool has_multiple_winners(const ordering & in);
 		std::list<int> get_winners(const ordering & in) const;
 
 		// Break ties in "tied" according to tiebreaker and return

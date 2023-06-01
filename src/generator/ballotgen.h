@@ -65,6 +65,12 @@ class pure_ballot_generator {
 							random_source));
 		}
 
+		ballot_group generate_ballot(int numcands,
+			rng & random_source) const {
+			return *generate_ballots(1, numcands,
+					random_source).begin();
+		}
+
 		virtual std::string name() const = 0;
 		virtual ~pure_ballot_generator() {}
 };

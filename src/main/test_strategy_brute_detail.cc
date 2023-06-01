@@ -147,12 +147,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
 	// --- //
 
-	std::vector<pure_ballot_generator *> ballotgens;
-	ballotgens.push_back(ballot_gen);
-	///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
-	/* ballotgens.push_back(new dirichlet(true));*/
-
-	StrategyTest st(ballotgens, &ic, numvoters, numcands, randomizer,
+	StrategyTest st(ballot_gen, &ic, numvoters, numcands, randomizer,
 		to_test, 0, num_strategy_attempts_per_iter);
 
 	int strategy_worked = 0, strategy_failed = 0;

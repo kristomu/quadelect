@@ -32,8 +32,8 @@ ballots_by_support group_by_support(
 
 		// Scores are initialized to -infinity so that ranked
 		// candidates always beat unranked ones.
-		double winner_score = -std::numeric_limits<double>::infinity(), 
-			challenger_score = -std::numeric_limits<double>::infinity();
+		double winner_score = -std::numeric_limits<double>::infinity(),
+			   challenger_score = -std::numeric_limits<double>::infinity();
 
 		// Find the rank for the challenger and the winner.
 		// Note that these count from the top, so challenger < winner
@@ -81,7 +81,8 @@ std::list<ballot_group> bury_winner(const ballots_by_support &
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
 
-	for (ballot_group strategic_ballot: grouped_ballots.supporting_challenger) {
+	for (ballot_group strategic_ballot:
+		grouped_ballots.supporting_challenger) {
 		strategic_ballot.replace_score(grouped_ballots.winner,
 			strategic_ballot.get_min_score()-1);
 		strategic_election.push_back(strategic_ballot);
@@ -97,7 +98,8 @@ std::list<ballot_group> compromise(const ballots_by_support &
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
 
-	for (ballot_group strategic_ballot: grouped_ballots.supporting_challenger) {
+	for (ballot_group strategic_ballot:
+		grouped_ballots.supporting_challenger) {
 		strategic_ballot.replace_score(grouped_ballots.challenger,
 			strategic_ballot.get_max_score()+1);
 		strategic_election.push_back(strategic_ballot);
@@ -113,7 +115,8 @@ std::list<ballot_group> two_sided_strat(const ballots_by_support &
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
 
-	for (ballot_group strategic_ballot: grouped_ballots.supporting_challenger) {
+	for (ballot_group strategic_ballot:
+		grouped_ballots.supporting_challenger) {
 		strategic_ballot.replace_score(grouped_ballots.winner,
 			strategic_ballot.get_min_score()-1);
 		strategic_ballot.replace_score(grouped_ballots.challenger,
@@ -152,42 +155,35 @@ std::list<ballot_group> two_sided_reverse(const ballots_by_support &
 // This may cause problems for Gaussians; fix later (probably by a parameter
 // deciding whether it's discrete or not, and then Webster's method to make
 // fair rounding when not.)
+
+// The assignment of coalition weights is not entirely uniform, but it
+// seems to let the method find strategies more easily, at least for IRV.
 std::list<ballot_group> coalitional_strategy(const ballots_by_support &
 	grouped_ballots, size_t numcands, size_t num_coalitions,
 	pure_ballot_generator * ballot_generator, rng * randomizer) {
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
-	double coalition_weight_sum = 0;
+	double unassigned_weight = grouped_ballots.challenger_support;
+	double max_support_per_coalition = grouped_ballots.challenger_support/
+		num_coalitions;
 
-	for (size_t i = 0; i < num_coalitions; ++i) {
-		// TODO: in pure_ballot_generator, a generate_ballot function
-		// that does this without being so ugly.
-		ballot_group strategic_ballot = *(ballot_generator->
-			generate_ballots(1, numcands, *randomizer).begin());
+	for (size_t i = 0; i < num_coalitions && unassigned_weight > 0; ++i) {
 
-		/* Proposed alternative, but it doesn't work yet. Figure out why.
-		double proposed_weight = round(randomizer->drand() *
-			grouped_ballots.challenger_support/(double)num_coalitions);
-		proposed_weight = std::min(proposed_weight,
-			grouped_ballots.challenger_support - coalition_weight_sum);
-
-		strategic_ballot.weight = proposed_weight;
-		coalition_weight_sum += strategic_ballot.weight;
-		*/
+		ballot_group strategic_ballot = ballot_generator->
+			generate_ballot(numcands, *randomizer);
 
 		if (i == num_coalitions-1) {
-			assert(grouped_ballots.challenger_support - coalition_weight_sum > 0);
-			strategic_ballot.weight = grouped_ballots.challenger_support - coalition_weight_sum;
+			strategic_ballot.weight = unassigned_weight;
 		} else {
-			strategic_ballot.weight = round(randomizer->drand() *
-					grouped_ballots.challenger_support/(double)num_coalitions);
-			coalition_weight_sum += strategic_ballot.weight;
+			strategic_ballot.weight = round(
+					randomizer->drand(0,max_support_per_coalition));
 		}
 
-		// Add the strategic ballot if it has nonzero weight.
-		if (strategic_ballot.weight > 0) {
-			strategic_election.push_back(strategic_ballot);
-		}
+		strategic_ballot.weight = std::min(strategic_ballot.weight,
+				unassigned_weight);
+		unassigned_weight -= strategic_ballot.weight;
+
+		strategic_election.push_back(strategic_ballot);
 	}
 
 	return strategic_election;
@@ -197,10 +193,10 @@ basic_strategy StrategyTest::strategize_for_election(
 	const std::list<ballot_group> & ballots,
 	ordering honest_outcome, size_t numcands, bool verbose) const {
 
-	// NOTE! Does not work if there's a tie!
-	// If there's a tie, we shouldn't check challengers who tie the
-	// winner, after all; more generally, it's not clear how to handle
-	// ties.
+	if (ordering_tools::has_multiple_winners(honest_outcome)) {
+		throw std::out_of_range("strategize_for_election: Can't do ties.");
+	}
+
 	size_t winner = honest_outcome.begin()->get_candidate_num();
 
 	bool strategy_worked = false;
@@ -226,7 +222,7 @@ basic_strategy StrategyTest::strategize_for_election(
 		// Group the ballots (who support the challenger and who support
 		// the winner?)
 		ballots_by_support grouped_ballots = group_by_support(
-			ballots, winner, challenger);
+				ballots, winner, challenger);
 
 		if (grouped_ballots.challenger_support == 0) {
 			continue;
@@ -238,43 +234,33 @@ basic_strategy StrategyTest::strategize_for_election(
 
 			std::list<ballot_group> prefers_winner = grouped_ballots.others;
 
-			// Add the strategic ballot by drawing from IC.
+			// How many distinct ballots (coalitions) the strategists submit
+			// for coalitional strategy.
+			int num_coalitions = 1 + tries % 3;
 
-			// The number of distinct ballots that the strategy uses.
-			// NOTE: The combined weight of the ballots still equals the
-			// number of voters engaged in strategy; this is just about how many
-			// "bailiwicks" the vote management center divides the voters into.
-			int max_strat_ballots = 1 + tries % 3;
-			bool already_strategized = false;
-
-			// Try some standard strategies first.
+			// Choose a strategy.
 			switch (tries) {
 				case ST_BURIAL: // Burial
 					prefers_winner = bury_winner(grouped_ballots);
-					already_strategized = true;
 					break;
 				case ST_COMPROMISING: // Compromise
 					prefers_winner = compromise(grouped_ballots);
-					already_strategized = true;
 					break;
 				case ST_TWOSIDED: // Two-sided
 					prefers_winner = two_sided_strat(grouped_ballots);
-					already_strategized = true;
 					break;
 				case ST_REVERSE:
 					// Reverse social order with two-sided strategy
 					prefers_winner = two_sided_reverse(grouped_ballots,
-						honest_outcome);
-					already_strategized = true;
+							honest_outcome);
 					break;
 				default:
 					prefers_winner = coalitional_strategy(grouped_ballots,
-						numcands, max_strat_ballots, strat_generator, randomizer);
-					already_strategized = true;
+							numcands, num_coalitions, strat_generator, randomizer);
 					break;
 			}
 
-			if (already_strategized && verbose && tries <= ST_REVERSE) {
+			if (verbose && tries <= ST_REVERSE) {
 				std::string strategies[] = {"burial", "compromise", "two-sided", "reverse"};
 				std::cout << "DEBUG: Trying strategy " << strategies[tries] << std::endl;
 				std::cout << "After transformation, the ballot set looks like this:" <<
@@ -324,10 +310,8 @@ basic_strategy StrategyTest::strategize_for_election(
 }
 
 // Err, should probably not use camelcase... Fix later. TODO
-strategy_result
-StrategyTest::attempt_execute_strategy() { // Mega method, fix later TODO
-	int ranks = 10;                 // <- ????
-	int ties_in_a_row = 0;
+// Mega method, fix later TODO
+strategy_result StrategyTest::attempt_execute_strategy() {
 	ordering::const_iterator pos;
 	ordering honest_outcome;
 
@@ -343,60 +327,20 @@ StrategyTest::attempt_execute_strategy() { // Mega method, fix later TODO
 		numcands = randomizer->irand(numcands_min, numcands_max+1);
 	}
 
-	// Seems to be something about - while there's a tie, try again.
-	while (ranks > 1) {
-		ranks = 0;
-		++ties_in_a_row;
-		if (ties_in_a_row > 100) {
-			std::cout << "Too many ties in a row. Aborting!" << std::endl;
-			too_many_ties = true;
-			// Should be a third option here, not true or false.
-			// TODO that. Kinda done now.
-			return (STRAT_FAILED);
-		}
+	ballots = ballot_gen->generate_ballots(numvoters,
+			numcands, *randomizer);
 
-		ballots = ballot_gens[ballot_gen_idx++]->generate_ballots(numvoters,
-				numcands, *randomizer);
-		if (ballot_gen_idx == ballot_gens.size()) {
-			ballot_gen_idx = 0;
-		}
+	// First, get the honest winner. If it's a tie, report as such.
+	// Otherwise, check if it's possible to execute a strategy that
+	// makes someone else win.
 
-		//cache.clear();
+	honest_outcome = method->elect(ballots, numcands, true);
+	++total_generation_attempts;
 
-		// First, get the honest winner. If it's a tie, disregard. Otherwise,
-		// for every other candidate, find the ballots corresponding to voters
-		// who rank that candidate ahead of the winner. Then, a bunch of times,
-		// run the IIC generator with numvoters = 1 and use that ballot for the
-		// strategist coalition. (An exhaustive approach may come later.) If
-		// this makes the candidate in question win, we're done, otherwise
-		// try again until we give up and go to the next candidate, or give up
-		// completely and consider the method invulnerable in this particular
-		// case.
-
-		honest_outcome = method->elect(ballots, numcands, true);
-
-		// Check that there isn't a tie.
-		//int ranks = 0;
-		//ordering::const_iterator pos;
-		for (pos = honest_outcome.begin(); pos != honest_outcome.end() &&
-			pos->get_score() == honest_outcome.begin()->get_score(); ++pos) {
-			++ranks;
-		}
-
-		// This is actually how many are at first rank. Rename the vars to
-		// make that more clear.
-		total_generation_attempts += ranks;
-
-		if (ranks > 1) {
-			ballots.clear();
-			return (STRAT_TIE);
-		}
+	if (ordering_tools::has_multiple_winners(honest_outcome)) {
+		return STRAT_TIE;
 	}
 
-	ties_in_a_row = 0;
-
-	// TODO: Set true with only one method (Heaviside 2 2 -1 -1), and then
-	// compare to Python.
 	if (strategize_for_election(ballots, honest_outcome,
 			numcands, false) != ST_NONE) {
 		return STRAT_SUCCESS;

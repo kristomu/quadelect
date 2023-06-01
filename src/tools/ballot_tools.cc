@@ -5,7 +5,6 @@
 
 #include <iterator>
 
-
 // TODO: Handle more than 26 candidates??
 std::map<size_t, std::string> get_default_candidate_labeling() {
 	std::map<size_t, std::string> fakecand;
@@ -153,16 +152,32 @@ ordering ordering_tools::scrub_scores_by_cand(const ordering & in) const {
 	return (out);
 }
 
-std::list<int> ordering_tools::get_winners(const ordering & in) const {
-
-	std::list<int> toRet;
+bool ordering_tools::has_multiple_winners(const ordering & in) {
 
 	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
 		pos->get_score() == in.begin()->get_score(); ++pos) {
-		toRet.push_back(pos->get_candidate_num());
+
+		// If the candidate at the current position has the same
+		// score as the winner but isn't the winner, then we have
+		// a tie.
+		if (pos != in.begin()) {
+			return true;
+		}
 	}
 
-	return (toRet);
+	return false;
+}
+
+std::list<int> ordering_tools::get_winners(const ordering & in) const {
+
+	std::list<int> winners;
+
+	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
+		pos->get_score() == in.begin()->get_score(); ++pos) {
+		winners.push_back(pos->get_candidate_num());
+	}
+
+	return (winners);
 }
 
 // Break ties in the ordering "tied" according to tiebreaker.
@@ -446,7 +461,6 @@ ordering ordering_tools::indirect_vector_to_ordering(
 
 	return (toRet);
 }
-
 
 ///// Ballot tools.
 //
