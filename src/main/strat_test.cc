@@ -1,29 +1,8 @@
 #include "strat_test.h"
 
-// Refactoring scaffolding. Since we're trying to engineer
-// a strategy in favor of the challenger, we divide the ballots
-// into those that explicitly support the challenger and everybody
-// else. Those that are indifferent to the winner and challenger
-// thus don't count as supporting the challenger.
-class ballots_by_support {
-	public:
-		std::list<ballot_group> supporting_challenger,
-			others;
-
-		double challenger_support, other_support;
-		size_t winner, challenger;
-
-		ballots_by_support(size_t winner_in, size_t challenger_in) {
-			challenger_support = 0;
-			other_support = 0;
-			winner = winner_in;
-			challenger = challenger_in;
-		}
-};
-
-ballots_by_support group_by_support(
+ballots_by_support strategy_test::group_by_support(
 	const std::list<ballot_group> & ballots,
-	size_t winner, size_t challenger) {
+	size_t winner, size_t challenger) const {
 
 	ballots_by_support grouped_ballots(winner, challenger);
 
@@ -72,14 +51,14 @@ ballots_by_support group_by_support(
 // Maybe some map/accumulate trickery could be done here?
 // I feel like I'm duplicating stuff a lot... Maybe this is better?
 
-ballot_group bury(ballot_group ballot, size_t winner,
+ballot_group strategy_test::bury(ballot_group ballot, size_t winner,
 	size_t challenger) {
 
 	ballot.replace_score(winner, ballot.get_min_score()-1);
 	return ballot;
 }
 
-ballot_group compromise(ballot_group ballot, size_t winner,
+ballot_group strategy_test::compromise(ballot_group ballot, size_t winner,
 	size_t challenger) {
 
 	ballot.replace_score(challenger, ballot.get_max_score()+1);
@@ -87,15 +66,17 @@ ballot_group compromise(ballot_group ballot, size_t winner,
 }
 
 // Both burial and compromising at once.
-ballot_group two_sided_strat(ballot_group ballot, size_t winner,
+ballot_group strategy_test::two_sided_strat(ballot_group ballot,
+	size_t winner,
 	size_t challenger) {
 
 	return bury(compromise(ballot, winner, challenger),
-		winner, challenger);
+			winner, challenger);
 }
 
-std::list<ballot_group> do_simple_strat(const ballots_by_support &
-	grouped_ballots, ballot_group (*strat)(ballot_group, size_t,size_t)) {
+std::list<ballot_group> strategy_test::do_simple_strat(
+	const ballots_by_support &
+	grouped_ballots, ballot_group(*strat)(ballot_group, size_t,size_t)) const {
 
 	// Apply the given strategy to every strategizer's ballot.
 
@@ -105,7 +86,7 @@ std::list<ballot_group> do_simple_strat(const ballots_by_support &
 		grouped_ballots.supporting_challenger) {
 
 		strategic_election.push_back(strat(ballot,
-			grouped_ballots.winner, grouped_ballots.challenger));
+				grouped_ballots.winner, grouped_ballots.challenger));
 	}
 
 	return strategic_election;
@@ -115,8 +96,9 @@ std::list<ballot_group> do_simple_strat(const ballots_by_support &
 // the winner last.
 // E.g. if the social outcome was W=A>B>C>D=E, and the winner is W and
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
-std::list<ballot_group> two_sided_reverse(const ballots_by_support &
-	grouped_ballots, const ordering & honest_outcome) {
+std::list<ballot_group> strategy_test::two_sided_reverse(
+	const ballots_by_support &
+	grouped_ballots, const ordering & honest_outcome) const {
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
 
@@ -124,7 +106,7 @@ std::list<ballot_group> two_sided_reverse(const ballots_by_support &
 		ordering_tools().reverse(honest_outcome), true, false);
 
 	strategic_election.push_back(two_sided_strat(strategic_ballot,
-		grouped_ballots.winner, grouped_ballots.challenger));
+			grouped_ballots.winner, grouped_ballots.challenger));
 
 	return strategic_election;
 }
@@ -139,9 +121,10 @@ std::list<ballot_group> two_sided_reverse(const ballots_by_support &
 
 // The assignment of coalition weights is not entirely uniform, but it
 // seems to let the method find strategies more easily, at least for IRV.
-std::list<ballot_group> coalitional_strategy(const ballots_by_support &
+std::list<ballot_group> strategy_test::coalitional_strategy(
+	const ballots_by_support &
 	grouped_ballots, size_t numcands, size_t num_coalitions,
-	pure_ballot_generator * ballot_generator, rng * randomizer) {
+	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
 	double unassigned_weight = grouped_ballots.challenger_support;
@@ -171,7 +154,7 @@ std::list<ballot_group> coalitional_strategy(const ballots_by_support &
 }
 
 basic_strategy get_applicable_strategy(int iteration) {
-	switch(iteration) {
+	switch (iteration) {
 		case 0: return ST_BURIAL;
 		case 1: return ST_COMPROMISING;
 		case 2: return ST_TWOSIDED;
@@ -180,10 +163,13 @@ basic_strategy get_applicable_strategy(int iteration) {
 	}
 }
 
-basic_strategy StrategyTest::strategize_for_election(
+bool strategy_test::strategize_for_election(
 	const std::list<ballot_group> & ballots,
 	ordering honest_outcome, size_t numcands, bool verbose) const {
 
+	// Ties are a problem. We could consider the strategy a success
+	// if any non-winner can become a winner, but for now, just don't
+	// deal with ties.
 	if (ordering_tools::has_multiple_winners(honest_outcome)) {
 		throw std::out_of_range("strategize_for_election: Can't do ties.");
 	}
@@ -212,7 +198,8 @@ basic_strategy StrategyTest::strategize_for_election(
 				ballots, winner, challenger);
 	}
 
-	for (int iteration = 0; iteration < strategy_attempts_per_try; ++iteration) {
+	for (int iteration = 0; iteration < strategy_attempts_per_try;
+		++iteration) {
 
 		basic_strategy strategy_type = get_applicable_strategy(iteration);
 
@@ -236,31 +223,32 @@ basic_strategy StrategyTest::strategize_for_election(
 			switch (strategy_type) {
 				case ST_BURIAL: // Burial
 					strategic_election = do_simple_strat(
-						grouped_ballots[challenger], bury);
+							grouped_ballots[challenger], bury);
 					break;
 				case ST_COMPROMISING: // Compromise
 					strategic_election = do_simple_strat(
-						grouped_ballots[challenger], compromise);
+							grouped_ballots[challenger], compromise);
 					break;
 				case ST_TWOSIDED: // Two-sided
 					strategic_election = do_simple_strat(
-						grouped_ballots[challenger], two_sided_strat);
+							grouped_ballots[challenger], two_sided_strat);
 					break;
 				case ST_REVERSE:
 					// Reverse social order with two-sided strategy
 					strategic_election = two_sided_reverse(
-						grouped_ballots[challenger], honest_outcome);
+							grouped_ballots[challenger], honest_outcome);
 					break;
 				default:
 					strategic_election = coalitional_strategy(
-						grouped_ballots[challenger], numcands, num_coalitions,
-						strat_generator, randomizer);
+							grouped_ballots[challenger], numcands, num_coalitions,
+							strat_generator, randomizer);
 					break;
 			}
 
 			if (verbose) {
 				std::string strat_name[] = {"burial", "compromise", "two-sided",
-					"reverse", "coalitional"};
+						"reverse", "coalitional"
+					};
 				std::cout << "DEBUG: Trying strategy " << strat_name[strategy_type]
 					<< std::endl;
 				std::cout << "After transformation, the ballot set "
@@ -296,7 +284,7 @@ basic_strategy StrategyTest::strategize_for_election(
 			if (strategy_worked) {
 				// TODO: Return a disproof instead.
 				// Requires a redesign of both two-tests and this...
-				return strategy_type;
+				return true;
 			}
 
 		}
@@ -306,13 +294,10 @@ basic_strategy StrategyTest::strategize_for_election(
 		std::cout << "Strategy didn't work!" << std::endl;
 	}
 
-	return ST_NONE;
+	return false;
 }
 
-// Err, should probably not use camelcase... Fix later. TODO
-// Mega method, fix later TODO
-strategy_result StrategyTest::attempt_execute_strategy() {
-	ordering honest_outcome;
+strategy_result strategy_test::attempt_execute_strategy() {
 
 	// Ties don't count because any method that's decisive will let a voter
 	// break the tie.
@@ -333,15 +318,16 @@ strategy_result StrategyTest::attempt_execute_strategy() {
 	// Otherwise, check if it's possible to execute a strategy that
 	// makes someone else win.
 
-	honest_outcome = method->elect(ballots, numcands, true);
+	ordering honest_outcome = method->elect(ballots, numcands, true);
 	++total_generation_attempts;
 
 	if (ordering_tools::has_multiple_winners(honest_outcome)) {
 		return STRAT_TIE;
 	}
 
-	if (strategize_for_election(ballots, honest_outcome,
-			numcands, false) != ST_NONE) {
+	if (strategize_for_election(ballots,
+			honest_outcome, numcands, false)) {
+
 		return STRAT_SUCCESS;
 	}
 

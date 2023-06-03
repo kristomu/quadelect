@@ -145,7 +145,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	/* ballotgens.push_back(new dirichlet(true));*/
 
 	int tests_per_ballot = 256;
-	StrategyTest st(ballot_gen, &iic, numvoters, numcands, numcands,
+	strategy_test st(ballot_gen, &iic, numvoters, numcands, numcands,
 		randomizer, to_test, 0, tests_per_ballot);
 
 	int worked = 0, f;

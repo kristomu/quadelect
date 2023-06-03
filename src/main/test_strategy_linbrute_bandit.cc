@@ -92,7 +92,7 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 	// will find the methods that resist strategy best, while using
 	// reverse_sts will find those that are most susceptible.
 
-	std::vector<StrategyTest> sts;
+	std::vector<strategy_test> sts;
 	std::vector<ReverseTest> reverse_sts;
 
 	int numvoters = 97;
@@ -109,7 +109,7 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 		// the time).
 		int tries_to_get_strat = 2053; // was 4096
 
-		sts.push_back(StrategyTest(ballotgen, strat_generator,
+		sts.push_back(strategy_test(ballotgen, strat_generator,
 				numvoters, numcands, numcands, randomizer, to_test[i], 0,
 				tries_to_get_strat));
 	}

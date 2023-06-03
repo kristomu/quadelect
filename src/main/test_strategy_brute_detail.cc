@@ -145,7 +145,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
 	// --- //
 
-	StrategyTest st(ballot_gen, &ic, numvoters, numcands, randomizer,
+	strategy_test st(ballot_gen, &ic, numvoters, numcands, randomizer,
 		to_test, 0, num_strategy_attempts_per_iter);
 
 	int strategy_worked = 0, strategy_failed = 0;
