@@ -51,32 +51,11 @@ ballots_by_support strategy_test::group_by_support(
 // Maybe some map/accumulate trickery could be done here?
 // I feel like I'm duplicating stuff a lot... Maybe this is better?
 
-ballot_group strategy_test::bury(ballot_group ballot, size_t winner,
-	size_t challenger) {
-
-	ballot.replace_score(winner, ballot.get_min_score()-1);
-	return ballot;
-}
-
-ballot_group strategy_test::compromise(ballot_group ballot, size_t winner,
-	size_t challenger) {
-
-	ballot.replace_score(challenger, ballot.get_max_score()+1);
-	return ballot;
-}
-
-// Both burial and compromising at once.
-ballot_group strategy_test::two_sided_strat(ballot_group ballot,
-	size_t winner,
-	size_t challenger) {
-
-	return bury(compromise(ballot, winner, challenger),
-			winner, challenger);
-}
-
-std::list<ballot_group> strategy_test::do_simple_strat(
-	const ballots_by_support &
-	grouped_ballots, ballot_group(*strat)(ballot_group, size_t,size_t)) const {
+std::list<ballot_group> per_ballot_strat::get_strategic_election(
+	const ordering & honest_outcome,
+	const ballots_by_support & grouped_ballots,
+	const test_cache & cache, size_t numcands,
+	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
 	// Apply the given strategy to every strategizer's ballot.
 
@@ -85,28 +64,60 @@ std::list<ballot_group> strategy_test::do_simple_strat(
 	for (ballot_group ballot:
 		grouped_ballots.supporting_challenger) {
 
-		strategic_election.push_back(strat(ballot,
+		strategic_election.push_back(modify_ballots(ballot,
 				grouped_ballots.winner, grouped_ballots.challenger));
 	}
 
 	return strategic_election;
 }
 
+ballot_group burial::modify_ballots(ballot_group ballot, size_t winner,
+	size_t challenger) const {
+
+	ballot.replace_score(winner, ballot.get_min_score()-1);
+	return ballot;
+}
+
+ballot_group compromising::modify_ballots(ballot_group ballot,
+	size_t winner, size_t challenger) const {
+
+	ballot.replace_score(challenger, ballot.get_max_score()+1);
+	return ballot;
+}
+
+// Both burial and compromising at once.
+ballot_group two_sided_strat::modify_ballots(ballot_group ballot,
+	size_t winner, size_t challenger) const {
+
+	ballot.replace_score(winner, ballot.get_min_score()-1);
+	ballot.replace_score(challenger, ballot.get_max_score()+1);
+
+	return ballot;
+}
+
 // Reverse the honest outcome and place the challenger first and
 // the winner last.
 // E.g. if the social outcome was W=A>B>C>D=E, and the winner is W and
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
-std::list<ballot_group> strategy_test::two_sided_reverse(
-	const ballots_by_support &
-	grouped_ballots, const ordering & honest_outcome) const {
+std::list<ballot_group> two_sided_reverse::get_strategic_election(
+	const ordering & honest_outcome,
+	const ballots_by_support & grouped_ballots,
+	const test_cache & cache, size_t numcands,
+	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
 
+	// Create a ballot with weight equal to the number of voters preferring
+	// the challenger to the winner, with ordering equal to the reverse
+	// of the honest outcome.
 	ballot_group strategic_ballot(grouped_ballots.challenger_support,
 		ordering_tools().reverse(honest_outcome), true, false);
 
-	strategic_election.push_back(two_sided_strat(strategic_ballot,
-			grouped_ballots.winner, grouped_ballots.challenger));
+	// Place the winner uniquely last and the challenger uniquely first.
+	strategic_ballot.replace_score(grouped_ballots.winner,
+		strategic_ballot.get_min_score()-1);
+	strategic_ballot.replace_score(grouped_ballots.challenger,
+		strategic_ballot.get_max_score()+1);
 
 	return strategic_election;
 }
@@ -121,9 +132,10 @@ std::list<ballot_group> strategy_test::two_sided_reverse(
 
 // The assignment of coalition weights is not entirely uniform, but it
 // seems to let the method find strategies more easily, at least for IRV.
-std::list<ballot_group> strategy_test::coalitional_strategy(
-	const ballots_by_support &
-	grouped_ballots, size_t numcands, size_t num_coalitions,
+std::list<ballot_group> coalitional_strategy::get_strategic_election(
+	const ordering & honest_outcome,
+	const ballots_by_support & grouped_ballots,
+	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
 	std::list<ballot_group> strategic_election = grouped_ballots.others;
@@ -165,7 +177,7 @@ basic_strategy get_applicable_strategy(int iteration) {
 
 bool strategy_test::strategize_for_election(
 	const std::list<ballot_group> & ballots,
-	ordering honest_outcome, size_t numcands, bool verbose) const {
+	ordering honest_outcome, size_t numcands, bool verbose) {
 
 	// Ties are a problem. We could consider the strategy a success
 	// if any non-winner can become a winner, but for now, just don't
@@ -188,14 +200,16 @@ bool strategy_test::strategize_for_election(
 
 	size_t challenger;
 
-	std::vector<ballots_by_support> grouped_ballots(numcands,
+	test_cache election_data;
+
+	election_data.grouped_by_challenger.resize(numcands,
 		ballots_by_support(winner, winner));
 
 	for (challenger = 0; challenger < numcands; ++challenger) {
 		// Group the ballots (who support the challenger and who support
 		// the winner?)
-		grouped_ballots[challenger] = group_by_support(
-				ballots, winner, challenger);
+		election_data.grouped_by_challenger[challenger] =
+			group_by_support(ballots, winner, challenger);
 	}
 
 	for (int iteration = 0; iteration < strategy_attempts_per_try;
@@ -206,42 +220,54 @@ bool strategy_test::strategize_for_election(
 		// How many distinct ballots (coalitions) the strategists submit
 		// for coalitional strategy, if that's what we're going to use.
 		int num_coalitions = 1 + iteration % 3;
+		coalstrat.set_num_coalitions(num_coalitions);
 
 		for (challenger = 0; challenger < numcands; ++challenger) {
 			if (challenger == winner) {
 				continue;
 			}
 
-			if (grouped_ballots[challenger].challenger_support == 0) {
+			if (election_data.grouped_by_challenger[challenger].challenger_support ==
+				0) {
 				continue;
 			}
-			assert(grouped_ballots[challenger].challenger_support > 0);
+			assert(election_data.grouped_by_challenger[challenger].challenger_support >
+				0);
 
 			std::list<ballot_group> strategic_election;
 
 			// Choose a strategy.
 			switch (strategy_type) {
 				case ST_BURIAL: // Burial
-					strategic_election = do_simple_strat(
-							grouped_ballots[challenger], bury);
+					strategic_election = this_burial.get_strategic_election(
+							honest_outcome,
+							election_data.grouped_by_challenger[challenger],
+							election_data, numcands, ballot_gen, randomizer);
 					break;
 				case ST_COMPROMISING: // Compromise
-					strategic_election = do_simple_strat(
-							grouped_ballots[challenger], compromise);
+					strategic_election = this_compromise.get_strategic_election(
+							honest_outcome,
+							election_data.grouped_by_challenger[challenger],
+							election_data, numcands, ballot_gen, randomizer);
 					break;
 				case ST_TWOSIDED: // Two-sided
-					strategic_election = do_simple_strat(
-							grouped_ballots[challenger], two_sided_strat);
+					strategic_election = this_two_sided.get_strategic_election(
+							honest_outcome,
+							election_data.grouped_by_challenger[challenger],
+							election_data, numcands, ballot_gen, randomizer);
 					break;
 				case ST_REVERSE:
 					// Reverse social order with two-sided strategy
-					strategic_election = two_sided_reverse(
-							grouped_ballots[challenger], honest_outcome);
+					strategic_election = this_ttr.get_strategic_election(
+							honest_outcome,
+							election_data.grouped_by_challenger[challenger],
+							election_data, numcands, ballot_gen, randomizer);
 					break;
 				default:
-					strategic_election = coalitional_strategy(
-							grouped_ballots[challenger], numcands, num_coalitions,
-							strat_generator, randomizer);
+					strategic_election = coalstrat.get_strategic_election(
+							honest_outcome,
+							election_data.grouped_by_challenger[challenger],
+							election_data, numcands, ballot_gen, randomizer);
 					break;
 			}
 

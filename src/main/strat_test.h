@@ -66,9 +66,10 @@ class test_cache {
 class strategy {
 	public:
 		virtual std::list<ballot_group> get_strategic_election(
+			const ordering & honest_outcome,
 			const ballots_by_support & grouped_ballots,
 			const test_cache & cache, size_t numcands,
-			pure_ballot_generator * ballot_generator, rng * randomizer) = 0;
+			pure_ballot_generator * ballot_generator, rng * randomizer) const = 0;
 
 		virtual std::string name() const = 0;
 };
@@ -79,17 +80,82 @@ class per_ballot_strat : public strategy {
 			size_t winner, size_t challenger) const = 0;
 
 		std::list<ballot_group> get_strategic_election(
+			const ordering & honest_outcome,
 			const ballots_by_support & grouped_ballots,
 			const test_cache & cache, size_t numcands,
-			pure_ballot_generator * ballot_generator, rng * randomizer);
+			pure_ballot_generator * ballot_generator, rng * randomizer) const;
 };
 
 class burial : public per_ballot_strat {
+	public:
+		ballot_group modify_ballots(ballot_group ballot,
+			size_t winner, size_t challenger) const;
 
+		std::string name() const {
+			return "Burial";
+		}
 };
 
 class compromising : public per_ballot_strat {
+	public:
+		ballot_group modify_ballots(ballot_group ballot,
+			size_t winner, size_t challenger) const;
 
+		std::string name() const {
+			return "Compromising";
+		}
+};
+
+class two_sided_strat : public per_ballot_strat {
+	public:
+		ballot_group modify_ballots(ballot_group ballot,
+			size_t winner, size_t challenger) const;
+
+		std::string name() const {
+			return "Two-sided";
+		}
+};
+
+// Reverse the honest outcome and place the challenger first and
+// the winner last.
+// E.g. if the social outcome was W=A>B>C>D=E, and the winner is W and
+// challenger C, the strategic faction all vote C>D=E>B>A>W.
+class two_sided_reverse : public strategy {
+	public:
+		std::list<ballot_group> get_strategic_election(
+			const ordering & honest_outcome,
+			const ballots_by_support & grouped_ballots,
+			const test_cache & cache, size_t numcands,
+			pure_ballot_generator * ballot_generator, rng * randomizer) const;
+
+		std::string name() const {
+			return "Two-sided reverse";
+		}
+};
+
+class coalitional_strategy : public strategy {
+	private:
+		size_t num_coalitions;
+
+	public:
+		// Hack for now.
+		void set_num_coalitions(size_t num_coalitions_in) {
+			num_coalitions = num_coalitions_in;
+		}
+
+		std::list<ballot_group> get_strategic_election(
+			const ordering & honest_outcome,
+			const ballots_by_support & grouped_ballots,
+			const test_cache & cache, size_t numcands,
+			pure_ballot_generator * ballot_generator, rng * randomizer) const;
+
+		coalitional_strategy() {
+			num_coalitions = 1;
+		}
+
+		std::string name() const {
+			return "Coalitional strategy";
+		}
 };
 
 class strategy_test : public Test {
@@ -104,6 +170,17 @@ class strategy_test : public Test {
 		pure_ballot_generator * strat_generator;
 		int strategy_attempts_per_try;
 
+		// This should be pushed into a list or vector or somesuch,
+		// but we first need to somehow signal that coalitional strategy
+		// can be tried lots of times but the others can only be tried
+		// once. And deal with the hack that is set_num_candidates().
+		// TODO.
+		burial this_burial;
+		compromising this_compromise;
+		two_sided_strat this_two_sided;
+		two_sided_reverse this_ttr;
+		coalitional_strategy coalstrat;
+
 		strategy_result attempt_execute_strategy();
 
 		bool too_many_ties;
@@ -113,33 +190,13 @@ class strategy_test : public Test {
 			const std::list<ballot_group> & ballots,
 			size_t winner, size_t challenger) const;
 
-		static ballot_group bury(ballot_group ballot, size_t winner,
-			size_t challenger);
-
-		static ballot_group compromise(ballot_group ballot, size_t winner,
-			size_t challenger);
-
-		static ballot_group two_sided_strat(ballot_group ballot, size_t winner,
-			size_t challenger);
-
-		std::list<ballot_group> do_simple_strat(const ballots_by_support &
-			grouped_ballots,
-			ballot_group(*strat)(ballot_group, size_t,size_t)) const;
-
-		std::list<ballot_group> two_sided_reverse(const ballots_by_support &
-			grouped_ballots, const ordering & honest_outcome) const;
-
-		std::list<ballot_group> coalitional_strategy(const ballots_by_support &
-			grouped_ballots, size_t numcands, size_t num_coalitions,
-			pure_ballot_generator * ballot_generator, rng * randomizer) const;
-
 	public:
 		// Returns true if the strategy succeeded, false
 		// otherwise. TODO: Should return a disproof instead.
 
 		bool strategize_for_election(
 			const std::list<ballot_group> & ballots,
-			ordering honest_outcome, size_t numcands, bool verbose) const;
+			ordering honest_outcome, size_t numcands, bool verbose);
 
 		strategy_test(pure_ballot_generator * ballot_gen_in,
 			pure_ballot_generator * strat_generator_in,
