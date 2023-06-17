@@ -165,13 +165,19 @@ std::list<ballot_group> coalitional_strategy::get_strategic_election(
 	return strategic_election;
 }
 
-basic_strategy get_applicable_strategy(int iteration) {
+// This should really be replaced with some kind of iteration through
+// a vector of strategies, where it tries each a certain number of times
+// before going to the next, skipping those that are exhausted... phew.
+// things are gonna get so very messy here. I need to take a step back
+// and consider how to simplify things, later.
+
+strategy * strategy_test::get_applicable_strategy(int iteration) {
 	switch (iteration) {
-		case 0: return ST_BURIAL;
-		case 1: return ST_COMPROMISING;
-		case 2: return ST_TWOSIDED;
-		case 3: return ST_REVERSE;
-		default: return ST_OTHER;
+		case 0: return strategies[0].get(); // burial
+		case 1: return strategies[1].get(); // compromising
+		case 2: return strategies[2].get(); // two-sided
+		case 3: return strategies[3].get(); // two-sided reverse
+		default: return &coalstrat;
 	}
 }
 
@@ -201,6 +207,7 @@ bool strategy_test::strategize_for_election(
 	size_t challenger;
 
 	test_cache election_data;
+	std::list<ballot_group> strategic_election;
 
 	election_data.grouped_by_challenger.resize(numcands,
 		ballots_by_support(winner, winner));
@@ -215,7 +222,7 @@ bool strategy_test::strategize_for_election(
 	for (int iteration = 0; iteration < strategy_attempts_per_try;
 		++iteration) {
 
-		basic_strategy strategy_type = get_applicable_strategy(iteration);
+		strategy * strategizer = get_applicable_strategy(iteration);
 
 		// How many distinct ballots (coalitions) the strategists submit
 		// for coalitional strategy, if that's what we're going to use.
@@ -227,56 +234,19 @@ bool strategy_test::strategize_for_election(
 				continue;
 			}
 
-			if (election_data.grouped_by_challenger[challenger].challenger_support ==
+			if (election_data.grouped_by_challenger[challenger].challenger_support <=
 				0) {
 				continue;
 			}
-			assert(election_data.grouped_by_challenger[challenger].challenger_support >
-				0);
 
-			std::list<ballot_group> strategic_election;
-
-			// Choose a strategy.
-			switch (strategy_type) {
-				case ST_BURIAL: // Burial
-					strategic_election = this_burial.get_strategic_election(
-							honest_outcome,
-							election_data.grouped_by_challenger[challenger],
-							election_data, numcands, ballot_gen, randomizer);
-					break;
-				case ST_COMPROMISING: // Compromise
-					strategic_election = this_compromise.get_strategic_election(
-							honest_outcome,
-							election_data.grouped_by_challenger[challenger],
-							election_data, numcands, ballot_gen, randomizer);
-					break;
-				case ST_TWOSIDED: // Two-sided
-					strategic_election = this_two_sided.get_strategic_election(
-							honest_outcome,
-							election_data.grouped_by_challenger[challenger],
-							election_data, numcands, ballot_gen, randomizer);
-					break;
-				case ST_REVERSE:
-					// Reverse social order with two-sided strategy
-					strategic_election = this_ttr.get_strategic_election(
-							honest_outcome,
-							election_data.grouped_by_challenger[challenger],
-							election_data, numcands, ballot_gen, randomizer);
-					break;
-				default:
-					strategic_election = coalstrat.get_strategic_election(
-							honest_outcome,
-							election_data.grouped_by_challenger[challenger],
-							election_data, numcands, ballot_gen, randomizer);
-					break;
-			}
+			strategic_election = strategizer->get_strategic_election(
+					honest_outcome,
+					election_data.grouped_by_challenger[challenger],
+					election_data, numcands, ballot_gen, randomizer);
 
 			if (verbose) {
-				std::string strat_name[] = {"burial", "compromise", "two-sided",
-						"reverse", "coalitional"
-					};
-				std::cout << "DEBUG: Trying strategy " << strat_name[strategy_type]
-					<< std::endl;
+				std::cout << "DEBUG: Trying strategy "
+					<< strategizer->name() << std::endl;
 				std::cout << "After transformation, the ballot set "
 					"looks like this:" << std::endl;
 				ballot_tools().print_ranked_ballots(strategic_election);
@@ -288,13 +258,8 @@ bool strategy_test::strategize_for_election(
 					numcands, true);
 
 			// Check if our candidate is now at top rank.
-			for (pos = strat_result.begin(); pos !=
-				strat_result.end() &&
-				pos->get_score() == strat_result.
-				begin()->get_score(); ++pos) {
-				if (pos->get_candidate_num() == challenger) {
-					strategy_worked = true;
-				}
+			if (ordering_tools::is_winner(strat_result, challenger)) {
+				strategy_worked = true;
 			}
 
 			if (verbose && strategy_worked) {

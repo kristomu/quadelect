@@ -168,7 +168,7 @@ bool ordering_tools::has_multiple_winners(const ordering & in) {
 	return false;
 }
 
-std::list<int> ordering_tools::get_winners(const ordering & in) const {
+std::list<int> ordering_tools::get_winners(const ordering & in) {
 
 	std::list<int> winners;
 
@@ -178,6 +178,17 @@ std::list<int> ordering_tools::get_winners(const ordering & in) const {
 	}
 
 	return (winners);
+}
+
+bool ordering_tools::is_winner(const ordering & in,
+	int candidate_num) {
+
+	// This may be slower than an optimized loop that aborts once
+	// the winner has been found, but deal with that later if required.
+	std::list<int> winners = get_winners(in);
+
+	return std::find(winners.begin(), winners.end(), candidate_num)
+		!= winners.end();
 }
 
 // Break ties in the ordering "tied" according to tiebreaker.

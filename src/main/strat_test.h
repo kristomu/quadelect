@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include <memory>
 #include <stdexcept>
 
 #include "../bandit/tests/tests.h"
@@ -175,12 +176,14 @@ class strategy_test : public Test {
 		// can be tried lots of times but the others can only be tried
 		// once. And deal with the hack that is set_num_candidates().
 		// TODO.
-		burial this_burial;
-		compromising this_compromise;
-		two_sided_strat this_two_sided;
-		two_sided_reverse this_ttr;
+		std::vector<std::unique_ptr<strategy> > strategies;
 		coalitional_strategy coalstrat;
 
+		strategy * get_applicable_strategy(int iteration);
+
+		// TODO: Call this something else so that we don't get
+		// "strategy" (manipulation) confused with "strategies"
+		// (burial, compromise, etc.)
 		strategy_result attempt_execute_strategy();
 
 		bool too_many_ties;
@@ -193,6 +196,7 @@ class strategy_test : public Test {
 	public:
 		// Returns true if the strategy succeeded, false
 		// otherwise. TODO: Should return a disproof instead.
+		// ... if desired?
 
 		bool strategize_for_election(
 			const std::list<ballot_group> & ballots,
@@ -223,6 +227,11 @@ class strategy_test : public Test {
 
 			// Was 384
 			strategy_attempts_per_try = strat_attempts_per_try_in;
+
+			strategies.push_back(std::make_unique<burial>());
+			strategies.push_back(std::make_unique<compromising>());
+			strategies.push_back(std::make_unique<two_sided_strat>());
+			strategies.push_back(std::make_unique<two_sided_reverse>());
 		}
 
 		strategy_test(pure_ballot_generator * ballot_gen_in,

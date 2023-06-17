@@ -36,7 +36,8 @@ class ordering_tools {
 		ordering scrub_scores_by_cand(const ordering & in) const;
 
 		static bool has_multiple_winners(const ordering & in);
-		std::list<int> get_winners(const ordering & in) const;
+		static std::list<int> get_winners(const ordering & in);
+		static bool is_winner(const ordering & in, int candidate_num);
 
 		// Break ties in "tied" according to tiebreaker and return
 		// result.

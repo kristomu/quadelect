@@ -1,3 +1,0 @@
-Known bugs:
-	- Makefile will abort near the end due to some GNU utility problems.
-		The program will still have been made as qelect.
