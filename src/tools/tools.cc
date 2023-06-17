@@ -10,6 +10,13 @@
 
 #include "tools.h"
 
+int skip_number(int idx, int skip) {
+	if (idx < skip) {
+		return idx;
+	}
+	return idx + 1;
+}
+
 int sign(double in) {
 	if (in < 0) {
 		return -1;

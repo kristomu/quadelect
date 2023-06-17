@@ -53,19 +53,32 @@ ballots_by_support strategy_test::group_by_support(
 
 std::list<ballot_group> per_ballot_strat::get_strategic_election(
 	const ordering & honest_outcome,
-	const ballots_by_support & grouped_ballots,
+	int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
-	// Apply the given strategy to every strategizer's ballot.
+	// Transform each strategizer's ballot according to the strategy.
 
-	std::list<ballot_group> strategic_election = grouped_ballots.others;
+	// First turn the index into a challenger number and get the
+	// relevant election grouped by challenger from the cache.
+
+	size_t winner = cache.grouped_by_challenger[0].winner;
+	chosen_challenger = skip_number(instance_index, winner);
+	if (chosen_challenger >= cache.grouped_by_challenger.size()) {
+		throw std::runtime_error("per_ballot_strat: invalid index " +
+			itos(instance_index));
+	}
+	const ballots_by_support * grouped_ballots =
+		&cache.grouped_by_challenger[chosen_challenger];
+
+	std::list<ballot_group> strategic_election =
+		grouped_ballots->others;
 
 	for (ballot_group ballot:
-		grouped_ballots.supporting_challenger) {
+		grouped_ballots->supporting_challenger) {
 
 		strategic_election.push_back(modify_ballots(ballot,
-				grouped_ballots.winner, grouped_ballots.challenger));
+				winner, grouped_ballots->challenger));
 	}
 
 	return strategic_election;
@@ -101,22 +114,31 @@ ballot_group two_sided_strat::modify_ballots(ballot_group ballot,
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
 std::list<ballot_group> two_sided_reverse::get_strategic_election(
 	const ordering & honest_outcome,
-	const ballots_by_support & grouped_ballots,
+	int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
-	std::list<ballot_group> strategic_election = grouped_ballots.others;
+	size_t winner = cache.grouped_by_challenger[0].winner;
+	chosen_challenger = skip_number(instance_index, winner);
+	if (chosen_challenger >= cache.grouped_by_challenger.size()) {
+		throw std::runtime_error("per_ballot_strat: invalid index " +
+			itos(instance_index));
+	}
+	const ballots_by_support * grouped_ballots =
+		&cache.grouped_by_challenger[chosen_challenger];
+
+	std::list<ballot_group> strategic_election = grouped_ballots->others;
 
 	// Create a ballot with weight equal to the number of voters preferring
 	// the challenger to the winner, with ordering equal to the reverse
 	// of the honest outcome.
-	ballot_group strategic_ballot(grouped_ballots.challenger_support,
+	ballot_group strategic_ballot(grouped_ballots->challenger_support,
 		ordering_tools().reverse(honest_outcome), true, false);
 
 	// Place the winner uniquely last and the challenger uniquely first.
-	strategic_ballot.replace_score(grouped_ballots.winner,
+	strategic_ballot.replace_score(winner,
 		strategic_ballot.get_min_score()-1);
-	strategic_ballot.replace_score(grouped_ballots.challenger,
+	strategic_ballot.replace_score(grouped_ballots->challenger,
 		strategic_ballot.get_max_score()+1);
 
 	return strategic_election;
@@ -134,14 +156,31 @@ std::list<ballot_group> two_sided_reverse::get_strategic_election(
 // seems to let the method find strategies more easily, at least for IRV.
 std::list<ballot_group> coalitional_strategy::get_strategic_election(
 	const ordering & honest_outcome,
-	const ballots_by_support & grouped_ballots,
+	int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
-	std::list<ballot_group> strategic_election = grouped_ballots.others;
-	double unassigned_weight = grouped_ballots.challenger_support;
-	double max_support_per_coalition = grouped_ballots.challenger_support/
-		num_coalitions;
+	// We currently only support instance index = -1, i.e. a fully
+	// randomized election strategy. I know, we shouldn't mush together
+	// two parameters into one this way. Fix later, TODO.
+
+	if (instance_index != -1) {
+		throw std::runtime_error("Coalitional strategy only "
+			"supports random");
+	}
+
+	size_t num_coalitions = randomizer->irand(1, 4);
+	size_t winner = cache.grouped_by_challenger[0].winner;
+	chosen_challenger = skip_number(randomizer->irand(0, numcands-1),
+			winner);
+
+	const ballots_by_support * grouped_ballots =
+		&cache.grouped_by_challenger[chosen_challenger];
+
+	std::list<ballot_group> strategic_election = grouped_ballots->others;
+	double unassigned_weight = grouped_ballots->challenger_support;
+	double max_support_per_coalition =
+		grouped_ballots->challenger_support/num_coalitions;
 
 	for (size_t i = 0; i < num_coalitions && unassigned_weight > 0; ++i) {
 
@@ -204,15 +243,20 @@ bool strategy_test::strategize_for_election(
 				honest_outcome, true) << std::endl;
 	}
 
-	size_t challenger;
-
 	test_cache election_data;
 	std::list<ballot_group> strategic_election;
 
 	election_data.grouped_by_challenger.resize(numcands,
 		ballots_by_support(winner, winner));
 
-	for (challenger = 0; challenger < numcands; ++challenger) {
+	// Create an array per strategizer so that we can determine when
+	// we've exhausted all the options. TODO: for strategizers with
+	// extremely large ranges, just do -1 instead or draw from a random
+	// permutation...
+
+	std::vector<int64_t> instances_tried(strategies.size(), 0);
+
+	for (size_t challenger = 0; challenger < numcands; ++challenger) {
 		// Group the ballots (who support the challenger and who support
 		// the winner?)
 		election_data.grouped_by_challenger[challenger] =
@@ -222,27 +266,35 @@ bool strategy_test::strategize_for_election(
 	for (int iteration = 0; iteration < strategy_attempts_per_try;
 		++iteration) {
 
-		strategy * strategizer = get_applicable_strategy(iteration);
+		for (size_t i = 0; i < strategies.size(); ++i) {
 
-		// How many distinct ballots (coalitions) the strategists submit
-		// for coalitional strategy, if that's what we're going to use.
-		int num_coalitions = 1 + iteration % 3;
-		coalstrat.set_num_coalitions(num_coalitions);
+			bool requested_strat = false;
 
-		for (challenger = 0; challenger < numcands; ++challenger) {
-			if (challenger == winner) {
-				continue;
+			strategy * strategizer = strategies[i].get();
+
+			if (strategizer->get_num_tries(numcands) < 0) {
+				strategic_election = strategizer->get_strategic_election(
+						honest_outcome, -1, election_data, numcands,
+						ballot_gen, randomizer);
+				requested_strat = true;
+			} else {
+				// If we've tried every instance for this strategy,
+				// skip.
+				if (instances_tried[i] >=
+					strategizer->get_num_tries(numcands)) {
+					continue;
+				}
+				strategic_election = strategizer->get_strategic_election(
+						honest_outcome, instances_tried[i], election_data,
+						numcands, ballot_gen, randomizer);
+
+				++instances_tried[i];
+				requested_strat = true;
 			}
 
-			if (election_data.grouped_by_challenger[challenger].challenger_support <=
-				0) {
+			if (!requested_strat) {
 				continue;
 			}
-
-			strategic_election = strategizer->get_strategic_election(
-					honest_outcome,
-					election_data.grouped_by_challenger[challenger],
-					election_data, numcands, ballot_gen, randomizer);
 
 			if (verbose) {
 				std::cout << "DEBUG: Trying strategy "
@@ -258,12 +310,16 @@ bool strategy_test::strategize_for_election(
 					numcands, true);
 
 			// Check if our candidate is now at top rank.
-			if (ordering_tools::is_winner(strat_result, challenger)) {
+			// ??? HOW DO WE DO THIS??? Not like this, obviously!
+			// Some kind of incremental construction of a disproof?
+			// Or just straight-out construction of one???
+			if (ordering_tools::is_winner(strat_result,
+					strategizer->chosen_challenger)) {
 				strategy_worked = true;
 			}
 
 			if (verbose && strategy_worked) {
-				std::cout << "Strategy to elect " << challenger
+				std::cout << "Strategy to elect " << strategizer->chosen_challenger
 					<< " worked!" << std::endl;
 				std::cout << "Outcome after strategy: " <<
 					ordering_tools().ordering_to_text(strat_result,

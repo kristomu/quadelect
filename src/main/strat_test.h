@@ -58,21 +58,46 @@ class ballots_by_support {
 
 // XXX: This doesn't yet contain a hash that will identify the election it's
 // valid for. It must thus never be used across elections. Implementing a
-// hash function for
+// hash function for elections would fix that problem, but I don't know
+// if it's worth it, performance wise.
 class test_cache {
 	public:
 		std::vector<ballots_by_support> grouped_by_challenger;
 };
 
+// The strategy (test) classes are ultimately meant to be designed like
+// this:
+//	They take an index from 0 to a maximum exclusive, and produce some
+//	kind of test outcome. If the maximum is -1, then that means there
+//  are so many that exhaustive traversal is intractable (wouldn't fit
+//  an int64_t).
+//  Then there's a method to produce a strategy by index (if the max
+//  isn't -1) and one to produce a random strategy.
+
+// Ultimately I want enough machinery to support going through a random
+// permutation of these, as well as going through them exhaustively, and
+// in such a way that the class doing the iteration (currently
+// strategy_test) doesn't have to care about whether the strategy is
+// cloning (candidate-centered) or burial/compromise or something else
+// entirely... because I want to extend the strategy concept to tests in
+// general.
+
+// But I'll have to see if it's doable.
+
 class strategy {
 	public:
+		// WARNING: EXTRAORDINARILY UGLY HACK. FIX LATER TODO XXX!
+		mutable size_t chosen_challenger;
+
 		virtual std::list<ballot_group> get_strategic_election(
 			const ordering & honest_outcome,
-			const ballots_by_support & grouped_ballots,
-			const test_cache & cache, size_t numcands,
-			pure_ballot_generator * ballot_generator, rng * randomizer) const = 0;
+			int64_t instance_index, const test_cache & cache,
+			size_t numcands, pure_ballot_generator * ballot_generator,
+			rng * randomizer) const = 0;
 
 		virtual std::string name() const = 0;
+
+		virtual int64_t get_num_tries(size_t numcands) const = 0;
 };
 
 class per_ballot_strat : public strategy {
@@ -82,9 +107,14 @@ class per_ballot_strat : public strategy {
 
 		std::list<ballot_group> get_strategic_election(
 			const ordering & honest_outcome,
-			const ballots_by_support & grouped_ballots,
-			const test_cache & cache, size_t numcands,
-			pure_ballot_generator * ballot_generator, rng * randomizer) const;
+			int64_t instance_index, const test_cache & cache,
+			size_t numcands, pure_ballot_generator * ballot_generator,
+			rng * randomizer) const;
+
+		int64_t get_num_tries(size_t numcands) const {
+			// One attempt per challenger
+			return numcands-1;
+		}
 };
 
 class burial : public per_ballot_strat {
@@ -125,37 +155,37 @@ class two_sided_reverse : public strategy {
 	public:
 		std::list<ballot_group> get_strategic_election(
 			const ordering & honest_outcome,
-			const ballots_by_support & grouped_ballots,
-			const test_cache & cache, size_t numcands,
-			pure_ballot_generator * ballot_generator, rng * randomizer) const;
+			int64_t instance_index, const test_cache & cache,
+			size_t numcands, pure_ballot_generator * ballot_generator,
+			rng * randomizer) const;
 
 		std::string name() const {
 			return "Two-sided reverse";
 		}
+
+		int64_t get_num_tries(size_t numcands) const {
+			// One attempt per challenger
+			return numcands-1;
+		}
+
 };
 
 class coalitional_strategy : public strategy {
-	private:
-		size_t num_coalitions;
 
 	public:
-		// Hack for now.
-		void set_num_coalitions(size_t num_coalitions_in) {
-			num_coalitions = num_coalitions_in;
-		}
-
 		std::list<ballot_group> get_strategic_election(
 			const ordering & honest_outcome,
-			const ballots_by_support & grouped_ballots,
-			const test_cache & cache, size_t numcands,
-			pure_ballot_generator * ballot_generator, rng * randomizer) const;
-
-		coalitional_strategy() {
-			num_coalitions = 1;
-		}
+			int64_t instance_index, const test_cache & cache,
+			size_t numcands, pure_ballot_generator * ballot_generator,
+			rng * randomizer) const;
 
 		std::string name() const {
 			return "Coalitional strategy";
+		}
+
+		int64_t get_num_tries(size_t numcands) const {
+			// Too many to count.
+			return -1;
 		}
 };
 
@@ -232,6 +262,7 @@ class strategy_test : public Test {
 			strategies.push_back(std::make_unique<compromising>());
 			strategies.push_back(std::make_unique<two_sided_strat>());
 			strategies.push_back(std::make_unique<two_sided_reverse>());
+			strategies.push_back(std::make_unique<coalitional_strategy>());
 		}
 
 		strategy_test(pure_ballot_generator * ballot_gen_in,

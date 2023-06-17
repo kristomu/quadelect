@@ -12,6 +12,10 @@
 
 const double PI = 4 * atan(1);
 
+// Transforms parameters of 0 1 2 ... skip skip+1 ... into
+// 0 1 2 ... skip+1 ..., i.e. skips the number given by "skip".
+int skip_number(int idx, int skip);
+
 // Sign value: -1 if less than zero, 0 if zero, 1 if greater.
 int sign(double in);
 
