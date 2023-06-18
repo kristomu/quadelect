@@ -209,8 +209,6 @@ class strategy_test : public Test {
 		std::vector<std::unique_ptr<strategy> > strategies;
 		coalitional_strategy coalstrat;
 
-		strategy * get_applicable_strategy(int iteration);
-
 		// TODO: Call this something else so that we don't get
 		// "strategy" (manipulation) confused with "strategies"
 		// (burial, compromise, etc.)

@@ -204,22 +204,6 @@ std::list<ballot_group> coalitional_strategy::get_strategic_election(
 	return strategic_election;
 }
 
-// This should really be replaced with some kind of iteration through
-// a vector of strategies, where it tries each a certain number of times
-// before going to the next, skipping those that are exhausted... phew.
-// things are gonna get so very messy here. I need to take a step back
-// and consider how to simplify things, later.
-
-strategy * strategy_test::get_applicable_strategy(int iteration) {
-	switch (iteration) {
-		case 0: return strategies[0].get(); // burial
-		case 1: return strategies[1].get(); // compromising
-		case 2: return strategies[2].get(); // two-sided
-		case 3: return strategies[3].get(); // two-sided reverse
-		default: return &coalstrat;
-	}
-}
-
 bool strategy_test::strategize_for_election(
 	const std::list<ballot_group> & ballots,
 	ordering honest_outcome, size_t numcands, bool verbose) {
