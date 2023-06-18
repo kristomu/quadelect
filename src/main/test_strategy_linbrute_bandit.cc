@@ -64,7 +64,7 @@
 
 #include "../bandit/tests/reverse.h"
 
-#include "strat_test.h"
+#include "../tests/strategies.h"
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X

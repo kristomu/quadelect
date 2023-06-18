@@ -31,7 +31,7 @@
 
 #include "../random/random.h"
 
-#include "strat_test.h"
+#include "../tests/strategies.h"
 
 int main(int argc, const char ** argv) {
 	if (argc < 2) {

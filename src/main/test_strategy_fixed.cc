@@ -60,7 +60,7 @@
 #include "../bandit/bandit.h"
 #include "../bandit/lilucb.h"
 
-#include "strat_test.h"
+#include "../tests/strategies.h"
 
 // default values for number of processors and current processor
 // use -I compiler options to get multiproc support. TODO: make this an

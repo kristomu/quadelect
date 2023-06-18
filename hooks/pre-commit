@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Most of this code is from
+# https://github.com/mellowcandle/astyle_precommit_hook/blob/master/pre-commit
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+files=$(git diff-index --diff-filter=ACMR --name-only -r --cached $against -- | grep -i '\.c$\|\.cc$\|\.cpp$\|\.hpp$\|\.h$')
+for file in $files; do
+    x=`echo $file`
+    if test "x$x" != "x"; then
+	    ./astyle.sh $file
+	    git add $file
+    fi
+done

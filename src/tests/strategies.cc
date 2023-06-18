@@ -1,4 +1,4 @@
-#include "strat_test.h"
+#include "strategies.h"
 
 ballots_by_support strategy_test::group_by_support(
 	const std::list<ballot_group> & ballots,

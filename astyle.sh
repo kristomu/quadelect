@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Java brace style, C/C++ code, forced tab indentation, 75 character
 # lines, indent (not align) after parens, align references to middle,
 # put braces around one-liners, indent classes and case switches,

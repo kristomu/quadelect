@@ -146,7 +146,7 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/bandit/bandit.cc
 	src/bandit/binomial.cc
 	src/bandit/lilucb.cc
-	src/main/strat_test.cc
+	src/tests/strategies.cc
 	src/modes/breg.cc
 	src/images/color/color.cc
 	src/modes/yee.cc
