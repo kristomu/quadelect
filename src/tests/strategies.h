@@ -116,8 +116,7 @@ class strategy {
 	public:
 		// Returns a partially formed disproof - I'm going to do it
 		// like that and then profile to see if it's too slow.
-		virtual disproof get_strategic_election(
-			const ordering & honest_outcome,
+		virtual void add_strategic_election(disproof & partial_disproof,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
 			rng * randomizer) const = 0;
@@ -142,8 +141,7 @@ class per_ballot_strat : public strategy {
 		virtual ballot_group modify_ballots(ballot_group ballot,
 			size_t winner, size_t challenger) const = 0;
 
-		disproof get_strategic_election(
-			const ordering & honest_outcome,
+		void add_strategic_election(disproof & partial_disproof,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
 			rng * randomizer) const;
@@ -191,8 +189,7 @@ class two_sided_strat : public per_ballot_strat {
 class two_sided_reverse : public strategy {
 	public:
 
-		disproof get_strategic_election(
-			const ordering & honest_outcome,
+		void add_strategic_election(disproof & partial_disproof,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
 			rng * randomizer) const;
@@ -211,8 +208,7 @@ class two_sided_reverse : public strategy {
 class coalitional_strategy : public strategy {
 	public:
 
-		disproof get_strategic_election(
-			const ordering & honest_outcome,
+		void add_strategic_election(disproof & partial_disproof,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
 			rng * randomizer) const;

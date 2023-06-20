@@ -109,17 +109,13 @@ void strategy::print_disproof(const disproof & disproof_to_print) const {
 // Maybe some map/accumulate trickery could be done here?
 // I feel like I'm duplicating stuff a lot... Maybe this is better?
 
-disproof per_ballot_strat::get_strategic_election(
-	const ordering & honest_outcome,
-	int64_t instance_index,
+void per_ballot_strat::add_strategic_election(
+	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
-	disproof partial_disproof;
+	partial_disproof.data.clear();
 	partial_disproof.disprover_name = name();
-
-	// TODO: Remove this when no longer needed.
-	partial_disproof.before_outcome = honest_outcome;
 
 	// Transform each strategizer's ballot according to the strategy.
 
@@ -145,8 +141,6 @@ disproof per_ballot_strat::get_strategic_election(
 		partial_disproof.after_election.push_back(modify_ballots(ballot,
 				winner, grouped_ballots->challenger));
 	}
-
-	return partial_disproof;
 }
 
 ballot_group burial::modify_ballots(ballot_group ballot, size_t winner,
@@ -177,15 +171,13 @@ ballot_group two_sided_strat::modify_ballots(ballot_group ballot,
 // the winner last.
 // E.g. if the social outcome was W=A>B>C>D=E, and the winner is W and
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
-disproof two_sided_reverse::get_strategic_election(
-	const ordering & honest_outcome,
-	int64_t instance_index,
+void two_sided_reverse::add_strategic_election(
+	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
-	disproof partial_disproof;
+	partial_disproof.data.clear();
 	partial_disproof.disprover_name = name();
-	partial_disproof.before_outcome = honest_outcome;
 
 	size_t winner = cache.grouped_by_challenger[0].winner;
 	size_t chosen_challenger = skip_number(instance_index, winner);
@@ -202,6 +194,7 @@ disproof two_sided_reverse::get_strategic_election(
 	// Create a ballot with weight equal to the number of voters preferring
 	// the challenger to the winner, with ordering equal to the reverse
 	// of the honest outcome.
+	ordering honest_outcome = partial_disproof.before_outcome;
 	ballot_group strategic_ballot(grouped_ballots->challenger_support,
 		ordering_tools().reverse(honest_outcome), true, false);
 
@@ -212,8 +205,6 @@ disproof two_sided_reverse::get_strategic_election(
 		strategic_ballot.get_max_score()+1);
 
 	partial_disproof.after_election.push_back(strategic_ballot);
-
-	return partial_disproof;
 }
 
 // This produces one ballot per coalition; the members of the coalition
@@ -226,9 +217,8 @@ disproof two_sided_reverse::get_strategic_election(
 
 // The assignment of coalition weights is not entirely uniform, but it
 // seems to let the method find strategies more easily, at least for IRV.
-disproof coalitional_strategy::get_strategic_election(
-	const ordering & honest_outcome,
-	int64_t instance_index,
+void coalitional_strategy::add_strategic_election(
+	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
@@ -241,9 +231,8 @@ disproof coalitional_strategy::get_strategic_election(
 			"supports random");
 	}
 
-	disproof partial_disproof;
+	partial_disproof.data.clear();
 	partial_disproof.disprover_name = name();
-	partial_disproof.before_outcome = honest_outcome;
 
 	size_t num_coalitions = randomizer->irand(1, 4);
 	size_t winner = cache.grouped_by_challenger[0].winner;
@@ -278,8 +267,6 @@ disproof coalitional_strategy::get_strategic_election(
 
 		partial_disproof.after_election.push_back(strategic_ballot);
 	}
-
-	return partial_disproof;
 }
 
 bool strategy_test::strategize_for_election(
@@ -294,7 +281,6 @@ bool strategy_test::strategize_for_election(
 	}
 
 	size_t winner = honest_outcome.begin()->get_candidate_num();
-	bool strategy_worked = false;
 
 	if (verbose) {
 		std::cout << "Trying to strategize for this election: " << std::endl;
@@ -305,8 +291,10 @@ bool strategy_test::strategize_for_election(
 
 	test_cache election_data;
 
+	// Create the disproof (evidence) that we'll be building on.
 	disproof strategy_instance;
 	strategy_instance.before_outcome = honest_outcome;
+	strategy_instance.before_election = ballots;
 
 	election_data.grouped_by_challenger.resize(numcands,
 		ballots_by_support(winner, winner));
@@ -325,19 +313,33 @@ bool strategy_test::strategize_for_election(
 			group_by_support(ballots, winner, challenger);
 	}
 
-	for (int iteration = 0; iteration < strategy_attempts_per_try;
-		++iteration) {
+	int iteration = 0;
+	bool exhausted_every_strategy = false;
 
-		for (size_t i = 0; i < strategies.size(); ++i) {
+	while (iteration < strategy_attempts_per_try
+		&& !exhausted_every_strategy) {
+
+		exhausted_every_strategy = true;
+
+		// A possible cleanup for this is to use a list or something
+		// similar and evict strategies that have been exhausted. Then
+		// we've exhausted every strategy once the list is empty.
+
+		for (size_t i = 0; i < strategies.size() &&
+			iteration < strategy_attempts_per_try; ++i) {
 
 			bool requested_strat = false;
 
 			strategy * strategizer = strategies[i].get();
 
+			// This part feels a bit ugly. We go through different
+			// strategies testing if we've already exhausted them or
+			// if they're still usable.
+
 			if (strategizer->get_num_tries(numcands) < 0) {
-				strategy_instance = strategizer->get_strategic_election(
-						honest_outcome, -1, election_data, numcands,
-						ballot_gen, randomizer);
+				strategizer->add_strategic_election(
+					strategy_instance, -1, election_data, numcands,
+					ballot_gen, randomizer);
 				requested_strat = true;
 			} else {
 				// If we've tried every instance for this strategy,
@@ -346,15 +348,18 @@ bool strategy_test::strategize_for_election(
 					strategizer->get_num_tries(numcands)) {
 					continue;
 				}
-				strategy_instance = strategizer->get_strategic_election(
-						honest_outcome, instances_tried[i], election_data,
-						numcands, ballot_gen, randomizer);
+				strategizer->add_strategic_election(strategy_instance,
+					instances_tried[i], election_data,
+					numcands, ballot_gen, randomizer);
 
 				++instances_tried[i];
 				requested_strat = true;
 			}
 
-			if (!requested_strat) {
+			if (requested_strat) {
+				exhausted_every_strategy = false;
+				++iteration;
+			} else {
 				continue;
 			}
 
@@ -372,23 +377,18 @@ bool strategy_test::strategize_for_election(
 			// Check if the strategy worked (in which case strategy_instance
 			// is now a valid disproof of strategy immunity).
 			if (strategizer->is_disproof_valid(strategy_instance)) {
-				strategy_worked = true;
-			}
+				if (verbose) {
+					strategizer->print_disproof(strategy_instance);
+				}
 
-			if (verbose && strategy_worked) {
-				strategizer->print_disproof(strategy_instance);
-			}
-
-			if (strategy_worked) {
-				// TODO: Return a disproof instead.
-				// Requires a redesign of both two-tests and this...
+				// Maybe we should return a disproof instead? TODO?
 				return true;
 			}
 
 		}
 	}
 
-	if (verbose && !strategy_worked) {
+	if (verbose) {
 		std::cout << "Strategy didn't work!" << std::endl;
 	}
 
