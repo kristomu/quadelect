@@ -65,6 +65,34 @@ class test_cache {
 		std::vector<ballots_by_support> grouped_by_challenger;
 };
 
+// The disproof class is a base class, the specializations of which
+// contain all information required to prove a certain type of strategy
+// succeeded, as well as an evaluation function that determines whether
+// the disproof is valid (i.e. actually demonstrates a successful strategy).
+
+// The disproof class assumes that we're dealing with a dynamic
+// criterion, i.e. where there's a before and after situation. All strategies
+// are of this form. I'll implement static criteria later.
+
+// The additional informations map is kind of a poor man's dynamic typing
+// hack, but it's necessary because the function iterating over the
+// different strategies can't tell different types of disproof apart
+// due to the inheritance structure. So every disproof has to have the
+// capability to store information needed for any particular disproof
+// type.
+
+class disproof {
+	public:
+		std::list<ballot_group> before_election, after_election;
+		ordering before_outcome, after_outcome;
+		std::map<std::string, size_t> data;
+		std::string disprover_name;
+
+		std::string name() const {
+			return disprover_name;
+		}
+};
+
 // The strategy (test) classes are ultimately meant to be designed like
 // this:
 //	They take an index from 0 to a maximum exclusive, and produce some
@@ -86,10 +114,9 @@ class test_cache {
 
 class strategy {
 	public:
-		// WARNING: EXTRAORDINARILY UGLY HACK. FIX LATER TODO XXX!
-		mutable size_t chosen_challenger;
-
-		virtual std::list<ballot_group> get_strategic_election(
+		// Returns a partially formed disproof - I'm going to do it
+		// like that and then profile to see if it's too slow.
+		virtual disproof get_strategic_election(
 			const ordering & honest_outcome,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
@@ -98,6 +125,16 @@ class strategy {
 		virtual std::string name() const = 0;
 
 		virtual int64_t get_num_tries(size_t numcands) const = 0;
+
+		// Returns true if the disproof shows a failure, false
+		// otherwise. If this strategy isn't responsible for the
+		// disproof, it'll throw an exception as that's not expected
+		// to happen. (Fix this later if required)
+		virtual bool is_disproof_valid(
+			const disproof & disproof_to_verify) const;
+
+		virtual void print_disproof(
+			const disproof & disproof_to_print) const;
 };
 
 class per_ballot_strat : public strategy {
@@ -105,7 +142,7 @@ class per_ballot_strat : public strategy {
 		virtual ballot_group modify_ballots(ballot_group ballot,
 			size_t winner, size_t challenger) const = 0;
 
-		std::list<ballot_group> get_strategic_election(
+		disproof get_strategic_election(
 			const ordering & honest_outcome,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
@@ -153,7 +190,8 @@ class two_sided_strat : public per_ballot_strat {
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
 class two_sided_reverse : public strategy {
 	public:
-		std::list<ballot_group> get_strategic_election(
+
+		disproof get_strategic_election(
 			const ordering & honest_outcome,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
@@ -171,9 +209,9 @@ class two_sided_reverse : public strategy {
 };
 
 class coalitional_strategy : public strategy {
-
 	public:
-		std::list<ballot_group> get_strategic_election(
+
+		disproof get_strategic_election(
 			const ordering & honest_outcome,
 			int64_t instance_index, const test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,

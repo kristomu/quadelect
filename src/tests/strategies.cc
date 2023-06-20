@@ -48,14 +48,78 @@ ballots_by_support strategy_test::group_by_support(
 	return grouped_ballots;
 }
 
+
+// Since we're dealing with strategies of the type "if a bunch of people who
+// all prefer A to W change their ballots, then A shouldn't win", then we can
+// do the same check for each, namely that the winner did actually change.
+// NOTE: I don't yet do an exhaustive check that only the people who preferred
+// the challenger to the winner changed their ballots, so you could construct
+// a false proof that would show as true here. I also don't do any checks for
+// the proof being in scope; that'll have to be done later when we add more
+// test types.
+
+bool strategy::is_disproof_valid(const disproof & disproof_to_verify)
+const {
+	size_t chosen_challenger = disproof_to_verify.data.find(
+			"chosen_challenger")->second;
+
+	if (!ordering_tools::is_winner(disproof_to_verify.after_outcome,
+			chosen_challenger)) {
+		return false;
+	}
+
+	if (ordering_tools::is_winner(disproof_to_verify.before_outcome,
+			chosen_challenger)) {
+		return false;
+	}
+
+	return true;
+}
+
+void strategy::print_disproof(const disproof & disproof_to_print) const {
+	if (!is_disproof_valid(disproof_to_print)) {
+		return;
+	}
+
+	size_t chosen_challenger = disproof_to_print.data.find(
+			"chosen_challenger")->second;
+
+	std::cout << "Strategy to elect " << chosen_challenger
+		<< " worked!\n";
+	std::cout << "Strategy executed: "
+		<< disproof_to_print.disprover_name << "\n";
+
+	std::cout << "Outcome before strategy: "
+		<< ordering_tools().ordering_to_text(
+			disproof_to_print.before_outcome, false) << "\n";
+	std::cout << "Outcome after strategy: "
+		<< ordering_tools().ordering_to_text(
+			disproof_to_print.after_outcome, false) << "\n";
+
+	std::cout << "Ballots before strategy: " << "\n";
+	ballot_tools().print_ranked_ballots(
+		disproof_to_print.before_election);
+
+	std::cout << "Ballots after strategy: " << "\n";
+	ballot_tools().print_ranked_ballots(
+		disproof_to_print.after_election);
+	std::cout << std::endl;
+}
+
 // Maybe some map/accumulate trickery could be done here?
 // I feel like I'm duplicating stuff a lot... Maybe this is better?
 
-std::list<ballot_group> per_ballot_strat::get_strategic_election(
+disproof per_ballot_strat::get_strategic_election(
 	const ordering & honest_outcome,
 	int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
+
+	disproof partial_disproof;
+	partial_disproof.disprover_name = name();
+
+	// TODO: Remove this when no longer needed.
+	partial_disproof.before_outcome = honest_outcome;
 
 	// Transform each strategizer's ballot according to the strategy.
 
@@ -63,25 +127,26 @@ std::list<ballot_group> per_ballot_strat::get_strategic_election(
 	// relevant election grouped by challenger from the cache.
 
 	size_t winner = cache.grouped_by_challenger[0].winner;
-	chosen_challenger = skip_number(instance_index, winner);
+	size_t chosen_challenger = skip_number(instance_index, winner);
 	if (chosen_challenger >= cache.grouped_by_challenger.size()) {
 		throw std::runtime_error("per_ballot_strat: invalid index " +
 			itos(instance_index));
 	}
+
 	const ballots_by_support * grouped_ballots =
 		&cache.grouped_by_challenger[chosen_challenger];
 
-	std::list<ballot_group> strategic_election =
-		grouped_ballots->others;
+	partial_disproof.data["chosen_challenger"] = chosen_challenger;
+	partial_disproof.after_election = grouped_ballots->others;
 
 	for (ballot_group ballot:
 		grouped_ballots->supporting_challenger) {
 
-		strategic_election.push_back(modify_ballots(ballot,
+		partial_disproof.after_election.push_back(modify_ballots(ballot,
 				winner, grouped_ballots->challenger));
 	}
 
-	return strategic_election;
+	return partial_disproof;
 }
 
 ballot_group burial::modify_ballots(ballot_group ballot, size_t winner,
@@ -112,14 +177,18 @@ ballot_group two_sided_strat::modify_ballots(ballot_group ballot,
 // the winner last.
 // E.g. if the social outcome was W=A>B>C>D=E, and the winner is W and
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
-std::list<ballot_group> two_sided_reverse::get_strategic_election(
+disproof two_sided_reverse::get_strategic_election(
 	const ordering & honest_outcome,
 	int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
+	disproof partial_disproof;
+	partial_disproof.disprover_name = name();
+	partial_disproof.before_outcome = honest_outcome;
+
 	size_t winner = cache.grouped_by_challenger[0].winner;
-	chosen_challenger = skip_number(instance_index, winner);
+	size_t chosen_challenger = skip_number(instance_index, winner);
 	if (chosen_challenger >= cache.grouped_by_challenger.size()) {
 		throw std::runtime_error("per_ballot_strat: invalid index " +
 			itos(instance_index));
@@ -127,7 +196,8 @@ std::list<ballot_group> two_sided_reverse::get_strategic_election(
 	const ballots_by_support * grouped_ballots =
 		&cache.grouped_by_challenger[chosen_challenger];
 
-	std::list<ballot_group> strategic_election = grouped_ballots->others;
+	partial_disproof.data["chosen_challenger"] = chosen_challenger;
+	partial_disproof.after_election = grouped_ballots->others;
 
 	// Create a ballot with weight equal to the number of voters preferring
 	// the challenger to the winner, with ordering equal to the reverse
@@ -141,7 +211,9 @@ std::list<ballot_group> two_sided_reverse::get_strategic_election(
 	strategic_ballot.replace_score(grouped_ballots->challenger,
 		strategic_ballot.get_max_score()+1);
 
-	return strategic_election;
+	partial_disproof.after_election.push_back(strategic_ballot);
+
+	return partial_disproof;
 }
 
 // This produces one ballot per coalition; the members of the coalition
@@ -154,7 +226,7 @@ std::list<ballot_group> two_sided_reverse::get_strategic_election(
 
 // The assignment of coalition weights is not entirely uniform, but it
 // seems to let the method find strategies more easily, at least for IRV.
-std::list<ballot_group> coalitional_strategy::get_strategic_election(
+disproof coalitional_strategy::get_strategic_election(
 	const ordering & honest_outcome,
 	int64_t instance_index,
 	const test_cache & cache, size_t numcands,
@@ -169,15 +241,21 @@ std::list<ballot_group> coalitional_strategy::get_strategic_election(
 			"supports random");
 	}
 
+	disproof partial_disproof;
+	partial_disproof.disprover_name = name();
+	partial_disproof.before_outcome = honest_outcome;
+
 	size_t num_coalitions = randomizer->irand(1, 4);
 	size_t winner = cache.grouped_by_challenger[0].winner;
-	chosen_challenger = skip_number(randomizer->irand(0, numcands-1),
+	size_t chosen_challenger = skip_number(randomizer->irand(0, numcands-1),
 			winner);
 
 	const ballots_by_support * grouped_ballots =
 		&cache.grouped_by_challenger[chosen_challenger];
 
-	std::list<ballot_group> strategic_election = grouped_ballots->others;
+	partial_disproof.data["chosen_challenger"] = chosen_challenger;
+	partial_disproof.after_election = grouped_ballots->others;
+
 	double unassigned_weight = grouped_ballots->challenger_support;
 	double max_support_per_coalition =
 		grouped_ballots->challenger_support/num_coalitions;
@@ -198,10 +276,10 @@ std::list<ballot_group> coalitional_strategy::get_strategic_election(
 				unassigned_weight);
 		unassigned_weight -= strategic_ballot.weight;
 
-		strategic_election.push_back(strategic_ballot);
+		partial_disproof.after_election.push_back(strategic_ballot);
 	}
 
-	return strategic_election;
+	return partial_disproof;
 }
 
 bool strategy_test::strategize_for_election(
@@ -216,9 +294,7 @@ bool strategy_test::strategize_for_election(
 	}
 
 	size_t winner = honest_outcome.begin()->get_candidate_num();
-
 	bool strategy_worked = false;
-	ordering::const_iterator pos;
 
 	if (verbose) {
 		std::cout << "Trying to strategize for this election: " << std::endl;
@@ -228,15 +304,17 @@ bool strategy_test::strategize_for_election(
 	}
 
 	test_cache election_data;
-	std::list<ballot_group> strategic_election;
+
+	disproof strategy_instance;
+	strategy_instance.before_outcome = honest_outcome;
 
 	election_data.grouped_by_challenger.resize(numcands,
 		ballots_by_support(winner, winner));
 
 	// Create an array per strategizer so that we can determine when
-	// we've exhausted all the options. TODO: for strategizers with
-	// extremely large ranges, just do -1 instead or draw from a random
-	// permutation...
+	// we've exhausted all the options. For strategizers with extremely
+	// large ranges, do -1 to draw from a random permutation...
+	// TODO? Better design?
 
 	std::vector<int64_t> instances_tried(strategies.size(), 0);
 
@@ -257,7 +335,7 @@ bool strategy_test::strategize_for_election(
 			strategy * strategizer = strategies[i].get();
 
 			if (strategizer->get_num_tries(numcands) < 0) {
-				strategic_election = strategizer->get_strategic_election(
+				strategy_instance = strategizer->get_strategic_election(
 						honest_outcome, -1, election_data, numcands,
 						ballot_gen, randomizer);
 				requested_strat = true;
@@ -268,7 +346,7 @@ bool strategy_test::strategize_for_election(
 					strategizer->get_num_tries(numcands)) {
 					continue;
 				}
-				strategic_election = strategizer->get_strategic_election(
+				strategy_instance = strategizer->get_strategic_election(
 						honest_outcome, instances_tried[i], election_data,
 						numcands, ballot_gen, randomizer);
 
@@ -283,33 +361,22 @@ bool strategy_test::strategize_for_election(
 			if (verbose) {
 				std::cout << "DEBUG: Trying strategy "
 					<< strategizer->name() << std::endl;
-				std::cout << "After transformation, the ballot set "
-					"looks like this:" << std::endl;
-				ballot_tools().print_ranked_ballots(strategic_election);
 			}
 
 			// Determine the winner again! A tie counts if our man
 			// is at top rank, because he wasn't, before.
-			ordering strat_result = method->elect(strategic_election,
+			strategy_instance.after_outcome = method->elect(
+					strategy_instance.after_election,
 					numcands, true);
 
-			// Check if our candidate is now at top rank.
-			// ??? HOW DO WE DO THIS??? Not like this, obviously!
-			// Some kind of incremental construction of a disproof?
-			// Or just straight-out construction of one???
-			if (ordering_tools::is_winner(strat_result,
-					strategizer->chosen_challenger)) {
+			// Check if the strategy worked (in which case strategy_instance
+			// is now a valid disproof of strategy immunity).
+			if (strategizer->is_disproof_valid(strategy_instance)) {
 				strategy_worked = true;
 			}
 
 			if (verbose && strategy_worked) {
-				std::cout << "Strategy to elect " << strategizer->chosen_challenger
-					<< " worked!" << std::endl;
-				std::cout << "Outcome after strategy: " <<
-					ordering_tools().ordering_to_text(strat_result,
-						false) << std::endl;
-				std::cout << "After strategy: " << std::endl;
-				ballot_tools().print_ranked_ballots(strategic_election);
+				strategizer->print_disproof(strategy_instance);
 			}
 
 			if (strategy_worked) {
