@@ -507,11 +507,7 @@ std::list<ballot_group> ballot_tools::compress(const
 		// breaks on it, otherwise same_rank might try to access
 		// something that doesn't exist, leading to big bara boom.
 		while (check_against != compressed.end() &&
-			// Perhaps we don't need scrub scores here. Hm.
-			// We don't seem to need it. Uncomment if it
-			// turns out I'm wrong.
-			/*otools.scrub_scores*/(check->contents) ==
-			/*otools.scrub_scores*/(check_against->contents)) {
+			check->contents == check_against->contents) {
 
 			check->weight += check_against->weight;
 			check_against = compressed.erase(check_against);

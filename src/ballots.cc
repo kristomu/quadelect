@@ -58,8 +58,3 @@ ballot_group::ballot_group(double weight_in, const ordering & cont,
 	complete = complete_in;
 	rated = rated_in;
 }
-
-ballot_group::~ballot_group() {
-	contents.clear();
-}
-
