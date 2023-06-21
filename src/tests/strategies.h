@@ -24,11 +24,10 @@ enum basic_strategy {ST_NONE = -1, ST_BURIAL = 0, ST_COMPROMISING = 1,
 	ST_TWOSIDED = 2, ST_REVERSE = 3, ST_OTHER = 4
 };
 
-// Refactoring scaffolding. Since we're trying to engineer
-// a strategy in favor of the challenger, we divide the ballots
-// into those that explicitly support the challenger and everybody
-// else. Those that are indifferent to the winner and challenger
-// thus don't count as supporting the challenger.
+// Since we're trying to engineer a strategy in favor of the challenger,
+// we divide the ballots into those that explicitly support the challenger,
+// and everybody else. Those that are indifferent to the winner and
+// challenger thus don't count as supporting the challenger.
 class ballots_by_support {
 	public:
 		std::list<ballot_group> supporting_challenger,
@@ -37,11 +36,28 @@ class ballots_by_support {
 		double challenger_support, other_support;
 		size_t winner, challenger;
 
-		ballots_by_support(size_t winner_in, size_t challenger_in) {
+		void reset(size_t winner_in, size_t challenger_in) {
 			challenger_support = 0;
 			other_support = 0;
 			winner = winner_in;
 			challenger = challenger_in;
+			supporting_challenger.clear();
+			others.clear();
+		}
+
+		ballots_by_support(size_t winner_in, size_t challenger_in) {
+			reset(winner_in, challenger_in);
+		}
+
+		// Initialize data according to a given set of ballots.
+		void group_by_support(
+			const std::list<ballot_group> & ballots,
+			size_t winner_in, size_t challenger_in);
+
+		ballots_by_support(const std::list<ballot_group> & ballots,
+			size_t winner_in, size_t challenger_in) {
+
+			group_by_support(ballots, winner_in, challenger_in);
 		}
 };
 
@@ -113,13 +129,35 @@ class disproof {
 // But I'll have to see if it's doable.
 
 class strategy {
-	public:
+	protected:
 		// Returns a partially formed disproof - I'm going to do it
 		// like that and then profile to see if it's too slow.
-		virtual void add_strategic_election(disproof & partial_disproof,
-			int64_t instance_index, const test_cache & cache,
-			size_t numcands, pure_ballot_generator * ballot_generator,
+		virtual void add_strategic_election_inner(
+			disproof & partial_disproof, int64_t instance_index,
+			const test_cache & cache, size_t numcands,
+			pure_ballot_generator * ballot_generator,
 			rng * randomizer) const = 0;
+
+	public:
+		// Check if the cache has the data we'll rely on; if not,
+		// add it. The partial disproof must contain everything
+		// pertaining to the honest outcome. (I might change this
+		// later, it's sort of ugly...)
+		void prepare_cache(test_cache & election_data,
+			disproof & partial_disproof, size_t numcands) const;
+
+		// This is a simple wrapper to ensure prepare_cache is always
+		// called.
+		void add_strategic_election(disproof & partial_disproof,
+			int64_t instance_index, test_cache & cache,
+			size_t numcands, pure_ballot_generator * ballot_generator,
+			rng * randomizer) {
+
+			prepare_cache(cache, partial_disproof, numcands);
+			add_strategic_election_inner(partial_disproof,
+				instance_index, cache, numcands,
+				ballot_generator, randomizer);
+		}
 
 		virtual std::string name() const = 0;
 
@@ -137,14 +175,18 @@ class strategy {
 };
 
 class per_ballot_strat : public strategy {
+	private:
+		// Returns a partially formed disproof - I'm going to do it
+		// like that and then profile to see if it's too slow.
+		void add_strategic_election_inner(
+			disproof & partial_disproof, int64_t instance_index,
+			const test_cache & cache, size_t numcands,
+			pure_ballot_generator * ballot_generator,
+			rng * randomizer) const;
+
 	public:
 		virtual ballot_group modify_ballots(ballot_group ballot,
 			size_t winner, size_t challenger) const = 0;
-
-		void add_strategic_election(disproof & partial_disproof,
-			int64_t instance_index, const test_cache & cache,
-			size_t numcands, pure_ballot_generator * ballot_generator,
-			rng * randomizer) const;
 
 		int64_t get_num_tries(size_t numcands) const {
 			// One attempt per challenger
@@ -187,13 +229,14 @@ class two_sided_strat : public per_ballot_strat {
 // E.g. if the social outcome was W=A>B>C>D=E, and the winner is W and
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
 class two_sided_reverse : public strategy {
-	public:
-
-		void add_strategic_election(disproof & partial_disproof,
-			int64_t instance_index, const test_cache & cache,
-			size_t numcands, pure_ballot_generator * ballot_generator,
+	private:
+		void add_strategic_election_inner(
+			disproof & partial_disproof, int64_t instance_index,
+			const test_cache & cache, size_t numcands,
+			pure_ballot_generator * ballot_generator,
 			rng * randomizer) const;
 
+	public:
 		std::string name() const {
 			return "Two-sided reverse";
 		}
@@ -206,13 +249,14 @@ class two_sided_reverse : public strategy {
 };
 
 class coalitional_strategy : public strategy {
-	public:
-
-		void add_strategic_election(disproof & partial_disproof,
-			int64_t instance_index, const test_cache & cache,
-			size_t numcands, pure_ballot_generator * ballot_generator,
+	private:
+		void add_strategic_election_inner(
+			disproof & partial_disproof, int64_t instance_index,
+			const test_cache & cache, size_t numcands,
+			pure_ballot_generator * ballot_generator,
 			rng * randomizer) const;
 
+	public:
 		std::string name() const {
 			return "Coalitional strategy";
 		}
@@ -250,10 +294,6 @@ class strategy_test : public Test {
 
 		bool too_many_ties;
 		size_t ballot_gen_idx;
-
-		ballots_by_support group_by_support(
-			const std::list<ballot_group> & ballots,
-			size_t winner, size_t challenger) const;
 
 	public:
 		// Returns true if the strategy succeeded, false

@@ -1,10 +1,10 @@
 #include "strategies.h"
 
-ballots_by_support strategy_test::group_by_support(
+void ballots_by_support::group_by_support(
 	const std::list<ballot_group> & ballots,
-	size_t winner, size_t challenger) const {
+	size_t winner_in, size_t challenger_in) {
 
-	ballots_by_support grouped_ballots(winner, challenger);
+	reset(winner_in, challenger_in);
 
 	for (const ballot_group & b_group : ballots) {
 		bool seen_winner = false, seen_challenger = false;
@@ -37,17 +37,46 @@ ballots_by_support strategy_test::group_by_support(
 		// thus we only explicitly check if the challenger was
 		// rated above the winner.
 		if (challenger_score > winner_score) {
-			grouped_ballots.challenger_support += b_group.weight;
-			grouped_ballots.supporting_challenger.push_back(b_group);
+			challenger_support += b_group.weight;
+			supporting_challenger.push_back(b_group);
 		} else {
-			grouped_ballots.other_support += b_group.weight;
-			grouped_ballots.others.push_back(b_group);
+			other_support += b_group.weight;
+			others.push_back(b_group);
 		}
 	}
-
-	return grouped_ballots;
 }
 
+void strategy::prepare_cache(test_cache & election_data,
+	disproof & partial_disproof, size_t numcands) const {
+
+	// If the cache is already populated, exit.
+	if (!election_data.grouped_by_challenger.empty()) {
+		// We should never be given a cache for another election.
+		assert(election_data.grouped_by_challenger.size() == numcands);
+
+		return;
+	}
+
+	// Group the ballots (who support the challenger and who support
+	// the winner?)
+
+	ordering honest_outcome = partial_disproof.before_outcome;
+
+	if (ordering_tools::has_multiple_winners(honest_outcome)) {
+		throw std::out_of_range("prepare_cache: Can't do ties.");
+	}
+
+	size_t winner = honest_outcome.begin()->get_candidate_num();
+
+	election_data.grouped_by_challenger.resize(numcands,
+		ballots_by_support(winner, winner));
+
+	for (size_t challenger = 0; challenger < numcands; ++challenger) {
+		election_data.grouped_by_challenger[challenger] =
+			ballots_by_support(partial_disproof.before_election,
+				winner, challenger);
+	}
+}
 
 // Since we're dealing with strategies of the type "if a bunch of people who
 // all prefer A to W change their ballots, then A shouldn't win", then we can
@@ -109,7 +138,7 @@ void strategy::print_disproof(const disproof & disproof_to_print) const {
 // Maybe some map/accumulate trickery could be done here?
 // I feel like I'm duplicating stuff a lot... Maybe this is better?
 
-void per_ballot_strat::add_strategic_election(
+void per_ballot_strat::add_strategic_election_inner(
 	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
@@ -171,7 +200,7 @@ ballot_group two_sided_strat::modify_ballots(ballot_group ballot,
 // the winner last.
 // E.g. if the social outcome was W=A>B>C>D=E, and the winner is W and
 // challenger C, the strategic faction all vote C>D=E>B>A>W.
-void two_sided_reverse::add_strategic_election(
+void two_sided_reverse::add_strategic_election_inner(
 	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
@@ -217,7 +246,7 @@ void two_sided_reverse::add_strategic_election(
 
 // The assignment of coalition weights is not entirely uniform, but it
 // seems to let the method find strategies more easily, at least for IRV.
-void coalitional_strategy::add_strategic_election(
+void coalitional_strategy::add_strategic_election_inner(
 	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
@@ -280,8 +309,6 @@ bool strategy_test::strategize_for_election(
 		throw std::out_of_range("strategize_for_election: Can't do ties.");
 	}
 
-	size_t winner = honest_outcome.begin()->get_candidate_num();
-
 	if (verbose) {
 		std::cout << "Trying to strategize for this election: " << std::endl;
 		ballot_tools().print_ranked_ballots(ballots);
@@ -296,22 +323,12 @@ bool strategy_test::strategize_for_election(
 	strategy_instance.before_outcome = honest_outcome;
 	strategy_instance.before_election = ballots;
 
-	election_data.grouped_by_challenger.resize(numcands,
-		ballots_by_support(winner, winner));
-
 	// Create an array per strategizer so that we can determine when
 	// we've exhausted all the options. For strategizers with extremely
 	// large ranges, do -1 to draw from a random permutation...
 	// TODO? Better design?
 
 	std::vector<int64_t> instances_tried(strategies.size(), 0);
-
-	for (size_t challenger = 0; challenger < numcands; ++challenger) {
-		// Group the ballots (who support the challenger and who support
-		// the winner?)
-		election_data.grouped_by_challenger[challenger] =
-			group_by_support(ballots, winner, challenger);
-	}
 
 	int iteration = 0;
 	bool exhausted_every_strategy = false;
@@ -328,7 +345,7 @@ bool strategy_test::strategize_for_election(
 		for (size_t i = 0; i < strategies.size() &&
 			iteration < strategy_attempts_per_try; ++i) {
 
-			bool requested_strat = false;
+			bool got_strategic_election = false;
 
 			strategy * strategizer = strategies[i].get();
 
@@ -340,7 +357,7 @@ bool strategy_test::strategize_for_election(
 				strategizer->add_strategic_election(
 					strategy_instance, -1, election_data, numcands,
 					ballot_gen, randomizer);
-				requested_strat = true;
+				got_strategic_election = true;
 			} else {
 				// If we've tried every instance for this strategy,
 				// skip.
@@ -353,10 +370,10 @@ bool strategy_test::strategize_for_election(
 					numcands, ballot_gen, randomizer);
 
 				++instances_tried[i];
-				requested_strat = true;
+				got_strategic_election = true;
 			}
 
-			if (requested_strat) {
+			if (got_strategic_election) {
 				exhausted_every_strategy = false;
 				++iteration;
 			} else {
