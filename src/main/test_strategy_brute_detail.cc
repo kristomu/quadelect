@@ -60,7 +60,7 @@
 
 #include "../singlewinner/young.h"
 
-#include "../tests/strategies.h"
+#include "../tests/strategy/strategies.h"
 
 // default values for number of processors and current processor
 // use -I compiler options to get multiproc support. TODO: make this an
@@ -145,8 +145,15 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
 	// --- //
 
-	strategy_test st(ballot_gen, &ic, numvoters, numcands, randomizer,
+	test_runner st(ballot_gen, &ic, numvoters, numcands, randomizer,
 		to_test, 0, num_strategy_attempts_per_iter);
+	st.add_test(std::make_shared<burial>());
+	st.add_test(std::make_shared<compromising>());
+	st.add_test(std::make_shared<two_sided_strat>());
+	st.add_test(std::make_shared<two_sided_reverse>());
+	st.add_test(std::make_shared<two_sided_reverse>());
+	st.add_test(std::make_shared<coalitional_strategy>());
+
 
 	int strategy_worked = 0, strategy_failed = 0;
 	int i;

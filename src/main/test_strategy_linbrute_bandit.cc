@@ -64,7 +64,7 @@
 
 #include "../bandit/tests/reverse.h"
 
-#include "../tests/strategies.h"
+#include "../tests/strategy/strategies.h"
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X
@@ -92,7 +92,7 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 	// will find the methods that resist strategy best, while using
 	// reverse_sts will find those that are most susceptible.
 
-	std::vector<strategy_test> sts;
+	std::vector<test_runner> sts;
 	std::vector<ReverseTest> reverse_sts;
 
 	int numvoters = 97;
@@ -109,9 +109,17 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 		// the time).
 		int tries_to_get_strat = 2053; // was 4096
 
-		sts.push_back(strategy_test(ballotgen, strat_generator,
+		sts.push_back(test_runner(ballotgen, strat_generator,
 				numvoters, numcands, numcands, randomizer, to_test[i], 0,
 				tries_to_get_strat));
+
+		// Add some strategies
+		sts.rbegin()->add_test(std::make_shared<burial>());
+		sts.rbegin()->add_test(std::make_shared<compromising>());
+		sts.rbegin()->add_test(std::make_shared<two_sided_strat>());
+		sts.rbegin()->add_test(std::make_shared<two_sided_reverse>());
+		sts.rbegin()->add_test(std::make_shared<two_sided_reverse>());
+		sts.rbegin()->add_test(std::make_shared<coalitional_strategy>());
 	}
 
 	// Needs to be done this way because inserting stuff into sts can

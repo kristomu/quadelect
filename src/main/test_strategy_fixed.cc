@@ -60,7 +60,8 @@
 #include "../bandit/bandit.h"
 #include "../bandit/lilucb.h"
 
-#include "../tests/strategies.h"
+#include "../tests/strategy/strategies.h"
+#include "../tests/runner.h"
 
 // default values for number of processors and current processor
 // use -I compiler options to get multiproc support. TODO: make this an
@@ -145,8 +146,15 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	/* ballotgens.push_back(new dirichlet(true));*/
 
 	int tests_per_ballot = 256;
-	strategy_test st(ballot_gen, &iic, numvoters, numcands, numcands,
+	test_runner st(ballot_gen, &iic, numvoters, numcands, numcands,
 		randomizer, to_test, 0, tests_per_ballot);
+
+	st.add_test(std::make_shared<burial>());
+	st.add_test(std::make_shared<compromising>());
+	st.add_test(std::make_shared<two_sided_strat>());
+	st.add_test(std::make_shared<two_sided_reverse>());
+	st.add_test(std::make_shared<two_sided_reverse>());
+	st.add_test(std::make_shared<coalitional_strategy>());
 
 	int worked = 0, f;
 	int fmax = 500; //50000;

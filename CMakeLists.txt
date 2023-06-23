@@ -115,6 +115,10 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/singlewinner/fpc.cc
 	src/singlewinner/desc_coalitions/dsc.cc
 	src/singlewinner/desc_coalitions/desc_coalition.cc
+	src/tests/runner.cc
+	src/tests/strategy/strategies.cc
+	src/tests/test.cc
+	src/tests/strategy/ballots_by_support.cc
 	src/reference_tests/engine/twotest.cc
 	src/reference_tests/tests/monotonicity/mono_add.cc
 	src/reference_tests/tests/monotonicity/mono_append.cc
@@ -146,7 +150,6 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/bandit/bandit.cc
 	src/bandit/binomial.cc
 	src/bandit/lilucb.cc
-	src/tests/strategies.cc
 	src/modes/breg.cc
 	src/images/color/color.cc
 	src/modes/yee.cc
