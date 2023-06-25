@@ -1,14 +1,19 @@
 #include "runner.h"
 
-bool test_runner::strategize_for_election(
-	const std::list<ballot_group> & ballots,
-	ordering honest_outcome, size_t numcands, bool verbose) {
+size_t test_runner::get_num_failed_criteria(
+	const std::list<ballot_group> & ballots, ordering honest_outcome,
+	size_t numcands, bool only_one, bool verbose) {
 
 	// Ties are a problem. We could consider the strategy a success
 	// if any non-winner can become a winner, but for now, just don't
 	// deal with ties.
 	if (ordering_tools::has_multiple_winners(honest_outcome)) {
-		throw std::out_of_range("strategize_for_election: Can't do ties.");
+		throw std::out_of_range("get_num_failed_criteria: Can't do ties.");
+	}
+
+	if (strategy_attempts_per_try < tests.size()) {
+		throw std::out_of_range("get_num_failed_criteria: Not enough attempts "
+			"to try every test.");
 	}
 
 	if (verbose) {
@@ -21,53 +26,67 @@ bool test_runner::strategize_for_election(
 	test_cache election_data;
 
 	// Create the disproof (evidence) that we'll be building on.
-	disproof strategy_instance;
-	strategy_instance.before_outcome = honest_outcome;
-	strategy_instance.before_election = ballots;
+	disproof failure_instance;
+	failure_instance.before_outcome = honest_outcome;
+	failure_instance.before_election = ballots;
 
-	// Create an array per strategizer so that we can determine when
-	// we've exhausted all the options. For strategizers with extremely
+	// Create an array per tester so that we can determine when
+	// we've exhausted all the options. For testers with extremely
 	// large ranges, do -1 to draw from a random permutation...
 	// TODO? Better design?
 
-	std::vector<int64_t> instances_tried(strategies.size(), 0);
+	std::vector<int64_t> instances_tried(tests.size(), 0);
+	std::fill(failed_criterion.begin(), failed_criterion.end(), false);
 
-	int iteration = 0;
-	bool exhausted_every_strategy = false;
+	size_t iteration = 0;
+	bool exhausted_every_test = false;
+
+	size_t num_failures = 0;
+	size_t max_failures = tests.size();
+
+	if (only_one) {
+		max_failures = 1;
+	}
+
+	last_run_tried_all_tests = !only_one;
 
 	while (iteration < strategy_attempts_per_try
-		&& !exhausted_every_strategy) {
+		&& !exhausted_every_test
+		&& num_failures < max_failures) {
 
-		exhausted_every_strategy = true;
+		exhausted_every_test = true;
 
 		// A possible cleanup for this is to use a list or something
 		// similar and evict strategies that have been exhausted. Then
 		// we've exhausted every test (counterexample generator)
 		// once the list is empty.
 
-		for (size_t i = 0; i < strategies.size() &&
+		// TODO: Relabel "strategy" stuff here to make more sense with
+		// tests, but without obscuring what's happening.
+
+		for (size_t i = 0; i < tests.size() &&
 			iteration < strategy_attempts_per_try; ++i) {
 
 			bool got_strategic_election = false;
 
-			criterion_test * strategizer = strategies[i].get();
+			criterion_test * tester = tests[i].get();
 
 			// This part feels a bit ugly. We go through different
 			// strategies testing if we've already exhausted them or
 			// if they're still usable.
 
-			if (strategizer->get_num_tries(numcands) < 0) {
-				strategizer->add_strategic_election(
-					strategy_instance, -1, election_data, numcands,
+			if (tester->get_num_tries(numcands) < 0) {
+				tester->add_strategic_election(
+					failure_instance, -1, election_data, numcands,
 					ballot_gen, randomizer);
 				got_strategic_election = true;
 			} else {
 				// If we've tried every instance for this test, skip.
 				if (instances_tried[i] >=
-					strategizer->get_num_tries(numcands)) {
+					tester->get_num_tries(numcands)) {
 					continue;
 				}
-				strategizer->add_strategic_election(strategy_instance,
+				tester->add_strategic_election(failure_instance,
 					instances_tried[i], election_data,
 					numcands, ballot_gen, randomizer);
 
@@ -76,45 +95,44 @@ bool test_runner::strategize_for_election(
 			}
 
 			if (got_strategic_election) {
-				exhausted_every_strategy = false;
+				exhausted_every_test = false;
 				++iteration;
 			} else {
 				continue;
 			}
 
 			if (verbose) {
-				std::cout << "DEBUG: Trying strategy "
-					<< strategizer->name() << std::endl;
+				std::cout << "DEBUG: Trying test "
+					<< tester->name() << std::endl;
 			}
 
 			// Determine the winner again! A tie counts if our man
 			// is at top rank, because he wasn't, before.
-			strategy_instance.after_outcome = method->elect(
-					strategy_instance.after_election,
+			failure_instance.after_outcome = method->elect(
+					failure_instance.after_election,
 					numcands, true);
 
-			// Check if the strategy worked (in which case strategy_instance
+			// Check if we found a failure (in which case failure_instance
 			// is now a valid disproof of strategy immunity).
-			if (strategizer->is_disproof_valid(strategy_instance)) {
+			if (tester->is_disproof_valid(failure_instance)) {
 				if (verbose) {
-					strategizer->print_disproof(strategy_instance);
+					tester->print_disproof(failure_instance);
 				}
 
-				// Maybe we should return a disproof instead? TODO?
-				return true;
+				++num_failures;
+				failed_criterion[i] = true;
+				if (num_failures >= max_failures) {
+					return num_failures;
+				}
 			}
 
 		}
 	}
 
-	if (verbose) {
-		std::cout << "Strategy didn't work!" << std::endl;
-	}
-
-	return false;
+	return num_failures;
 }
 
-strategy_result test_runner::attempt_execute_strategy() {
+strategy_result test_runner::attempt_finding_failure(bool only_one) {
 
 	// Ties don't count because any method that's decisive will let a voter
 	// break the tie.
@@ -142,11 +160,27 @@ strategy_result test_runner::attempt_execute_strategy() {
 		return STRAT_TIE;
 	}
 
-	if (strategize_for_election(ballots,
-			honest_outcome, numcands, false)) {
+	if (get_num_failed_criteria(ballots,
+			honest_outcome, numcands, only_one, false) > 0) {
 
 		return STRAT_SUCCESS;
 	}
 
 	return STRAT_FAILED;
+}
+
+std::map<std::string, bool> test_runner::get_failure_pattern() const {
+
+	if (!last_run_tried_all_tests) {
+		throw std::runtime_error("test_runner: Tried to get failure pattern "
+			"without having run tests!");
+	}
+
+	std::map<std::string, bool> failure_pattern;
+
+	for (size_t i = 0; i < tests.size(); ++i) {
+		failure_pattern[tests[i]->name()] = failed_criterion[i];
+	}
+
+	return failure_pattern;
 }

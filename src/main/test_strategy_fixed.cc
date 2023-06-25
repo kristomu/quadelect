@@ -92,6 +92,14 @@ std::pair<double, double> confidence_interval(int n, double p_mean,
 	return (std::pair<double, double>(p_mark - W, p_mark + W));
 }
 
+// TODO?? Multiple election method support? I wouldn't have to generate a bunch
+// of elections over and over per method in that case. But then the test runner
+// won't work very well as a multi-armed bandit test... Ow, design can be hard
+// sometimes.
+
+// num_methods here is used for the Bonferroni correction for the confidence
+// intervals.
+
 void test_strategy(election_method * to_test, rng & randomizer,
 	int num_methods, pure_ballot_generator * ballot_gen) {
 
@@ -107,36 +115,28 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
 	//gaussian_generator ballot_gen(true, false, dimensions, false);
 	//spatial_generator spatial(true, false);
-	impartial true_iic(true, false);
 	impartial iic(true, false);
 	//impartial ballot_gen(true, false);
-
-	std::list<ballot_group> ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
 	// cached the Condorcet data, that should be faster than if we haven't,
 	// but one probably needs Valgrind to see the difference.
 
-	int counter;
-
-	std::vector<election_method *> condorcets;
-
-	condorcets.push_back(to_test);
 	std::cerr << "Now trying " << to_test->name() << std::endl;
 
-	cache_map cache;
+	//cache_map cache;		// TODO: Support for this please
 
 	// TODO: check if that actually works.
 	int numvoters = 97; // was 29
 	int initial_numcands = 5, numcands = initial_numcands;
 
-	std::map<int, std::string> rcl;
-	for (counter = 0; counter < 26; ++counter) {
-		std::string foo = "A";
-		foo[0] = 'A' + counter;
-		rcl[counter] = foo;
-	}
+	/*	std::map<int, std::string> rcl;
+		for (counter = 0; counter < 26; ++counter) {
+			std::string foo = "A";
+			foo[0] = 'A' + counter;
+			rcl[counter] = foo;
+		}*/
 
 	// --- //
 
@@ -159,13 +159,6 @@ void test_strategy(election_method * to_test, rng & randomizer,
 		st.add_test(test);
 	}
 
-	/*	st.add_test(std::make_shared<burial>());
-		st.add_test(std::make_shared<compromising>());
-		st.add_test(std::make_shared<two_sided_strat>());
-		st.add_test(std::make_shared<two_sided_reverse>());
-		st.add_test(std::make_shared<two_sided_reverse>());
-		st.add_test(std::make_shared<coalitional_strategy>());*/
-
 	int worked = 0, f;
 	int fmax = 500; //50000;
 	int total_generation_attempts = 0;
@@ -177,11 +170,6 @@ void test_strategy(election_method * to_test, rng & randomizer,
 		if ((f & 4095) == 4095) {
 			std::cerr << f/(double)fmax << std::flush;
 		}
-
-		/*if (test_once(ballots, ballot_gen, numvoters, numcands,
-			randomizer, total_generation_attempts, condorcets)) {
-			++worked;
-		}*/
 
 		if (st.perform_test() == 0) {
 			++worked;
@@ -210,8 +198,100 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	std::cout << "Worked in " << worked << " ("<< lower_bound << ", " <<
 		upper_bound
 		<< ") out of " << f << " for " <<
-		condorcets[0]->name() << " ties: " << total_generation_attempts-f << " ("
+		to_test->name() << " ties: " << total_generation_attempts-f << " ("
 		<< tiefreq << ")" << std::endl;
+}
+
+void get_itemized_stats(
+	election_method * to_test, rng & randomizer,
+	pure_ballot_generator * ballot_gen) {
+
+	std::map<std::string, std::vector<bool> > results;
+
+	impartial iic(true, false);
+
+	std::cerr << "Now trying " << to_test->name() << std::endl;
+
+	int numvoters = 97;
+	int initial_numcands = 5, numcands = initial_numcands;
+
+	int tests_per_ballot = 256;
+	test_provider tests;
+	test_runner st(ballot_gen, &iic, numvoters, numcands, numcands,
+		randomizer, to_test, 0, tests_per_ballot);
+
+	st.set_name("Strategy");
+	for (auto test: tests.get_tests_by_category("Strategy")) {
+		st.add_test(test);
+	}
+
+	int f, fmax = 500;
+	for (f = 0; f < fmax; ++f) {
+
+		if ((f & 63) == 63) {
+			std::cerr << "." << std::flush;
+		}
+		if ((f & 4095) == 4095) {
+			std::cerr << f/(double)fmax << std::flush;
+		}
+
+		std::map<std::string, bool> failures_this_election =
+			st.calculate_failure_pattern();
+
+		// Incorporate the failures into the results map.
+		for (auto & failure_status: failures_this_election) {
+			results[failure_status.first].push_back(
+				failure_status.second);
+		}
+	}
+
+	// We're interested in:
+	// Burial alone
+	// Compromise alone
+	// Either of the two above
+	// Neither of these but two-sided (Two-sided and Two-sided reverse)
+	// Neither of the above but coalitional.
+
+	size_t burial_only = 0,
+		   compromise_only = 0,
+		   burial_and_compromise = 0,
+		   two_sided = 0,
+		   coalitional = 0;
+
+	for (f = 0; f < fmax; ++f) {
+		bool is_burial = results["Burial immunity"][f],
+			 is_compromise = results["Compromising immunity"][f],
+			 is_twosided = results["Two-sided immunity"][f]
+				 || results["Two-sided reverse immunity"][f],
+				 is_coalitional = results["Coalitional strategy immunity"][f];
+
+		if (is_burial && !is_compromise) {
+			++burial_only;
+		}
+		if (is_compromise && !is_burial) {
+			++compromise_only;
+		}
+		if (is_compromise && is_burial) {
+			++burial_and_compromise;
+		}
+		if (is_twosided && !is_compromise && !is_burial) {
+			++two_sided;
+		}
+		if (is_coalitional && !is_twosided && !is_compromise && !is_burial) {
+			++coalitional;
+		}
+	}
+
+	std::cout << "\nBurial, no compromise: " << burial_only /
+		(double) f << std::endl;
+	std::cout << "Compromise, no burial: " << compromise_only /
+		(double) f << std::endl;
+	std::cout << "Burial and compromise: " << burial_and_compromise /
+		(double) f << std::endl;
+	std::cout << "Two-sided: " << two_sided / (double) f << std::endl;
+	std::cout << "Other coalitional strategy: " << coalitional /
+		(double) f << std::endl;
+	std::cout << std::endl;
 }
 
 int main(int argc, const char ** argv) {
@@ -262,6 +342,8 @@ int main(int argc, const char ** argv) {
 			std::cout << "\t" << counter << ": " << std::flush;
 			test_strategy(condorcets[counter], randomizers[0],
 				condorcets.size(), ballotgens[bg]);
+			get_itemized_stats(condorcets[counter], randomizers[0],
+				ballotgens[bg]);
 		}
 	}
 }
