@@ -40,6 +40,8 @@ class test_runner : public Test {
 		bool too_many_ties;
 		size_t ballot_gen_idx;
 
+		std::string runner_name;
+
 	public:
 		// Returns true if the strategy succeeded, false
 		// otherwise. TODO: Should return a disproof instead.
@@ -77,6 +79,11 @@ class test_runner : public Test {
 			ballot_gen_idx = 0;
 
 			strategy_attempts_per_try = strat_attempts_per_try_in;
+			runner_name = "Criterion test"; // default name
+		}
+
+		void set_name(std::string new_name) {
+			runner_name = new_name;
 		}
 
 		test_runner(pure_ballot_generator * ballot_gen_in,
@@ -104,7 +111,7 @@ class test_runner : public Test {
 		}
 
 		std::string name() const {
-			return ("Strategy(multiple/" +
+			return (runner_name + " (" +
 					method->name() + ")");
 		}
 

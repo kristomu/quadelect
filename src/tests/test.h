@@ -5,9 +5,6 @@
 #include "cache.h"
 #include "disproof.h"
 
-#include "../tools/tools.h"
-
-#include "../tools/ballot_tools.h"
 #include "../ballots.h"
 
 #include "../generator/ballotgen.h"
@@ -65,6 +62,9 @@ class criterion_test {
 		}
 
 		virtual std::string name() const = 0;
+
+		// "Monotonicity", "Strategy", etc.
+		virtual std::string category() const = 0;
 
 		virtual int64_t get_num_tries(size_t numcands) const = 0;
 

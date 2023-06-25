@@ -30,6 +30,10 @@ class per_ballot_strat : public criterion_test {
 			// One attempt per challenger
 			return numcands-1;
 		}
+
+		std::string category() const {
+			return "Strategy";
+		}
 };
 
 class burial : public per_ballot_strat {
@@ -38,7 +42,7 @@ class burial : public per_ballot_strat {
 			size_t winner, size_t challenger) const;
 
 		std::string name() const {
-			return "Burial";
+			return "Burial immunity";
 		}
 };
 
@@ -48,7 +52,7 @@ class compromising : public per_ballot_strat {
 			size_t winner, size_t challenger) const;
 
 		std::string name() const {
-			return "Compromising";
+			return "Compromising immunity";
 		}
 };
 
@@ -58,7 +62,7 @@ class two_sided_strat : public per_ballot_strat {
 			size_t winner, size_t challenger) const;
 
 		std::string name() const {
-			return "Two-sided";
+			return "Two-sided immunity";
 		}
 };
 
@@ -76,12 +80,16 @@ class two_sided_reverse : public criterion_test {
 
 	public:
 		std::string name() const {
-			return "Two-sided reverse";
+			return "Two-sided reverse immunity";
 		}
 
 		int64_t get_num_tries(size_t numcands) const {
 			// One attempt per challenger
 			return numcands-1;
+		}
+
+		std::string category() const {
+			return "Strategy";
 		}
 
 };
@@ -96,11 +104,15 @@ class coalitional_strategy : public criterion_test {
 
 	public:
 		std::string name() const {
-			return "Coalitional strategy";
+			return "Coalitional strategy immunity";
 		}
 
 		int64_t get_num_tries(size_t numcands) const {
 			// Too many to count.
 			return -1;
+		}
+
+		std::string category() const {
+			return "Strategy";
 		}
 };

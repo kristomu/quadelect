@@ -61,6 +61,7 @@
 #include "../singlewinner/young.h"
 
 #include "../tests/strategy/strategies.h"
+#include "../tests/provider.h"
 
 // default values for number of processors and current processor
 // use -I compiler options to get multiproc support. TODO: make this an
@@ -145,14 +146,17 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
 	// --- //
 
+	test_provider tests;
 	test_runner st(ballot_gen, &ic, numvoters, numcands, randomizer,
 		to_test, 0, num_strategy_attempts_per_iter);
-	st.add_test(std::make_shared<burial>());
-	st.add_test(std::make_shared<compromising>());
-	st.add_test(std::make_shared<two_sided_strat>());
-	st.add_test(std::make_shared<two_sided_reverse>());
-	st.add_test(std::make_shared<two_sided_reverse>());
-	st.add_test(std::make_shared<coalitional_strategy>());
+
+	// We're testing the rate of failure of "strategy immunity" criteria,
+	// i.e. the presence of opportunities for manipulation.
+	st.set_name("Strategy");
+
+	for (auto test: tests.get_tests_by_category("Strategy")) {
+		st.add_test(test);
+	}
 
 
 	int strategy_worked = 0, strategy_failed = 0;

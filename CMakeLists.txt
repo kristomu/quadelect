@@ -118,6 +118,7 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/tests/runner.cc
 	src/tests/strategy/strategies.cc
 	src/tests/test.cc
+	src/tests/provider.cc
 	src/tests/strategy/ballots_by_support.cc
 	src/reference_tests/engine/twotest.cc
 	src/reference_tests/tests/monotonicity/mono_add.cc

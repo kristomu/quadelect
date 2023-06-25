@@ -65,6 +65,7 @@
 #include "../bandit/tests/reverse.h"
 
 #include "../tests/strategy/strategies.h"
+#include "../tests/provider.h"
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X
@@ -102,6 +103,8 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 
 	size_t i;
 
+	test_provider tests;
+
 	for (i = 0; i < to_test.size(); ++i) {
 		// Use lower values to more quickly identify the best method.
 		// Use higher values to get more accurate strategy
@@ -113,13 +116,14 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 				numvoters, numcands, numcands, randomizer, to_test[i], 0,
 				tries_to_get_strat));
 
+		// We're testing the rate of failure of "strategy immunity" criteria,
+		// i.e. the presence of opportunities for manipulation.
+		sts.rbegin()->set_name("Strategy");
+
 		// Add some strategies
-		sts.rbegin()->add_test(std::make_shared<burial>());
-		sts.rbegin()->add_test(std::make_shared<compromising>());
-		sts.rbegin()->add_test(std::make_shared<two_sided_strat>());
-		sts.rbegin()->add_test(std::make_shared<two_sided_reverse>());
-		sts.rbegin()->add_test(std::make_shared<two_sided_reverse>());
-		sts.rbegin()->add_test(std::make_shared<coalitional_strategy>());
+		for (auto test: tests.get_tests_by_category("Strategy")) {
+			sts.rbegin()->add_test(test);
+		}
 	}
 
 	// Needs to be done this way because inserting stuff into sts can
