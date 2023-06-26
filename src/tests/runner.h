@@ -31,7 +31,9 @@ class test_runner : public Test {
 		size_t strategy_attempts_per_try;
 
 		std::vector<std::shared_ptr<criterion_test> > tests;
-		std::vector<bool> failed_criterion;
+		std::set<std::string> admitted_test_names;
+
+		std::vector<bool> failed_criteria;
 		bool last_run_tried_all_tests;
 
 		// TODO: Call this something else as we're now about
@@ -48,7 +50,7 @@ class test_runner : public Test {
 		// it exits as soon as some failure was found. This is used for
 		// fast "any-of" testing when we only need to know that something
 		// failed, not which.
-		// Side effect: also populates the failed_criterion array.
+		// Side effect: also populates the failed_criteria array.
 		// (TODO: Something less ugly.)
 		size_t get_num_failed_criteria(
 			const std::list<ballot_group> & ballots,
@@ -59,18 +61,34 @@ class test_runner : public Test {
 		// boolean value is true if we could find a failure of that
 		// test for the ith election, false otherwise.
 		// NOTE: This returns the results for the last exhaustive test.
-		// If none has been done, it throws an exception.
+		// If nothing has been done, it throws an exception; this
+		// currently includes the case where the honest election
+		// produces a tie. (See calculate_failure_pattern below.)
 		std::map<std::string, bool> get_failure_pattern() const;
 
-		// This just executes a test first.
+		// This just executes a test first. It returns an empty map if
+		// a tie happened - this is rather ugly, but since ties can't
+		// be considered exceptional, I can't throw an exception...
+		// perhaps use std::optional or somesuch? TODO?
 		std::map<std::string, bool> calculate_failure_pattern() {
-			attempt_finding_failure(false);
+			strategy_result res = attempt_finding_failure(false);
+			if (res == STRAT_TIE) {
+				return {};
+			}
 			return get_failure_pattern();
 		}
 
 		void add_test(const std::shared_ptr<criterion_test> & in) {
+
+			if (admitted_test_names.find(in->name()) !=
+				admitted_test_names.end()) {
+				throw std::invalid_argument(
+					"test_runner: Tried to add the same test more than once.");
+			}
+
 			tests.push_back(in);
-			failed_criterion.push_back(false);
+			admitted_test_names.insert(in->name());
+			failed_criteria.push_back(false);
 		}
 
 		test_runner(pure_ballot_generator * ballot_gen_in,

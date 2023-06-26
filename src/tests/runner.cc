@@ -36,7 +36,7 @@ size_t test_runner::get_num_failed_criteria(
 	// TODO? Better design?
 
 	std::vector<int64_t> instances_tried(tests.size(), 0);
-	std::fill(failed_criterion.begin(), failed_criterion.end(), false);
+	std::fill(failed_criteria.begin(), failed_criteria.end(), false);
 
 	size_t iteration = 0;
 	bool exhausted_every_test = false;
@@ -70,6 +70,11 @@ size_t test_runner::get_num_failed_criteria(
 			bool got_strategic_election = false;
 
 			criterion_test * tester = tests[i].get();
+
+			// No need to run this test if we already found a failure.
+			if (failed_criteria[i]) {
+				continue;
+			}
 
 			// This part feels a bit ugly. We go through different
 			// strategies testing if we've already exhausted them or
@@ -120,7 +125,7 @@ size_t test_runner::get_num_failed_criteria(
 				}
 
 				++num_failures;
-				failed_criterion[i] = true;
+				failed_criteria[i] = true;
 				if (num_failures >= max_failures) {
 					return num_failures;
 				}
@@ -179,7 +184,7 @@ std::map<std::string, bool> test_runner::get_failure_pattern() const {
 	std::map<std::string, bool> failure_pattern;
 
 	for (size_t i = 0; i < tests.size(); ++i) {
-		failure_pattern[tests[i]->name()] = failed_criterion[i];
+		failure_pattern[tests[i]->name()] = failed_criteria[i];
 	}
 
 	return failure_pattern;

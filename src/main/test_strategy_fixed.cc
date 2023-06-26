@@ -210,7 +210,7 @@ void get_itemized_stats(
 
 	impartial iic(true, false);
 
-	std::cerr << "Now trying " << to_test->name() << std::endl;
+	std::cerr << "Itemized stats: Now trying " << to_test->name() << std::endl;
 
 	int numvoters = 97;
 	int initial_numcands = 5, numcands = initial_numcands;
@@ -225,7 +225,7 @@ void get_itemized_stats(
 		st.add_test(test);
 	}
 
-	int f, fmax = 500;
+	size_t f, fmax = 500, num_non_ties = 0;
 	for (f = 0; f < fmax; ++f) {
 
 		if ((f & 63) == 63) {
@@ -237,6 +237,13 @@ void get_itemized_stats(
 
 		std::map<std::string, bool> failures_this_election =
 			st.calculate_failure_pattern();
+
+		// If we got a tie, just skip.
+		if (failures_this_election.empty()) {
+			continue;
+		}
+
+		++num_non_ties;
 
 		// Incorporate the failures into the results map.
 		for (auto & failure_status: failures_this_election) {
@@ -282,15 +289,19 @@ void get_itemized_stats(
 		}
 	}
 
+	std::cout << "\nTies: " << 1 - (num_non_ties/(double)fmax) << " (" << fmax
+		-num_non_ties << ") " << std::endl;
+	std::cout << "Of the non-ties: " << std::endl;
 	std::cout << "\nBurial, no compromise: " << burial_only /
-		(double) f << std::endl;
+		(double) num_non_ties << std::endl;
 	std::cout << "Compromise, no burial: " << compromise_only /
-		(double) f << std::endl;
+		(double) num_non_ties << std::endl;
 	std::cout << "Burial and compromise: " << burial_and_compromise /
-		(double) f << std::endl;
-	std::cout << "Two-sided: " << two_sided / (double) f << std::endl;
+		(double) num_non_ties << std::endl;
+	std::cout << "Two-sided: " << two_sided / (double) num_non_ties <<
+		std::endl;
 	std::cout << "Other coalitional strategy: " << coalitional /
-		(double) f << std::endl;
+		(double) num_non_ties << std::endl;
 	std::cout << std::endl;
 }
 
@@ -306,22 +317,16 @@ int main(int argc, const char ** argv) {
 	condorcetsrc.push_back(new loser_elimination(
 			new plurality(PT_WHOLE), false, true));
 	condorcetsrc.push_back(new plurality(PT_WHOLE));
-	/*condorcetsrc.push_back(new antiplurality(PT_WHOLE));*/
 
 	std::cout << "Test time!" << std::endl;
 
 	smith_set xd;
 
-	// TODO: Really fix comma. DONE, kinda.
 	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
-//    	condorcets.push_back(new slash(condorcetsrc[counter], &xd));
 		condorcets.push_back(new comma(condorcetsrc[counter], &xd));
 	}
 
-	//condorcets.push_back(new ext_minmax(CM_WV, false));
-	//condorcets.push_back(new schulze(CM_WV));
-	//condorcets.push_back(new ranked_pairs(CM_WV, false));
-	//condorcets.push_back(new ranked_pairs(CM_WV, true));
+	condorcets.push_back(new antiplurality(PT_WHOLE));
 
 	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
 
