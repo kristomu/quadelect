@@ -360,7 +360,8 @@ std::pair<ordering, bool> kemeny::pair_elect(const abstract_condmat &
 	bool winner_only) const {
 
 	// First, get the transitive adjacency matrix for Kemeny.
-	std::vector<std::vector<bool> > adj = solve_kemeny(input, hopefuls, true);
+	// Disable debug mode so it won't be so verbose.
+	std::vector<std::vector<bool> > adj = solve_kemeny(input, hopefuls, false);
 
 	// If we start with at least one candidate, we should finish with
 	// at least one.

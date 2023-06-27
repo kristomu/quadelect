@@ -265,7 +265,7 @@ void get_itemized_stats(
 		   two_sided = 0,
 		   coalitional = 0;
 
-	for (f = 0; f < fmax; ++f) {
+	for (f = 0; f < num_non_ties; ++f) {
 		bool is_burial = results["Burial immunity"][f],
 			 is_compromise = results["Compromising immunity"][f],
 			 is_twosided = results["Two-sided immunity"][f]
