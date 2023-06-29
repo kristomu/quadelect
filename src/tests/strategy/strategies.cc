@@ -5,7 +5,7 @@
 
 void per_ballot_strat::add_strategic_election_inner(
 	disproof & partial_disproof, int64_t instance_index,
-	const test_cache & cache, size_t numcands,
+	const test_cache & cache, size_t /*numcands*/,
 	pure_ballot_generator * ballot_generator, rng * randomizer) const {
 
 	partial_disproof.data.clear();
@@ -38,14 +38,14 @@ void per_ballot_strat::add_strategic_election_inner(
 }
 
 ballot_group burial::modify_ballots(ballot_group ballot, size_t winner,
-	size_t challenger) const {
+	size_t /*challenger*/) const {
 
 	ballot.replace_score(winner, ballot.get_min_score()-1);
 	return ballot;
 }
 
 ballot_group compromising::modify_ballots(ballot_group ballot,
-	size_t winner, size_t challenger) const {
+	size_t /*winner*/, size_t challenger) const {
 
 	ballot.replace_score(challenger, ballot.get_max_score()+1);
 	return ballot;

@@ -82,7 +82,7 @@
 
 void test_with_bandits(std::vector<election_method *> & to_test,
 	rng & randomizer, pure_ballot_generator * & ballotgen,
-	pure_ballot_generator * strat_generator, bool find_most_susceptible) {
+	bool find_most_susceptible) {
 
 	std::vector<BinomialBandit> bandits;
 
@@ -112,8 +112,8 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 		// the time).
 		int tries_to_get_strat = 2053; // was 4096
 
-		sts.push_back(test_runner(ballotgen, strat_generator,
-				numvoters, numcands, numcands, randomizer, to_test[i], 0,
+		sts.push_back(test_runner(ballotgen,
+				numvoters, numcands, numcands, randomizer, to_test[i],
 				tries_to_get_strat));
 
 		// We're testing the rate of failure of "strategy immunity" criteria,
@@ -262,8 +262,7 @@ int main(int argc, const char ** argv) {
 	//ballotgens.push_back(new gaussian_generator(true, false, dimensions,
 	//		false));
 
-	test_with_bandits(condorcets, randomizers[0], ballotgen, ballotgen,
-		false);
+	test_with_bandits(condorcets, randomizers[0], ballotgen, false);
 
 	return (0);
 }

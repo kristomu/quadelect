@@ -147,8 +147,8 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	// --- //
 
 	test_provider tests;
-	test_runner st(ballot_gen, &ic, numvoters, numcands, randomizer,
-		to_test, 0, num_strategy_attempts_per_iter);
+	test_runner st(ballot_gen, numvoters, numcands, randomizer,
+		to_test, num_strategy_attempts_per_iter);
 
 	// We're testing the rate of failure of "strategy immunity" criteria,
 	// i.e. the presence of opportunities for manipulation.

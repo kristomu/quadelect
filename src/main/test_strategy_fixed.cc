@@ -148,8 +148,8 @@ void test_strategy(election_method * to_test, rng & randomizer,
 
 	int tests_per_ballot = 256;
 	test_provider tests;
-	test_runner st(ballot_gen, &iic, numvoters, numcands, numcands,
-		randomizer, to_test, 0, tests_per_ballot);
+	test_runner st(ballot_gen, numvoters, numcands, numcands,
+		randomizer, to_test, tests_per_ballot);
 
 	// We're testing the rate of failure of "strategy immunity" criteria,
 	// i.e. the presence of opportunities for manipulation.
@@ -217,8 +217,8 @@ void get_itemized_stats(
 
 	int tests_per_ballot = 256;
 	test_provider tests;
-	test_runner st(ballot_gen, &iic, numvoters, numcands, numcands,
-		randomizer, to_test, 0, tests_per_ballot);
+	test_runner st(ballot_gen, numvoters, numcands, numcands,
+		randomizer, to_test, tests_per_ballot);
 
 	st.set_name("Strategy");
 	for (auto test: tests.get_tests_by_category("Strategy")) {

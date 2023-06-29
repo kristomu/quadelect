@@ -4,14 +4,14 @@ size_t test_runner::get_num_failed_criteria(
 	const std::list<ballot_group> & ballots, ordering honest_outcome,
 	size_t numcands, bool only_one, bool verbose) {
 
-	// Ties are a problem. We could consider the strategy a success
-	// if any non-winner can become a winner, but for now, just don't
-	// deal with ties.
+	// Ties are a problem. We could consider the test to be disproven
+	// if any non-winner can become a winner (for e.g. monotonicity,
+	// strategy); but for now, just don't handle ties.
 	if (ordering_tools::has_multiple_winners(honest_outcome)) {
 		throw std::out_of_range("get_num_failed_criteria: Can't do ties.");
 	}
 
-	if (strategy_attempts_per_try < tests.size()) {
+	if (disproof_attempts_per_election < tests.size()) {
 		throw std::out_of_range("get_num_failed_criteria: Not enough attempts "
 			"to try every test.");
 	}
@@ -50,7 +50,7 @@ size_t test_runner::get_num_failed_criteria(
 
 	last_run_tried_all_tests = !only_one;
 
-	while (iteration < strategy_attempts_per_try
+	while (iteration < disproof_attempts_per_election
 		&& !exhausted_every_test
 		&& num_failures < max_failures) {
 
@@ -65,7 +65,7 @@ size_t test_runner::get_num_failed_criteria(
 		// tests, but without obscuring what's happening.
 
 		for (size_t i = 0; i < tests.size() &&
-			iteration < strategy_attempts_per_try; ++i) {
+			iteration < disproof_attempts_per_election; ++i) {
 
 			bool got_strategic_election = false;
 
@@ -137,7 +137,7 @@ size_t test_runner::get_num_failed_criteria(
 	return num_failures;
 }
 
-strategy_result test_runner::attempt_finding_failure(bool only_one) {
+test_result test_runner::attempt_finding_failure(bool only_one) {
 
 	// Ties don't count because any method that's decisive will let a voter
 	// break the tie.
@@ -162,16 +162,16 @@ strategy_result test_runner::attempt_finding_failure(bool only_one) {
 	++total_generation_attempts;
 
 	if (ordering_tools::has_multiple_winners(honest_outcome)) {
-		return STRAT_TIE;
+		return TEST_TIE;
 	}
 
 	if (get_num_failed_criteria(ballots,
 			honest_outcome, numcands, only_one, false) > 0) {
 
-		return STRAT_SUCCESS;
+		return TEST_DISPROVEN;
 	}
 
-	return STRAT_FAILED;
+	return TEST_NO_DISPROOFS;
 }
 
 std::map<std::string, bool> test_runner::get_failure_pattern() const {

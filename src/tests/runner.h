@@ -13,8 +13,9 @@
 #include "test.h"
 
 #include <memory>
+#include <stdexcept>
 
-enum strategy_result { STRAT_FAILED, STRAT_SUCCESS, STRAT_TIE };
+enum test_result { TEST_NO_DISPROOFS, TEST_DISPROVEN, TEST_TIE };
 
 // TODO: Rename classes! "Test" here is a multi-armed bandit thing...
 
@@ -27,8 +28,7 @@ class test_runner : public Test {
 		election_method * method;
 		std::list<ballot_group> ballots;
 		pure_ballot_generator * ballot_gen;
-		pure_ballot_generator * strat_generator;
-		size_t strategy_attempts_per_try;
+		size_t disproof_attempts_per_election;
 
 		std::vector<std::shared_ptr<criterion_test> > tests;
 		std::set<std::string> admitted_test_names;
@@ -38,9 +38,8 @@ class test_runner : public Test {
 
 		// TODO: Call this something else as we're now about
 		// tests, not strategies.
-		strategy_result attempt_finding_failure(bool only_one);
+		test_result attempt_finding_failure(bool only_one);
 
-		bool too_many_ties;
 		size_t ballot_gen_idx;
 
 		std::string runner_name;
@@ -71,8 +70,8 @@ class test_runner : public Test {
 		// be considered exceptional, I can't throw an exception...
 		// perhaps use std::optional or somesuch? TODO?
 		std::map<std::string, bool> calculate_failure_pattern() {
-			strategy_result res = attempt_finding_failure(false);
-			if (res == STRAT_TIE) {
+			test_result res = attempt_finding_failure(false);
+			if (res == TEST_TIE) {
 				return {};
 			}
 			return get_failure_pattern();
@@ -92,18 +91,20 @@ class test_runner : public Test {
 		}
 
 		test_runner(pure_ballot_generator * ballot_gen_in,
-			pure_ballot_generator * strat_generator_in,
 			int numvoters_in, int numcands_in_min, int numcands_in_max,
-			rng & randomizer_in, election_method * method_in, int index,
-			int strat_attempts_per_try_in) {
+			rng & randomizer_in, election_method * method_in,
+			int attempts_per_election_in) {
 
 			total_generation_attempts = 0;
 			last_run_tried_all_tests = false;
 
-			assert(numvoters_in > 0);
-			assert(numcands_in_min > 0);
-			assert(numcands_in_max >= 0);
-			assert(strat_attempts_per_try_in > 0);
+			if (numvoters_in < 0 || numcands_in_min < 0
+				|| numcands_in_max < numcands_in_min
+				|| attempts_per_election_in < 0) {
+
+				throw std::out_of_range("test_runner: input parameter "
+					"negative or out of range");
+			}
 
 			randomizer = &randomizer_in;
 			method = method_in;
@@ -111,11 +112,9 @@ class test_runner : public Test {
 			numcands_min = numcands_in_min;
 			numcands_max = numcands_in_max;
 			ballot_gen = ballot_gen_in;
-			strat_generator = strat_generator_in;
-			too_many_ties = false;
 			ballot_gen_idx = 0;
 
-			strategy_attempts_per_try = strat_attempts_per_try_in;
+			disproof_attempts_per_election = attempts_per_election_in;
 			runner_name = "Criterion test"; // default name
 		}
 
@@ -124,26 +123,26 @@ class test_runner : public Test {
 		}
 
 		test_runner(pure_ballot_generator * ballot_gen_in,
-			pure_ballot_generator * strat_generator_in,
 			int numvoters_in, int numcands_in,
-			rng & randomizer_in, election_method * method_in, int index,
+			rng & randomizer_in, election_method * method_in,
 			int strat_attempts_per_try_in) : test_runner(ballot_gen_in,
-					strat_generator_in, numvoters_in, numcands_in, numcands_in,
-					randomizer_in, method_in, index, strat_attempts_per_try_in) {}
+					numvoters_in, numcands_in, numcands_in, randomizer_in,
+					method_in, strat_attempts_per_try_in) {}
 
 		double perform_test() {
 			// We need to make a theoretically coherent system for handling
 			// ties. Ties should hurt more the more often they appear.
 
 			switch (attempt_finding_failure(true)) {
-				case STRAT_SUCCESS:
-				case STRAT_TIE:
+				case TEST_DISPROVEN:
+				case TEST_TIE:
 					return (0);
-				case STRAT_FAILED:
+				case TEST_NO_DISPROOFS:
 					return (1);
 				default:
+					// Should be an assert?
 					throw std::invalid_argument(
-						"unknown strategy type");
+						"perform_test: unknown return code");
 			}
 		}
 

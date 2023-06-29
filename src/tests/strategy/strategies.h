@@ -107,7 +107,7 @@ class coalitional_strategy : public criterion_test {
 			return "Coalitional strategy immunity";
 		}
 
-		int64_t get_num_tries(size_t numcands) const {
+		int64_t get_num_tries(size_t /*numcands*/) const {
 			// Too many to count.
 			return -1;
 		}
