@@ -263,7 +263,8 @@ void get_itemized_stats(
 		   compromise_only = 0,
 		   burial_and_compromise = 0,
 		   two_sided = 0,
-		   coalitional = 0;
+		   coalitional = 0,
+		   any_strategy = 0;
 
 	for (f = 0; f < num_non_ties; ++f) {
 		bool is_burial = results["Burial immunity"][f],
@@ -287,21 +288,28 @@ void get_itemized_stats(
 		if (is_coalitional && !is_twosided && !is_compromise && !is_burial) {
 			++coalitional;
 		}
+		if (is_coalitional || is_twosided || is_compromise || is_burial) {
+			++any_strategy;
+		}
 	}
 
 	std::cout << "\nTies: " << 1 - (num_non_ties/(double)fmax) << " (" << fmax
 		-num_non_ties << ") " << std::endl;
 	std::cout << "Of the non-ties: " << std::endl;
-	std::cout << "\nBurial, no compromise: " << burial_only /
-		(double) num_non_ties << std::endl;
-	std::cout << "Compromise, no burial: " << compromise_only /
-		(double) num_non_ties << std::endl;
-	std::cout << "Burial and compromise: " << burial_and_compromise /
-		(double) num_non_ties << std::endl;
-	std::cout << "Two-sided: " << two_sided / (double) num_non_ties <<
-		std::endl;
-	std::cout << "Other coalitional strategy: " << coalitional /
-		(double) num_non_ties << std::endl;
+	std::cout << "\nBurial, no compromise:\t" << burial_only << "\t"
+		<< burial_only /(double) num_non_ties << std::endl;
+	std::cout << "Compromise, no burial:\t" << compromise_only << "\t"
+		<< compromise_only / (double) num_non_ties << std::endl;
+	std::cout << "Burial and compromise:\t" << burial_and_compromise
+		<< "\t" << burial_and_compromise / (double) num_non_ties
+		<< std::endl;
+	std::cout << "Two-sided:\t\t" << two_sided << "\t"
+		<< two_sided / (double) num_non_ties << std::endl;
+	std::cout << "Other coalition strats:\t" << coalitional << "\t"
+		<< coalitional / (double) num_non_ties << std::endl;
+	std::cout << "==========================================\n";
+	std::cout << "Manipulable elections:\t" << any_strategy
+		<< "\t" << any_strategy / (double) num_non_ties << std::endl;
 	std::cout << std::endl;
 }
 
