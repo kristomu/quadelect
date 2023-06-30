@@ -132,7 +132,7 @@ void cond_borda_matrix::count_ballots(const std::list<ballot_group> &
 	for (std::list<ballot_group>::const_iterator pos = scores.begin(); pos !=
 		scores.end(); ++pos) {
 
-		num_voters += pos->weight;
+		num_voters += pos->get_weight();
 
 		// Truncation is handled just like with an ordinary Condorcet
 		// matrix: truncated candidates are considered to rank below
@@ -173,10 +173,10 @@ void cond_borda_matrix::count_ballots(const std::list<ballot_group> &
 				++sec_count)
 				if (counter != sec_count && !seen[sec_count]) {
 					ok = add_internal(counter, sec_count,
-							pos->weight, 0);
+							pos->get_weight(), 0);
 
 					ok &= add_internal(sec_count, counter,
-							pos->weight, 0);
+							pos->get_weight(), 0);
 
 					if (!ok) {
 						throw std::logic_error("cond_borda::count_ballots: "
@@ -225,10 +225,10 @@ void cond_borda_matrix::count_ballots(const std::list<ballot_group> &
 
 				x = add_internal(pri_cand,
 						sec->get_candidate_num(),
-						pos->weight, dist);
+						pos->get_weight(), dist);
 
 				x &= add_internal(sec->get_candidate_num(),
-						pri_cand, pos->weight, -dist);
+						pri_cand, pos->get_weight(), -dist);
 
 				if (!x) {
 					throw std::logic_error("cond_borda::count_ballots: "
@@ -255,10 +255,10 @@ void cond_borda_matrix::count_ballots(const std::list<ballot_group> &
 					bool x;
 
 					x = add_internal(pri_cand, counter,
-							pos->weight, dist);
+							pos->get_weight(), dist);
 
 					x &= add_internal(counter, pri_cand,
-							pos->weight, -dist);
+							pos->get_weight(), -dist);
 				}
 		}
 	}

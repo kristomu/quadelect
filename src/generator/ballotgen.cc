@@ -8,7 +8,7 @@ std::list<ballot_group> indiv_ballot_generator::generate_ballots_int(
 
 	std::list<ballot_group> toRet;
 	ballot_group to_add;
-	to_add.weight = 1;
+	to_add.set_weight(1);
 
 	for (int counter = 0; counter < num_voters; ++counter) {
 		to_add.contents = generate_ordering(numcands, do_truncate,

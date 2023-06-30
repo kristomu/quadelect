@@ -29,7 +29,7 @@ std::pair<ordering, bool> mode_ratings::elect_inner(const
 			opos != pos->contents.end(); ++opos)
 			if (hopefuls[opos->get_candidate_num()])
 				mode_maps[opos->get_candidate_num()]
-				[opos->get_score()] += pos->weight;
+				[opos->get_score()] += pos->get_weight();
 
 	// Dump into lists.
 

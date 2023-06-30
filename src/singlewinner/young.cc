@@ -105,7 +105,7 @@ std::pair<double, double> young::get_young_score(const
 	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 		// If not relaxed, we can't handle non-integer ballot sizes.
-		assert(relaxed || pos->weight == round(pos->weight));
+		assert(relaxed || pos->get_weight() == round(pos->get_weight()));
 
 		// Determine the data we need for ar. This is sort of a copy
 		// of the code in matrix.cc, but to do it through a Condorcet
@@ -197,7 +197,7 @@ std::pair<double, double> young::get_young_score(const
 		// zero.
 
 		glp_set_col_bnds(ip, running_ballot_count, GLP_DB, 0,
-			pos->weight);
+			pos->get_weight());
 
 		if (debug) {
 			name = "x[" + itos(running_ballot_count - 1) + "]";

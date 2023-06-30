@@ -203,7 +203,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 				// thus we only explicitly check if the challenger was
 				// rated above the winner.
 				if (saw_challenger < saw_winner) {
-					num_prefers_challenger += bgpos->weight;
+					num_prefers_challenger += bgpos->get_weight();
 				} else {
 					prefers_winner.push_back(*bgpos);
 				}
@@ -231,11 +231,12 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 								"voters preferring challenger exceeds "
 								"maximum! Something's seriously wrong.");
 						}
-						strategy.begin()->weight = num_prefers_challenger - cumul;
+						strategy.begin()->set_weight(
+							num_prefers_challenger - cumul);
 					} else {
-						strategy.begin()->weight = drand48() * num_prefers_challenger/
-							(double)iterations;
-						cumul += strategy.begin()->weight;
+						strategy.begin()->set_weight(drand48() *
+							num_prefers_challenger/(double)iterations);
+						cumul += strategy.begin()->get_weight();
 					}
 
 					// Add the strategic ballot.

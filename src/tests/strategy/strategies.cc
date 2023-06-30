@@ -149,15 +149,15 @@ void coalitional_strategy::add_strategic_election_inner(
 			generate_ballot(numcands, *randomizer);
 
 		if (i == num_coalitions-1) {
-			strategic_ballot.weight = unassigned_weight;
+			strategic_ballot.set_weight(unassigned_weight);
 		} else {
-			strategic_ballot.weight = round(
-					randomizer->drand(0,max_support_per_coalition));
+			strategic_ballot.set_weight(round(
+					randomizer->drand(0,max_support_per_coalition)));
 		}
 
-		strategic_ballot.weight = std::min(strategic_ballot.weight,
-				unassigned_weight);
-		unassigned_weight -= strategic_ballot.weight;
+		strategic_ballot.set_weight(std::min(
+				strategic_ballot.get_weight(), unassigned_weight));
+		unassigned_weight -= strategic_ballot.get_weight();
 
 		partial_disproof.after_election.push_back(strategic_ballot);
 	}

@@ -5,7 +5,6 @@
 
 #include "aggregator.h"
 
-
 template<typename T> T positional_aggregator::first(T cur, T end,
 	const std::vector<bool> * hopefuls) const {
 
@@ -58,7 +57,7 @@ void positional_aggregator::aggregate(const ballot_group & input,
 		// one if none were equally ranked.
 		for (; pos != end_group; pos = next(pos, end_group, hopefuls)) {
 
-			double value = input.weight;
+			double value = input.get_weight();
 			if (kind == PT_FRACTIONAL) {
 				value /= (double)span;
 			}

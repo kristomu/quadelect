@@ -74,7 +74,7 @@ std::list<ballot_group> spatial_generator::generate_ballots_int(
 
 	for (counter = 0; counter < (size_t)num_voters; ++counter) {
 		ballot_group our_entry;
-		our_entry.weight = 1;
+		our_entry.set_weight(1);
 
 		// Get our location.
 		voter_pos = rnd_vector(num_dimensions, random_source);

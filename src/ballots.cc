@@ -46,14 +46,14 @@ ballot_group::ballot_group() {
 }
 
 ballot_group::ballot_group(double weight_in) {
-	weight = weight_in;
+	set_weight(weight_in);
 	complete = false;
 	rated = false;
 }
 
 ballot_group::ballot_group(double weight_in, const ordering & cont,
 	bool complete_in, bool rated_in) {
-	weight = weight_in;
+	set_weight(weight_in);
 	contents = cont;
 	complete = complete_in;
 	rated = rated_in;

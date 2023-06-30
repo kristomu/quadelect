@@ -38,10 +38,10 @@ void ballots_by_support::group_by_support(
 		// thus we only explicitly check if the challenger was
 		// rated above the winner.
 		if (challenger_score > winner_score) {
-			challenger_support += b_group.weight;
+			challenger_support += b_group.get_weight();
 			supporting_challenger.push_back(b_group);
 		} else {
-			other_support += b_group.weight;
+			other_support += b_group.get_weight();
 			others.push_back(b_group);
 		}
 	}

@@ -717,7 +717,7 @@ std::pair<ordering, bool> cond_brute_rpn::elect_inner(
 		// outta here (yeah, this is brittle as all f...). Crashes may occur
 		// on unexpected input.
 		ordering::const_iterator order_pos = bpos->contents.begin();
-		double numvoters_this_paper = bpos->weight;
+		double numvoters_this_paper = bpos->get_weight();
 
 		std::vector<int> candorder(3, -1);
 		for (int i = 0; i < 3; ++i) {

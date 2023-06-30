@@ -23,7 +23,7 @@ std::pair<ordering, bool> random_ballot::elect_inner(
 	ordering::const_iterator opos;
 
 	for (pos = papers.begin(); pos != papers.end(); ++pos) {
-		num_voters += pos->weight;
+		num_voters += pos->get_weight();
 	}
 
 	double threshold = drand48() * num_voters, running_sum = 0;
@@ -44,7 +44,7 @@ std::pair<ordering, bool> random_ballot::elect_inner(
 		for (pos = papers.begin(); pos != papers.end() &&
 			prelim.empty(); ++pos) {
 
-			running_sum += pos->weight;
+			running_sum += pos->get_weight();
 
 			if (running_sum >= threshold) {
 				// Add all hopefuls. If the voter only ranks

@@ -14,7 +14,7 @@ std::pair<ordering, bool> first_pref_copeland::elect_inner(
 	double numvoters = 0;
 	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
-		numvoters += pos->weight;
+		numvoters += pos->get_weight();
 	}
 
 	ordering plurality_outcome = plurality_eval.elect(papers, hopefuls,

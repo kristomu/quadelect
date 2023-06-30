@@ -19,7 +19,7 @@ std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 
 	std::list<ballot_group> toRet;
 	ballot_group to_add;
-	to_add.weight = 1;
+	to_add.set_weight(1);
 
 	// Equal rank has been disabled and truncation is a hack. Implement
 	// them properly once I know how. (Truncation: perhaps by choosing a
@@ -59,8 +59,8 @@ std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 			}
 		}
 
-		to_add.weight = get_sample(random_source);
-		total_weight += to_add.weight;
+		to_add.set_weight(get_sample(random_source));
+		total_weight += to_add.get_weight();
 		toRet.push_back(to_add);
 	}
 

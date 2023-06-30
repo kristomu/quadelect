@@ -92,7 +92,7 @@ std::list<ballot_group> indiv_ballot_generator::generate_ballots(
 
 	std::list<ballot_group> toRet;
 	ballot_group to_add;
-	to_add.weight = 1;
+	to_add.set_weight(1);
 
 	for (int counter = 0; counter < num_voters; ++counter) {
 		to_add.contents = generate_ordering(numcands, do_truncate);
@@ -135,12 +135,7 @@ std::list<ballot_group> impartial::generate_ballots(int num_voters,
 
 	std::list<ballot_group> toRet;
 	ballot_group to_add;
-	to_add.weight = 1;
-
-	/*for (int ounter = 0; counter < num_voters; ++counter) {
-		to_add.contents = generate_ordering(numcands, do_truncate);
-		toRet.push_back(to_add);
-	}*/
+	to_add.set_weight(1);
 
 	for (int i = 0; i < num_voters; ++i) {
 		to_add.contents.clear();

@@ -48,7 +48,7 @@ std::vector<coalition_entry> dsc::get_coalitions(
 			// both B and C are eliminated.
 
 			if (!current_coalition.empty()) {
-				coalition_count[current_coalition] += ballot->weight;
+				coalition_count[current_coalition] += ballot->get_weight();
 			}
 		}
 
@@ -56,7 +56,7 @@ std::vector<coalition_entry> dsc::get_coalitions(
 		// also.
 
 		if (current_coalition.size() != (size_t)num_candidates) {
-			coalition_count[all_candidates] += ballot->weight;
+			coalition_count[all_candidates] += ballot->get_weight();
 		}
 	}
 

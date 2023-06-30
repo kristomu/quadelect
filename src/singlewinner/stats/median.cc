@@ -127,7 +127,7 @@ std::vector<double> median_ratings::aggregate_ratings(
 				continue;
 			}
 
-			num_voters[sec->get_candidate_num()] += pos->weight;
+			num_voters[sec->get_candidate_num()] += pos->get_weight();
 
 			// If local_min == local_max, then the voter equal-ranks
 			// everything, in which case normalizing would cause
@@ -150,7 +150,7 @@ std::vector<double> median_ratings::aggregate_ratings(
 
 			ratings_block[sec->get_candidate_num()].push_back(
 				std::pair<double, double>(score,
-					pos->weight));
+					pos->get_weight()));
 		}
 
 	}

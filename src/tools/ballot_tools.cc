@@ -82,7 +82,7 @@ bool ordering_sorter::operator()(const ballot_group & a,
 	int dir = compare(a.contents, b.contents);
 
 	if (dir == 0) {
-		return (a.weight < b.weight);
+		return (a.get_weight() < b.get_weight());
 	} else	{
 		return (dir < 1);
 	}
@@ -509,7 +509,8 @@ std::list<ballot_group> ballot_tools::compress(const
 		while (check_against != compressed.end() &&
 			check->contents == check_against->contents) {
 
-			check->weight += check_against->weight;
+			check->set_weight(check->get_weight() +
+				check_against->get_weight());
 			check_against = compressed.erase(check_against);
 		}
 	}
@@ -521,7 +522,7 @@ std::string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
 	const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
-	std::string out = dtos(rank_ballot.weight) + ": ";
+	std::string out = dtos(rank_ballot.get_weight()) + ": ";
 	std::string order = otools.ordering_to_text(rank_ballot.contents,
 			reverse_cand_lookup, numeric);
 
@@ -576,7 +577,7 @@ std::list<ballot_group> ballot_tools::rescale(
 	std::list<ballot_group> out;
 
 	for (ballot_group ballot: ballots) {
-		ballot.weight *= factor;
+		ballot.set_weight(ballot.get_weight() * factor);
 		out.push_back(ballot);
 	}
 

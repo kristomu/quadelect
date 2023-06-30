@@ -58,7 +58,7 @@ grad_fracile vi_median_ratings::aggregate_ratings(
 			score = std::min(maximum, std::max(minimum, score));
 
 			assert(out.add_rating(opos->get_candidate_num(),
-					pos->weight, score));
+					pos->get_weight(), score));
 		}
 
 	}

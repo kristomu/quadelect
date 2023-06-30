@@ -71,8 +71,10 @@ cache_orderings; // first is full, second is winner only.
 // is that we need doubles for reweighted votes, but all other times, ints
 // would suffice.
 class ballot_group {
-	public:
+	private:
 		double weight;
+
+	public:
 		ordering contents;
 		// If !is_complete, then the ballot isn't complete. If !rated,
 		// then don't pay attention to the actual scores, just the
@@ -83,6 +85,16 @@ class ballot_group {
 		ballot_group(double weight_in);
 		ballot_group(double weight_in, const ordering & cont,
 			bool complete_in, bool rated_in);
+
+		double get_weight() const {
+			return weight;
+		}
+		void set_weight(double weight_in) {
+			if (weight <= 0) {
+				throw std::out_of_range("Ballot weight must be positive.");
+			}
+			weight = weight_in;
+		}
 
 		bool operator==(const ballot_group & other) const {
 			return (weight == other.weight && contents == other.contents);

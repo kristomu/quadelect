@@ -22,7 +22,7 @@ test_reversal_symmetry::rearrange_ballots(
 	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
 		ballot_group to_insert;
-		to_insert.weight = pos->weight;
+		to_insert.set_weight(pos->get_weight());
 		to_insert.contents = otools.reverse(pos->contents);
 
 		modified.second.push_back(to_insert);

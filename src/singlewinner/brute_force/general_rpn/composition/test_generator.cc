@@ -22,7 +22,7 @@ std::list<ballot_group> test_generator::vector_election_to_ordering_format(
 			ballot.contents.insert(candscore(cur_cand_ordering[i],
 					numcands-i));
 		}
-		ballot.weight = election[perm_number++];
+		ballot.set_weight(election[perm_number++]);
 		out_election.push_back(ballot);
 	} while (std::next_permutation(cur_cand_ordering.begin(),
 			cur_cand_ordering.end()));

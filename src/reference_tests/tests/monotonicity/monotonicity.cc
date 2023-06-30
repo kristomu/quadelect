@@ -84,7 +84,7 @@ std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
 
 	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
-		total_weight += pos->weight;
+		total_weight += pos->get_weight();
 
 		++counter;
 		// If that isn't the ballot we're looking for, move along.
@@ -119,8 +119,8 @@ std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
 		// TODO: Make reproducible. Data should always have a random
 		// seed.
 		int modified = 1;
-		if (pos->weight >= 2) {
-			modified += round(drand48() * (pos->weight - 1));
+		if (pos->get_weight() >= 2) {
+			modified += round(drand48() * (pos->get_weight() - 1));
 		}
 
 		bool altered = alter_ballot(order_in, order_out, numcands,
@@ -136,9 +136,9 @@ std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
 			output.second.push_back(ballot_group(modified,
 					order_out, pos->complete,
 					false));
-			if (modified < pos->weight)
+			if (modified < pos->get_weight())
 				output.second.push_back(ballot_group(
-						pos->weight - modified,
+						pos->get_weight() - modified,
 						pos->contents,
 						pos->complete,
 						false));

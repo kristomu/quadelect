@@ -181,7 +181,8 @@ bool grad_fracile::add_rating(size_t candidate, double weight,
 
 	// If the candidate doesn't exist, fugeddaboudit.
 	if (candidate >= sorted_lists.size()) {
-		return (false);
+		throw std::out_of_range("grad_fracile: candidate number is "
+			"too large");
 	}
 
 	// We can't permit inf/nan weights because they'll mess with the
@@ -190,7 +191,8 @@ bool grad_fracile::add_rating(size_t candidate, double weight,
 
 	// If it has a non-positive weight, do the same.
 	if (weight <= 0) {
-		return (false);
+		throw std::out_of_range("grad_fracile: ballot weight "
+			"must be positive!");
 	}
 
 	// If we go here, that means we're going to somehow incorporate the

@@ -20,7 +20,7 @@ const {
 
 	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
-		weight_sum += pos->weight;
+		weight_sum += pos->get_weight();
 	}
 
 	return (weight_sum);

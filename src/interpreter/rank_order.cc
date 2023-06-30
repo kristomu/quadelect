@@ -120,7 +120,7 @@ rank_order_int::interpret_ballots(
 
 		assert(weight > 0);
 
-		to_add.weight = weight;
+		to_add.set_weight(weight);
 
 		// Starting from either 0 or after the :...
 		int cur_rank = 0;

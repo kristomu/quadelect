@@ -113,7 +113,7 @@ void condmat::count_ballots(const std::list<ballot_group> & scores,
 
 		ordering::const_iterator cand, against;
 
-		num_voters += ballot->weight;
+		num_voters += ballot->get_weight();
 
 		for (ordering::const_iterator cand = ballot->contents.begin();
 			cand != ballot->contents.end(); ++cand) {
@@ -154,7 +154,7 @@ void condmat::count_ballots(const std::list<ballot_group> & scores,
 						true);
 
 				if (debug) {
-					std::cout << "Adding "<< ballot->weight <<
+					std::cout << "Adding "<< ballot->get_weight() <<
 						" to " 	<< (char)('A' + cand->
 							get_candidate_num())
 						<< " vs " << (char)('A' +
@@ -166,7 +166,7 @@ void condmat::count_ballots(const std::list<ballot_group> & scores,
 
 				set_internal(cand->get_candidate_num(),
 					against->get_candidate_num(),
-					last + ballot->weight);
+					last + ballot->get_weight());
 
 				if (debug) {
 					std::cout << get_internal(cand->
@@ -199,7 +199,7 @@ void condmat::count_ballots(const std::list<ballot_group> & scores,
 					if (debug)
 						std::cout << "Unranked vs ranked: "<<
 							"adding " << ballot->
-							weight 	<< " to " <<
+							get_weight() << " to " <<
 							(char)('A'+ counter) <<
 							" vs " <<
 							(char)('A' + sec)
@@ -211,7 +211,7 @@ void condmat::count_ballots(const std::list<ballot_group> & scores,
 					set_internal(counter, sec,
 						get_internal(counter,
 							sec, true) +
-						ballot->weight);
+						ballot->get_weight());
 				}
 			}
 		}
