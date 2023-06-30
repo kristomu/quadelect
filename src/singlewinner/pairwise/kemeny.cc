@@ -129,6 +129,9 @@ std::vector<std::vector<bool> > kemeny::solve_kemeny(
 			if (counter == sec) {
 				continue;
 			}
+			if (!hopefuls[sec]) {
+				continue;
+			}
 
 			// If we're debugging, it makes sense to label the
 			// parameters, so do so. Otherwise, don't, as it takes
@@ -194,12 +197,18 @@ std::vector<std::vector<bool> > kemeny::solve_kemeny(
 	int offset = n * n; // The first row of these constraints start here.
 
 	for (counter = 0; counter < n; ++counter) {
+		if (!hopefuls[counter]) {
+			continue;
+		}
 		for (sec = 0; sec < n; ++sec) {
 			if (counter == sec) {
 				continue;
 			}
+			if (!hopefuls[sec]) {
+				continue;
+			}
 			for (tri = 0; tri < n; ++tri) {
-				if (tri == sec || tri == counter) {
+				if (tri == sec || tri == counter || !hopefuls[tri]) {
 					continue;
 				}
 
@@ -322,10 +331,7 @@ std::vector<std::vector<bool> > kemeny::solve_kemeny(
 			continue;
 		}
 		for (sec = 0; sec < n; ++sec) {
-			if (counter == sec) {
-				continue;
-			}
-			if (!hopefuls[sec]) {
+			if (counter == sec || !hopefuls[sec]) {
 				continue;
 			}
 
