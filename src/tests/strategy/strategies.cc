@@ -148,11 +148,20 @@ void coalitional_strategy::add_strategic_election_inner(
 		ballot_group strategic_ballot = ballot_generator->
 			generate_ballot(numcands, *randomizer);
 
-		if (i == num_coalitions-1) {
+		// We're not allowed to set ballot weights of zero. Thus, if we
+		// are dealing with a situation where the current support would
+		// be rounded off to zero or something higher than the
+		// given max support, just spend the remaining voting power on
+		// a single strategic ballot.
+
+		// This is also the reason why the drand has a 0.5 minimum;
+		// that's so that the rounded weight will always be at least 1.
+
+		if (i == num_coalitions-1 || max_support_per_coalition < 1) {
 			strategic_ballot.set_weight(unassigned_weight);
 		} else {
 			strategic_ballot.set_weight(round(
-					randomizer->drand(0,max_support_per_coalition)));
+					randomizer->drand(0.5,max_support_per_coalition)));
 		}
 
 		strategic_ballot.set_weight(std::min(
