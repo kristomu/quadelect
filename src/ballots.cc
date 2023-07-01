@@ -15,9 +15,15 @@
 // (if so declared), so that loser-elimination/average-elimination can work,
 // and so that we may experiment with cardinal ratings later.
 
+// We enforce that scores are finite because this makes manipulating their
+// values easier, e.g. when doing tiebreaks.
+
 void candscore::set_score(double score_in) {
 	if (isnan(score_in)) {
 		throw std::invalid_argument("candscore: NaN is not a valid score.");
+	}
+	if (!finite(score_in)) {
+		throw std::invalid_argument("candscore: Scores must be finite.");
 	}
 	score = score_in;
 }

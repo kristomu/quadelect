@@ -177,24 +177,30 @@ std::pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat &
 
 	// Determine final scores and renormalize so the sum is 1.
 	// Only do this if there're no infinities. If there are
-	// infinities, only sum the finite components.
+	// infinities, only sum the finite components, and set the
+	// infinities to 10, which will exceed any finite value due
+	// to the renormalization.
+
+	// This is somewhat of a hack; the natural interpretation of any
+	// infinities is that the candidate/s with infinite score beats
+	// anybody else by any amount you can name, and that the (finite)
+	// differences of the non-infinite score candidates should only
+	// be used to determine which of the finite candidates are best.
+	// We can't really capture that here, due to the scores having to
+	// be finite.
 	double sum = 0;
-	bool all_infinite = true;
 	for (counter = 0; counter < score.size(); ++counter) {
 		if (!finite(score[counter])) {
 			continue;
 		}
 		sum += score[counter];
-		all_infinite = false;
 	}
 
 	for (counter = 0; counter < score.size(); ++counter) {
 		if (finite(score[counter])) {
 			score[counter] /= sum;
 		} else {
-			if (all_infinite) {
-				score[counter] = copysign(1, score[counter]);
-			}
+			score[counter] = copysign(10, score[counter]);
 		}
 
 		if (debug)

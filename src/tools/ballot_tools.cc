@@ -445,8 +445,7 @@ std::string ordering_tools::ordering_to_text(const ordering & rank_ballot,
 }
 
 ordering ordering_tools::direct_vector_to_ordering(const
-	std::vector<double> &
-	in,
+	std::vector<double> & in,
 	const std::vector<bool> & hopefuls) const {
 
 	ordering toRet;
