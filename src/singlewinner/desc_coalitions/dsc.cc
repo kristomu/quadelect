@@ -32,6 +32,11 @@ std::vector<coalition_entry> dsc::get_coalitions(
 			// strictly lower ranked than every candidate closer to
 			// pos->contents.begin().
 
+			// Skip past any eliminated candidates.
+			if (!hopefuls[opos->get_candidate_num()]) {
+				++opos;
+			}
+
 			double current_score = opos->get_score();
 
 			for (; opos != ballot->contents.end() &&
@@ -41,15 +46,7 @@ std::vector<coalition_entry> dsc::get_coalitions(
 				}
 			}
 
-			// If we're using DSC as a component of an elimination system,
-			// all candidates of a certain rank level might be eliminated.
-			// In that case, the current coalition here will be empty, and
-			// we should not add anything. E.g. the ranking is A>B=C>D and
-			// both B and C are eliminated.
-
-			if (!current_coalition.empty()) {
-				coalition_count[current_coalition] += ballot->get_weight();
-			}
+			coalition_count[current_coalition] += ballot->get_weight();
 		}
 
 		// If the ballot is truncated, add the coalition of all candidates

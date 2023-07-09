@@ -5,7 +5,7 @@ void desc_coalition_method::sort_by_candidate(
 	std::vector<coalition_entry> & coalitions, int candidate) const {
 
 	for (size_t i = 0; i < coalitions.size(); ++i) {
-		coalitions[i].priority_candidate = i;
+		coalitions[i].priority_candidate = candidate;
 	}
 
 	std::sort(coalitions.begin(), coalitions.end(),
