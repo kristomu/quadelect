@@ -32,12 +32,8 @@ std::pair<ordering, bool> three_experimental::elect_inner(
 	// as a parameter...
 	// Hopefuls???
 
-	// Why do we have to do it like this???
-	election_method * plur = new plurality(PT_WHOLE);
-	ordering plur_result = plur->elect(papers, num_candidates, cache,
-			false);
-	ordering plur_ordering = plur_result;
-	delete plur;
+	ordering plur_ordering = plurality(PT_WHOLE).elect(papers,
+			num_candidates, cache, false);
 
 	// IDEA: multiply the score term by plur_scores[counter]*plur_scores[sec]
 
