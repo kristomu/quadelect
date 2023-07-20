@@ -20,5 +20,6 @@
 #include "stats/all.h"
 #include "experimental/all.h"
 #include "brute_force/all.h"
+#include "dmt/all.h"
 
 #endif
