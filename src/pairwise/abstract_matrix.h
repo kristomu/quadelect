@@ -40,6 +40,16 @@ class abstract_condmat {
 		double get_magnitude(size_t candidate, size_t against,
 			const std::vector<bool> & hopefuls) const;
 
+		bool beats(size_t candidate, size_t challenger) const {
+			return get_magnitude(candidate, challenger) >
+				get_magnitude(challenger, candidate);
+		}
+
+		bool beats_or_ties(size_t candidate, size_t challenger) const {
+			return get_magnitude(candidate, challenger) >=
+				get_magnitude(challenger, candidate);
+		}
+
 		virtual double get_num_voters() const {
 			return (num_voters);
 		}

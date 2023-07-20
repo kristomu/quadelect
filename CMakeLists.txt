@@ -83,7 +83,8 @@ add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/sets/partition.cc
 	src/singlewinner/sets/topological.cc
 	src/singlewinner/stats/cardinal.cc
-	src/singlewinner/dmt/ifpp_like.cc)
+	src/singlewinner/dmt/ifpp_like.cc
+	src/singlewinner/dmt/fpa_fpc.cc)
 
 add_library(quadelect_lib src/tools/tools.cc
 	src/interpreter/rank_order.cc
