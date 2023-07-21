@@ -18,7 +18,7 @@ std::pair<ordering, bool> first_pref_copeland::elect_inner(
 	}
 
 	ordering plurality_outcome = plurality_eval.elect(papers, hopefuls,
-			num_candidates, cache, winner_only);
+			num_candidates, cache, false);
 
 	std::vector<double> penalties(num_candidates, 0),
 		plur_scores(num_candidates, 0);

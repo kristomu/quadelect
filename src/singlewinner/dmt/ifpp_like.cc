@@ -17,7 +17,7 @@ std::pair<ordering, bool> ifpp_like_fpa_fpc::elect_inner(
 	}
 
 	ordering mod_plurality_outcome = plurality_eval.elect(papers, hopefuls,
-			num_candidates, cache, winner_only);
+			num_candidates, cache, false);
 
 	// Check if the two highest ranked candidates have more than a third
 	// of the first preferences each. Since at most two voters can be in
