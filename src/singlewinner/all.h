@@ -7,6 +7,7 @@
 #include "gradual_c_b.h"
 #include "young.h"
 #include "fpc.h"
+#include "quick_runoff.h"
 #include "desc_coalitions/all.h"
 
 #include "elimination.h"
