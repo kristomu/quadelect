@@ -171,6 +171,8 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	toRet.push_back(new ifpp_like_fpa_fpc());
 	toRet.push_back(new fpa_sum_fpc());
 	toRet.push_back(new fpa_max_fpc());
+	toRet.push_back(new quick_runoff());
+	toRet.push_back(new contingent_vote());
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {
@@ -179,6 +181,7 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 
 		toRet.push_back(new sv_att_second());
 		toRet.push_back(new fpa_experiment());
+		toRet.push_back(new donated_contingent_vote());
 	}
 
 	// Then expand:

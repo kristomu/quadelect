@@ -50,6 +50,8 @@ add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/brute_force/brute.cc
 	src/singlewinner/brute_force/bruterpn.cc
 	src/singlewinner/brute_force/rpn/custom_func.cc
+	src/singlewinner/contingent/contingent.cc
+	src/singlewinner/contingent/donation.cc
 	src/singlewinner/experimental/3exp.cc
 	src/singlewinner/experimental/fpa_experiment.cc
 	src/singlewinner/experimental/sv2.cc
