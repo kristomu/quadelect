@@ -4,11 +4,21 @@
 #include "positional/simple_methods.h"
 
 ordering quick_runoff::winner_to_ordering(size_t winner,
+	const std::vector<bool> & hopefuls,
 	size_t num_candidates) const {
 
 	ordering winner_order;
 
+	if (!hopefuls[winner]) {
+		throw std::invalid_argument(
+			"winner_to_ordering: Winner must be hopeful!");
+	}
+
 	for (size_t cand = 0; cand < num_candidates; ++cand) {
+		if (!hopefuls[cand]) {
+			continue;
+		}
+
 		if (cand == winner) {
 			winner_order.insert(candscore(cand, 1));
 		} else {
@@ -56,8 +66,8 @@ std::pair<ordering, bool> quick_runoff::elect_inner(
 		auto next_in_line = std::next(pos);
 
 		// Skiop non-hopefuls.
-		while (!hopefuls[next_in_line->get_candidate_num()] &&
-			next_in_line != plurality_outcome.end()) {
+		while (next_in_line != plurality_outcome.end() &&
+			!hopefuls[next_in_line->get_candidate_num()]) {
 			++next_in_line;
 		}
 
@@ -72,7 +82,7 @@ std::pair<ordering, bool> quick_runoff::elect_inner(
 		if (2 * beats_next_by >= numvoters) {
 			return std::pair<ordering, bool>(
 					winner_to_ordering(pos->get_candidate_num(),
-						num_candidates), true);
+						hopefuls, num_candidates), true);
 		}
 	}
 
