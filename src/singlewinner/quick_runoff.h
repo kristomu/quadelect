@@ -27,6 +27,7 @@ class quick_runoff : public election_method {
 		// This returns an ordering with the winner first
 		// and everybody else tied for second.
 		ordering winner_to_ordering(size_t winner,
+			const std::vector<bool> & hopefuls,
 			size_t num_candidates) const;
 
 	public:
