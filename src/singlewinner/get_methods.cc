@@ -173,6 +173,7 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	toRet.push_back(new fpa_max_fpc());
 	toRet.push_back(new quick_runoff());
 	toRet.push_back(new contingent_vote());
+	toRet.push_back(new adjusted_cond_plur());
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {

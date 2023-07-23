@@ -41,6 +41,7 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/config/general_rpn.cc)
 
 add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
+	src/singlewinner/acp.cc
 	src/singlewinner/elimination.cc
 	src/singlewinner/gradual_c_b.cc
 	src/singlewinner/quick_runoff.cc

@@ -12,6 +12,14 @@ double donated_contingent_vote::get_possible_finalist_score(
 	size_t num_candidates = pairwise_matrix.
 		get_num_candidates();
 
+	// XXX: It might be a better idea to treat this as a game where the
+	// challenger gets a chance to try to boot us out of the top two, and
+	// if so, the score is zero. But my preliminary attempts to do so
+	// don't seem to produce much of a difference as far as strategic
+	// resistance is concerned, so I don't know. Maybe what we have here,
+	// just separately "making the case for X", is good enough?
+
+
 	// Determine the maximum number of voters the finalist can
 	// donate. The maximum amount is actually an epsilon less,
 	// so we have to be careful with strict inequalities. (I think

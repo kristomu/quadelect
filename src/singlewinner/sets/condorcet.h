@@ -9,12 +9,11 @@
 
 class condorcet_set : public pairwise_method {
 
-	private:
+	public:
 		// Returns -1 if none.
 		int get_CW(const abstract_condmat & input,
 			const std::vector<bool> & hopefuls) const;
 
-	public:
 		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
 			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
