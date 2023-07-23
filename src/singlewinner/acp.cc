@@ -30,7 +30,7 @@ int adjusted_cond_plur::get_adjusted_winner(
 	}
 
 	// Create a Condorcet matrix for the derived ballot set.
-	condmat pairwise_matrix(papers, num_candidates, CM_WV);
+	condmat pairwise_matrix(truncated_papers, num_candidates, CM_WV);
 
 	int condorcet_winner = condorcet.get_CW(
 			pairwise_matrix, hopefuls);

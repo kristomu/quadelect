@@ -10,10 +10,8 @@
 // handled by producing a tie of every winner produced by doing this
 // for each of the tied winners. (This may be very slow.)
 
-// My strategy calculator says that this is vulnerable to burial, which
-// is odd given that Kevin states that it passes both LNHarm and LNHelp.
-// I may need to verify that the implementation is correct with some
-// example elections. TODO.
+// TODO? Implement the FPTP-flavored version where the Condorcet winner
+// is found based on both the truncated and ordinary ballot set?
 
 #pragma once
 
@@ -42,3 +40,21 @@ class adjusted_cond_plur : public election_method {
 			return "Adjusted Condorcet Plurality";
 		}
 };
+
+/* TODO once I have tests going:
+
+16: A > B > C
+19: A > C > B
+18: C > A > B
+16: B > C > A
+20: B > C > A
+8: C > B > A
+
+The winner should be A with truncated ballots
+
+16: A > B
+19: A > C > B
+18: C > A > B
+16: B
+20: B
+8: C > B */
