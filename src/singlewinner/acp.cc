@@ -1,7 +1,6 @@
 #include "acp.h"
 
 #include "../pairwise/matrix.h"
-#include "positional/simple_methods.h"
 
 int adjusted_cond_plur::get_adjusted_winner(
 	const std::list<ballot_group> & papers,
@@ -47,8 +46,6 @@ std::pair<ordering, bool> adjusted_cond_plur::elect_inner(
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
-	plurality plurality_eval(PT_FRACTIONAL);
-
 	double numvoters = 0;
 	std::list<ballot_group>::const_iterator ballot_ref;
 	for (ballot_ref = papers.begin(); ballot_ref != papers.end();
@@ -56,16 +53,16 @@ std::pair<ordering, bool> adjusted_cond_plur::elect_inner(
 		numvoters += ballot_ref->get_weight();
 	}
 
-	ordering plurality_outcome = plurality_eval.elect(papers, hopefuls,
+	ordering base_outcome = base_method->elect(papers, hopefuls,
 			num_candidates, cache, false);
 
 	condmat pairwise_matrix(papers, num_candidates, CM_PAIRWISE_OPP);
 
-	// Get the Plurality winners.
+	// Get the base method (usually Plurality) winners.
 	std::vector<int> plur_winners;
-	for (ordering::const_iterator pos = plurality_outcome.begin();
-		pos != plurality_outcome.end() &&
-		pos->get_candidate_num() == plurality_outcome.begin()->get_candidate_num();
+	for (ordering::const_iterator pos = base_outcome.begin();
+		pos != base_outcome.end() &&
+		pos->get_candidate_num() == base_outcome.begin()->get_candidate_num();
 		++pos) {
 
 		plur_winners.push_back(pos->get_candidate_num());

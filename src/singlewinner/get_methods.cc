@@ -174,6 +174,9 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	toRet.push_back(new quick_runoff());
 	toRet.push_back(new contingent_vote());
 	toRet.push_back(new adjusted_cond_plur());
+	// Kevin Venzke's TTR variation of ACP.
+	toRet.push_back(new adjusted_cond_plur(
+			std::make_shared<contingent_vote>()));
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {
