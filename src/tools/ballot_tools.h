@@ -75,6 +75,17 @@ class ballot_tools {
 		ordering_tools otools;
 
 	public:
+		// Truncates an ordering so that everybody ranked below
+		// the given candidate num will be omitted from the ordering.
+		// This is used by Adjusted Condorcet Plurality and for
+		// experimentation.
+		static ballot_group truncate_after(const ballot_group & in,
+			size_t truncate_after_candidate_num);
+
+		static std::list<ballot_group> truncate_after(
+			const std::list<ballot_group> & ballots,
+			size_t truncate_after_candidate_num);
+
 		std::list<ballot_group> sort_ballots(const std::list<ballot_group> &
 			to_sort) const;
 		std::list<ballot_group> compress(const std::list<ballot_group> &

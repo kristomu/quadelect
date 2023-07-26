@@ -475,6 +475,40 @@ ordering ordering_tools::indirect_vector_to_ordering(
 ///// Ballot tools.
 //
 
+ballot_group ballot_tools::truncate_after(const ballot_group & in,
+	size_t truncate_after_candidate_num) {
+
+	ordering truncated_ballot;
+	bool found_threshold = false;
+	for (ordering::const_iterator pos = in.contents.begin();
+		pos != in.contents.end() && !found_threshold;
+		++pos) {
+		truncated_ballot.insert(*pos);
+		found_threshold |= (pos->get_candidate_num() ==
+				truncate_after_candidate_num);
+	}
+
+	bool ballot_is_complete = in.complete && (
+			in.contents.size() == truncated_ballot.size());
+
+	return ballot_group(in.get_weight(), truncated_ballot,
+			ballot_is_complete, in.rated);
+}
+
+std::list<ballot_group> ballot_tools::truncate_after(
+	const std::list<ballot_group> & ballots,
+	size_t truncate_after_candidate_num) {
+
+	std::list<ballot_group> truncated_ballots;
+
+	for (const ballot_group & group: ballots) {
+		truncated_ballots.push_back(truncate_after(group,
+				truncate_after_candidate_num));
+	}
+
+	return truncated_ballots;
+}
+
 std::list<ballot_group> ballot_tools::sort_ballots(const
 	std::list<ballot_group> &
 	to_sort) const {

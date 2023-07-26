@@ -5,37 +5,20 @@
 int adjusted_cond_plur::get_adjusted_winner(
 	const std::list<ballot_group> & papers,
 	const std::vector<bool> & hopefuls,
-	size_t plurality_winner, size_t num_candidates) const {
+	size_t base_winner, size_t num_candidates) const {
 
-	std::list<ballot_group> truncated_papers;
+	// Truncate after the base method winner and create
+	// a Condorcet matrix based on this.
+	std::list<ballot_group> truncated_papers =
+		ballot_tools::truncate_after(papers, base_winner);
 
-	for (const ballot_group & group: papers) {
-		ordering truncated_ballot;
-		bool found_original_winner = false;
-		for (ordering::const_iterator pos = group.contents.begin();
-			pos != group.contents.end() && !found_original_winner;
-			++pos) {
-			truncated_ballot.insert(*pos);
-			found_original_winner |= (
-					pos->get_candidate_num() == plurality_winner);
-		}
-
-		bool ballot_is_complete = (
-				truncated_ballot.size() == num_candidates);
-
-		truncated_papers.push_back(ballot_group(
-				group.get_weight(), truncated_ballot, ballot_is_complete,
-				group.rated));
-	}
-
-	// Create a Condorcet matrix for the derived ballot set.
 	condmat pairwise_matrix(truncated_papers, num_candidates, CM_WV);
 
 	int condorcet_winner = condorcet.get_CW(
 			pairwise_matrix, hopefuls);
 
 	if (condorcet_winner == -1) {
-		return plurality_winner;
+		return base_winner;
 	} else {
 		return condorcet_winner;
 	}
@@ -46,27 +29,12 @@ std::pair<ordering, bool> adjusted_cond_plur::elect_inner(
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
-	double numvoters = 0;
-	std::list<ballot_group>::const_iterator ballot_ref;
-	for (ballot_ref = papers.begin(); ballot_ref != papers.end();
-		++ballot_ref) {
-		numvoters += ballot_ref->get_weight();
-	}
-
 	ordering base_outcome = base_method->elect(papers, hopefuls,
 			num_candidates, cache, false);
 
-	condmat pairwise_matrix(papers, num_candidates, CM_PAIRWISE_OPP);
-
 	// Get the base method (usually Plurality) winners.
-	std::vector<int> plur_winners;
-	for (ordering::const_iterator pos = base_outcome.begin();
-		pos != base_outcome.end() &&
-		pos->get_candidate_num() == base_outcome.begin()->get_candidate_num();
-		++pos) {
-
-		plur_winners.push_back(pos->get_candidate_num());
-	}
+	std::list<int> base_winners = ordering_tools::get_winners(
+			base_outcome);
 
 	// Now call the get_adjusted_winners function for all such Plurality
 	// winners and mark them off in the seen_candidate vector. Every
@@ -75,9 +43,12 @@ std::pair<ordering, bool> adjusted_cond_plur::elect_inner(
 
 	std::vector<bool> seen_candidate(num_candidates, false);
 
-	for (int plurality_winner: plur_winners) {
-		int adjusted_winner = get_adjusted_winner(
-				papers, hopefuls, plurality_winner, num_candidates);
+	for (int base_winner: base_winners) {
+		if (!hopefuls[base_winner]) {
+			continue;
+		}
+		int adjusted_winner = get_adjusted_winner(papers,
+				hopefuls, base_winner, num_candidates);
 
 		seen_candidate[adjusted_winner] = true;
 	}

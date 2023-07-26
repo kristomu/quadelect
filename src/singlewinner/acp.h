@@ -40,7 +40,7 @@ class adjusted_cond_plur : public election_method {
 		int get_adjusted_winner(
 			const std::list<ballot_group> & papers,
 			const std::vector<bool> & hopefuls,
-			size_t plurality_winner,
+			size_t base_winner,
 			size_t num_candidates) const;
 
 	public:
