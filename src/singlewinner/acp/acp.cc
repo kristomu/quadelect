@@ -1,6 +1,6 @@
 #include "acp.h"
 
-#include "../pairwise/matrix.h"
+#include "../../pairwise/matrix.h"
 
 int adjusted_cond_plur::get_adjusted_winner(
 	const std::list<ballot_group> & papers,

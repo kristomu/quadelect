@@ -90,7 +90,7 @@ class ballot_group {
 			return weight;
 		}
 		void set_weight(double weight_in) {
-			if (weight <= 0) {
+			if (weight_in <= 0) {
 				throw std::out_of_range("Ballot weight must be positive.");
 			}
 			weight = weight_in;

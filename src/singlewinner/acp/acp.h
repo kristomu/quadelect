@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include "method.h"
-#include "sets/condorcet.h"
-#include "positional/simple_methods.h"
+#include "../method.h"
+#include "../sets/condorcet.h"
+#include "../positional/simple_methods.h"
 
 #include <memory>
 

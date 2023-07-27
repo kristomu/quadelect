@@ -12,7 +12,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # The unused-parameter warning suggests some refactoring, but is yet too
 # spammy, so I've disabled it. I've also disabled the implict fallthrough
 # warning as it falsely triggers on SpookyHash.
-set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -ggdb")
+set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native")
 
 # External library requirements
 
@@ -41,13 +41,13 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/config/general_rpn.cc)
 
 add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
-	src/singlewinner/acp.cc
 	src/singlewinner/elimination.cc
 	src/singlewinner/gradual_c_b.cc
 	src/singlewinner/quick_runoff.cc
 	src/singlewinner/meta/comma.cc
 	src/singlewinner/meta/slash.cc
 	src/singlewinner/method.cc
+	src/singlewinner/acp/acp.cc
 	src/singlewinner/brute_force/brute.cc
 	src/singlewinner/brute_force/bruterpn.cc
 	src/singlewinner/brute_force/rpn/custom_func.cc
