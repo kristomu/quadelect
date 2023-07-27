@@ -277,7 +277,7 @@ ordering ordering_tools::tiebreak(const ordering & tied,
 }
 
 ordering ordering_tools::ranked_tiebreak(const ordering & tied,
-	const ordering & tiebreaker, size_t num_candidates) const {
+	const ordering & tiebreaker, size_t num_candidates) {
 
 	// This works by sorting a struct of ints, which includes a pair.
 	// The first int in the pair is the order of the candidate according
@@ -295,10 +295,10 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 			fakecand[counter] = (char)('A' + counter);
 		}
 
-		std::cout << "Tied: " << ordering_to_text(tied, fakecand, true)
+		std::cout << "Tied: " << ordering_to_text(tied, true)
 			<< std::endl;
-		std::cout << "Tiebreak: " << ordering_to_text(tiebreaker, fakecand,
-				true) << std::endl;
+		std::cout << "Tiebreak: " << ordering_to_text(
+				tiebreaker, true) << std::endl;
 	}
 
 	typedef std::pair<std::pair<int, int>, int> sorter;
@@ -399,7 +399,7 @@ bool ordering_tools::has_equal_rank(const ordering & to_check) const {
 
 std::string ordering_tools::ordering_to_text(const ordering & rank_ballot,
 	const std::map<size_t, std::string> & reverse_cand_lookup,
-	bool numeric) const {
+	bool numeric) {
 
 	double oldscore = -INFINITY;
 	bool first = true;
@@ -438,7 +438,7 @@ std::string ordering_tools::ordering_to_text(const ordering & rank_ballot,
 }
 
 std::string ordering_tools::ordering_to_text(const ordering & rank_ballot,
-	bool numeric) const {
+	bool numeric) {
 
 	return ordering_to_text(rank_ballot,
 			get_default_candidate_labeling(), numeric);

@@ -46,19 +46,19 @@ class ordering_tools {
 			size_t num_candidates) const;
 
 		// Used for testing. Or should be, anyway.
-		ordering ranked_tiebreak(const ordering & tied,
+		static ordering ranked_tiebreak(const ordering & tied,
 			const ordering & tiebreaker,
-			size_t num_candidates) const;
+			size_t num_candidates);
 
 		// Returns true if everybody who is ranked is also tied.
 		bool has_equal_rank(const ordering & to_check) const;
 
-		std::string ordering_to_text(const ordering & rank_ballot,
+		static std::string ordering_to_text(const ordering & rank_ballot,
 			const std::map<size_t, std::string> & reverse_cand_lookup,
-			bool numeric) const;
+			bool numeric);
 
-		std::string ordering_to_text(const ordering & rank_ballot,
-			bool numeric) const;
+		static std::string ordering_to_text(const ordering & rank_ballot,
+			bool numeric);
 
 		ordering direct_vector_to_ordering(const std::vector<double> & in,
 			const std::vector<bool> & hopefuls) const;

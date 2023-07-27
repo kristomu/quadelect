@@ -1,10 +1,8 @@
 
 // All single-winner methods. Use this if you want to include the whole batch.
 
-#ifndef _VOTE_SW_ALL
-#define _VOTE_SW_ALL
+#pragma once
 
-#include "acp.h"
 #include "gradual_c_b.h"
 #include "young.h"
 #include "fpc.h"
@@ -14,6 +12,7 @@
 #include "elimination.h"
 #include "method.h"
 
+#include "acp/all.h"
 #include "meta/all.h"
 #include "pairwise/all.h"
 #include "positional/all.h"
@@ -24,5 +23,3 @@
 #include "brute_force/all.h"
 #include "dmt/all.h"
 #include "contingent/all.h"
-
-#endif
