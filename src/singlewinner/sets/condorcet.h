@@ -1,8 +1,7 @@
 // This set method produces the "Condorcet set", which is the CWs ranked in
 // order if there is a CW, otherwise every member is equally ranked.
 
-#ifndef _SET_CONDORCET
-#define _SET_CONDORCET
+#pragma once
 
 #include "../method.h"
 #include "../pairwise/method.h"
@@ -27,5 +26,3 @@ class condorcet_set : public pairwise_method {
 		}
 
 };
-
-#endif

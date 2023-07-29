@@ -191,6 +191,21 @@ bool ordering_tools::is_winner(const ordering & in,
 		!= winners.end();
 }
 
+std::list<candscore> ordering_tools::get_loser_candscores(
+	const ordering & in) {
+
+	std::list<candscore> losers;
+
+	for (ordering::const_reverse_iterator rpos = in.rbegin();
+		rpos != in.rend() && rpos->get_score() == in.rbegin()->get_score();
+		++rpos) {
+
+		losers.push_back(*rpos);
+	}
+
+	return losers;
+}
+
 // Break ties in the ordering "tied" according to tiebreaker.
 // This is done by finding the minimal delta (difference between two candidates)
 // and rescaling the tiebreaker so that the difference between first and last is

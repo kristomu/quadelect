@@ -39,6 +39,8 @@ class ordering_tools {
 		static std::list<int> get_winners(const ordering & in);
 		static bool is_winner(const ordering & in, int candidate_num);
 
+		static std::list<candscore> get_loser_candscores(const ordering & in);
+
 		// Break ties in "tied" according to tiebreaker and return
 		// result.
 		ordering tiebreak(const ordering & tied,

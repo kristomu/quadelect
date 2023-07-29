@@ -1,5 +1,4 @@
-#ifndef _VOTE_SW_COMMA
-#define _VOTE_SW_COMMA
+#pragma once
 
 // Comma - meta-method with which to build methods like Smith,IRV.
 // The meta-method first calculates the outcome of the first method (which is
@@ -41,5 +40,3 @@ class comma : public election_method {
 			return (cached_name);
 		}
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef _VOTE_SW_LELIM
-#define _VOTE_SW_LELIM
+#pragma once
 
 #include "method.h"
 #include "../ballots.h"
@@ -7,7 +6,6 @@
 #include "../tools/ballot_tools.h"
 
 #include <list>
-
 
 // Loser-elimination meta-method. This method takes a base method and
 // repeatedly disqualifies the loser (if loser-elimination) or those with a
@@ -59,5 +57,3 @@ class loser_elimination : public election_method {
 			return (cached_name);
 		}
 };
-
-#endif
