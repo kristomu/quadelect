@@ -177,6 +177,7 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	// Kevin Venzke's TTR variation of ACP.
 	toRet.push_back(new adjusted_cond_plur(
 			std::make_shared<contingent_vote>()));
+	toRet.push_back(new ifpp_method_x());
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {
@@ -196,8 +197,8 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	// TODO: Make tests to verify that methods behave similarly when
 	// elimination is done the "hard way" as when done by setting hopefuls
 	// variables to false.
-	std::list<election_method *> expanded = expand_meta(toRet, pairwise_sets,
-			true);
+	std::list<election_method *> expanded = expand_meta(toRet,
+			pairwise_sets, true);
 
 	// and
 
