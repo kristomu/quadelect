@@ -13,24 +13,27 @@ std::list<pairwise_method *> get_pairwise_methods(
 
 	for (std::list<pairwise_type>::const_iterator pos = types.begin(); pos !=
 		types.end(); ++pos) {
-		out.push_back(new dquick(*pos));
 		out.push_back(new kemeny(*pos));
 		out.push_back(new maxmin(*pos));
 		out.push_back(new schulze(*pos));
 
 		// Reasonable convergence defaults.
-		out.push_back(new sinkhorn(*pos, 0.01, true));
-		out.push_back(new sinkhorn(*pos, 0.01, false));
-		out.push_back(new hits(*pos, 0.001));
-		out.push_back(new odm_atan(*pos, 0.001));
-		out.push_back(new odm_tanh(*pos, 0.001));
-		out.push_back(new odm(*pos, 0.001));
+		if (pos->get() == CM_WV || pos->get() == CM_MARGINS
+			|| pos->get() == CM_PAIRWISE_OPP) {
+			out.push_back(new dquick(*pos));
+			out.push_back(new sinkhorn(*pos, 0.01, true));
+			out.push_back(new sinkhorn(*pos, 0.01, false));
+			out.push_back(new hits(*pos, 0.001));
+			out.push_back(new odm_atan(*pos, 0.001));
+			out.push_back(new odm_tanh(*pos, 0.001));
+			out.push_back(new odm(*pos, 0.001));
 
-		// Keener
-		out.push_back(new keener(*pos, 0.001, false, false));
-		out.push_back(new keener(*pos, 0.001, false, true));
-		out.push_back(new keener(*pos, 0.001, true, false));
-		out.push_back(new keener(*pos, 0.001, true, true));
+			// Keener
+			out.push_back(new keener(*pos, 0.001, false, false));
+			out.push_back(new keener(*pos, 0.001, false, true));
+			out.push_back(new keener(*pos, 0.001, true, false));
+			out.push_back(new keener(*pos, 0.001, true, true));
+		}
 
 		out.push_back(new ext_minmax(*pos, false));
 		out.push_back(new ext_minmax(*pos, true));
@@ -142,9 +145,6 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 			positional_methods,
 			pairwise_sets, true);
 
-	// Now add other methods here...
-	copy(pairwise_sets.begin(), pairwise_sets.end(), back_inserter(toRet));
-
 	// Gradual Condorcet-Borda with different bases, not just Condorcet.
 	// The completion method doesn't really matter. Also, MDD* doesn't
 	// really work here, and sets that can't handle negatives shouldn't
@@ -199,6 +199,10 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	// variables to false.
 	std::list<election_method *> expanded = expand_meta(toRet,
 			pairwise_sets, true);
+
+	// Finally add some sets, because these should not be used as bases
+	// for elimination methods.
+	copy(pairwise_sets.begin(), pairwise_sets.end(), back_inserter(toRet));
 
 	// and
 

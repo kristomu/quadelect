@@ -56,4 +56,17 @@ class generalized_acp : public election_method {
 			base_method = base_method_in;
 			pairwise_base = pw_base_in;
 		}
+
+		// This is rather ugly and not at all how you're supposed
+		// to create shared pointers, but keep it for now while the
+		// rest of quadelect uses bare pointers.
+		generalized_acp(
+			election_method * base_method_in,
+			pairwise_method * pw_base_in) {
+
+			base_method = std::shared_ptr<election_method>(
+					base_method_in);
+			pairwise_base = std::shared_ptr<pairwise_method>(
+					pw_base_in);
+		}
 };
