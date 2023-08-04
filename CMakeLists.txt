@@ -81,6 +81,7 @@ add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/random/randball.cc
 	src/singlewinner/random/randcand.cc
 	src/singlewinner/sets/condorcet.cc
+	src/singlewinner/sets/debug/venzke_landau.cc
 	src/singlewinner/sets/max_elements/det_sets.cc
 	src/singlewinner/sets/max_elements/sdom.cc
 	src/singlewinner/sets/max_elements/pdom.cc
@@ -180,6 +181,9 @@ target_link_libraries(qe_sifter qe_rpn_search quadelect_lib)
 
 add_executable(qe_invariance_sifter src/singlewinner/brute_force/general_rpn/invariance.cc)
 target_link_libraries(qe_invariance_sifter qe_rpn_search quadelect_lib)
+
+add_executable(qe_find_distinguisher src/main/find_distinguisher.cc)
+target_link_libraries(qe_find_distinguisher qe_singlewinner_methods quadelect_lib glpk)
 
 # TODO: Better name and description.
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)

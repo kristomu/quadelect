@@ -2,14 +2,13 @@
 // All sets (with possible exception of Copeland, if you consider that a set).
 // Use this if you want to include the whole batch.
 
-#ifndef _VOTE_SW_ASETS
-#define _VOTE_SW_ASETS
+#pragma once
 
 #include "condorcet.h"
 #include "mdd.h"
 #include "partition.h"
 #include "topological.h"
 
-#include "max_elements/all.h"
+#include "debug/venzke_landau.h"
 
-#endif
+#include "max_elements/all.h"
