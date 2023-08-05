@@ -178,6 +178,7 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	toRet.push_back(new adjusted_cond_plur(
 			std::make_shared<contingent_vote>()));
 	toRet.push_back(new ifpp_method_x());
+	toRet.push_back(new no_elimination_irv());
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {

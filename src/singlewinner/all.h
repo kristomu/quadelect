@@ -3,10 +3,11 @@
 
 #pragma once
 
-#include "gradual_c_b.h"
-#include "young.h"
 #include "fpc.h"
+#include "gradual_c_b.h"
+#include "no_elimination_irv.h"
 #include "quick_runoff.h"
+#include "young.h"
 #include "desc_coalitions/all.h"
 
 #include "elimination.h"

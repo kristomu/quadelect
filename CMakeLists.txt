@@ -48,6 +48,7 @@ add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/meta/comma.cc
 	src/singlewinner/meta/slash.cc
 	src/singlewinner/method.cc
+	src/singlewinner/no_elimination_irv.cc
 	src/singlewinner/acp/acp.cc
 	src/singlewinner/acp/general_acp.cc
 	src/singlewinner/brute_force/brute.cc
