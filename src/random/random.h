@@ -19,7 +19,8 @@
 
 class rng {
 	private:
-		uint64_t seed[2];
+		uint64_t initial_seed;
+		uint64_t seed[2];				// Actually the RNG's state
 		uint64_t rng64(uint64_t * s);
 
 	public:
@@ -27,6 +28,8 @@ class rng {
 
 		void s_rand(uint64_t seed_in); // Now passes Crush (not BigCrush)
 		void s_rand();                 // from entropy source
+
+		uint64_t get_initial_seed() const;
 
 		rng(uint64_t seed_in) {
 			s_rand(seed_in);

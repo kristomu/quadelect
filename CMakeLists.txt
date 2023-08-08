@@ -18,7 +18,8 @@ set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit
 
 find_package(GLPK REQUIRED)
 find_package(Config++ REQUIRED)
-find_package (Eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(PNG REQUIRED)
 
 include_directories(${OPENSSL_INCLUDE_DIR})
 
@@ -41,14 +42,6 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/config/general_rpn.cc)
 
 add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
-	src/singlewinner/elimination.cc
-	src/singlewinner/gradual_c_b.cc
-	src/singlewinner/quick_runoff.cc
-	src/singlewinner/meta/benham.cc
-	src/singlewinner/meta/comma.cc
-	src/singlewinner/meta/slash.cc
-	src/singlewinner/method.cc
-	src/singlewinner/no_elimination_irv.cc
 	src/singlewinner/acp/acp.cc
 	src/singlewinner/acp/general_acp.cc
 	src/singlewinner/brute_force/brute.cc
@@ -56,62 +49,98 @@ add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/brute_force/rpn/custom_func.cc
 	src/singlewinner/contingent/contingent.cc
 	src/singlewinner/contingent/donation.cc
+	src/singlewinner/desc_coalitions/desc_coalition.cc
+	src/singlewinner/desc_coalitions/dsc.cc
+	src/singlewinner/dmt/fpa_fpc.cc
+	src/singlewinner/dmt/ifpp_like.cc
+	src/singlewinner/dmt/strat_ifpp.cc
+	src/singlewinner/elimination.cc
 	src/singlewinner/experimental/3exp.cc
 	src/singlewinner/experimental/fpa_experiment.cc
 	src/singlewinner/experimental/sv2.cc
 	src/singlewinner/experimental/tup.cc
+	src/singlewinner/fpc.cc
+	src/singlewinner/gradual_c_b.cc
+	src/singlewinner/meta/benham.cc
+	src/singlewinner/meta/comma.cc
+	src/singlewinner/meta/slash.cc
+	src/singlewinner/method.cc
+	src/singlewinner/no_elimination_irv.cc
 	src/singlewinner/pairwise/dodgson_approxs.cc
 	src/singlewinner/pairwise/keener.cc
 	src/singlewinner/pairwise/kemeny.cc
 	src/singlewinner/pairwise/least_rev.cc
 	src/singlewinner/pairwise/method.cc
+	src/singlewinner/pairwise/minmaxy_exper.cc
 	src/singlewinner/pairwise/odm/hits.cc
-	src/singlewinner/pairwise/odm/odm.cc
 	src/singlewinner/pairwise/odm/odm_atan.cc
-	src/singlewinner/pairwise/odm/odm_tanh.cc
+	src/singlewinner/pairwise/odm/odm.cc
 	src/singlewinner/pairwise/odm/odm_gen.cc
+	src/singlewinner/pairwise/odm/odm_tanh.cc
 	src/singlewinner/pairwise/random/randpair.cc
 	src/singlewinner/pairwise/rpairs.cc
 	src/singlewinner/pairwise/simple_methods.cc
 	src/singlewinner/pairwise/sinkhorn.cc
 	src/singlewinner/pairwise/tournament.cc
-	src/singlewinner/pairwise/minmaxy_exper.cc
 	src/singlewinner/positional/aggregator.cc
 	src/singlewinner/positional/positional.cc
 	src/singlewinner/positional/simple_methods.cc
+	src/singlewinner/quick_runoff.cc
 	src/singlewinner/random/randball.cc
 	src/singlewinner/random/randcand.cc
 	src/singlewinner/sets/condorcet.cc
 	src/singlewinner/sets/debug/venzke_landau.cc
 	src/singlewinner/sets/max_elements/det_sets.cc
-	src/singlewinner/sets/max_elements/sdom.cc
 	src/singlewinner/sets/max_elements/pdom.cc
+	src/singlewinner/sets/max_elements/sdom.cc
 	src/singlewinner/sets/max_elements/smith.cc
 	src/singlewinner/sets/mdd.cc
 	src/singlewinner/sets/partition.cc
 	src/singlewinner/sets/topological.cc
 	src/singlewinner/stats/cardinal.cc
-	src/singlewinner/dmt/ifpp_like.cc
-	src/singlewinner/dmt/fpa_fpc.cc
-	src/singlewinner/dmt/strat_ifpp.cc)
+	src/singlewinner/stats/mode.cc
+	src/singlewinner/stats/var_median/vmedian.cc
+	src/singlewinner/young.cc)
 
-add_library(quadelect_lib src/tools/tools.cc
-	src/interpreter/rank_order.cc
-	src/tools/cp_tools.cc
-	src/tools/time_tools.cc
-	src/tools/ballot_tools.cc
-	src/tools/factoradic.cc
-	src/ballots.cc
+add_library(quadelect_lib src/ballots.cc
+	src/bandit/bandit.cc
+	src/bandit/binomial.cc
+	src/bandit/lilucb.cc
 	src/cache.cc
 	src/choose_inc.cc
-	src/spookyhash/SpookyV2.cpp
 	src/distances/vivaldi_test.cc
-	src/generator/spatial/gaussian.cc
+	src/generator/ballotgen.cc
 	src/generator/iac.cc
 	src/generator/impartial_gen.cc
+	src/generator/spatial/gaussian.cc
 	src/generator/spatial/spatial.cc
-	src/grad_median/grad_median.cc
 	src/generator/spatial/uniform.cc
+	src/grad_median/grad_median.cc
+	src/images/color/color.cc
+	src/interpreter/rank_order.cc
+	src/linear_model/constraints/constraint_polytope.cc
+	src/linear_model/constraints/constraint_tools.cc
+	src/linear_model/constraints/direct_relative_criterion.cc
+	src/linear_model/constraints/numvoters.cc
+	src/linear_model/constraints/pairwise.cc
+	src/linear_model/constraints/relative_criteria/clones.cc
+	src/linear_model/constraints/relative_criteria/elimination.cc
+	src/linear_model/constraints/relative_criteria/isda.cc
+	src/linear_model/constraints/relative_criteria/mono-raise.cc
+	src/linear_model/constraints/relative_criteria/strong_um.cc
+	src/linear_model/constraints/relative_criterion_producer.cc
+	src/linear_model/lin_relation/constraint_set.cc
+	src/linear_model/lin_relation/lin_relation.cc
+	src/linear_model/polytope/equality_polytope.cc
+	src/linear_model/polytope/polytope.cc
+	src/linear_model/polytope/properties/bounding_box.cc
+	src/linear_model/polytope/properties/center.cc
+	src/linear_model/polytope/properties/distance.cc
+	src/modes/barycentric.cc
+	src/modes/breg.cc
+	src/modes/interpret.cc
+	src/modes/yee.cc
+	src/output/png_writer.cc
 	src/pairwise/abstract_matrix.cc
 	src/pairwise/beatpath.cc
 	src/pairwise/cache_matrix.cc
@@ -119,18 +148,6 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/pairwise/matrix.cc
 	src/pairwise/types.cc
 	src/random/random.cc
-	src/singlewinner/brute_force/rpn/chaotic_functions.cc
-	src/singlewinner/stats/mode.cc
-	src/singlewinner/stats/var_median/vmedian.cc
-	src/singlewinner/young.cc
-	src/singlewinner/fpc.cc
-	src/singlewinner/desc_coalitions/dsc.cc
-	src/singlewinner/desc_coalitions/desc_coalition.cc
-	src/tests/runner.cc
-	src/tests/strategy/strategies.cc
-	src/tests/test.cc
-	src/tests/provider.cc
-	src/tests/strategy/ballots_by_support.cc
 	src/reference_tests/engine/twotest.cc
 	src/reference_tests/tests/monotonicity/mono_add.cc
 	src/reference_tests/tests/monotonicity/mono_append.cc
@@ -139,34 +156,19 @@ add_library(quadelect_lib src/tools/tools.cc
 	src/reference_tests/tests/monotonicity/monotonicity.cc
 	src/reference_tests/tests/rev_symmetry.cc
 	src/reference_tests/two_tests.cc
-	src/linear_model/lin_relation/lin_relation.cc
-	src/linear_model/lin_relation/constraint_set.cc
-	src/linear_model/polytope/equality_polytope.cc
-	src/linear_model/polytope/polytope.cc
-	src/linear_model/polytope/properties/bounding_box.cc
-	src/linear_model/polytope/properties/center.cc
-	src/linear_model/polytope/properties/distance.cc
-	src/linear_model/constraints/constraint_tools.cc
-	src/linear_model/constraints/constraint_polytope.cc
-	src/linear_model/constraints/numvoters.cc
-	src/linear_model/constraints/pairwise.cc
-	src/linear_model/constraints/direct_relative_criterion.cc
-	src/linear_model/constraints/relative_criterion_producer.cc
-	src/linear_model/constraints/relative_criteria/clones.cc
-	src/linear_model/constraints/relative_criteria/strong_um.cc
-	src/linear_model/constraints/relative_criteria/mono-raise.cc
-	src/linear_model/constraints/relative_criteria/elimination.cc
-	src/linear_model/constraints/relative_criteria/isda.cc
-	src/generator/ballotgen.cc
+	src/singlewinner/brute_force/rpn/chaotic_functions.cc
+	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/confidence.cc
-	src/bandit/bandit.cc
-	src/bandit/binomial.cc
-	src/bandit/lilucb.cc
-	src/modes/breg.cc
-	src/images/color/color.cc
-	src/modes/yee.cc
-	src/modes/barycentric.cc
-	src/modes/interpret.cc)
+	src/tests/provider.cc
+	src/tests/runner.cc
+	src/tests/strategy/ballots_by_support.cc
+	src/tests/strategy/strategies.cc
+	src/tests/test.cc
+	src/tools/ballot_tools.cc
+	src/tools/cp_tools.cc
+	src/tools/factoradic.cc
+	src/tools/time_tools.cc
+	src/tools/tools.cc)
 
 # Set the different executables.
 # They might not all need all the files above, but I'll fix that later.
@@ -200,7 +202,7 @@ add_executable(criterion_test src/main/ttetest_cache.cc)
 target_link_libraries(criterion_test qe_singlewinner_methods quadelect_lib glpk)
 
 add_executable(quadelect src/main/combined.cc)
-target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk png)
 
 add_executable(qe_dim src/main/dimensionality.cc)
 target_link_libraries(qe_dim qe_singlewinner_methods quadelect_lib)

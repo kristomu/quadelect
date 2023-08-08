@@ -64,6 +64,12 @@ std::string s_right_padded(std::string a, size_t maxlen);
 std::string itos(int source, unsigned int minlen);
 std::string lltos(long long source, unsigned int minlen);
 
+template<typename T> std::string gen_itos(T source) {
+	std::ostringstream q;
+	q << source;
+	return (q.str());
+}
+
 // Hexadecimal versions of the above
 
 std::string itos_hex(int source);

@@ -25,7 +25,6 @@ class yee : public mode {
 		int min_num_voters, max_num_voters, num_candidates;
 		bool use_autopilot; double autopilot_factor;
 		int autopilot_history_len;
-		bool draw_binaries;
 		std::string run_prefix;// Prefix to give pictures. Keep it short!
 		int x_size, y_size;
 		double sigma;     // Desired standard deviation of the Gaussian.
@@ -75,13 +74,14 @@ class yee : public mode {
 			cache_map * cache, rng & randomizer) const;
 
 		// Given complete winners arrays, draw the different pictures
-		// that visualize those arrays.
-		bool draw_pictures(std::string prefix,
+		// that visualize those arrays. The method name and RNG seed
+		// are added to the picture as text metadata for archiving etc.
+		void draw_pictures(std::string prefix,
+			std::string method_name, uint64_t seed,
 			const std::vector<std::vector<std::vector<bool > > > &
 			ac_winners,
 			std::vector<std::vector<double> > & cand_colors,
 			std::vector<std::vector<double> > & cand_locations,
-			bool draw_binaries, bool ignore_errors,
 			double inner_radius_in, double outer_radius_in,
 			double hue_factor) const;
 
@@ -93,8 +93,8 @@ class yee : public mode {
 		bool set_params(int min_voters_in, int max_voters_in,
 			int num_cands, bool do_use_autopilot, double
 			autopilot_factor_in, int autopilot_history_len,
-			bool do_draw_binaries, std::string case_prefix,
-			int xsize_in, int ysize_in, double sigma_in);
+			std::string case_prefix, int xsize_in, int ysize_in,
+			double sigma_in);
 
 		// Reasonable defaults for the technical params.
 		bool set_params(int num_voters, int num_cands,

@@ -21,6 +21,7 @@ uint64_t rng::rng64(uint64_t * s) {
 // Clock one iteration of xorshift64* to improve Crush results with
 // rapidly changing seeds.
 void rng::s_rand(uint64_t seed_in) {
+	initial_seed = seed_in;
 	seed[0] = 0;
 
 	// We can't ordinarily seed xorshift with all zeroes, so if we're
@@ -61,6 +62,10 @@ void rng::s_rand() {
 	}
 
 	s_rand(seed_in);
+}
+
+uint64_t rng::get_initial_seed() const {
+	return initial_seed;
 }
 
 long double rng::ldrand() {

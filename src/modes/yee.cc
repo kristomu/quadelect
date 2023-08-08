@@ -3,10 +3,9 @@
 // voters are modeled as a normal distribution centered on that point, and each
 // voter prefers a candidate nearby to a candidate further away.
 
-// Currently only supports writing to PGM and PPM formats. PNG may come later.
-
 #include "yee.h"
 #include "../images/color/color.h"
+#include "../output/png_writer.h"
 #include "../singlewinner/pairwise/simple_methods.h"
 
 #include <fstream>
@@ -160,88 +159,32 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	return (bottom_line);
 }
 
-bool yee::draw_pictures(std::string prefix,
+void yee::draw_pictures(std::string prefix,
+	std::string method_name, uint64_t seed,
 	const std::vector<std::vector<std::vector<bool > > > &
 	ac_winners, std::vector<std::vector<double> > & cand_colors,
 	std::vector<std::vector<double> > & cand_locations,
-	bool draw_binaries_in, bool ignore_errors_in,
 	double inner_radius_in, double outer_radius_in,
 	double hue_factor) const {
 
-	// First draw all the binary pictures (if so requested).
-	// TODO: PNG yada yada. Don't have time for it now.
-
-	size_t numcands = cand_colors.size(), counter, x, y,
-		   xsize_in = ac_winners[0].size(), ysize_in = ac_winners[0][0].size();
-
-	bool okay_so_far = true;
-	std::string outfn;
-
-	for (counter = 0; counter < numcands && draw_binaries_in; ++counter) {
-		outfn = prefix + "_bin_c" + dtos(counter) + "won.pgm";
-		std::ofstream outfile(outfn.c_str());
-
-		if (!outfile) {
-			okay_so_far = false;
-			if (!ignore_errors_in && !okay_so_far) {
-				std::cerr << "Couldn't open binary picture file "
-					<< outfn << " for writing." << std::endl;
-				return (false);
-			}
-
-			continue;
-		}
-
-		// Header!
-		outfile << "P5 " << std::endl << xsize_in << " " << ysize_in << std::endl
-			<< 255 << std::endl;
-
-		// Dump the boolean.
-		for (y = 0; y < ysize_in; ++y)
-			for (x = 0; x < xsize_in; ++x) {
-				if (ac_winners[counter][x][y]) {
-					outfile << (char) 255;
-				} else	{
-					outfile << (char) 0;
-				}
-			}
-
-		outfile.close(); // And all done.
-	}
-
 	// Build the color picture.
 
-	outfn = prefix + "_yee.ppm";
-	std::ofstream color_pic(outfn.c_str());
-
-	if (!color_pic) {
-		// Couldn't open that file.
-		std::cerr << "Couldn't open color picture file " << outfn <<
-			" for writing." << std::endl;
-		// Since we've got nothing more to do, we can just return false
-		// no matter what here.
-		return (false);
-	}
-
-	// Write the header.
-	color_pic << "P6 " << std::endl << xsize_in << " " << ysize_in << std::endl
-		<< 255
-		<< std::endl;
+	png_writer picture_out(prefix + "_yee.png", x_size, y_size);
 
 	std::vector<double> adj_coords(2);
 
 	// sqrt here etc.
-	double adj_outer_radius = 2.5/(double)xsize_in + 2.5/(double)ysize_in;
-	double adj_inner_radius = 1.5/(double)xsize_in + 1.5/(double)ysize_in;
+	double adj_outer_radius = 2.5/(double)x_size + 2.5/(double)y_size;
+	double adj_inner_radius = 1.5/(double)x_size + 1.5/(double)y_size;
 
-	for (y = 0; y < ysize_in; ++y) {
-		adj_coords[1] = y / (double)ysize_in;
-		for (x = 0; x < xsize_in; ++x) {
-			adj_coords[0] = x / (double)xsize_in;
+	for (int y = 0; y < y_size; ++y) {
+		adj_coords[1] = y / (double)y_size;
+		for (int x = 0; x < x_size; ++x) {
+			adj_coords[0] = x / (double)x_size;
 			// If there's a tie, we output the mean color. If we
 			// go to LAB at some later point, this may become more
 			// complex.
-			std::vector<double> prosp_RGB(3);
+			std::vector<double> prospective_pixel(3);
 			int num_winners = 0;
 
 			// We set these if any of the candidates have their
@@ -250,10 +193,10 @@ bool yee::draw_pictures(std::string prefix,
 			// at this point.
 			int inner_border_of = -1;
 			bool is_home = false;
-			int copier;
+			int color_idx;
 
-			for (unsigned int cand = 0; cand < numcands && !is_home;
-				++cand) {
+			for (int cand = 0; cand < num_candidates
+				&& !is_home; ++cand) {
 				double dist = euc_distance(2.0, adj_coords,
 						cand_locations[cand]);
 
@@ -270,9 +213,9 @@ bool yee::draw_pictures(std::string prefix,
 					continue;
 				}
 
-				for (copier = 0; copier < 3; ++copier)
-					prosp_RGB[copier] += cand_colors[cand]
-						[copier] * hue_factor;
+				for (color_idx = 0; color_idx < 3; ++color_idx)
+					prospective_pixel[color_idx] += cand_colors[cand]
+						[color_idx] * hue_factor;
 				++num_winners;
 			}
 
@@ -282,30 +225,28 @@ bool yee::draw_pictures(std::string prefix,
 
 			if (is_home) {
 				if (inner_border_of != -1)
-					prosp_RGB = cand_colors[
-							inner_border_of];
+					prospective_pixel = cand_colors[
+			inner_border_of];
 				else
-					for (copier = 0; copier < 3; ++copier) {
-						prosp_RGB[copier] = 0;
+					for (color_idx = 0; color_idx < 3; ++color_idx) {
+						prospective_pixel[color_idx] = 0;
 					}
 
-				num_winners = 1; // all of that OVER 1. -KA :p
+				num_winners = 1;
 			}
 
-			// 255.4999 to make maximum use of the color space. The
-			// greatest value we can output is 255, and that should
-			// fit 1 exactly, so it should be just below the point
-			// where round will round to 256, hence 255.499...
-			for (copier = 0; copier < 3; ++copier)
-				color_pic << (char)round(255.4999 *
-						prosp_RGB[copier]/
-						(double)num_winners);
+			for (color_idx = 0; color_idx < 3; ++color_idx) {
+				prospective_pixel[color_idx] /= (double)num_winners;
+			}
+
+			picture_out.put_pixel(x, y, prospective_pixel);
 		}
 	}
 
-	color_pic.close();
-	return (okay_so_far);
-
+	picture_out.add_text("Voting method", method_name);
+	picture_out.add_text("Picture type", "Yee diagram");
+	picture_out.add_text("RNG seed", gen_itos(seed));
+	picture_out.finalize();
 }
 
 std::vector<std::vector<double> > yee::get_candidate_colors(int numcands,
@@ -392,7 +333,7 @@ yee::yee() {
 bool yee::set_params(int min_voters_in, int max_voters_in,
 	int num_cands, bool do_use_autopilot,
 	double autopilot_factor_in, int autopilot_history_in,
-	bool do_draw_binaries, std::string case_prefix, int xsize_in,
+	std::string case_prefix, int xsize_in,
 	int ysize_in, double sigma_in) {
 
 	// Do some sanity checks. Bail if the user is giving us silly values.
@@ -431,7 +372,6 @@ bool yee::set_params(int min_voters_in, int max_voters_in,
 	use_autopilot = do_use_autopilot;
 	autopilot_factor = autopilot_factor_in;
 	autopilot_history_len = autopilot_history_in;
-	draw_binaries = do_draw_binaries;
 
 	// ?? Remove things like .. and / or nonprintables. Hm. Nah, the user
 	// should do that himself if he makes this part of a web service.
@@ -453,7 +393,7 @@ bool yee::set_params(int num_voters, int num_cands, bool do_use_autopilot,
 	// xsize = ysize.
 
 	return (set_params(std::min(24, num_voters), num_voters, num_cands,
-				do_use_autopilot, 1.3, 4, false, case_prefix,
+				do_use_autopilot, 1.3, 4, case_prefix,
 				picture_size, picture_size, sigma_in));
 }
 
@@ -628,28 +568,34 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 
 		std::string code = get_codename(*e_methods[method_no], code_length);
 
-		output = "Yee: " + e_methods[method_no]->name() + " has code "
-			+ code + ". Drawing...";
+		std::string method_name = e_methods[method_no]->name();
 
-		// Don't give up immediately if it's impossible to write a
-		// certain file.
-		bool ignore_file_errors = true;
+		output = "Yee: " + method_name + " has code " + code + ". Drawing...";
+
 		std::vector<std::vector<double> > candidate_posns = candidate_pdf->
 			get_fixed_candidate_pos();
 
-		if (draw_pictures(run_prefix + "_" + code,
+		// Don't give up immediately if it's impossible to write a
+		// certain file.
+
+		try {
+			draw_pictures(run_prefix + "_" + code,
+				method_name, randomizer.get_initial_seed(),
 				winners_all_m_all_cand[method_no],
 				candidate_colors, candidate_posns,
-				draw_binaries, ignore_file_errors,
 				inner_radius, outer_radius,
-				color_attenuation_factor)) {
+				color_attenuation_factor);
+
 			output += "OK.";
-		} else	{
-			return ("");    // Error. Should really be pair as these are really uninformative.
+		} catch (std::runtime_error & re) {
+			// Error. We should really be returning error status *and*
+			// explanatory text as just "error if it's empty, otherwise
+			// OK" is really uninformative.
+			return "";
 		}
 	}
 
-	return (output);
+	return output;
 }
 
 std::vector<std::string> yee::provide_status() const {
