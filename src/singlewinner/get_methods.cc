@@ -179,6 +179,12 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 			std::make_shared<contingent_vote>()));
 	toRet.push_back(new ifpp_method_x());
 	toRet.push_back(new no_elimination_irv());
+	// And a few common elimination methods.
+	toRet.push_back(new instant_runoff_voting(PT_WHOLE, true));
+	toRet.push_back(new baldwin(PT_WHOLE, true));
+	toRet.push_back(new coombs(PT_WHOLE, true));
+	toRet.push_back(new ifpp(PT_WHOLE, true));
+	toRet.push_back(new nanson(PT_WHOLE, true));
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {

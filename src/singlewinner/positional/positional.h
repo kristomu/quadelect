@@ -75,6 +75,10 @@ class positional : public election_method {
 			kind = kind_in;
 		}
 
+		std::string show_type() const {
+			return show_type(kind);
+		}
+
 		std::string name() const;
 
 };

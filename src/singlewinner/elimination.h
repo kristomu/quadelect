@@ -5,6 +5,8 @@
 #include "../tools/tools.h"
 #include "../tools/ballot_tools.h"
 
+#include "positional/simple_methods.h"
+
 #include <list>
 
 // Loser-elimination meta-method. This method takes a base method and
@@ -56,4 +58,108 @@ class loser_elimination : public election_method {
 		std::string name() const {
 			return (cached_name);
 		}
+};
+
+// Convenient aliases for some common elimination methods.
+
+template<typename T> class elim_shortcut : public election_method {
+	private:
+		T positional_base;
+		loser_elimination eliminator;
+		bool first_diff;
+
+	protected:
+		// The elimination method name.
+		virtual std::string common_name() const = 0;
+
+		std::pair<ordering, bool> elect_inner(const
+			std::list<ballot_group> & papers,
+			const std::vector<bool> & hopefuls,
+			int num_candidates, cache_map * cache,
+			bool winner_only) const {
+
+			return eliminator.elect_detailed(papers, hopefuls,
+					num_candidates, cache, winner_only);
+		}
+
+	public:
+		elim_shortcut(positional_type equal_rank_handling,
+			bool average_elimination, bool use_first_diff) :
+			positional_base(equal_rank_handling),
+			eliminator(&positional_base, average_elimination,
+				use_first_diff) {
+			first_diff = use_first_diff;
+		}
+
+		std::string name() const {
+			std::string name_out = positional_base.show_type() +
+				common_name();
+			if (first_diff) {
+				name_out += "/fd";
+			} else {
+				name_out += "/ld";
+			}
+
+			return name_out;
+		}
+};
+
+class instant_runoff_voting : public elim_shortcut<plurality> {
+	protected:
+		std::string common_name() const {
+			return "IRV";
+		}
+
+	public:
+		instant_runoff_voting(positional_type equal_rank_handling,
+			bool use_first_diff) : elim_shortcut(equal_rank_handling,
+					false, use_first_diff) {}
+};
+
+class baldwin : public elim_shortcut<borda> {
+	protected:
+		std::string common_name() const {
+			return "Baldwin";
+		}
+
+	public:
+		baldwin(positional_type equal_rank_handling,
+			bool use_first_diff) : elim_shortcut(equal_rank_handling,
+					false, use_first_diff) {}
+};
+
+class coombs : public elim_shortcut<antiplurality> {
+	protected:
+		std::string common_name() const {
+			return "Coombs";
+		}
+
+	public:
+		coombs(positional_type equal_rank_handling,
+			bool use_first_diff) : elim_shortcut(equal_rank_handling,
+					false, use_first_diff) {}
+};
+
+class ifpp : public elim_shortcut<plurality> {
+	protected:
+		std::string common_name() const {
+			return "IFPP";
+		}
+
+	public:
+		ifpp(positional_type equal_rank_handling,
+			bool use_first_diff) : elim_shortcut(equal_rank_handling,
+					true, use_first_diff) {}
+};
+
+class nanson : public elim_shortcut<borda> {
+	protected:
+		std::string common_name() const {
+			return "Nanson";
+		}
+
+	public:
+		nanson(positional_type equal_rank_handling,
+			bool use_first_diff) : elim_shortcut(equal_rank_handling,
+					true, use_first_diff) {}
 };
