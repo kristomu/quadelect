@@ -100,6 +100,7 @@ add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/stats/cardinal.cc
 	src/singlewinner/stats/mode.cc
 	src/singlewinner/stats/var_median/vmedian.cc
+	src/singlewinner/tools/first_seen.cc
 	src/singlewinner/young.cc)
 
 add_library(quadelect_lib src/ballots.cc
