@@ -50,8 +50,7 @@ std::list<ballot_group>  barycentric::generate_ballot_set(double x,
 }
 
 std::list<ballot_group>  barycentric::generate_ballot_set(double x,
-	double y,
-	double maxvoters) const {
+	double y, double maxvoters) const {
 
 	// We have four groups:
 	//	#1: (ABC, BCA, CAB): (0, 0) (0.5, 0), (0.25, 0.4)
@@ -89,8 +88,7 @@ std::list<ballot_group>  barycentric::generate_ballot_set(double x,
 }
 
 std::vector<std::vector<double> > barycentric::get_candidate_colors(
-	int numcands,
-	bool debug) const {
+	int numcands, bool debug) const {
 
 	if (numcands <= 0) {
 		return (std::vector<std::vector<double> >());
@@ -157,7 +155,8 @@ std::string barycentric::get_codename(const election_method & in,
 
 // ---- //
 
-void barycentric::add_method(const election_method * to_add) {
+void barycentric::add_method(std::shared_ptr<const election_method >
+	to_add) {
 	inited = false;
 	e_methods.push_back(to_add);
 }
@@ -203,11 +202,12 @@ std::string barycentric::do_round(bool give_brief_status, bool reseed,
 		return ("");
 	}
 
-	const election_method * our_method = e_methods[cur_round];
+	std::shared_ptr<const election_method > our_method = e_methods[cur_round];
 
 	int num_cands = 3;	// Because of barycentric rendering.
 
 	// TODO: Make parameters.
+	// TODO also: PNG output
 	int xsize = 400;
 	int ysize = 400;
 	int code_length = 5;

@@ -23,8 +23,7 @@ std::string interpreter_mode::base26(int number) const {
 }
 
 void interpreter_mode::complete_default_lookup(
-	std::map<size_t, std::string> &
-	to_complete,
+	std::map<size_t, std::string> &	to_complete,
 	size_t how_many) const {
 
 	for (size_t counter = 0; counter < how_many; ++counter)
@@ -47,9 +46,8 @@ std::map<size_t, std::string> interpreter_mode::gen_default_lookup(
 // candidate names; and if there's a score involving candidate q, we're going
 // to need at least q.
 
-int interpreter_mode::get_max_candidates(const std::list<ballot_group> &
-	in)
-const {
+int interpreter_mode::get_max_candidates(
+	const std::list<ballot_group> & in) const {
 	size_t maxval = 0;
 
 	for (std::list<ballot_group>::const_iterator pos = in.begin(); pos !=
@@ -71,26 +69,26 @@ bool interpreter_mode::parse_ballots(bool debug) {
 		return (false);
 	}
 
-	const interpreter * to_use = NULL;
+	std::shared_ptr<const interpreter> to_use;
+	bool found_interpreter = false;
 
 	// Try to find an interpreter.
-	for (std::list<const interpreter *>::const_iterator cand_int =
-			interpreters.begin(); cand_int != interpreters.end() &&
-		to_use == NULL;	++cand_int)
-		if ((*cand_int)->is_this_format(input_ballots_unparsed)) {
-			to_use = *cand_int;
+	for (std::shared_ptr<const interpreter> cand_int: interpreters) {
+		if (cand_int->is_this_format(input_ballots_unparsed)) {
+			to_use = cand_int;
+			found_interpreter = true;
 		}
+	}
 
 	// If we didn't find any , bail.
-	if (to_use == NULL) {
-		return (false);
+	if (!found_interpreter) {
+		return false;
 	}
 
 	// Otherwise, let's get going!
 
 	std::pair<std::map<size_t, std::string>, std::list<ballot_group> > parsed =
-		to_use->
-		interpret_ballots(input_ballots_unparsed, debug);
+		to_use->interpret_ballots(input_ballots_unparsed, debug);
 
 	if (parsed.second.empty()) {
 		return (false);
@@ -154,43 +152,33 @@ bool interpreter_mode::set_ballots(const std::list<ballot_group> &
 }
 
 // Second verse, same as the first! I am methody the eight, I am...
-void interpreter_mode::add_method(const election_method * to_add) {
+void interpreter_mode::add_method(
+	std::shared_ptr<election_method > to_add) {
+
 	methods.push_back(to_add);
 }
 
-void interpreter_mode::add_interpreter(const interpreter * to_add) {
+void interpreter_mode::add_interpreter(
+	std::shared_ptr<interpreter > to_add) {
+
 	interpreters.push_back(to_add);
 }
 
-void interpreter_mode::clear_methods(bool do_delete) {
-
-	if (do_delete)
-		for (std::vector<const election_method *>::iterator pos =
-				methods.begin(); pos != methods.end();
-			++pos) {
-			delete *pos;
-		}
+void interpreter_mode::clear_methods() {
 
 	methods.clear();
 	invalidate();
 }
 
-void interpreter_mode::clear_interpreters(bool do_delete) {
-
-	if (do_delete)
-		for (std::list<const interpreter *>::iterator pos =
-				interpreters.begin(); pos != interpreters.end();
-			++pos) {
-			delete *pos;
-		}
+void interpreter_mode::clear_interpreters() {
 
 	interpreters.clear();
 	invalidate();
 }
 
-interpreter_mode::interpreter_mode(std::list<const interpreter *> &
-	interpreters_in,
-	std::list<const election_method *> & methods_in,
+interpreter_mode::interpreter_mode(
+	std::vector<std::shared_ptr<interpreter> > & interpreters_in,
+	std::vector<std::shared_ptr<election_method> > & methods_in,
 	std::list<ballot_group> & ballots_in) {
 
 	interpreters = interpreters_in;
@@ -201,9 +189,9 @@ interpreter_mode::interpreter_mode(std::list<const interpreter *> &
 
 }
 
-interpreter_mode::interpreter_mode(std::list<const interpreter *> &
-	interpreters_in,
-	std::list<const election_method *> & methods_in,
+interpreter_mode::interpreter_mode(
+	std::vector<std::shared_ptr<interpreter> > & interpreters_in,
+	std::vector<std::shared_ptr<election_method> > & methods_in,
 	std::vector<std::string> & ballots_in_unparsed) {
 
 	interpreters = interpreters_in;
@@ -213,9 +201,9 @@ interpreter_mode::interpreter_mode(std::list<const interpreter *> &
 	inited = false;
 }
 
-interpreter_mode::interpreter_mode(std::list<const interpreter *> &
-	interpreters_in,
-	std::list<const election_method *> & methods_in) {
+interpreter_mode::interpreter_mode(
+	std::vector<std::shared_ptr<interpreter> > & interpreters_in,
+	std::vector<std::shared_ptr<election_method> > & methods_in) {
 
 	interpreters = interpreters_in;
 	add_methods(methods_in.begin(), methods_in.end());
@@ -329,8 +317,7 @@ std::vector<std::string> interpreter_mode::provide_status() const {
 	std::vector<std::string> toRet;
 
 	std::list<ordering>::const_iterator opos = results.begin();
-	std::vector<const election_method *>::const_iterator empos =
-		methods.begin();
+	auto empos = methods.begin();
 
 	ordering_tools otool;
 
@@ -339,7 +326,7 @@ std::vector<std::string> interpreter_mode::provide_status() const {
 
 	while (opos != results.end() && empos != methods.end()) {
 		std::string this_result = "Result for " + (*empos)->name() + " : " +
-			otool.ordering_to_text(*opos, cand_lookup, false);
+			otool.ordering_to_text(*opos, cand_lookup, true);
 		toRet.push_back(this_result);
 		++opos;
 		++empos;

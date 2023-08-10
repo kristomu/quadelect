@@ -39,7 +39,7 @@ std::pair<ordering, bool> comma::elect_inner(const std::list<ballot_group>
 	return (toRet);
 }
 
-std::string comma::determine_name() const {
+std::string comma::name() const {
 	return ("[" + set_method->name() + "],[" + specific_method->name()
 			+ "]");
 }

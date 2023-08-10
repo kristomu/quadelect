@@ -67,6 +67,8 @@
 #include "../tests/strategy/strategies.h"
 #include "../tests/provider.h"
 
+#include "../singlewinner/get_methods.h"
+
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X
 // wins, candidates who prefer other candidates to X can win by ranking X
@@ -80,8 +82,9 @@
 // of the set wins, then the method is vulnerable. Assume the exact member is
 // found using backroom dealing or whatnot.
 
-void test_with_bandits(std::vector<election_method *> & to_test,
-	rng & randomizer, pure_ballot_generator * & ballotgen,
+void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
+	to_test,
+	rng & randomizer, std::shared_ptr<pure_ballot_generator> ballotgen,
 	bool find_most_susceptible) {
 
 	std::vector<BinomialBandit> bandits;
@@ -97,7 +100,7 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 	std::vector<ReverseTest> reverse_sts;
 
 	int numvoters = 97;
-	int initial_numcands = 3, numcands = initial_numcands;
+	int initial_numcands = 5, numcands = initial_numcands;
 
 	std::cout << "Number of candidates = " << numcands << std::endl;
 
@@ -110,7 +113,7 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 		// Use higher values to get more accurate strategy
 		// susceptibility values (i.e. succumbs to strategy 10% of
 		// the time).
-		int tries_to_get_strat = 2053; // was 4096
+		int tries_to_get_strat = 4096; // was 4096
 
 		sts.push_back(test_runner(ballotgen,
 				numvoters, numcands, numcands, randomizer, to_test[i],
@@ -218,28 +221,88 @@ void test_with_bandits(std::vector<election_method *> & to_test,
 }
 
 int main(int argc, const char ** argv) {
-	std::vector<election_method *> condorcets;
-	std::vector<election_method *> condorcetsrc;
+	std::vector<std::shared_ptr<election_method> > condorcets;
+	std::vector<std::shared_ptr<election_method> > condorcetsrc;
 
 	int counter;
 
-	int radix=9;
+	// HACK for ACP variants
 
-	for (int j = 0; j < pow(radix, 6); ++j) {
-		cond_brute cbp(j, radix);
+	std::vector<std::shared_ptr<pairwise_method> > sets_and_methods;
 
-		if (cbp.is_monotone()
-			&& cbp.passes_mat() /*&& cbp.reversal_symmetric()*/) {
-			condorcetsrc.push_back(new cond_brute(j, radix));
-			std::cout << "Adding " << j << std::endl;
-		}
-	}
+	sets_and_methods.push_back(std::make_shared<condorcet_set>());
+	sets_and_methods.push_back(std::make_shared<mdd_set>(true));
+	sets_and_methods.push_back(std::make_shared<mdd_set>(false));
+	sets_and_methods.push_back(std::make_shared<partition_set>(false));
+
+	sets_and_methods.push_back(std::make_shared<cdtt_set>());
+	sets_and_methods.push_back(std::make_shared<cgtt_set>());
+	sets_and_methods.push_back(std::make_shared<landau_set>());
+	sets_and_methods.push_back(std::make_shared<schwartz_set>());
+	sets_and_methods.push_back(std::make_shared<sdom_set>());
+	sets_and_methods.push_back(std::make_shared<pdom_set>());
+	sets_and_methods.push_back(std::make_shared<smith_set>());
+
+	sets_and_methods.push_back(std::make_shared<copeland>(CM_WV));
+
+	sets_and_methods.push_back(std::make_shared<dquick>(CM_WV));
+	sets_and_methods.push_back(std::make_shared<kemeny>(CM_WV));
+	sets_and_methods.push_back(std::make_shared<maxmin>(CM_WV));
+	sets_and_methods.push_back(std::make_shared<schulze>(CM_WV));
+
+	// Reasonable convergence defaults.
+	sets_and_methods.push_back(std::make_shared<sinkhorn>(CM_WV, 0.01, true));
+	sets_and_methods.push_back(std::make_shared<sinkhorn>(CM_WV, 0.01, false));
+	sets_and_methods.push_back(std::make_shared<hits>(CM_WV, 0.001));
+	sets_and_methods.push_back(std::make_shared<odm_atan>(CM_WV, 0.001));
+	sets_and_methods.push_back(std::make_shared<odm_tanh>(CM_WV, 0.001));
+	sets_and_methods.push_back(std::make_shared<odm>(CM_WV, 0.001));
+
+	// Keener
+	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, false,
+			false));
+	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, false,
+			true));
+	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, true,
+			false));
+	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, true,
+			true));
+
+	sets_and_methods.push_back(std::make_shared<ext_minmax>(CM_WV, false));
+	sets_and_methods.push_back(std::make_shared<ext_minmax>(CM_WV, true));
+	sets_and_methods.push_back(std::make_shared<ord_minmax>(CM_WV));
+
+	sets_and_methods.push_back(std::make_shared<copeland>(CM_WV, 2, 2, 1));
+	sets_and_methods.push_back(std::make_shared<copeland>(CM_WV, 2, 1, 0));
+
+
+	std::vector<std::shared_ptr<election_method> > methods =
+		get_singlewinner_methods(false, false);
 
 	condorcet_set xd;
+	smith_set xe;
+	schwartz_set xf;
+	ifpp_method_x si;
 
-	for (counter = condorcetsrc.size()-1; counter >= 0; --counter) {
-		condorcets.push_back(new comma(condorcetsrc[counter], &xd));
-	}
+	condorcets.push_back(std::make_shared<comma>(
+			std::make_shared<smith_set>(),
+			std::make_shared<ifpp_method_x>()));
+	condorcets.push_back(std::make_shared<slash>(
+			std::make_shared<smith_set>(),
+			std::make_shared<ifpp_method_x>()));
+	// TODO FIX LATER
+	condorcets.push_back(std::make_shared<benham_meta>(&si));
+
+	/*for (pairwise_method * set_method: sets_and_methods) {
+		//for (election_method * emeth: methods_ref) {
+			generalized_acp * gen_acp = new generalized_acp(
+				&si, set_method);
+
+			condorcets.push_back(new comma(gen_acp, &xf));
+			condorcets.push_back(new comma(gen_acp, &xe));
+			condorcets.push_back(gen_acp);
+		//}
+	}*/
 
 	reverse(condorcets.begin(), condorcets.end());
 
@@ -254,7 +317,8 @@ int main(int argc, const char ** argv) {
 		randomizers.push_back(rng(startpt + counter));
 	}
 
-	pure_ballot_generator * ballotgen = new impartial(true, false);
+	std::shared_ptr<pure_ballot_generator> ballotgen =
+		std::make_shared<impartial>(true, false);
 	// Something is wrong with this one. TODO: Check later.
 	//ballotgens.push_back(new dirichlet(false));
 	// And this one; it trips num_prefers_challenger - cumul. Determine why.

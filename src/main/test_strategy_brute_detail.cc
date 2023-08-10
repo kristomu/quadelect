@@ -104,8 +104,9 @@ std::pair<double, double> confidence_interval(int n, double p_mean,
 // of the set wins, then the method is vulnerable. Assume the exact member is
 // found using backroom dealing or whatnot.
 
-void test_strategy(election_method * to_test, rng & randomizer,
-	int num_methods, pure_ballot_generator * ballot_gen,
+void test_strategy(std::shared_ptr<const election_method> to_test,
+	rng & randomizer, int num_methods,
+	std::shared_ptr<pure_ballot_generator> ballot_gen,
 	int numvoters, int numcands, int num_iterations,
 	int num_strategy_attempts_per_iter) {
 
@@ -218,8 +219,8 @@ void test_strategy(election_method * to_test, rng & randomizer,
 }
 
 int main(int argc, const char ** argv) {
-	std::vector<election_method *> condorcets; // Although they aren't.
-	std::vector<election_method *> condorcetsrc;
+	std::vector<std::shared_ptr<election_method> > chosen_methods;
+	std::vector<std::shared_ptr<election_method> > condorcet_src;
 
 	size_t counter;
 
@@ -243,7 +244,7 @@ int main(int argc, const char ** argv) {
 	    tests_in >> tin;
 	    if (incounter >= got_this_far_last_time &&
 	            incounter % numprocs == thisproc) {
-	        condorcetsrc.push_back(new cond_brute(tin));
+	        condorcet_src.push_back(new cond_brute(tin));
 	    }
 	    ++incounter;
 	}*/
@@ -251,87 +252,98 @@ int main(int argc, const char ** argv) {
 	// This is why you shouldn't rely entirely on IC. Antiplurality does
 	// extremely well on IC alone, for some reason. (Maybe something to
 	// keep in mind for bandits...)
-	// condorcets.push_back(new comma(new antiplurality(PT_WHOLE), new smith_set()));
+	// chosen_methods.push_back(new comma(new antiplurality(PT_WHOLE), new smith_set()));
 	// Sinkhorn and Keener all have around 0.85 IC susceptibility.
 	// MMPO fails to impress. 0.78 IC susceptibility
-	//condorcets.push_back(new ext_minmax(CM_PAIRWISE_OPP, false));
+	//chosen_methods.push_back(new ext_minmax(CM_PAIRWISE_OPP, false));
 	// Smith,FPP also fails to impress. 0.78 IC susceptibility
-	//condorcets.push_back(new comma(new plurality(PT_WHOLE), new smith_set()));
+	//chosen_methods.push_back(new comma(new plurality(PT_WHOLE), new smith_set()));
 	// And alas. With 4 cddts, Smith-IRV does much better than fpA-fpC.
-	/*condorcetsrc.push_back(new fpa_experiment());
-	condorcetsrc.push_back(new minmaxy_experimental());
-	condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
-	condorcetsrc.push_back(new loser_elimination(new antiplurality(PT_WHOLE), false, true));
-	condorcetsrc.push_back(new antiplurality(PT_WHOLE));
-	condorcetsrc.push_back(new schulze(CM_WV));*/
+	/*condorcet_src.push_back(new fpa_experiment());
+	condorcet_src.push_back(new minmaxy_experimental());
+	condorcet_src.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
+	condorcet_src.push_back(new loser_elimination(new antiplurality(PT_WHOLE), false, true));
+	condorcet_src.push_back(new antiplurality(PT_WHOLE));
+	condorcet_src.push_back(new schulze(CM_WV));*/
 
 	//std::cout << "Test time!" << std::endl;
 	//std::cout << "Thy name is " << name << std::endl;
 
-	condorcet_set cond;
-	smith_set smith;
-	schwartz_set schwartz;
-	landau_set landau;
-	copeland cope(CM_WV);
+	auto cond_ptr = std::make_shared<condorcet_set>();
+	auto smith_ptr = std::make_shared<smith_set>();
+	auto schwartz_ptr = std::make_shared<schwartz_set>();
+	auto landau_ptr = std::make_shared<landau_set>();
+	auto copeland_ptr = std::make_shared<copeland>(CM_WV);
 
-	condorcetsrc.push_back(new loser_elimination(new plurality(PT_WHOLE),
-			false, true));
-	condorcetsrc.push_back(new fpa_experiment());
+	condorcet_src.push_back(std::make_shared<instant_runoff_voting>(PT_WHOLE,
+			true));
+	condorcet_src.push_back(std::make_shared<fpa_experiment>());
 
-	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
+	for (counter = 0; counter < condorcet_src.size(); ++counter) {
 		if (numcands < 4) {
 			// faster
-			condorcets.push_back(new slash(condorcetsrc[counter], &cond));
-			condorcets.push_back(new comma(condorcetsrc[counter], &cond));
+			chosen_methods.push_back(std::make_shared<slash>(cond_ptr,
+					condorcet_src[counter]));
+			chosen_methods.push_back(std::make_shared<comma>(cond_ptr,
+					condorcet_src[counter]));
 		} else {
 			// more general
-			condorcets.push_back(new slash(condorcetsrc[counter], &smith));
-			condorcets.push_back(new comma(condorcetsrc[counter], &smith));
-			condorcets.push_back(new slash(condorcetsrc[counter], &schwartz));
-			condorcets.push_back(new comma(condorcetsrc[counter], &schwartz));
+			chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
+					condorcet_src[counter]));
+			chosen_methods.push_back(std::make_shared<comma>(smith_ptr,
+					condorcet_src[counter]));
+			chosen_methods.push_back(std::make_shared<slash>(schwartz_ptr,
+					condorcet_src[counter]));
+			chosen_methods.push_back(std::make_shared<comma>(schwartz_ptr,
+					condorcet_src[counter]));
 		}
 	}
 
 	// Landau
-	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
-		condorcets.push_back(new comma(condorcetsrc[counter], &cope));
-		condorcets.push_back(new slash(condorcetsrc[counter], &cope));
-		condorcets.push_back(new comma(condorcetsrc[counter], &landau));
-		condorcets.push_back(new slash(condorcetsrc[counter], &landau));
+	for (counter = 0; counter < condorcet_src.size(); ++counter) {
+		chosen_methods.push_back(std::make_shared<slash>(copeland_ptr,
+				condorcet_src[counter]));
+		chosen_methods.push_back(std::make_shared<comma>(copeland_ptr,
+				condorcet_src[counter]));
+		chosen_methods.push_back(std::make_shared<slash>(landau_ptr,
+				condorcet_src[counter]));
+		chosen_methods.push_back(std::make_shared<comma>(landau_ptr,
+				condorcet_src[counter]));
 	}
 
-	// For comparison purposes, even though it isn't a Condorcet.
-	condorcets.push_back(new loser_elimination(new plurality(PT_WHOLE), true,
+	chosen_methods.push_back(std::make_shared<instant_runoff_voting>(PT_WHOLE,
 			true));
-	condorcets.push_back(new schulze(CM_WV));
+	chosen_methods.push_back(std::make_shared<schulze>(CM_WV));
 
-	std::list<election_method *> condorcetsl = get_singlewinner_methods(true,
-			false);
-	condorcets.clear();
-	std::copy(condorcetsl.begin(), condorcetsl.end(),
-		std::back_inserter(condorcets));
-	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
+	chosen_methods = get_singlewinner_methods(false, false);
+	std::cout << "There are " << chosen_methods.size() << " methods." <<
+		std::endl;
+
+	std::list<election_method * > methods_ref;
+	for (const std::shared_ptr<election_method> & em_ref: chosen_methods) {
+		methods_ref.push_back(em_ref.get());
+	}
 
 	std::vector<rng> randomizers;
 	randomizers.push_back(rng(0));
 
-	std::vector<pure_ballot_generator *> ballotgens;
+	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
 	int dimensions = 4;
 	// Something is wrong with this one. Check later.
-	//ballotgens.push_back(new dirichlet(false));
-	ballotgens.push_back(new impartial(true, false));
-	ballotgens.push_back(new gaussian_generator(true, false, dimensions,
-			false));
+	//ballotgens.push_back(std::make_shared<dirichlet>(false));
+	ballotgens.push_back(std::make_shared<impartial>(true, false));
+	ballotgens.push_back(std::make_shared<gaussian_generator>(
+			true, false, dimensions, false));
 
 	int num_iterations = 5000; //100000;
 	int num_strategy_attempts_per_iter = 3*768; // must have 3 as a factor!
 
 	for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
 		std::cout << "Using ballot domain " << ballotgens[bg]->name() << std::endl;
-		for (counter = 0; counter < condorcets.size(); counter ++) {
+		for (counter = 0; counter < methods_ref.size(); counter ++) {
 			std::cout << "\t" << counter << ": " << std::flush;
-			test_strategy(condorcets[counter], randomizers[0],
-				condorcets.size(), ballotgens[bg], numvoters, numcands,
+			test_strategy(chosen_methods[counter], randomizers[0],
+				chosen_methods.size(), ballotgens[bg], numvoters, numcands,
 				num_iterations, num_strategy_attempts_per_iter);
 		}
 	}

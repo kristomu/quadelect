@@ -75,24 +75,24 @@ int main() {
 
 	// Something better than this would be a good idea, but I need to turn
 	// the unique pointers into shared ones or something first...
-	ext_plurality * hack_eplur;
+	std::shared_ptr<ext_plurality> hack_eplur =
+		std::make_shared<ext_plurality>(PT_WHOLE);
 
-	hack_eplur = new ext_plurality(PT_WHOLE);
-
-	methods.push_back(std::make_unique<loser_elimination>(hack_eplur, false,
-			true));
-	methods.push_back(std::make_unique<loser_elimination>(new borda(PT_WHOLE),
-			false, true));
-	methods.push_back(std::make_unique<loser_elimination>(new antiplurality(
-				PT_WHOLE), false, true));
-	methods.push_back(std::make_unique<loser_elimination>(new dsc(), false,
-			true));
-	methods.push_back(std::make_unique<loser_elimination>(hack_eplur, true,
-			true));
-	methods.push_back(std::make_unique<comma>(hack_eplur, new smith_set()));
-	methods.push_back(std::make_unique<comma>(new loser_elimination(hack_eplur,
-				true, true),
-			new smith_set()));
+	methods.push_back(std::make_unique<loser_elimination>(
+			std::make_shared<ext_plurality>(PT_WHOLE), false, true));
+	methods.push_back(std::make_unique<loser_elimination>(
+			std::make_shared<borda>(PT_WHOLE), false, true));
+	methods.push_back(std::make_unique<loser_elimination>(
+			std::make_shared<antiplurality>(PT_WHOLE), false, true));
+	methods.push_back(std::make_unique<loser_elimination>(
+			std::make_shared<dsc>(), false,	true));
+	methods.push_back(std::make_unique<loser_elimination>(
+			hack_eplur, true, true));
+	methods.push_back(std::make_unique<comma>(
+			std::make_shared<smith_set>(), hack_eplur));
+	methods.push_back(std::make_unique<comma>(
+			std::make_shared<smith_set>(),
+			std::make_shared<loser_elimination>(hack_eplur, true, true)));
 
 	int iterations = 10000;
 	int numvoters = 23, numcands = 4;

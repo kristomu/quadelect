@@ -2,51 +2,54 @@
 
 #include "all.h"
 
-#include <list>
+#include <vector>
 
-std::list<pairwise_method *> get_pairwise_methods(
-	const std::list<pairwise_type> & types, bool include_experimental);
+std::vector<std::shared_ptr<pairwise_method> >  get_pairwise_methods(
+	const std::vector<pairwise_type> & types, bool include_experimental);
 
-std::list<positional *> get_positional_methods(bool truncate);
+std::vector<std::shared_ptr<positional> > get_positional_methods(
+	bool truncate);
 
-std::list<pairwise_method *> get_sets();
+std::vector<std::shared_ptr<pairwise_method> > get_pairwise_sets();
+std::vector<std::shared_ptr<election_method> > get_sets();
 
-template <typename T, typename Q> std::list<election_method *> expand_meta(
-	const std::list<T *> & base_methods, const std::list<Q *> & sets,
+template <typename T, typename Q>
+std::vector<std::shared_ptr<election_method> > expand_meta(
+	const std::vector<std::shared_ptr<T> > & base_methods,
+	const std::vector<std::shared_ptr<Q> > & sets,
 	bool elimination_works) {
 
-	std::list<election_method *> kombinat;
-	typename std::list<Q *>::const_iterator spos;
+	std::vector<std::shared_ptr<election_method> > combined;
+	typename std::vector<std::shared_ptr<Q> >::const_iterator spos;
 
-	for (typename std::list<T *>::const_iterator pos = base_methods.begin();
-		pos != base_methods.end(); ++pos) {
-		for (spos = sets.begin(); spos != sets.end(); ++spos) {
-			if ((*pos)->name() == (*spos)->name()) {
+	for (std::shared_ptr<T> method_ptr : base_methods) {
+		for (std::shared_ptr<Q> set_ptr : sets) {
+			if (set_ptr->name() == method_ptr->name()) {
 				continue;
 			}
 
-			kombinat.push_back(new comma(*pos, *spos));
+			combined.push_back(std::make_shared<comma>(set_ptr, method_ptr));
 			// Use indiscriminately at your own risk! I'm not
 			// trusting this wholly until I can do hopefuls
 			// transparently.
 			if (elimination_works) {
-				kombinat.push_back(new slash(*pos, *spos));
+				combined.push_back(std::make_shared<slash>(set_ptr, method_ptr));
 			}
 		}
 		// These are therefore constrained to positional
 		// methods for the time being. I think there may be bugs with
-		// hopefuls for some of the advanced methods. I'm therefore
-		// not doing anything with them, limiting LE and slash to
+		// hopefuls for some of the advanced methods, so beware.
 		if (elimination_works) {
-			kombinat.push_back(new loser_elimination(*pos, true,
-					true));
-			kombinat.push_back(new loser_elimination(*pos, false,
-					true));
+			combined.push_back(std::make_shared<loser_elimination>(
+					method_ptr, true, true));
+			combined.push_back(std::make_shared<loser_elimination>(
+					method_ptr, false, true));
 		}
 	}
 
-	return (kombinat);
+	return combined;
 }
 
-std::list<election_method *> get_singlewinner_methods(bool truncate,
+std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
+	bool truncate,
 	bool include_experimental);

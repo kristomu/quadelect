@@ -8,9 +8,7 @@
 // defined as hopeful will be zero. [TODO: Something about this when all scores
 // are negative.]
 std::vector<double> cardinal_ratings::aggregate_ratings(
-	const std::list<ballot_group>
-	&
-	papers, int num_candidates,
+	const std::list<ballot_group> &	papers, int num_candidates,
 	const std::vector<bool> & hopefuls) const {
 
 	std::vector<double> ratings(num_candidates, 0);
@@ -108,13 +106,13 @@ std::pair<ordering, bool> cardinal_ratings::elect_inner(
 	return (toRet);
 }
 
-std::string cardinal_ratings::determine_name() const {
+std::string cardinal_ratings::name() const {
 	std::string base = "Cardinal-" + dtos(maximum-minimum);
 	if (normalize) {
 		base += "(norm)";
 	}
 
-	return (base);
+	return base;
 }
 
 cardinal_ratings::cardinal_ratings(int min_in, int max_in, bool norm_in) {
@@ -123,7 +121,4 @@ cardinal_ratings::cardinal_ratings(int min_in, int max_in, bool norm_in) {
 	minimum = min_in;
 	maximum = max_in;
 	normalize = norm_in;
-
-	cached_name = determine_name(); // Must be run after any change.
-
 }

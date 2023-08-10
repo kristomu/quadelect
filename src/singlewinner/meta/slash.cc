@@ -62,7 +62,7 @@ std::pair<ordering, bool> slash::elect_inner(const std::list<ballot_group>
 	return (toRet);
 }
 
-std::string slash::determine_name() const {
+std::string slash::name() const {
 	return ("[" + set_method->name() + "]//[" + specific_method->name()
 			+ "]");
 }

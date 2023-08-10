@@ -1,5 +1,4 @@
-#ifndef _VOTE_SW_CARDR
-#define _VOTE_SW_CARDR
+#pragma once
 
 #include "../method.h"
 #include "../../tools/tools.h"
@@ -11,8 +10,6 @@
 class cardinal_ratings : public election_method {
 
 	private:
-
-		std::string cached_name;
 
 		// Normalization parameters. If normalize is off, values above
 		// or below are clamped to the maximum (or minimum,
@@ -32,15 +29,9 @@ class cardinal_ratings : public election_method {
 			int num_candidates,
 			cache_map * cache, bool winner_only) const;
 
-		std::string determine_name() const;
-
 	public:
 
-		std::string name() const {
-			return (cached_name);
-		}
-
 		cardinal_ratings(int min_in, int max_in, bool norm_in);
-};
 
-#endif
+		std::string name() const;
+};

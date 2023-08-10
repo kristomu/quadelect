@@ -7,7 +7,6 @@
 
 #include <list>
 
-
 // Loser-elimination meta-method. This method takes a base method and
 // repeatedly disqualifies the loser (if loser-elimination) or those with a
 // below-mean score (if average loser elimination).
@@ -214,7 +213,8 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 	return (output);
 }
 
-loser_elimination::loser_elimination(const election_method * base_method,
+loser_elimination::loser_elimination(
+	std::shared_ptr<const election_method> base_method,
 	bool average_loser, bool use_first_diff) {
 
 	assert(base_method != NULL);

@@ -1,7 +1,6 @@
-#ifndef _VOTE_C_TYPES
-#define _VOTE_C_TYPES
+#pragma once
 
-#include <list>
+#include <vector>
 #include <string>
 #include <math.h>
 
@@ -307,7 +306,5 @@ class pairwise_type {
 
 class pairwise_producer {
 	public:
-		std::list<pairwise_type> provide_all_strategies() const;
+		std::vector<pairwise_type> provide_all_strategies() const;
 };
-
-#endif

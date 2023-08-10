@@ -9,13 +9,13 @@
 #include "../../ballots.h"
 #include "../../tools/ballot_tools.h"
 
+#include <memory>
+
 class comma : public election_method {
 
 	private:
-		const election_method * set_method;
-		const election_method * specific_method;
-
-		std::string cached_name;
+		std::shared_ptr<const election_method> set_method;
+		std::shared_ptr<const election_method> specific_method;
 
 	protected:
 		std::pair<ordering, bool> elect_inner(const std::list<ballot_group> &
@@ -23,20 +23,14 @@ class comma : public election_method {
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		std::string determine_name() const;
-
 	public:
 
-		// A bit unintuitively, the constructor has the specific method
-		// first and the set second, but eh, backwards compatibility!
-		comma(const election_method * specific_method_in,
-			const election_method * set_in) {
+		// Now the constructor is in the intuitive order.
+		comma(std::shared_ptr<const election_method> set_in,
+			std::shared_ptr<const election_method> specific_method_in) {
 			set_method = set_in;
 			specific_method = specific_method_in;
-			cached_name = determine_name();
 		}
 
-		std::string name() const {
-			return (cached_name);
-		}
+		std::string name() const;
 };

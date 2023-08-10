@@ -112,7 +112,8 @@ std::pair<ordering, bool> gradual_cond_borda::elect_inner(const
 	return (std::pair<ordering, bool>(base, false));
 }
 
-gradual_cond_borda::gradual_cond_borda(pairwise_method * base_method_in,
+gradual_cond_borda::gradual_cond_borda(
+	std::shared_ptr<const pairwise_method> base_method_in,
 	bool cardinal_in, completion_type completion_in) {
 	base_method = base_method_in;
 	completion = completion_in;

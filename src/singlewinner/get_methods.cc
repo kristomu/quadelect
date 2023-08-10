@@ -1,7 +1,7 @@
 #include "get_methods.h"
 
-std::list<pairwise_method *> get_pairwise_methods(
-	const std::list<pairwise_type> & types,
+std::vector<std::shared_ptr<pairwise_method> > get_pairwise_methods(
+	const std::vector<pairwise_type> & types,
 	bool include_experimental) {
 
 	// For each type, and for each pairwise method, dump that combination
@@ -9,191 +9,210 @@ std::list<pairwise_method *> get_pairwise_methods(
 	// if it supports the type in question (e.g. types that can give < 0
 	// wrt stuff like Keener).
 
-	std::list<pairwise_method *> out;
+	std::vector<std::shared_ptr<pairwise_method> > out;
 
-	for (std::list<pairwise_type>::const_iterator pos = types.begin(); pos !=
+	for (std::vector<pairwise_type>::const_iterator pos = types.begin(); pos !=
 		types.end(); ++pos) {
-		out.push_back(new kemeny(*pos));
-		out.push_back(new maxmin(*pos));
-		out.push_back(new schulze(*pos));
+		out.push_back(std::make_shared<kemeny>(*pos));
+		out.push_back(std::make_shared<maxmin>(*pos));
+		out.push_back(std::make_shared<schulze>(*pos));
 
 		// Reasonable convergence defaults.
 		if (pos->get() == CM_WV || pos->get() == CM_MARGINS
 			|| pos->get() == CM_PAIRWISE_OPP) {
-			out.push_back(new dquick(*pos));
-			out.push_back(new sinkhorn(*pos, 0.01, true));
-			out.push_back(new sinkhorn(*pos, 0.01, false));
-			out.push_back(new hits(*pos, 0.001));
-			out.push_back(new odm_atan(*pos, 0.001));
-			out.push_back(new odm_tanh(*pos, 0.001));
-			out.push_back(new odm(*pos, 0.001));
+			out.push_back(std::make_shared<dquick>(*pos));
+			out.push_back(std::make_shared<sinkhorn>(*pos, 0.01, true));
+			out.push_back(std::make_shared<sinkhorn>(*pos, 0.01, false));
+			out.push_back(std::make_shared<hits>(*pos, 0.001));
+			out.push_back(std::make_shared<odm_atan>(*pos, 0.001));
+			out.push_back(std::make_shared<odm_tanh>(*pos, 0.001));
+			out.push_back(std::make_shared<odm>(*pos, 0.001));
 
 			// Keener
-			out.push_back(new keener(*pos, 0.001, false, false));
-			out.push_back(new keener(*pos, 0.001, false, true));
-			out.push_back(new keener(*pos, 0.001, true, false));
-			out.push_back(new keener(*pos, 0.001, true, true));
+			out.push_back(std::make_shared<keener>(*pos, 0.001, false, false));
+			out.push_back(std::make_shared<keener>(*pos, 0.001, false, true));
+			out.push_back(std::make_shared<keener>(*pos, 0.001, true, false));
+			out.push_back(std::make_shared<keener>(*pos, 0.001, true, true));
 		}
 
-		out.push_back(new ext_minmax(*pos, false));
-		out.push_back(new ext_minmax(*pos, true));
-		out.push_back(new ord_minmax(*pos));
+		out.push_back(std::make_shared<ext_minmax>(*pos, false));
+		out.push_back(std::make_shared<ext_minmax>(*pos, true));
+		out.push_back(std::make_shared<ord_minmax>(*pos));
 
 		if (include_experimental) {
-			out.push_back(new tup(*pos, TUP_TUP));
-			out.push_back(new tup(*pos, TUP_SV));
-			out.push_back(new tup(*pos, TUP_MIN));
-			out.push_back(new tup(*pos, TUP_ALT_1));
-			out.push_back(new tup(*pos, TUP_ALT_2));
-			out.push_back(new tup(*pos, TUP_ALT_3));
-			out.push_back(new tup(*pos, TUP_ALT_4));
-			out.push_back(new tup(*pos, TUP_ALT_5));
-			out.push_back(new tup(*pos, TUP_ALT_6));
+			out.push_back(std::make_shared<tup>(*pos, TUP_TUP));
+			out.push_back(std::make_shared<tup>(*pos, TUP_SV));
+			out.push_back(std::make_shared<tup>(*pos, TUP_MIN));
+			out.push_back(std::make_shared<tup>(*pos, TUP_ALT_1));
+			out.push_back(std::make_shared<tup>(*pos, TUP_ALT_2));
+			out.push_back(std::make_shared<tup>(*pos, TUP_ALT_3));
+			out.push_back(std::make_shared<tup>(*pos, TUP_ALT_4));
+			out.push_back(std::make_shared<tup>(*pos, TUP_ALT_5));
+			out.push_back(std::make_shared<tup>(*pos, TUP_ALT_6));
 		}
 	}
 
-	// Doesn't matter what these are set to. There should be a test for that
-	// so that we can just do an if.
+	out.push_back(std::make_shared<copeland>(CM_WV, 2, 2, 1));
+	out.push_back(std::make_shared<copeland>(CM_WV, 2, 1, 0));
+	out.push_back(std::make_shared<randpair>(CM_WV));
 
-	// Defined elsewhere...
-	//out.push_back(new copeland(CM_WV));
-
-	out.push_back(new copeland(CM_WV, 2, 2, 1));
-	out.push_back(new copeland(CM_WV, 2, 1, 0));
-	out.push_back(new randpair(CM_WV));
-
-	return (out);
+	return out;
 }
 
 // Positional methods.
 
-std::list<positional *> get_positional_methods(bool truncate) {
+std::vector<std::shared_ptr<positional> > get_positional_methods(
+	bool truncate) {
 	// Put that elsewhere?
-	std::list<positional_type> types;
+	std::vector<positional_type> types;
 	if (truncate)
 		for (int p = PT_FIRST; p <= PT_LAST; ++p) {
 			types.push_back(positional_type(p));
 		}
 	// No point in using both if you aren't going to truncate.
-	else	{
+	else {
 		types.push_back(positional_type(PT_FRACTIONAL));
 	}
 
-	std::list<positional *> out;
+	std::vector<std::shared_ptr<positional> > pmethods;
 
-	for (std::list<positional_type>::const_iterator pos = types.begin(); pos !=
+	for (std::vector<positional_type>::const_iterator pos = types.begin();
+		pos !=
 		types.end(); ++pos) {
-		out.push_back(new plurality(*pos));
-		out.push_back(new ext_plurality(*pos));
-		out.push_back(new borda(*pos));
-		out.push_back(new antiplurality(*pos));
-		out.push_back(new ext_antiplurality(*pos));
-		out.push_back(new for_and_against(*pos));
-		out.push_back(new nauru(*pos));
-		out.push_back(new heismantrophy(*pos));
-		out.push_back(new baseballmvp(*pos));
-		out.push_back(new eurovision(*pos));
-		out.push_back(new dabagh(*pos));
-		out.push_back(new nrem(*pos));
-		out.push_back(new worstpos(*pos));
-		out.push_back(new worstborda(*pos));
+		pmethods.push_back(std::make_shared<plurality>(*pos));
+		pmethods.push_back(std::make_shared<ext_plurality>(*pos));
+		pmethods.push_back(std::make_shared<borda>(*pos));
+		pmethods.push_back(std::make_shared<antiplurality>(*pos));
+		pmethods.push_back(std::make_shared<ext_antiplurality>(*pos));
+		pmethods.push_back(std::make_shared<for_and_against>(*pos));
+		pmethods.push_back(std::make_shared<nauru>(*pos));
+		pmethods.push_back(std::make_shared<heismantrophy>(*pos));
+		pmethods.push_back(std::make_shared<baseballmvp>(*pos));
+		pmethods.push_back(std::make_shared<eurovision>(*pos));
+		pmethods.push_back(std::make_shared<dabagh>(*pos));
+		pmethods.push_back(std::make_shared<nrem>(*pos));
+		pmethods.push_back(std::make_shared<worstpos>(*pos));
+		pmethods.push_back(std::make_shared<worstborda>(*pos));
 	}
 
-	return (out);
+	return (pmethods);
 }
 
-std::list<pairwise_method *> get_sets() {
+std::vector<std::shared_ptr<pairwise_method> > get_pairwise_sets() {
 
-	std::list<pairwise_method *> out;
+	std::vector<std::shared_ptr<pairwise_method> > pw_sets;
 
-	out.push_back(new condorcet_set());
-	out.push_back(new mdd_set(true));
-	out.push_back(new mdd_set(false));
-	out.push_back(new partition_set(false));
+	pw_sets.push_back(std::make_shared<condorcet_set>());
+	pw_sets.push_back(std::make_shared<mdd_set>(true));
+	pw_sets.push_back(std::make_shared<mdd_set>(false));
+	pw_sets.push_back(std::make_shared<partition_set>(false));
 
-	out.push_back(new cdtt_set());
-	out.push_back(new cgtt_set());
-	out.push_back(new landau_set());
-	out.push_back(new schwartz_set());
-	out.push_back(new sdom_set());
-	out.push_back(new pdom_set());
-	out.push_back(new smith_set());
+	pw_sets.push_back(std::make_shared<cdtt_set>());
+	pw_sets.push_back(std::make_shared<cgtt_set>());
+	pw_sets.push_back(std::make_shared<landau_set>());
+	pw_sets.push_back(std::make_shared<schwartz_set>());
+	pw_sets.push_back(std::make_shared<smith_set>());
 
-	out.push_back(new copeland(CM_WV)); // Nudge nudge.
+	// Copeland fails resolvability, so it can kinda be seen
+	// as a set.
+	pw_sets.push_back(std::make_shared<copeland>(CM_WV));
 
-	return (out);
+	// I'm not sure that these work. Disabled for now.
+	/*
+		pw_sets.push_back(std::make_shared<sdom_set>());
+		pw_sets.push_back(std::make_shared<pdom_set>());
+	*/
+
+	return pw_sets;
 }
 
-std::list<election_method *> get_singlewinner_methods(bool truncate,
-	bool include_experimental) {
+std::vector<std::shared_ptr<election_method> > get_sets() {
+	// All our sets for now are based on pairwise stats, but more may
+	// be added later, e.g. the DMT set or the mutual majority set.
 
-	std::list<election_method *> toRet;
+	std::vector<std::shared_ptr<election_method> > sets;
 
-	std::list<pairwise_method *> pairwise = get_pairwise_methods(
-			pairwise_producer().provide_all_strategies(),
+	for (std::shared_ptr<election_method> em_set: get_pairwise_sets()) {
+		sets.push_back(em_set);
+	}
+
+	return sets;
+}
+
+std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
+	bool truncate, bool include_experimental) {
+
+	std::vector<std::shared_ptr<election_method> > all_methods;
+
+	std::vector<std::shared_ptr<pairwise_method> > pairwise =
+		get_pairwise_methods(pairwise_producer().provide_all_strategies(),
 			include_experimental);
 
-	copy(pairwise.begin(), pairwise.end(), back_inserter(toRet));
+	copy(pairwise.begin(), pairwise.end(), back_inserter(all_methods));
 
-	std::list<positional *> positional_methods = get_positional_methods(
-			truncate);
-	std::list<pairwise_method *> pairwise_sets = get_sets();
+	std::vector<std::shared_ptr<positional> > positional_methods =
+		get_positional_methods(truncate);
+	std::vector<std::shared_ptr<election_method> > sets = get_sets();
 
 	// We have to do it in this clumsy manner because of possible bugs in
 	// handling methods with some candidates excluded.
-	std::list<election_method *> posnl_expanded = expand_meta(
-			positional_methods,
-			pairwise_sets, true);
+	std::vector<std::shared_ptr<election_method> > posnl_expanded =
+		expand_meta(positional_methods, sets, true);
 
 	// Gradual Condorcet-Borda with different bases, not just Condorcet.
 	// The completion method doesn't really matter. Also, MDD* doesn't
 	// really work here, and sets that can't handle negatives shouldn't
 	// be applied to it.
-	for (std::list<pairwise_method *>::const_iterator basis = pairwise_sets.
-			begin(); basis != pairwise_sets.end(); ++basis) {
-		toRet.push_back(new gradual_cond_borda(*basis, false, GF_BOTH));
-		toRet.push_back(new gradual_cond_borda(*basis, true, GF_BOTH));
+	for (std::shared_ptr<pairwise_method> pw_set : get_pairwise_sets()) {
+		all_methods.push_back(std::make_shared<gradual_cond_borda>(
+				pw_set, false, GF_BOTH));
+		all_methods.push_back(std::make_shared<gradual_cond_borda>(
+				pw_set, true, GF_BOTH));
 	}
 
-	toRet.push_back(new young(true, true));
-	toRet.push_back(new young(false, true));
-	toRet.push_back(new first_pref_copeland());
-	toRet.push_back(new random_ballot());
-	toRet.push_back(new random_candidate());
-	toRet.push_back(new cardinal_ratings(0, 10, false));
-	toRet.push_back(new cardinal_ratings(0, 10, true));
-	toRet.push_back(new mode_ratings());
-	toRet.push_back(new vi_median_ratings(10, false, false));
-	toRet.push_back(new vi_median_ratings(10, false, true));
-	toRet.push_back(new vi_median_ratings(10, true, false));
-	toRet.push_back(new vi_median_ratings(10, true, true));
-	toRet.push_back(new dsc());
-	toRet.push_back(new ifpp_like_fpa_fpc());
-	toRet.push_back(new fpa_sum_fpc());
-	toRet.push_back(new fpa_max_fpc());
-	toRet.push_back(new quick_runoff());
-	toRet.push_back(new contingent_vote());
-	toRet.push_back(new adjusted_cond_plur());
+	all_methods.push_back(std::make_shared<young>(true, true));
+	all_methods.push_back(std::make_shared<young>(false, true));
+	all_methods.push_back(std::make_shared<first_pref_copeland>());
+	all_methods.push_back(std::make_shared<random_ballot>());
+	all_methods.push_back(std::make_shared<random_candidate>());
+	all_methods.push_back(std::make_shared<cardinal_ratings>(0, 10, false));
+	all_methods.push_back(std::make_shared<cardinal_ratings>(0, 10, true));
+	all_methods.push_back(std::make_shared<mode_ratings>());
+	all_methods.push_back(std::make_shared<vi_median_ratings>(10, false,
+			false));
+	all_methods.push_back(std::make_shared<vi_median_ratings>(10, false,
+			true));
+	all_methods.push_back(std::make_shared<vi_median_ratings>(10, true,
+			false));
+	all_methods.push_back(std::make_shared<vi_median_ratings>(10, true, true));
+	all_methods.push_back(std::make_shared<dsc>());
+	all_methods.push_back(std::make_shared<ifpp_like_fpa_fpc>());
+	all_methods.push_back(std::make_shared<fpa_sum_fpc>());
+	all_methods.push_back(std::make_shared<fpa_max_fpc>());
+	all_methods.push_back(std::make_shared<quick_runoff>());
+	all_methods.push_back(std::make_shared<contingent_vote>());
+	all_methods.push_back(std::make_shared<adjusted_cond_plur>());
 	// Kevin Venzke's TTR variation of ACP.
-	toRet.push_back(new adjusted_cond_plur(
+	all_methods.push_back(std::make_shared<adjusted_cond_plur>(
 			std::make_shared<contingent_vote>()));
-	toRet.push_back(new ifpp_method_x());
-	toRet.push_back(new no_elimination_irv());
+	all_methods.push_back(std::make_shared<ifpp_method_x>());
+	all_methods.push_back(std::make_shared<no_elimination_irv>());
 	// And a few common elimination methods.
-	toRet.push_back(new instant_runoff_voting(PT_WHOLE, true));
-	toRet.push_back(new baldwin(PT_WHOLE, true));
-	toRet.push_back(new coombs(PT_WHOLE, true));
-	toRet.push_back(new ifpp(PT_WHOLE, true));
-	toRet.push_back(new nanson(PT_WHOLE, true));
+	all_methods.push_back(std::make_shared<instant_runoff_voting>(PT_WHOLE,
+			true));
+	all_methods.push_back(std::make_shared<baldwin>(PT_WHOLE, true));
+	all_methods.push_back(std::make_shared<coombs>(PT_WHOLE, true));
+	all_methods.push_back(std::make_shared<ifpp>(PT_WHOLE, true));
+	all_methods.push_back(std::make_shared<nanson>(PT_WHOLE, true));
 
 	if (include_experimental) {
 		for (int i = 0; i < TEXP_TOTAL; ++i) {
-			toRet.push_back(new three_experimental((texp_type)i));
+			all_methods.push_back(std::make_shared<three_experimental>((texp_type)i));
 		}
 
-		toRet.push_back(new sv_att_second());
-		toRet.push_back(new fpa_experiment());
-		toRet.push_back(new donated_contingent_vote());
+		all_methods.push_back(std::make_shared<sv_att_second>());
+		all_methods.push_back(std::make_shared<fpa_experiment>());
+		all_methods.push_back(std::make_shared<donated_contingent_vote>());
 	}
 
 	// Then expand:
@@ -204,21 +223,21 @@ std::list<election_method *> get_singlewinner_methods(bool truncate,
 	// TODO: Make tests to verify that methods behave similarly when
 	// elimination is done the "hard way" as when done by setting hopefuls
 	// variables to false.
-	std::list<election_method *> expanded = expand_meta(toRet,
-			pairwise_sets, true);
+	/*std::vector<election_method *> expanded = expand_meta(all_methods,
+			pairwise_sets, true);*/
 
 	// Finally add some sets, because these should not be used as bases
 	// for elimination methods.
-	copy(pairwise_sets.begin(), pairwise_sets.end(), back_inserter(toRet));
+	copy(sets.begin(), sets.end(), back_inserter(all_methods));
 
 	// and
 
 	copy(positional_methods.begin(), positional_methods.end(),
-		back_inserter(toRet));
-	copy(posnl_expanded.begin(), posnl_expanded.end(),
-		back_inserter(toRet));
-	copy(expanded.begin(), expanded.end(), back_inserter(toRet));
+		back_inserter(all_methods));
+	/*copy(posnl_expanded.begin(), posnl_expanded.end(),
+		back_inserter(all_methods));
+	copy(expanded.begin(), expanded.end(), back_inserter(all_methods));*/
 
 	// Done!
-	return (toRet);
+	return all_methods;
 }

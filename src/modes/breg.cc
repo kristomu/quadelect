@@ -9,6 +9,8 @@
 #include "breg.h"
 #include <stdexcept>
 
+#include "../singlewinner/stats/cardinal.h"
+
 bayesian_regret::bayesian_regret() {
 
 	// Set some reasonable defaults.
@@ -66,15 +68,19 @@ void bayesian_regret::set_br_type(const stats_type br_type_in) {
 	}
 }
 
-void bayesian_regret::add_generator(pure_ballot_generator * to_add) {
+void bayesian_regret::add_generator(
+	std::shared_ptr<const pure_ballot_generator> to_add) {
+
 	generators.push_back(to_add);
 }
 
-void bayesian_regret::add_method(const election_method * to_add) {
+void bayesian_regret::add_method(
+	std::shared_ptr<const election_method> to_add) {
+
 	methods.push_back(to_add);
 
 	// We'll let the user add methods. in the middle of things if he
-	// so desiers. Caveat emptor - he'll have to be sure to check the
+	// so desires. Caveat emptor - he'll have to be sure to check the
 	// confidence interval so as to know they haven't run the same number
 	// of trials, though!
 	if (inited) {
@@ -82,25 +88,13 @@ void bayesian_regret::add_method(const election_method * to_add) {
 	}
 }
 
-void bayesian_regret::clear_generators(bool do_delete) {
+void bayesian_regret::clear_generators() {
 
-	if (do_delete) {
-
-		for (size_t counter = 0; counter < generators.size(); ++counter) {
-			delete generators[counter];
-		}
-	}
-
-	generators.resize(0);
+	generators.clear();
 	inited = false;
 }
 
-void bayesian_regret::clear_methods(bool do_delete) {
-
-	if (do_delete)
-		for (size_t counter = 0; counter < methods.size(); ++counter) {
-			delete methods[counter];
-		}
+void bayesian_regret::clear_methods() {
 
 	methods.clear();
 	method_stats.clear();
@@ -110,8 +104,8 @@ void bayesian_regret::clear_methods(bool do_delete) {
 void bayesian_regret::set_parameters(size_t maxiters_in, size_t curiter_in,
 	size_t min_cand_in, size_t max_cand_in, size_t min_voters_in,
 	size_t max_voters_in, bool show_median_in, stats_type br_type_in,
-	std::list<pure_ballot_generator *> & generators_in,
-	std::list<const election_method *> & methods_in) {
+	std::vector<std::shared_ptr<pure_ballot_generator> > & generators_in,
+	std::vector<std::shared_ptr<election_method> > & methods_in) {
 
 	curiter = curiter_in;
 	set_maxiters(maxiters_in, false);
@@ -121,8 +115,8 @@ void bayesian_regret::set_parameters(size_t maxiters_in, size_t curiter_in,
 	set_format(show_median_in);
 	set_br_type(br_type_in);
 
-	clear_generators(false);
-	clear_methods(false);
+	clear_generators();
+	clear_methods();
 
 	copy(generators_in.begin(), generators_in.end(), back_inserter(
 			generators));
@@ -133,8 +127,8 @@ void bayesian_regret::set_parameters(size_t maxiters_in, size_t curiter_in,
 bayesian_regret::bayesian_regret(size_t maxiters_in, size_t min_cand_in,
 	size_t max_cand_in, size_t min_voters, size_t max_voters,
 	bool show_median_in, stats_type br_type_in,
-	std::list<pure_ballot_generator *> & generators_in,
-	std::list<const election_method *> & methods_in) {
+	std::vector<std::shared_ptr<pure_ballot_generator> > & generators_in,
+	std::vector<std::shared_ptr<election_method> > & methods_in) {
 
 	inited = false;
 	set_parameters(maxiters_in, 0, min_cand_in, max_cand_in, min_voters,
@@ -231,8 +225,7 @@ std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 
 	std::vector<stats<float> >::iterator mstat_pos = method_stats.begin();
 
-	for (std::vector<const election_method *>::const_iterator pos =
-			methods.begin(); pos != methods.end(); ++pos) {
+	for (auto pos =	methods.begin(); pos != methods.end(); ++pos) {
 		out = (*pos)->elect(ballots, numcands, cache, true);
 
 		// Determine the utility. If it's a tie, the utility is

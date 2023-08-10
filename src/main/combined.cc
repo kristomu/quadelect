@@ -58,35 +58,39 @@
 
 
 // This should really be put into a file associated with all.h
-std::list<pure_ballot_generator *> get_all_generators(bool compress,
-	bool truncate) {
+std::vector<std::shared_ptr<pure_ballot_generator> > get_all_generators(
+	bool compress, bool truncate) {
 
-	std::list<pure_ballot_generator *> toRet;
+	std::vector<std::shared_ptr<pure_ballot_generator> > generators;
 
-	toRet.push_back(new dirichlet(compress, truncate));
-	toRet.push_back(new gaussian_generator(compress, truncate));
-	toRet.push_back(new impartial(compress, truncate));
-	toRet.push_back(new dirichlet(compress, truncate));
-	toRet.push_back(new iac(compress, false)); // truncation not supported
-	toRet.push_back(new uniform_generator(compress, truncate));
+	generators.push_back(
+		std::make_shared<dirichlet>(compress, truncate));
+	generators.push_back(
+		std::make_shared<gaussian_generator>(compress, truncate));
+	generators.push_back(
+		std::make_shared<impartial>(compress, truncate));
+	generators.push_back(
+		std::make_shared<dirichlet>(compress, truncate));
+	generators.push_back(
+		std::make_shared<iac>(compress, false)); // truncation not supported
+	generators.push_back(
+		std::make_shared<uniform_generator>(compress, truncate));
 
-	return (toRet);
+	return generators;
 }
 
-bayesian_regret setup_regret(std::list<election_method *> & methods,
-	std::list<pure_ballot_generator *> & generators,
+bayesian_regret setup_regret(
+	std::vector<std::shared_ptr<election_method> > & methods,
+	std::vector<std::shared_ptr<pure_ballot_generator> > & generators,
 	int maxiters, int min_candidates, int max_candidates,
 	int min_voters, int max_voters, rng & randomizer) {
 
 	// Do something with Bayesian regret here. DONE: Move over
 	// to modes.
 
-	std::list<const election_method *> rtmethods; // What a kludge.
-	copy(methods.begin(), methods.end(), back_inserter(rtmethods));
-
 	bayesian_regret br(maxiters, min_candidates, max_candidates,
 		min_voters, max_voters, false, MS_INTRAROUND,
-		generators, rtmethods);
+		generators, methods);
 
 	// TODO: Throw the exception inside the bayesian regret code instead.
 	if (!br.init(randomizer)) {
@@ -96,10 +100,8 @@ bayesian_regret setup_regret(std::list<election_method *> & methods,
 	return (br);
 }
 
-// The hack with the generators is required so that C++ doesn't delete them
-// once the function is done.
-yee setup_yee(std::list<election_method *> & methods, int num_voters,
-	int num_cands,
+yee setup_yee(std::vector<std::shared_ptr<election_method> > & methods,
+	int num_voters, int num_cands,
 	bool do_use_autopilot, std::string case_prefix, int picture_size,
 	double sigma, gaussian_generator & gaussian,
 	uniform_generator & uniform, rng & randomizer) {
@@ -123,7 +125,8 @@ yee setup_yee(std::list<election_method *> & methods, int num_voters,
 	return (to_output);
 }
 
-barycentric setup_bary(std::list<election_method *> & methods,
+barycentric setup_bary(
+	std::vector<std::shared_ptr<election_method> > & methods,
 	rng & randomizer) {
 
 	barycentric to_output;
@@ -138,15 +141,11 @@ barycentric setup_bary(std::list<election_method *> & methods,
 }
 
 std::pair<bool, interpreter_mode> setup_interpreter(
-	std::list<election_method *> & methods,
-	std::list<const interpreter *> & interpreters,
+	std::vector<std::shared_ptr<election_method> > & methods,
+	std::vector<std::shared_ptr<interpreter> > & interpreters,
 	std::vector<std::string> & unparsed, rng & randomizer) {
 
-	// Kludge, again!
-	std::list<const election_method *> methods_const;
-	copy(methods.begin(), methods.end(), back_inserter(methods_const));
-
-	interpreter_mode toRet(interpreters, methods_const, unparsed);
+	interpreter_mode toRet(interpreters, methods, unparsed);
 
 	bool inited = toRet.init(randomizer);
 
@@ -160,8 +159,8 @@ std::pair<bool, interpreter_mode> setup_interpreter(
 }
 
 std::pair<bool, interpreter_mode> setup_interpreter_from_file(
-	std::list<election_method *> & methods,
-	std::list<const interpreter *> & interpreters,
+	std::vector<std::shared_ptr<election_method> > & methods,
+	std::vector<std::shared_ptr<interpreter> > & interpreters,
 	std::string file_name, rng & randomizer) {
 
 	std::ifstream inf(file_name.c_str());
@@ -206,38 +205,39 @@ std::string ignore_spaces_np(const std::string & a) {
 	return (toRet);
 }
 
-template</*typename T,*/typename Q> std::list<Q> get_name_intersection(
-	const std::list<Q> & container, const std::vector<std::string> accepted) {
+template<typename Q> std::vector<std::shared_ptr<Q> >
+get_name_intersection(
+	const std::vector<std::shared_ptr<Q> > & container,
+	const std::vector<std::string> accepted) {
 
-	// We do this by first building a map of Q (it's presumed that T is
-	// vector or list or something of Q), with Q's name as index. Then we
-	// go through the accepted list and dump those that we find.
+	// We do this by first building a map of Q with Q's name as index.
+	// Then we go through the accepted list and dump those that we find.
 
-	std::map<std::string, Q> codebook;
+	std::map<std::string, std::shared_ptr<Q> > codebook;
 
-	for (typename std::list<Q>::const_iterator pos = container.begin(); pos !=
-		container.end(); ++pos) {
-		codebook[ignore_spaces_np((*pos)->name())] = *pos;
+	for (std::shared_ptr<Q> ptr: container) {
+		codebook[ignore_spaces_np(ptr->name())] = ptr;
 	}
 
-	std::list<Q> to_return;
+	std::vector<std::shared_ptr<Q> > to_return;
 
 	for (std::vector<std::string>::const_iterator spos = accepted.begin();
-		spos !=
-		accepted.end(); ++spos) {
-		typename std::map<std::string, Q>::const_iterator search =
-			codebook.find(ignore_spaces_np(*spos));
+		spos != accepted.end(); ++spos) {
+
+		auto search = codebook.find(ignore_spaces_np(*spos));
 
 		if (search != codebook.end()) {
 			to_return.push_back(search->second);
+		} else {
+			std::cout << "Warning: could not find " << *spos << std::endl;
 		}
 	}
 
-	return (to_return);
+	return to_return;
 }
 
-template<typename Q> std::list<Q> intersect_by_file(
-	const std::list<Q> & container, std::string filename) {
+template<typename Q> std::vector<Q> intersect_by_file(
+	const std::vector<Q> & container, std::string filename) {
 
 	// Returns a container of NULL if we can't open.
 
@@ -245,13 +245,13 @@ template<typename Q> std::list<Q> intersect_by_file(
 
 	if (!infile) {
 		std::cerr << "Cannot open " << filename << " for reading!" << std::endl;
-		return (std::list<Q>(1, NULL));
+		return (std::vector<Q>(1, NULL));
 	}
 
 	std::vector<std::string> accepted = slurp_file(infile, true);
 	infile.close();
 
-	return (get_name_intersection(container, accepted));
+	return get_name_intersection(container, accepted);
 }
 
 void print_usage_info(std::string program_name) {
@@ -580,28 +580,33 @@ int main(int argc, char * * argv) {
 	}
 
 	// Actions ahoy!
+
+	// While I'm porting things over to use smart pointers, this hack
+	// will have to do: it keeps a smart pointer list so that everything
+	// gets properly deallocated once the program exits, but lets other
+	// functions use raw pointers. Apparently "proper" code is supposed
+	// to make a distinction between smart and raw pointers -- use the
+	// former if the function can extend something's lifetime, otherwise
+	// the latter, but that sounds rather too ugly so I'm just choosing
+	// something.
+
+	std::vector<std::shared_ptr<election_method> > methods =
+		get_singlewinner_methods(false, include_experimental);
+
 	// TODO: Let user specify truncation. Do so when truncation is actually
 	// consistent with the logic of the generators instead of just being
 	// something that's slapped on.
 
-	std::list<election_method *> methods = get_singlewinner_methods(false,
-			include_experimental);
-	std::list<election_method *>::const_iterator pos;
+	std::vector<std::shared_ptr<pure_ballot_generator> > generators =
+		get_all_generators(true, false);
 
-	std::list<pure_ballot_generator *> generators = get_all_generators(true,
-			false);
-
-	std::list<pure_ballot_generator *> default_br_generators;
-	default_br_generators.push_back(new uniform_generator(true, false));
-
-	// These are used so it'll be possible to dealloc early if we so want.
-	// TODO later: have intersect provide two arrays: one for intersection,
-	// one for the rest. Then just free those in the "rest" category.
-	std::list<election_method *> methods_backup = methods;
-	std::list<pure_ballot_generator *> generators_backup = generators;
+	std::vector<std::shared_ptr<pure_ballot_generator> > default_br_generators;
+	default_br_generators.push_back(
+		std::make_shared<uniform_generator>(true, false));
 
 	// Interpreters for the interpreter mode
-	std::list<interpreter *> interpreters = get_all_interpreters();
+	std::vector<std::shared_ptr<interpreter> > interpreters =
+		get_all_interpreters();
 
 	if (list_gen) {
 		list_names(generators);
@@ -639,15 +644,12 @@ int main(int argc, char * * argv) {
 		generators = intersect_by_file(generators,
 				generator_constraint_fn);
 		if (generators.empty() || *generators.begin() == NULL) {
-			std::cerr << argv[0] << ": Found no eligible method names in"
+			std::cerr << argv[0] << ": Found no eligible generator names in"
 				<< " " << generator_constraint_fn << std::endl;
 			return (-1);
 		}
 
-		// If we get here, we have constrained, so se the default breg.
-		// Dealloc the one we had first, though.
-		delete *(default_br_generators.begin());
-
+		// If we get here, we have constrained, so use the default breg.
 		default_br_generators = generators;
 
 		std::cout << "Generator constraint: loaded " << generators.size()
@@ -729,7 +731,7 @@ int main(int argc, char * * argv) {
 			<< std::endl;
 		std::cout << "\t\t- report frequency: " << breg_report_freq << std::endl;
 
-		br_mode = setup_regret(methods, default_br_generators,
+		br_mode = setup_regret(methods, generators,
 				breg_rounds, breg_min_cands, breg_max_cands,
 				breg_min_voters, breg_max_voters, randomizer);
 
@@ -758,14 +760,7 @@ int main(int argc, char * * argv) {
 			<< std::endl;
 		std::cout << "\t\t- number of methods: " << methods.size() << std::endl;
 
-		std::list<const interpreter *> int_temp; // yay conversion!
-		for (std::list<interpreter *>::const_iterator cpos =
-				interpreters.begin();
-			cpos != interpreters.end(); ++cpos) {
-			int_temp.push_back(*cpos);
-		}
-
-		int_mode = setup_interpreter_from_file(methods, int_temp,
+		int_mode = setup_interpreter_from_file(methods, interpreters,
 				int_source_file, randomizer);
 
 		if (!int_mode.first) {

@@ -3,10 +3,7 @@
 // voters are modeled as a normal distribution centered on that point, and each
 // voter prefers a candidate nearby to a candidate further away.
 
-// Currently only supports writing to PGM and PPM formats. PNG may come later.
-
-#ifndef _VOTE_MODE_YEE
-#define _VOTE_MODE_YEE
+#pragma once
 
 #include "mode.h"
 #include "../ballots.h"
@@ -14,6 +11,8 @@
 #include "../generator/spatial/gaussian.h"
 
 #include "../spookyhash/SpookyV2.h"
+
+#include <memory>
 
 class yee : public mode {
 
@@ -40,7 +39,7 @@ class yee : public mode {
 
 		// Election methods and generators.
 		spatial_generator * voter_pdf, * candidate_pdf;
-		std::vector<const election_method *> e_methods;
+		std::vector<std::shared_ptr<const election_method> > e_methods;
 
 		// Arrays that hold information about who won and the color
 		// corresponding to each candidate.
@@ -64,7 +63,7 @@ class yee : public mode {
 		// Test a given pixel and update winners arrays. See the .cc
 		// for more information.
 		long long check_pixel(int x, int y, int xsize, int ysize,
-			const std::vector<const election_method *> & methods,
+			const std::vector<std::shared_ptr<const election_method> > & methods,
 			spatial_generator & ballotgen,
 			std::vector<std::vector<std::vector<std::vector<bool > > > > &
 			am_ac_winners, int min_num_voters_in,
@@ -108,7 +107,7 @@ class yee : public mode {
 			positions);
 		bool randomize_candidate_positions(rng & randomizer);
 
-		void add_method(const election_method * to_add);
+		void add_method(std::shared_ptr<const election_method> to_add);
 		template<typename T> void add_methods(T start_iter, T end_iter);
 		void clear_methods();
 
@@ -137,5 +136,3 @@ template<typename T> void yee::add_methods(T start_iter, T end_iter) {
 		add_method(*iterator);
 	}
 }
-
-#endif

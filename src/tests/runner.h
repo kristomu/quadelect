@@ -25,9 +25,9 @@ class test_runner : public Test {
 		int numvoters;
 		size_t numcands_min, numcands_max;
 		int total_generation_attempts;
-		election_method * method;
+		std::shared_ptr<const election_method> method;
 		std::list<ballot_group> ballots;
-		pure_ballot_generator * ballot_gen;
+		std::shared_ptr<pure_ballot_generator> ballot_gen;
 		size_t disproof_attempts_per_election;
 
 		std::vector<std::shared_ptr<criterion_test> > tests;
@@ -90,9 +90,9 @@ class test_runner : public Test {
 			failed_criteria.push_back(false);
 		}
 
-		test_runner(pure_ballot_generator * ballot_gen_in,
+		test_runner(std::shared_ptr<pure_ballot_generator> ballot_gen_in,
 			int numvoters_in, int numcands_in_min, int numcands_in_max,
-			rng & randomizer_in, election_method * method_in,
+			rng & randomizer_in, std::shared_ptr<const election_method> method_in,
 			int attempts_per_election_in) {
 
 			total_generation_attempts = 0;
@@ -122,9 +122,9 @@ class test_runner : public Test {
 			runner_name = new_name;
 		}
 
-		test_runner(pure_ballot_generator * ballot_gen_in,
+		test_runner(std::shared_ptr<pure_ballot_generator> ballot_gen_in,
 			int numvoters_in, int numcands_in,
-			rng & randomizer_in, election_method * method_in,
+			rng & randomizer_in, std::shared_ptr<const election_method> method_in,
 			int strat_attempts_per_try_in) : test_runner(ballot_gen_in,
 					numvoters_in, numcands_in, numcands_in, randomizer_in,
 					method_in, strat_attempts_per_try_in) {}

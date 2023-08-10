@@ -4,24 +4,26 @@
 // through the format that fits it well -- or force a certain format if the
 // user desires so.
 
-#ifndef _VOTE_MODE_INT
-#define _VOTE_MODE_INT
+#pragma once
 
 #include "mode.h"
 
 #include <map>
 #include <list>
+#include <memory>
 #include <vector>
 
 #include "../ballots.h"
 #include "../singlewinner/method.h"
 #include "../interpreter/interpreter.h"
 
+// TODO: Deal with const/non-const shared pointers. Yuck.
+
 class interpreter_mode : public mode {
 
 	private:
-		std::vector<const election_method *> methods;
-		std::list<const interpreter *> interpreters;
+		std::vector<std::shared_ptr<election_method> > methods;
+		std::vector<std::shared_ptr<interpreter> > interpreters;
 		std::list<ballot_group> input_ballots;
 		std::vector<std::string> input_ballots_unparsed;
 		std::list<ordering> results;
@@ -53,29 +55,32 @@ class interpreter_mode : public mode {
 		// ... set_unparsed_ballots ...
 
 		// Seen this before?
-		void add_method(const election_method * to_add);
-		void add_interpreter(const interpreter * to_add);
+		void add_method(std::shared_ptr<election_method > to_add);
+		void add_interpreter(std::shared_ptr<interpreter > to_add);
 		template<typename T> void add_methods(T start_iter,
 			T end_iter);
 		template<typename T> void add_interpreters(T start_iter,
 			T end_iter);
 
-		void clear_methods(bool do_delete);
-		void clear_interpreters(bool do_delete);
+		void clear_methods();
+		void clear_interpreters();
 
 		interpreter_mode() {
 			needs_interpreting = false;
 			inited = false;
 			cur_iter = 0;
 		}
-		interpreter_mode(std::list<const interpreter *> & interpreters_in,
-			std::list<const election_method *> & methods_in,
+		interpreter_mode(
+			std::vector<std::shared_ptr<interpreter> > & interpreters_in,
+			std::vector<std::shared_ptr<election_method> > & methods_in,
 			std::list<ballot_group> & ballots_in);
-		interpreter_mode(std::list<const interpreter *> & interpreters_in,
-			std::list<const election_method *> & methods_in,
+		interpreter_mode(
+			std::vector<std::shared_ptr<interpreter> > & interpreters_in,
+			std::vector<std::shared_ptr<election_method> > & methods_in,
 			std::vector<std::string> & ballots_in_unparsed);
-		interpreter_mode(std::list<const interpreter *> & interpreters_in,
-			std::list<const election_method *> & methods_in);
+		interpreter_mode(
+			std::vector<std::shared_ptr<interpreter> > & interpreters_in,
+			std::vector<std::shared_ptr<election_method> > & methods_in);
 
 		// There really isn't much to do but init.
 		bool init(rng & randomizer);
@@ -114,6 +119,3 @@ template<typename T> void interpreter_mode::add_interpreters(T start_iter,
 		inited = false;
 	}
 }
-
-
-#endif

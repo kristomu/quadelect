@@ -87,7 +87,8 @@ int main() {
 	cache_map cache;
 
 	ordering out;
-	loser_elimination le_plur(&plur, false, true);
+	loser_elimination le_plur(std::shared_ptr<election_method>(&plur), false,
+		true);
 	/*out = eminmax.elect(ballots, 4, cache, false);
 	for (counter = 0; counter < 100000; ++counter) {
 		out = eminmax.elect(ballots, 4, cache, false);
@@ -124,27 +125,29 @@ int main() {
 	// so should be much quicker than the non-cache case. If not, something
 	// is wrong.
 
-	std::vector<election_method *> sets, methods;
-	methods.push_back(&plur);
-	methods.push_back(&cpl);
-	methods.push_back(&eminmax);
-	methods.push_back(&eminmin);
-	methods.push_back(&cor);
-	methods.push_back(&le_plur);
+	// HACK. TODO fix
 
-	sets.push_back(new smith_set);
-	sets.push_back(new landau_set);
-	sets.push_back(new cdtt_set);
-	sets.push_back(new schwartz_set);
+	std::vector<std::shared_ptr<election_method> > sets, methods;
+	methods.push_back(std::shared_ptr<election_method>(&plur));
+	methods.push_back(std::shared_ptr<election_method>(&cpl));
+	methods.push_back(std::shared_ptr<election_method>(&eminmax));
+	methods.push_back(std::shared_ptr<election_method>(&eminmin));
+	methods.push_back(std::shared_ptr<election_method>(&cor));
+	methods.push_back(std::shared_ptr<election_method>(&le_plur));
+
+	sets.push_back(std::make_shared<smith_set>());
+	sets.push_back(std::make_shared<landau_set>());
+	sets.push_back(std::make_shared<cdtt_set>());
+	sets.push_back(std::make_shared<schwartz_set>());
 
 	tte.set_generator(&ic);
 	for (size_t sec = 0; sec < methods.size(); ++sec) {
 		for (counter = 0; counter < sets.size(); ++counter) {
 
 			if (counter == sets.size()) {
-				tte.add_method(methods[sec]);
-			} else	tte.add_method(new comma(methods[sec],
-						sets[counter]));
+				tte.add_method(methods[sec].get());
+			} else	tte.add_method(new comma(sets[counter],
+						methods[sec]));
 		}
 	}
 

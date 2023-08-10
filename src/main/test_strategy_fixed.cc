@@ -64,6 +64,8 @@
 #include "../tests/runner.h"
 #include "../tests/provider.h"
 
+#include "../singlewinner/get_methods.h"
+
 // default values for number of processors and current processor
 // use -I compiler options to get multiproc support. TODO: make this an
 // input parameter.
@@ -100,8 +102,9 @@ std::pair<double, double> confidence_interval(int n, double p_mean,
 // num_methods here is used for the Bonferroni correction for the confidence
 // intervals.
 
-void test_strategy(election_method * to_test, rng & randomizer,
-	int num_methods, pure_ballot_generator * ballot_gen) {
+void test_strategy(std::shared_ptr<election_method> to_test,
+	rng & randomizer,
+	int num_methods, std::shared_ptr<pure_ballot_generator> ballot_gen) {
 
 	// Generate a random ballot set.
 	// First should be true: compress the ballots. Second, that's
@@ -131,22 +134,12 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	int numvoters = 97; // was 29
 	int initial_numcands = 5, numcands = initial_numcands;
 
-	/*	std::map<int, std::string> rcl;
-		for (counter = 0; counter < 26; ++counter) {
-			std::string foo = "A";
-			foo[0] = 'A' + counter;
-			rcl[counter] = foo;
-		}*/
-
 	// --- //
 
-	std::vector<pure_ballot_generator *> ballotgens;
+	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
 	ballotgens.push_back(ballot_gen);
-	//ballotgens.push_back(&iic);
-	///ballotgens.push_back(new gaussian_generator(true, false, dimensions, false));
-	/* ballotgens.push_back(new dirichlet(true));*/
 
-	int tests_per_ballot = 256;
+	int tests_per_ballot = 32768;//512;
 	test_provider tests;
 	test_runner st(ballot_gen, numvoters, numcands, numcands,
 		randomizer, to_test, tests_per_ballot);
@@ -160,7 +153,7 @@ void test_strategy(election_method * to_test, rng & randomizer,
 	}
 
 	int worked = 0, f;
-	int fmax = 500; //50000;
+	int fmax = 2000; //50000;
 	int total_generation_attempts = 0;
 	for (f = 0; f < fmax; ++f) {
 
@@ -203,8 +196,8 @@ void test_strategy(election_method * to_test, rng & randomizer,
 }
 
 void get_itemized_stats(
-	election_method * to_test, rng & randomizer,
-	pure_ballot_generator * ballot_gen) {
+	std::shared_ptr<election_method> to_test, rng & randomizer,
+	int num_methods, std::shared_ptr<pure_ballot_generator> ballot_gen) {
 
 	std::map<std::string, std::vector<bool> > results;
 
@@ -215,7 +208,7 @@ void get_itemized_stats(
 	int numvoters = 97;
 	int initial_numcands = 5, numcands = initial_numcands;
 
-	int tests_per_ballot = 256;
+	int tests_per_ballot = 32768;//512;
 	test_provider tests;
 	test_runner st(ballot_gen, numvoters, numcands, numcands,
 		randomizer, to_test, tests_per_ballot);
@@ -225,7 +218,8 @@ void get_itemized_stats(
 		st.add_test(test);
 	}
 
-	size_t f, fmax = 500, num_non_ties = 0;
+	size_t f, fmax = 50000, num_non_ties = 0;
+	int total_generation_attempts = 0;
 	for (f = 0; f < fmax; ++f) {
 
 		if ((f & 63) == 63) {
@@ -310,53 +304,128 @@ void get_itemized_stats(
 	std::cout << "==========================================\n";
 	std::cout << "Manipulable elections:\t" << any_strategy
 		<< "\t" << any_strategy / (double) num_non_ties << std::endl;
+	std::cout << "Quick and dirty: Other then manip " <<
+		coalitional / (double) num_non_ties << " " <<
+		any_strategy / (double) num_non_ties << "\n";
+
+	total_generation_attempts = st.get_total_generation_attempts();
+
+	// Do a simple proportions test
+	double prop = any_strategy / (double) num_non_ties;
+
+	double significance = 0.05;
+	double zv = ppnd7(1-significance/num_methods);
+
+	std::pair<double, double> c_i = confidence_interval(f, prop, zv);
+
+	double lower_bound = c_i.first;
+	double upper_bound = c_i.second;
+
+	lower_bound = round(lower_bound*10000)/10000.0;
+	upper_bound = round(upper_bound*10000)/10000.0;
+
+	double tiefreq = 1 - (num_non_ties/(double)fmax);
+	tiefreq = round(tiefreq*10000)/1000.0;
+
+	std::cout << "Worked in " << any_strategy << " ("<< lower_bound << ", " <<
+		upper_bound
+		<< ") out of " << f << " for " <<
+		to_test->name() << " ties: " << total_generation_attempts-f << " ("
+		<< tiefreq << ")" << std::endl;
+
+
+
 	std::cout << std::endl;
 }
 
 int main(int argc, const char ** argv) {
-	std::vector<election_method *> condorcets; // Although they aren't.
-	std::vector<election_method *> condorcetsrc;
+	std::vector<std::shared_ptr<election_method> > chosen_methods;
+	std::vector<std::shared_ptr<election_method> > to_be_condorcified;
 
 	size_t counter;
 
 	std::vector<pairwise_ident> types;
 	types.push_back(CM_WV);
 
-	condorcetsrc.push_back(new loser_elimination(
-			new plurality(PT_WHOLE), false, true));
-	condorcetsrc.push_back(new plurality(PT_WHOLE));
+	/*for (election_method * method: lots) {
+		to_be_condorcified.push_back(
+			new loser_elimination(
+			method, false, false));
+		to_be_condorcified.push_back(
+			new loser_elimination(
+			method, false, true));
+		to_be_condorcified.push_back(
+			new loser_elimination(
+			method, true, false));
+		to_be_condorcified.push_back(
+			new loser_elimination(
+			method, true, true));
+	}*/
+
+	condorcet_set xc;
+	smith_set xsm;
+	schwartz_set xs;
+	landau_set xl;
+	fpa_max_fpc fmf;
+	donated_contingent_vote dcv;
+	contingent_vote cv;
+	ifpp_method_x si;
+	std::shared_ptr<ifpp_method_x> strat_ifpp =
+		std::make_shared<ifpp_method_x>();
+	std::shared_ptr<smith_set> smith = std::make_shared<smith_set>();
+
+	to_be_condorcified.push_back(
+		std::make_shared<instant_runoff_voting>(PT_WHOLE, true));
+	to_be_condorcified.push_back(std::make_shared<no_elimination_irv>());
+	to_be_condorcified.push_back(std::make_shared<ifpp_method_x>());
+	to_be_condorcified.push_back(std::make_shared<contingent_vote>());
+	to_be_condorcified.push_back(std::make_shared<donated_contingent_vote>());
+	to_be_condorcified.push_back(std::make_shared<contingent_vote>());
+	to_be_condorcified.push_back(std::make_shared<ifpp_like_fpa_fpc>());
+	to_be_condorcified.push_back(std::make_shared<fpa_sum_fpc>());
+	to_be_condorcified.push_back(std::make_shared<fpa_max_fpc>());
+	to_be_condorcified.push_back(std::make_shared<quick_runoff>());
+	to_be_condorcified.push_back(std::make_shared<plurality>(PT_WHOLE));
 
 	std::cout << "Test time!" << std::endl;
 
-	smith_set xd;
-
-	for (counter = 0; counter < condorcetsrc.size(); ++counter) {
-		condorcets.push_back(new comma(condorcetsrc[counter], &xd));
+	for (counter = 0; counter < to_be_condorcified.size(); ++counter) {
+		//chosen_methods.push_back(new comma(new slash(to_be_condorcified[counter], &xs), &xl));
+		chosen_methods.push_back(std::make_shared<comma>(
+				smith, to_be_condorcified[counter]));
+		chosen_methods.push_back(std::make_shared<slash>(
+				smith, to_be_condorcified[counter]));
 	}
 
-	condorcets.push_back(new antiplurality(PT_WHOLE));
+	//std::copy(lots.begin(), lots.end(), std::back_inserter(chosen_methods));
 
-	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
+	//chosen_methods.push_back(new antiplurality(PT_WHOLE));
+
+	std::cout << "There are " << chosen_methods.size() << " methods." <<
+		std::endl;
 
 	std::vector<rng> randomizers;
 	randomizers.push_back(rng(1));
 
-	std::vector<pure_ballot_generator *> ballotgens;
-	int dimensions = 4;
-	ballotgens.push_back(new impartial(true, false));
+	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
+	//int dimensions = 4;
+	ballotgens.push_back(std::make_shared<impartial>(true, false));
 	// Something is wrong with this one. Check later.
-	ballotgens.push_back(new gaussian_generator(true, false, dimensions,
-			false));
+	/*ballotgens.push_back(new gaussian_generator(true, false, dimensions,
+			false));*/
 	//ballotgens.push_back(new dirichlet(false));
+
+	int stepsize = atoi(argv[2]);
+	int offset = atoi(argv[1]);
 
 	for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
 		std::cout << "Using ballot domain " << ballotgens[bg]->name() << std::endl;
-		for (counter = 0; counter < condorcets.size(); counter ++) {
+		std::cout << "Stepsize " << stepsize << ", offset " << offset << std::endl;
+		for (counter = offset; counter < chosen_methods.size();
+			counter += stepsize) {
 			std::cout << "\t" << counter << ": " << std::flush;
-			test_strategy(condorcets[counter], randomizers[0],
-				condorcets.size(), ballotgens[bg]);
-			get_itemized_stats(condorcets[counter], randomizers[0],
-				ballotgens[bg]);
+			get_itemized_stats(chosen_methods[counter], randomizers[0],
+				chosen_methods.size(), ballotgens[bg]);
 		}
 	}
 }

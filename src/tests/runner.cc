@@ -80,10 +80,13 @@ size_t test_runner::get_num_failed_criteria(
 			// strategies testing if we've already exhausted them or
 			// if they're still usable.
 
+			// TODO: Fix get() here - I just can't stand doing more
+			// cleanup right now.
+
 			if (tester->get_num_tries(numcands) < 0) {
 				tester->add_strategic_election(
 					failure_instance, -1, election_data, numcands,
-					ballot_gen, randomizer);
+					ballot_gen.get(), randomizer);
 				got_strategic_election = true;
 			} else {
 				// If we've tried every instance for this test, skip.
@@ -93,7 +96,7 @@ size_t test_runner::get_num_failed_criteria(
 				}
 				tester->add_strategic_election(failure_instance,
 					instances_tried[i], election_data,
-					numcands, ballot_gen, randomizer);
+					numcands, ballot_gen.get(), randomizer);
 
 				++instances_tried[i];
 				got_strategic_election = true;

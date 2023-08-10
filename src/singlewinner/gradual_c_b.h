@@ -1,5 +1,4 @@
-#ifndef _VOTE_GRAD_COPELAND
-#define _VOTE_GRAD_COPELAND
+#pragma once
 
 #include "../pairwise/grad_matrix.h"
 #include "../grad_median/grad_median.h"
@@ -8,6 +7,7 @@
 
 #include <iterator>
 #include <iostream>
+#include <memory>
 
 #include <glpk.h>
 #include <assert.h>
@@ -15,7 +15,7 @@
 
 class gradual_cond_borda : public election_method {
 	private:
-		const pairwise_method * base_method;
+		std::shared_ptr<const pairwise_method> base_method;
 		std::string cached_name;
 		bool is_sym_comp, is_relaxed;
 		completion_type completion;
@@ -34,10 +34,8 @@ class gradual_cond_borda : public election_method {
 			return (cached_name);
 		}
 
-		gradual_cond_borda(pairwise_method * base_method_in,
-			bool cardinal_in,
-			completion_type completion_in);
+		gradual_cond_borda(
+			std::shared_ptr<const pairwise_method> base_method_in,
+			bool cardinal_in, completion_type completion_in);
 
 };
-
-#endif

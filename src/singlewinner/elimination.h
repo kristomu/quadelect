@@ -8,6 +8,7 @@
 #include "positional/simple_methods.h"
 
 #include <list>
+#include <memory>
 
 // Loser-elimination meta-method. This method takes a base method and
 // repeatedly disqualifies the loser (if loser-elimination) or those with a
@@ -20,7 +21,7 @@
 
 class loser_elimination : public election_method {
 	private:
-		const election_method * base;
+		std::shared_ptr<const election_method> base;
 
 		// If average_loser_elim is true, then all candidates at
 		// or below mean score is eliminated. If not, only the loser
@@ -52,7 +53,8 @@ class loser_elimination : public election_method {
 
 	public:
 
-		loser_elimination(const election_method * base_method,
+		loser_elimination(
+			std::shared_ptr<const election_method> base_method,
 			bool average_loser, bool use_first_diff);
 
 		std::string name() const {
@@ -86,8 +88,8 @@ template<typename T> class elim_shortcut : public election_method {
 		elim_shortcut(positional_type equal_rank_handling,
 			bool average_elimination, bool use_first_diff) :
 			positional_base(equal_rank_handling),
-			eliminator(&positional_base, average_elimination,
-				use_first_diff) {
+			eliminator(std::shared_ptr<T>(&positional_base),
+				average_elimination, use_first_diff) {
 			first_diff = use_first_diff;
 		}
 

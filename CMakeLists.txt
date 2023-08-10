@@ -158,6 +158,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/reference_tests/tests/rev_symmetry.cc
 	src/reference_tests/two_tests.cc
 	src/singlewinner/brute_force/rpn/chaotic_functions.cc
+	src/singlewinner/stats/cardinal.cc
 	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/confidence.cc
 	src/tests/provider.cc

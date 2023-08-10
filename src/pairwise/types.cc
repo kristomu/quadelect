@@ -52,10 +52,10 @@ void pairwise_type::set(const pairwise_ident & in) {
 
 // Pairwise producer, whose purpose is to list every possible strategy.
 
-std::list<pairwise_type> pairwise_producer::provide_all_strategies()
+std::vector<pairwise_type> pairwise_producer::provide_all_strategies()
 const {
 
-	std::list<pairwise_type> output;
+	std::vector<pairwise_type> output;
 
 	// This is what CM_FIRST and CM_LAST is for!
 

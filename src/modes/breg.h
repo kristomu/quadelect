@@ -4,15 +4,14 @@
 // Hm, have some kind of logic where if you add a method, it resets? Some way
 // of signaling this?
 
-#ifndef _VOTE_MODE_BR
-#define _VOTE_MODE_BR
+#pragma once
 
 #include "mode.h"
 #include "../stats/stats.h"
 #include "../generator/ballotgen.h"
 #include "../singlewinner/method.h"
-#include "../singlewinner/stats/cardinal.h"
 
+#include <memory>
 #include <vector>
 #include <list>
 
@@ -29,8 +28,8 @@ class bayesian_regret : public mode {
 
 		stats_type br_type;
 
-		std::vector<pure_ballot_generator *> generators;
-		std::vector<const election_method *> methods;
+		std::vector<std::shared_ptr<const pure_ballot_generator> > generators;
+		std::vector<std::shared_ptr<const election_method> > methods;
 		std::vector<stats<float> > method_stats;
 
 		std::vector<double> utilities;
@@ -46,15 +45,15 @@ class bayesian_regret : public mode {
 		// Altering the statistical type will clear the stats!
 		void set_br_type(const stats_type br_type_in);
 
-		void add_generator(pure_ballot_generator * to_add);
-		void add_method(const election_method * to_add);
+		void add_generator(std::shared_ptr<const pure_ballot_generator> to_add);
+		void add_method(std::shared_ptr<const election_method> to_add);
 		template<typename T> void add_generators(T start_iter,
 			T end_iter);
 		template<typename T> void add_methods(T start_iter,
 			T end_iter);
 
-		void clear_generators(bool do_delete);
-		void clear_methods(bool do_delete);
+		void clear_generators();
+		void clear_methods();
 		void reset_round_count() {
 			curiter = 0;
 		}
@@ -63,15 +62,15 @@ class bayesian_regret : public mode {
 			size_t min_cand_in, size_t max_cand_in,
 			size_t min_voters_in, size_t max_voters_in,
 			bool show_median_in, stats_type br_type_in,
-			std::list<pure_ballot_generator *> & generators_in,
-			std::list<const election_method *> & methods_in);
+			std::vector<std::shared_ptr<pure_ballot_generator> > & generators_in,
+			std::vector<std::shared_ptr<election_method> > & methods_in);
 
 		bayesian_regret(size_t maxiters_in,
 			size_t min_cand_in, size_t max_cand_in,
 			size_t min_voters, size_t max_voters,
 			bool show_median_in, stats_type br_type_in,
-			std::list<pure_ballot_generator *> & generators_in,
-			std::list<const election_method *> & methods_in);
+			std::vector<std::shared_ptr<pure_ballot_generator> > & generators_in,
+			std::vector<std::shared_ptr<election_method> > & methods_in);
 
 		// Create stats for a single method given by its index
 		// in the methods array.
@@ -117,5 +116,3 @@ template<typename T> void bayesian_regret::add_methods(T start_iter,
 		add_method(*iterator);
 	}
 }
-
-#endif

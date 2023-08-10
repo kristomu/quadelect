@@ -38,7 +38,7 @@
 // interpolation order to maximize effect.
 
 long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
-	const std::vector<const election_method *> & methods,
+	const std::vector<std::shared_ptr<const election_method> > & methods,
 	spatial_generator & ballotgen,
 	std::vector<std::vector<std::vector<std::vector<bool > > > > &
 	am_ac_winners,
@@ -447,7 +447,7 @@ bool yee::randomize_candidate_positions(rng & randomizer) {
 	return (true);
 }
 
-void yee::add_method(const election_method * to_add) {
+void yee::add_method(std::shared_ptr<const election_method> to_add) {
 	inited = false;
 	e_methods.push_back(to_add);
 }

@@ -14,13 +14,14 @@
 #include "../images/color/color.h"
 #include "../singlewinner/method.h"
 
+#include <memory>
 #include <vector>
 #include <string>
 
 class barycentric : public mode {
 
 	private:
-		std::vector<const election_method *> e_methods;
+		std::vector<std::shared_ptr<const election_method> > e_methods;
 		std::vector<std::vector<double> > cand_colors;
 
 		std::list<ballot_group>  generate_ballot_set(double x, double y,
@@ -58,7 +59,7 @@ class barycentric : public mode {
 		std::vector<std::string> provide_status() const;
 
 		// Add methods.
-		void add_method(const election_method * to_add);
+		void add_method(std::shared_ptr<const election_method > to_add);
 		template<typename T> void add_methods(T start_iter, T end_iter);
 };
 
