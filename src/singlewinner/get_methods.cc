@@ -117,7 +117,8 @@ std::vector<std::shared_ptr<pairwise_method> > get_pairwise_sets() {
 	// as a set.
 	pw_sets.push_back(std::make_shared<copeland>(CM_WV));
 
-	// I'm not sure that these work. Disabled for now.
+	// I'm not sure that these work; they need tests before
+	// I'm sure. Disabled for now.
 	/*
 		pw_sets.push_back(std::make_shared<sdom_set>());
 		pw_sets.push_back(std::make_shared<pdom_set>());
@@ -223,8 +224,8 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 	// TODO: Make tests to verify that methods behave similarly when
 	// elimination is done the "hard way" as when done by setting hopefuls
 	// variables to false.
-	/*std::vector<election_method *> expanded = expand_meta(all_methods,
-			pairwise_sets, true);*/
+	std::vector<std::shared_ptr<election_method> > expanded = expand_meta(
+			all_methods, sets, true);
 
 	// Finally add some sets, because these should not be used as bases
 	// for elimination methods.
@@ -234,9 +235,9 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 
 	copy(positional_methods.begin(), positional_methods.end(),
 		back_inserter(all_methods));
-	/*copy(posnl_expanded.begin(), posnl_expanded.end(),
+	copy(posnl_expanded.begin(), posnl_expanded.end(),
 		back_inserter(all_methods));
-	copy(expanded.begin(), expanded.end(), back_inserter(all_methods));*/
+	copy(expanded.begin(), expanded.end(), back_inserter(all_methods));
 
 	// Done!
 	return all_methods;
