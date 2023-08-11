@@ -66,8 +66,18 @@ class loser_elimination : public election_method {
 
 template<typename T> class elim_shortcut : public election_method {
 	private:
-		T positional_base;
-		loser_elimination eliminator;
+
+		// We need to use shared pointers for the positional
+		// base method and the eliminator because otherwise the
+		// base method will go out of scope before the eliminator,
+		// resulting in an invalid delete.
+
+		// I think there's a way to manually specify the order
+		// that parameters go out of scope, but I couldn't find
+		// out how, so this will have to do.
+
+		std::shared_ptr<T> positional_base;
+		std::shared_ptr<loser_elimination> eliminator;
 		bool first_diff;
 
 	protected:
@@ -80,21 +90,23 @@ template<typename T> class elim_shortcut : public election_method {
 			int num_candidates, cache_map * cache,
 			bool winner_only) const {
 
-			return eliminator.elect_detailed(papers, hopefuls,
+			return eliminator->elect_detailed(papers, hopefuls,
 					num_candidates, cache, winner_only);
 		}
 
 	public:
 		elim_shortcut(positional_type equal_rank_handling,
-			bool average_elimination, bool use_first_diff) :
-			positional_base(equal_rank_handling),
-			eliminator(std::shared_ptr<T>(&positional_base),
-				average_elimination, use_first_diff) {
+			bool average_elimination, bool use_first_diff) {
+
 			first_diff = use_first_diff;
+
+			positional_base = std::make_shared<T>(equal_rank_handling);
+			eliminator = std::make_shared<loser_elimination>(
+					positional_base, average_elimination, first_diff);
 		}
 
 		std::string name() const {
-			std::string name_out = positional_base.show_type() +
+			std::string name_out = positional_base->show_type() +
 				common_name();
 			if (first_diff) {
 				name_out += "/fd";
