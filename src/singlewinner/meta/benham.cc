@@ -1,7 +1,6 @@
 #include "benham.h"
 
 #include "../../pairwise/matrix.h"
-#include "../../pairwise/matrix.h"
 
 // For each way to remove a loser:
 //	Remove that loser
@@ -81,8 +80,7 @@ std::pair<ordering, bool> benham_meta::elect_inner(
 
 	ordering benham_ordering;
 
-	int i;
-	for (i = 0; i < num_candidates; ++i) {
+	for (int i = 0; i < num_candidates; ++i) {
 		// Add all the winners with a score higher than the max
 		// score by the base method.
 		if (is_winner[i]) {

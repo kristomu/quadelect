@@ -55,6 +55,8 @@ std::vector<std::shared_ptr<election_method> > expand_meta(
 					method_ptr, true, true));
 			combined.push_back(std::make_shared<loser_elimination>(
 					method_ptr, false, true));
+			combined.push_back(std::make_shared<chain_climbing>(
+					method_ptr));
 		}
 	}
 

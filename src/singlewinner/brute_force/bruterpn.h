@@ -75,7 +75,9 @@ class cond_brute_rpn : public election_method {
 		}
 
 		cond_brute_rpn(unsigned long long funct_code_in, bool is_generous) :
-			cfunct(funct_code_in, is_generous) {}
+			cfunct(funct_code_in, is_generous) {
+			set_funct_code(funct_code_in, is_generous);
+		}
 
 		std::string get_printable_representation() const {
 			std::vector<std::string> functs = cfunct.get_atom_printout();
