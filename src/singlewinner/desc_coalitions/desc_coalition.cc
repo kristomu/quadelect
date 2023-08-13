@@ -2,18 +2,18 @@
 #include <vector>
 
 void desc_coalition_method::sort_by_candidate(
-	std::vector<coalition_entry> & coalitions, int candidate) const {
+	std::vector<coalition_data> & coalitions, int candidate) const {
 
 	for (size_t i = 0; i < coalitions.size(); ++i) {
 		coalitions[i].priority_candidate = candidate;
 	}
 
 	std::sort(coalitions.begin(), coalitions.end(),
-		std::greater<coalition_entry>());
+		std::greater<coalition_data>());
 }
 
 bool desc_coalition_method::can_candidate_win(
-	std::vector<coalition_entry> & coalitions,
+	std::vector<coalition_data> & coalitions,
 	const std::set<int> & starting_candidate_set,
 	int candidate, int num_candidates) const {
 
@@ -21,7 +21,7 @@ bool desc_coalition_method::can_candidate_win(
 
 	std::set<int> coalition_so_far = starting_candidate_set;
 
-	for (std::vector<coalition_entry>::const_iterator pos = coalitions.begin();
+	for (std::vector<coalition_data>::const_iterator pos = coalitions.begin();
 		pos != coalitions.end(); ++pos) {
 
 		std::set<int> test_intersection;
@@ -67,7 +67,7 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 		}
 	}
 
-	std::vector<coalition_entry> coalitions = get_coalitions(papers,
+	std::vector<coalition_data> coalitions = get_coalitions(papers,
 			hopefuls, num_candidates);
 
 	ordering outcome;

@@ -41,7 +41,9 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc
 	src/config/general_rpn.cc)
 
-add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
+add_library(qe_singlewinner_methods
+	src/coalitions/coalitions.cc
+	src/singlewinner/get_methods.cc
 	src/singlewinner/acp/acp.cc
 	src/singlewinner/acp/general_acp.cc
 	src/singlewinner/brute_force/brute.cc
@@ -50,7 +52,6 @@ add_library(qe_singlewinner_methods src/singlewinner/get_methods.cc
 	src/singlewinner/contingent/contingent.cc
 	src/singlewinner/contingent/donation.cc
 	src/singlewinner/desc_coalitions/desc_coalition.cc
-	src/singlewinner/desc_coalitions/dsc.cc
 	src/singlewinner/dmt/fpa_fpc.cc
 	src/singlewinner/dmt/ifpp_like.cc
 	src/singlewinner/dmt/strat_ifpp.cc

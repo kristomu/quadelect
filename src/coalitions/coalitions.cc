@@ -1,27 +1,27 @@
-#include "dsc.h"
-#include <vector>
+#include "coalitions.h"
 
-// TODO: Update comments, make two functions (so HDSC will be easy).
+// TODO: Update comments, make a DAC function too (will be harder), and
+// then combine them into HDSC.
 // Also note for DAC that we need to construct all subsets of the implicit
 // equal-last candidates for truncated ballots.
 
-std::vector<coalition_entry> dsc::get_coalitions(
-	const std::list<ballot_group> & papers,
-	const std::vector<bool> & hopefuls, int num_candidates) const {
+std::vector<coalition_data> get_solid_coalitions(
+	const std::list<ballot_group> & elections,
+	const std::vector<bool> & hopefuls, int numcands) {
 
 	// Go through the ballot set, incrementing the coalition counts.
 
 	std::map<std::set<int>, double> coalition_count;
 	std::set<int> current_coalition, all_candidates;
 
-	for (int i = 0; i < num_candidates; ++i) {
+	for (int i = 0; i < numcands; ++i) {
 		if (hopefuls[i]) {
 			all_candidates.insert(i);
 		}
 	}
 
-	for (std::list<ballot_group>::const_iterator ballot = papers.begin();
-		ballot != papers.end(); ++ballot) {
+	for (std::list<ballot_group>::const_iterator ballot = elections.begin();
+		ballot != elections.end(); ++ballot) {
 
 		current_coalition.clear();
 
@@ -52,7 +52,7 @@ std::vector<coalition_entry> dsc::get_coalitions(
 		// If the ballot is truncated, add the coalition of all candidates
 		// also.
 
-		if (current_coalition.size() != (size_t)num_candidates) {
+		if (current_coalition.size() != (size_t)numcands) {
 			coalition_count[all_candidates] += ballot->get_weight();
 		}
 	}
@@ -60,11 +60,11 @@ std::vector<coalition_entry> dsc::get_coalitions(
 	// Convert the coalition counts into an array form that we can sort by
 	// support. The actual sorting happens inside get_candidate_score.
 
-	std::vector<coalition_entry> coalitions;
+	std::vector<coalition_data> coalitions;
 	for (std::map<std::set<int>, double>::const_iterator
 		pos = coalition_count.begin(); pos != coalition_count.end();
 		++pos) {
-		coalitions.push_back(coalition_entry(pos->second, pos->first));
+		coalitions.push_back(coalition_data(pos->second, pos->first));
 	}
 
 	return (coalitions);

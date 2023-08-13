@@ -55,23 +55,24 @@
 
 // which should have B win, not A.
 
-#ifndef _VOTE_DSC
-#define _VOTE_DSC
+#pragma once
 
 #include "desc_coalition.h"
 
 class dsc : public desc_coalition_method {
 
 	protected:
-		std::vector<coalition_entry> get_coalitions(
-			const std::list<ballot_group> & papers,
+		std::vector<coalition_data> get_coalitions(
+			const std::list<ballot_group> & election,
 			const std::vector<bool> & hopefuls,
-			int num_candidates) const;
+			int numcands) const {
+
+			return get_solid_coalitions(election,
+					hopefuls, numcands);
+		}
 
 	public:
 		std::string name() const {
 			return ("DSC");
 		}
 };
-
-#endif
