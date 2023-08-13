@@ -9,7 +9,8 @@
 // It takes another method as base method, and then, starting with the loser,
 // repeatedly adds in higher-ranked candidates as long as the candidate to
 // be added beats every candidate already added. If the candidate doesn't,
-// then the method ends with the last added candidate being the winner.
+// then that candidate is skipped. The final top of the chain gives the
+// winner.
 
 // Tiebreaks are handled by recursing over every order and using the
 // first seen tiebreaker on them, which in practice means every candidate

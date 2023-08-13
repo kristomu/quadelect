@@ -3,11 +3,12 @@
 // For each way to add a loser to the current chain:
 //	Check if it beats everybody currently in the chain
 //	If so:
-//		-	Remove that loser from the remaining base ordering
 //		-	Add it to the top of the chain
-//		-   Recurse.
-//	Otherwise:
-//		-	Add the current head of the chain to the list of winners.
+//  Then:
+//		- Remove that loser from the remaining base ordering.
+//		- Recurse.
+//		- Add the candidate back, and remove from the chain
+//			if it was added to it.
 
 // I initially wanted to set up a way to get a complete ordering,
 // where the second placers would be those who would've won if
@@ -24,7 +25,7 @@ void chain_climbing::determine_winners(
 	std::list<candscore> losers = ordering_tools::get_loser_candscores(
 			remaining_base_ordering);
 
-	int chains_extended = 0, candidates_tested = 0;
+	int candidates_tested = 0;
 
 	for (const candscore & loser: losers) {
 
@@ -44,12 +45,6 @@ void chain_climbing::determine_winners(
 					chain_member.get_candidate_num());
 		}
 
-		if (!beats_whole_chain) {
-			continue;
-		}
-
-		++chains_extended;
-
 		// Using the current chain size as a score ensures
 		// that the new member will be ranked above everybody
 		// else. We need this in order to identify the winners.
@@ -57,26 +52,26 @@ void chain_climbing::determine_winners(
 			current_chain.size());
 
 		remaining_base_ordering.erase(loser);
-		current_chain.insert(new_chain_top);
+
+		if (beats_whole_chain) {
+			current_chain.insert(new_chain_top);
+		}
 
 		determine_winners(condorcet_matrix, hopefuls,
 			winners_so_far, remaining_base_ordering,
 			current_chain);
 
 		remaining_base_ordering.insert(loser);
-		current_chain.erase(new_chain_top);
+		if (beats_whole_chain) {
+			current_chain.erase(new_chain_top);
+		}
 	}
 
-	// If the remaining ordering is empty or at least one of the
-	// candidates proposed to extend the chain with failed, that
-	// means that the current chain top (if any) is a winner.
+	// If the remaining base ordering didn't have any hopefuls
+	// in it, the current chain top must be the winner, if it
+	// isn't empty too.
 
-	// In the former case, we've run out of candidates so whoever
-	// was added to the top last wins. In the latter case, there's
-	// a candidate who can't be added to the chain, which makes the
-	// current top the champion.
-
-	if (chains_extended < candidates_tested || candidates_tested == 0) {
+	if (candidates_tested == 0) {
 		if (current_chain.empty()) {
 			return;
 		}
