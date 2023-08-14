@@ -92,11 +92,13 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/random/randcand.cc
 	src/singlewinner/sets/condorcet.cc
 	src/singlewinner/sets/debug/venzke_landau.cc
+	src/singlewinner/sets/dmt.cc
 	src/singlewinner/sets/max_elements/det_sets.cc
 	src/singlewinner/sets/max_elements/pdom.cc
 	src/singlewinner/sets/max_elements/sdom.cc
 	src/singlewinner/sets/max_elements/smith.cc
 	src/singlewinner/sets/mdd.cc
+	src/singlewinner/sets/mutual_majority.cc
 	src/singlewinner/sets/partition.cc
 	src/singlewinner/sets/topological.cc
 	src/singlewinner/stats/cardinal.cc

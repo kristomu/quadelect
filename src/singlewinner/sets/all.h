@@ -5,9 +5,11 @@
 #pragma once
 
 #include "condorcet.h"
+#include "dmt.h"
 #include "mdd.h"
 #include "partition.h"
 #include "topological.h"
+#include "mutual_majority.h"
 
 #include "debug/venzke_landau.h"
 

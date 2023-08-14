@@ -128,14 +128,14 @@ std::vector<std::shared_ptr<pairwise_method> > get_pairwise_sets() {
 }
 
 std::vector<std::shared_ptr<election_method> > get_sets() {
-	// All our sets for now are based on pairwise stats, but more may
-	// be added later, e.g. the DMT set or the mutual majority set.
-
 	std::vector<std::shared_ptr<election_method> > sets;
 
 	for (std::shared_ptr<election_method> em_set: get_pairwise_sets()) {
 		sets.push_back(em_set);
 	}
+
+	sets.push_back(std::make_shared<mutual_majority_set>());
+	sets.push_back(std::make_shared<dmt_set>());
 
 	return sets;
 }
