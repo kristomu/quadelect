@@ -165,3 +165,7 @@ template <typename T> void get_first_token_on_lines(std::ifstream & source,
 		out.push_back(next_integer);
 	}
 }
+
+// Get the power set of a set of a given cardinality as a vector of
+// boolean vectors.
+std::vector<std::vector<bool> > power_set(int cardinality);

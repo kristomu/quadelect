@@ -402,3 +402,39 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 
 	return (output);
 }
+
+// Power sets. First an internal recursive function...
+void add_to_power_set(
+	std::vector<std::vector<bool> > & power_set_out,
+	std::vector<bool> & to_expand_on,
+	int current_position, int cardinality) {
+
+	if (current_position >= cardinality) {
+		power_set_out.push_back(to_expand_on);
+		return;
+	}
+
+	to_expand_on[current_position] = false;
+
+	add_to_power_set(power_set_out, to_expand_on,
+		current_position+1, cardinality);
+
+	to_expand_on[current_position] = true;
+
+	add_to_power_set(power_set_out, to_expand_on,
+		current_position+1, cardinality);
+
+	to_expand_on[current_position] = false;
+}
+
+std::vector<std::vector<bool> > power_set(int cardinality) {
+	std::vector<std::vector<bool> > power_set_out;
+	std::vector<bool> set_template(cardinality, false);
+
+	add_to_power_set(power_set_out, set_template, 0,
+		cardinality);
+
+	assert(power_set_out.size() == (1ULL << cardinality));
+
+	return power_set_out;
+}
