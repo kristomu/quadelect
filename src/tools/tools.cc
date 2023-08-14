@@ -405,6 +405,7 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 
 // Power sets. First an internal recursive function...
 void add_to_power_set(
+	const std::vector<bool> & hopefuls,
 	std::vector<std::vector<bool> > & power_set_out,
 	std::vector<bool> & to_expand_on,
 	int current_position, int cardinality) {
@@ -416,25 +417,42 @@ void add_to_power_set(
 
 	to_expand_on[current_position] = false;
 
-	add_to_power_set(power_set_out, to_expand_on,
-		current_position+1, cardinality);
+	add_to_power_set(hopefuls, power_set_out,
+		to_expand_on, current_position+1, cardinality);
+
+	if (!hopefuls[current_position]) {
+		return;
+	}
 
 	to_expand_on[current_position] = true;
 
-	add_to_power_set(power_set_out, to_expand_on,
-		current_position+1, cardinality);
+	add_to_power_set(hopefuls, power_set_out,
+		to_expand_on, current_position+1, cardinality);
 
 	to_expand_on[current_position] = false;
 }
 
-std::vector<std::vector<bool> > power_set(int cardinality) {
+std::vector<std::vector<bool> > power_set(
+	const std::vector<bool> & hopefuls) {
+
 	std::vector<std::vector<bool> > power_set_out;
-	std::vector<bool> set_template(cardinality, false);
+	std::vector<bool> set_template(hopefuls.size(), false);
 
-	add_to_power_set(power_set_out, set_template, 0,
-		cardinality);
+	add_to_power_set(hopefuls, power_set_out, set_template, 0,
+		hopefuls.size());
 
-	assert(power_set_out.size() == (1ULL << cardinality));
+	int num_hopefuls = 0;
+	for (bool hopeful: hopefuls) {
+		if (hopeful) {
+			++num_hopefuls;
+		}
+	}
+
+	assert(power_set_out.size() == (1ULL << num_hopefuls));
 
 	return power_set_out;
+}
+
+std::vector<std::vector<bool> > power_set(int cardinality) {
+	return power_set(std::vector<bool>(cardinality, true));
 }

@@ -6,10 +6,11 @@
 
 #include "condorcet.h"
 #include "dmt.h"
+#include "inner_burial.h"
 #include "mdd.h"
+#include "mutual_majority.h"
 #include "partition.h"
 #include "topological.h"
-#include "mutual_majority.h"
 
 #include "debug/venzke_landau.h"
 

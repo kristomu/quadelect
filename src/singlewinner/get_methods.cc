@@ -136,6 +136,7 @@ std::vector<std::shared_ptr<election_method> > get_sets() {
 
 	sets.push_back(std::make_shared<mutual_majority_set>());
 	sets.push_back(std::make_shared<dmt_set>());
+	sets.push_back(std::make_shared<inner_burial_set>());
 
 	return sets;
 }
