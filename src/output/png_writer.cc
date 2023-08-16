@@ -4,6 +4,8 @@
 #include <fstream>
 #include <stdexcept>
 
+#include <zlib.h>
+
 png_byte png_writer::clamp_color(double intensity_in) const {
 	int color = round(256 * intensity_in);
 
@@ -26,6 +28,12 @@ void png_writer::init_png_file(std::string filename,
 	png_ptr = png_create_write_struct(
 			PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
+	// Set parameters that work well for Yee.
+	// (High compression and memory level)
+	png_set_compression_level(png_ptr, 9);
+	png_set_compression_mem_level(png_ptr, 9);
+	png_set_compression_strategy(png_ptr, Z_FILTERED);
+
 	if (!png_ptr) {
 		throw std::runtime_error("png_writer: "
 			"Could not create PNG struct!");
@@ -36,9 +44,6 @@ void png_writer::init_png_file(std::string filename,
 		throw std::runtime_error("png_writer: "
 			"Could not create PNG info struct!");
 	}
-
-	// Set max compression.
-	png_set_compression_level(png_ptr, 9);
 
 	fp = fopen(filename.c_str(), "wb");
 	if (!fp) {
