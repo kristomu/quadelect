@@ -507,6 +507,16 @@ bool yee::init(rng & randomizer) {
 	}
 
 	inited = true;
+
+	// Each round, we draw a new row. However, if we want to have
+	// accurate predictions of the time needed to finish, there should
+	// be no consistent bias (e.g. top-heavy rounds). So create a random
+	// mapping of rows to round numbers so that the picture will be drawn in
+	// a random order.
+	round_row_mapping.resize(x_size);
+	std::iota(round_row_mapping.begin(), round_row_mapping.end(), 0);
+	std::random_shuffle(round_row_mapping.begin(), round_row_mapping.end());
+
 	return (true);
 }
 
@@ -532,12 +542,15 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 
 	// Still determining points?
 	if (cur_round < x_size) {
-		output = "Yee: drawing x = " + itos(cur_round);
+		int row_number = round_row_mapping[cur_round];
+
+		output = "Yee: round " + itos(cur_round) + "/" + itos(get_max_rounds())
+			+ ": drawing x = " + itos(row_number);
 
 		long long grand_sum = 0;
 
 		for (int y = 0; y < y_size; ++y) {
-			long long contrib = check_pixel(cur_round, y, x_size, y_size,
+			long long contrib = check_pixel(row_number, y, x_size, y_size,
 					e_methods, *voter_pdf,
 					winners_all_m_all_cand,
 					min_num_voters, max_num_voters,
@@ -546,8 +559,8 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 					randomizer);
 
 			if (contrib == -1) {
-				std::cerr << "Yee: error at x " << cur_round <<
-					", y " << y << std::endl;
+				std::cerr << "Yee: error at round " << cur_round
+					<< ", x = " << row_number << ", y = " << y << std::endl;
 				return ("");
 			}
 
@@ -557,7 +570,7 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 		output += ", " + lltos(grand_sum) + " voters in all.";
 		++cur_round;
 	} else {
-		// No, draw the next picture.
+		// No, output the picture to disk.
 		size_t method_no = cur_round - x_size;
 
 		if (method_no >= e_methods.size()) {

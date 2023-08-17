@@ -254,6 +254,111 @@ template<typename Q> std::vector<Q> intersect_by_file(
 	return get_name_intersection(container, accepted);
 }
 
+// ETA calculation and reasonable intervals (I won't call them CIs because
+// the distribution can be arbitrarily skewed and thus the estimates can be
+// arbitrarily wrong).
+
+// This is *very* quick and dirty. For one, it uses standard random: it should
+// use a secondary RNG seeded from an entropy source. Then I should say something
+// about how the seed is not used for the ETA calculation etc... really, I should
+// have multiple streams and dedicate one of them to this kind of "irrelevant"
+// random number consumption.
+
+double get_mean(const std::vector<double> & vec) {
+	return std::accumulate(vec.begin(), vec.end(), 0.0) / (double)vec.size();
+}
+
+std::vector<double> bootstrap_means(const std::vector<double> & y,
+	size_t bootstrap_samples, size_t samples_per_bootstrap) {
+
+	std::vector<double> means;
+
+	for (size_t i = 0; i < bootstrap_samples; ++i) {
+		std::vector<double> bootstrap;
+
+		for (size_t j = 0; j < samples_per_bootstrap; ++j) {
+			bootstrap.push_back(y[random() % y.size()]);
+		}
+
+		means.push_back(get_mean(bootstrap));
+	}
+
+	// Sort the means because we're going to use them for interval
+	// estimation.
+
+	std::sort(means.begin(), means.end());
+
+	return means;
+}
+
+struct time_estimate {
+	double start_time, now;
+	double fast_completion_time;
+	double mean_completion_time;
+	double slow_completion_time;
+	double fast_eta, mean_eta, slow_eta;
+};
+
+time_estimate get_time_estimate(
+	const std::vector<double> & time_elapsed_per_round,
+	size_t cur_round, size_t total_rounds, double start_time,
+	double time_now) {
+
+	// TODO: Modify
+	size_t bootstrap_samples = 500, samples_per_bootstrap = 500;
+
+	// TODO: Should also do multiple testing correction here so that if
+	// the ETA schedule is shown 1000 times, all the times as a whole
+	// should have a 95% c.i. equivalent. (Shouldn't we?)
+	double ci = 0.95;
+
+	std::vector<double> means = bootstrap_means(time_elapsed_per_round,
+			bootstrap_samples, samples_per_bootstrap);
+
+	// The returned means will be of time elapsed per instance, not
+	// the total time expected until completion, so we need to do
+	// a bit of juggling to translate.
+
+	// It might also be better to project from now, i.e.
+	// now + (total_rounds - current_instance) * ...
+	// Doing so will ensure that the contribution of the prediction to
+	// the total time shrinks to zero as we near the end. Fix later.
+
+	time_estimate out;
+	out.start_time = start_time;
+	out.now = time_now;
+	out.fast_completion_time = time_now +
+		(total_rounds - cur_round) * means[means.size() * (1-ci)];
+	out.slow_completion_time = time_now +
+		(total_rounds - cur_round) * means[means.size() * ci];
+	out.mean_completion_time = time_now +
+		(total_rounds - cur_round) * get_mean(time_elapsed_per_round);
+
+	out.fast_eta = out.fast_completion_time - time_now;
+	out.slow_eta = out.slow_completion_time - time_now;
+	out.mean_eta = out.mean_completion_time - time_now;
+
+	return out;
+}
+
+void print_time_estimate(
+	const std::vector<double> & time_elapsed_per_round,
+	size_t cur_round, size_t total_rounds, double start_time,
+	double time_now) {
+
+	time_estimate this_estimate = get_time_estimate(time_elapsed_per_round,
+			cur_round, total_rounds, start_time, time_now);
+
+	std::cout << "\tEstimated time until completion: " <<
+		this_estimate.mean_eta << "s (" << this_estimate.fast_eta
+		<< "s - " << this_estimate.slow_eta << "s)" << std::endl;
+	std::cout << "\tFinish times: " << this_estimate.mean_completion_time -
+		start_time << "s ("
+		<< this_estimate.fast_completion_time - start_time << " - " <<
+		this_estimate.slow_completion_time - start_time << ")" << std::endl;
+	std::cout << "\tNow: " << time_now - start_time << std::endl;
+}
+
 void print_usage_info(std::string program_name) {
 
 	std::cout << "Quadelect, election method analysis tool." << std::endl <<
@@ -352,8 +457,7 @@ int main(int argc, char * * argv) {
 		breg_min_voters = 4, breg_max_voters = 200, breg_report_freq = 100;
 
 	bool run_yee = false, run_breg = false, run_int = false, run_bary = false,
-		 list_methods = false, list_gen = false, list_int = false,
-		 use_exp_averaging = false;
+		 list_methods = false, list_gen = false, list_int = false;
 	int run_how_many = 0;
 
 	bool constrain_methods = false, constrain_generators = false,
@@ -712,10 +816,6 @@ int main(int argc, char * * argv) {
 
 		mode_running = &yee_mode;
 
-		// Yee diagrams with autopilot takes a lot longer time in the
-		// middle than in the beginning, so we should use an exponential
-		// average. Better might be to draw the lines in random order.
-		use_exp_averaging = true;
 	}
 
 	if (run_breg) {
@@ -736,13 +836,6 @@ int main(int argc, char * * argv) {
 				breg_min_voters, breg_max_voters, randomizer);
 
 		mode_running = &br_mode;
-
-		// Bayesian regret calculations are fairly consistent as far as
-		// time is concerned (has no time-depending factor), but it can
-		// oscillate wildly, particularly with methods like Kemeny or
-		// Yee that can take a very long time in the worst case. Thus,
-		// we shouldn't use exponential averaging.
-		use_exp_averaging = false;
 	}
 
 	if (run_bary) {
@@ -768,52 +861,26 @@ int main(int argc, char * * argv) {
 		}
 
 		mode_running = &int_mode.second;
-
-		use_exp_averaging = false;
 	}
 
 	std::string progress;
-	double start_time = get_abs_time(), cur_checkpoint = start_time,
-		   cur_disp_checkpoint = start_time;
-	double per_round = -1;
+	double start_time = get_abs_time(), cur_checkpoint = start_time;
+
+	std::vector<double> time_elapsed_per_round;
 
 	while ((progress = mode_running->do_round(true, false, randomizer))
 		!= "") {
 		std::cout << progress << std::endl;
 
 		double this_instance = (get_abs_time() - cur_checkpoint);
+		time_elapsed_per_round.push_back(this_instance);
 
-		if (per_round < 0)  {
-			per_round = this_instance;
-		} else {
-			// Change more quickly if there are few values backing
-			// the result.
-			double factor = std::max(0.03, 1 / (double)(mode_running->
-						get_current_round()));
-			// Exponential averaging for ETA.
-			per_round = per_round * (1-factor) + this_instance *
-				factor;
-		}
+		print_time_estimate(time_elapsed_per_round,
+			mode_running->get_current_round(),
+			mode_running->get_max_rounds(), start_time,
+			get_abs_time());
 
 		cur_checkpoint = get_abs_time();
-
-		if (get_abs_time() - cur_disp_checkpoint > 2) {
-			double elapsed_time = get_abs_time()-start_time;
-
-			if (!use_exp_averaging)
-				per_round = elapsed_time / (double)
-					mode_running->get_current_round();
-
-			std::cout << "\t [Has run for " << elapsed_time
-				<< "s. ETA: " << per_round * (mode_running->
-					get_max_rounds()-mode_running->
-					get_current_round()) << "s, "<<
-				" for a total of " <<
-				per_round * mode_running->get_max_rounds() <<
-				" s. ]" << std::endl;
-
-			cur_disp_checkpoint = cur_checkpoint;
-		}
 
 		bool should_display_stats = false;
 		// If we're at the last round or if at the breg_report_freq and

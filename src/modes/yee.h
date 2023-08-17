@@ -50,6 +50,9 @@ class yee : public mode {
 		// For caching.
 		cache_map cmap;
 
+		// Round-row mapping to remove bias when calculating ETA.
+		std::vector<double> round_row_mapping;
+
 		// This function generates hex-style "codenames" for each method
 		// so the mode doesn't overwrite pictures when dealing with more
 		// than one method at a time. It's generated from a hash function.
