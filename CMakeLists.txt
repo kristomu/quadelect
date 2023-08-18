@@ -166,6 +166,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/singlewinner/stats/cardinal.cc
 	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/confidence.cc
+	src/stats/quasirandom/r_sequence.cc
 	src/tests/provider.cc
 	src/tests/runner.cc
 	src/tests/strategy/ballots_by_support.cc
