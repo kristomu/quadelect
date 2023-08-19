@@ -56,7 +56,6 @@
 // Interpreter itself.
 #include "../modes/interpret.h"
 
-
 // This should really be put into a file associated with all.h
 std::vector<std::shared_ptr<pure_ballot_generator> > get_all_generators(
 	bool compress, bool truncate) {
@@ -100,11 +99,12 @@ bayesian_regret setup_regret(
 	return (br);
 }
 
-yee setup_yee(std::vector<std::shared_ptr<election_method> > & methods,
+template<typename T> yee setup_yee(
+	std::vector<std::shared_ptr<election_method> > & methods,
 	int num_voters, int num_cands,
 	bool do_use_autopilot, std::string case_prefix, int picture_size,
-	double sigma, gaussian_generator & gaussian,
-	uniform_generator & uniform, rng & randomizer) {
+	double sigma, T & gaussian, uniform_generator & uniform,
+	rng & randomizer) {
 
 	yee to_output;
 
@@ -269,14 +269,14 @@ double get_mean(const std::vector<double> & vec) {
 }
 
 std::vector<double> bootstrap_means(const std::vector<double> & y,
-	size_t bootstrap_samples, size_t samples_per_bootstrap) {
+	size_t bootstrap_samples) {
 
 	std::vector<double> means;
 
 	for (size_t i = 0; i < bootstrap_samples; ++i) {
 		std::vector<double> bootstrap;
 
-		for (size_t j = 0; j < samples_per_bootstrap; ++j) {
+		for (size_t j = 0; j < y.size(); ++j) {
 			bootstrap.push_back(y[random() % y.size()]);
 		}
 
@@ -305,7 +305,7 @@ time_estimate get_time_estimate(
 	double time_now) {
 
 	// TODO: Modify
-	size_t bootstrap_samples = 500, samples_per_bootstrap = 500;
+	size_t bootstrap_samples = 500;
 
 	// TODO: Should also do multiple testing correction here so that if
 	// the ETA schedule is shown 1000 times, all the times as a whole
@@ -313,7 +313,7 @@ time_estimate get_time_estimate(
 	double ci = 0.95;
 
 	std::vector<double> means = bootstrap_means(time_elapsed_per_round,
-			bootstrap_samples, samples_per_bootstrap);
+			bootstrap_samples);
 
 	// The returned means will be of time elapsed per instance, not
 	// the total time expected until completion, so we need to do
@@ -438,6 +438,8 @@ void print_usage_info(std::string program_name) {
 		"pixel.\n\t\t\tDefault is 1000." << std::endl;
 	std::cout << "\t-yc [cands]\tPlace [cands] random candidates on the Yee"<<
 		" map.\n\t\t\tDefault is 4." << std::endl;
+	std::cout << "\t-yq\t\tUse Quasi-Monte Carlo. This is faster but still "
+		"\n\t\t\texperimental. Default is no.\n" << std::endl;
 	std::cout << std::endl;
 	std::cout << "Barycentric characterization options:" << std::endl;
 	std::cout << "\t-c\t\tEnable voter method barycentric visualization." <<
@@ -450,7 +452,7 @@ int main(int argc, char * * argv) {
 
 	double yee_sigma = 0.3;
 	int yee_size = 240, yee_voters = 1000, yee_candidates = 4;
-	bool yee_autopilot = true;
+	bool yee_autopilot = true, yee_quasi_gaussian = false;
 	std::string yee_prefix = "default";
 
 	int breg_rounds = 20000, breg_min_cands = 3, breg_max_cands = 20,
@@ -499,12 +501,13 @@ int main(int argc, char * * argv) {
 		{"yp", required_argument, 0, 'k'},
 		{"yv", required_argument, 0, 'l'},
 		{"yc", required_argument, 0, 'n'},
+		{"yq", no_argument, 0, 's'},
 		{0, 0, 0, 0}
 	};
 
 	int c, option_index = 0, opt_flag;
 
-	while ((c = getopt_long_only(argc, argv, "ebycMGIim:g:r:",
+	while ((c = getopt_long_only(argc, argv, "ebycMGIim:g:r:s",
 					long_options, &option_index)) != -1) {
 
 		if (option_index != 0) {
@@ -603,6 +606,9 @@ int main(int argc, char * * argv) {
 								"least two candidates." << std::endl;
 							return -1;
 						}
+						break;
+					case 's': // -yq	Yee: enable quasi-gaussian
+						yee_quasi_gaussian = true;
 						break;
 					case 'p': // -ic [filename]
 						int_constraint_fn = ext;
@@ -789,11 +795,18 @@ int main(int argc, char * * argv) {
 
 	uniform_generator uniform(true, false);
 	gaussian_generator gaussian(true, false);
+	quasi_gaussian_generator qgaussian(true, false);
 
 	if (run_yee) {
 		std::cout << "Setting up Yee..." << std::endl;
 		std::cout << "\t\t- sigma: " << yee_sigma << std::endl;
 		std::cout << "\t\t- picture size: " << yee_size << std::endl;
+		std::cout << "\t\t- integration mode: ";
+		if (yee_quasi_gaussian) {
+			std::cout << "Quasi-Monte Carlo\n";
+		} else {
+			std::cout << "Monte Carlo\n";
+		}
 		std::cout << "\t\t- max number of voters: " << yee_voters << std::endl;
 		std::cout << "\t\t- number of candidates: " << yee_candidates << std::endl;
 		std::cout << "\t\t- autopilot: ";
@@ -810,9 +823,15 @@ int main(int argc, char * * argv) {
 				"long time." << std::endl;
 		}
 
-		yee_mode = setup_yee(methods, yee_voters, yee_candidates,
-				yee_autopilot, yee_prefix, yee_size, yee_sigma,
-				gaussian, uniform, randomizer);
+		if (yee_quasi_gaussian) {
+			yee_mode = setup_yee(methods, yee_voters, yee_candidates,
+					yee_autopilot, yee_prefix, yee_size, yee_sigma,
+					qgaussian, uniform, randomizer);
+		} else {
+			yee_mode = setup_yee(methods, yee_voters, yee_candidates,
+					yee_autopilot, yee_prefix, yee_size, yee_sigma,
+					gaussian, uniform, randomizer);
+		}
 
 		mode_running = &yee_mode;
 
