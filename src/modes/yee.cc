@@ -224,10 +224,9 @@ void yee::draw_pictures(std::string prefix,
 			// inner). If not, go ahead and plunk down our pixel.
 
 			if (is_home) {
-				if (inner_border_of != -1)
-					prospective_pixel = cand_colors[
-			inner_border_of];
-				else
+				if (inner_border_of != -1) {
+					prospective_pixel = cand_colors[inner_border_of];
+				} else
 					for (color_idx = 0; color_idx < 3; ++color_idx) {
 						prospective_pixel[color_idx] = 0;
 					}

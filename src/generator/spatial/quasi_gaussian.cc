@@ -15,6 +15,12 @@ std::pair<double, double> quasi_gaussian_generator::grnd(double sigma_in,
 	// sampling will interact with the low disc sequence. It may be fine.
 	// TODO, test.
 
+	// At least Box-Muller itself is fine:
+	// ÖKTEN, Giray; GÖNCÜ, Ahmet. Generating low-discrepancy sequences from the
+	// normal distribution: Box–Muller or inverse transform?. Mathematical and
+	// Computer Modelling, 2011, 53.5-6: 1268-1281.
+	// https://doi.org/10.1016/j.mcm.2010.12.011
+
 	quasi_out = qmc_sampler.next();
 
 	double r = sqrt(-2 * log(quasi_out[0]));

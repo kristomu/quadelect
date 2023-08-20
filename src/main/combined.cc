@@ -438,8 +438,9 @@ void print_usage_info(std::string program_name) {
 		"pixel.\n\t\t\tDefault is 1000." << std::endl;
 	std::cout << "\t-yc [cands]\tPlace [cands] random candidates on the Yee"<<
 		" map.\n\t\t\tDefault is 4." << std::endl;
-	std::cout << "\t-yq\t\tUse Quasi-Monte Carlo. This is faster but still "
-		"\n\t\t\texperimental. Default is no.\n" << std::endl;
+	std::cout << "\t-yq\t\tUse Quasi-Monte Carlo. This generally gives more"<<
+		"\n\t\t\taccurate results, but may have side effects on"<<
+		"\n\t\t\ttie-prone methods. Default is no.\n" << std::endl;
 	std::cout << std::endl;
 	std::cout << "Barycentric characterization options:" << std::endl;
 	std::cout << "\t-c\t\tEnable voter method barycentric visualization." <<
@@ -465,6 +466,9 @@ int main(int argc, char * * argv) {
 	bool constrain_methods = false, constrain_generators = false,
 		 constrain_ints = false;
 
+	// TODO: Silently add experimental methods but don't show them in the
+	// listing provided to the user so that they can still be forced if
+	// necessary.
 	bool include_experimental = false;
 
 	std::string method_constraint_fn, generator_constraint_fn,
