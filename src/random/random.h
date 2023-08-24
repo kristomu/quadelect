@@ -13,11 +13,13 @@
 #include <iostream>
 #include <cstddef>
 
+#include "../stats/coordinate_gen.h"
+
 #define rseed_t uint64_t
 // Set seed to this to draw seed from entropy source.
 #define RNG_ENTROPY 0
 
-class rng {
+class rng : public coordinate_gen {
 	private:
 		uint64_t initial_seed;
 		uint64_t seed[2];				// Actually the RNG's state
@@ -52,6 +54,8 @@ class rng {
 
 		uint32_t irand(uint32_t modulus);
 		uint32_t irand(uint32_t begin, uint32_t end);
+
+		std::vector<double> get_coordinate(size_t dimension);
 
 		// Used for random_shuffle etc. Assumes pointers are no longer
 		// than 64 bit. Perhaps using () is a bit of a hack, but the

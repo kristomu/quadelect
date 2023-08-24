@@ -10,8 +10,10 @@
 // to program.
 
 #include <vector>
+#include <stdexcept>
+#include "../coordinate_gen.h"
 
-class r_sequence {
+class r_sequence : public coordinate_gen {
 	private:
 		std::vector<double> alpha_roots;
 		std::vector<double> current_state, current_point;
@@ -31,9 +33,21 @@ class r_sequence {
 
 		// Maybe I could make this into an iterator... :-P
 
+		// TODO: Seeding (skip to a certain point) so we can
+		// make it at least a *bit* random for repeated trials/
+		// hybrid Monte Carlo.
+
 		std::vector<double> cur() const {
 			return current_point;
 		}
 
 		std::vector<double> next();
+
+		std::vector<double> get_coordinate(size_t dimension) {
+			if (dimension != current_state.size()) {
+				throw std::invalid_argument("get_coordinate: Dimension mismatch");
+			}
+
+			return next();
+		}
 };

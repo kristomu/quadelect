@@ -177,6 +177,16 @@ uint32_t rng::irand(uint32_t begin, uint32_t end) {
 	return (begin + irand(end-begin));
 }
 
+std::vector<double> rng::get_coordinate(size_t dimension) {
+	std::vector<double> out(dimension);
+
+	for (size_t i = 0; i < dimension; ++i) {
+		out[i] = drand();
+	}
+
+	return out;
+}
+
 /*main() {
 
 	long double accumulated = 0;
