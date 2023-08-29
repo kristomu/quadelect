@@ -439,8 +439,9 @@ void print_usage_info(std::string program_name) {
 	std::cout << "\t-yc [cands]\tPlace [cands] random candidates on the Yee"<<
 		" map.\n\t\t\tDefault is 4." << std::endl;
 	std::cout << "\t-yq\t\tUse Quasi-Monte Carlo. This generally gives more"<<
-		"\n\t\t\taccurate results, but may have side effects on"<<
-		"\n\t\t\ttie-prone methods. Default is no.\n" << std::endl;
+		"\n\t\t\taccurate results, but requires autopilot to be"<<
+		"\n\t\t\tdisabled and may have side effects on methods"<<
+		"\n\t\t\tthat break ties randomly. Default is no.\n" << std::endl;
 	std::cout << std::endl;
 	std::cout << "Barycentric characterization options:" << std::endl;
 	std::cout << "\t-c\t\tEnable voter method barycentric visualization." <<
@@ -613,6 +614,7 @@ int main(int argc, char * * argv) {
 						break;
 					case 's': // -yq	Yee: enable quasi-gaussian
 						yee_quasi_gaussian = true;
+						yee_autopilot = false; // Autopilot interferes
 						break;
 					case 'p': // -ic [filename]
 						int_constraint_fn = ext;
