@@ -40,7 +40,7 @@ std::vector<coord> get_candidate_points(size_t numcands) {
 	return candidate_coords;
 }
 
-/*coord get_voter_point(double x_mean, double y_mean,
+coord get_voter_point_boxmuller(double x_mean, double y_mean,
 	double std_dev) {
 
 	coord voter_coord;
@@ -52,9 +52,11 @@ std::vector<coord> get_candidate_points(size_t numcands) {
 	voter_coord.y = y_mean + std_dev * r * sin(theta);
 
 	return voter_coord;
-}*/
+}
 
-coord get_voter_point(double x_mean, double y_mean,
+// This is ever so slightly faster than Box-Muller, but it consumes
+// more entropy.
+coord get_voter_point_marsaglia(double x_mean, double y_mean,
 	double std_dev) {
 
 	coord voter_coord;
@@ -150,11 +152,11 @@ std::vector<std::vector<size_t> > do_yee(
 	coord voter_pt;
 	std::vector<double> scores(numcands, 0);
 
-	for (int x = 0; x < xsize; ++x) {
+	for (size_t x = 0; x < xsize; ++x) {
 		std::cout << x << std::endl;
-		for (int y = 0; y < ysize; ++y) {
-			for (int voter = 0; voter < numvoters; ++voter) {
-				voter_pt = get_voter_point(x/(double)xsize,
+		for (size_t y = 0; y < ysize; ++y) {
+			for (size_t voter = 0; voter < numvoters; ++voter) {
+				voter_pt = get_voter_point_marsaglia(x/(double)xsize,
 						y/(double)ysize, 0.3);
 				set_voter_scores(voter_pt, candidate_coords,
 					scores);
@@ -174,9 +176,11 @@ std::vector<std::vector<size_t> > do_yee(
 
 int main() {
 
-	int numcands = 10; // 10
-	int numvoters = 2000; // 20k
-	int img_dim = 50; // 200
+	int numcands = 10;
+	int numvoters = 1942;
+	int img_dim = 150;
+
+	std::cout << "Starting Yee benchmark." << std::endl;
 
 	std::vector<std::vector<size_t> > borda_winners =
 		do_yee(numcands, numvoters, img_dim, img_dim);
