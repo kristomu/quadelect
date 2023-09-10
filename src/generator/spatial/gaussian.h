@@ -5,8 +5,7 @@
 // BLUESKY: Use Gaussian integrals to find an exact solution (requires
 // knowledge of the areas of voters that vote A > B > C, etc)
 
-#ifndef _VOTE_BG_GAUSSIAN
-#define _VOTE_BG_GAUSSIAN
+#pragma once
 
 #include "spatial.h"
 #include <vector>
@@ -15,18 +14,17 @@
 
 class gaussian_generator : public spatial_generator {
 	private:
-		// TODO: Ziggurat instead.
 		std::pair<double, double> grnd(double sigma_in,
-			rng & random_source) const;
+			coordinate_gen & coord_source) const;
 		std::pair<double, double> grnd(double mean_in, double sigma_in,
-			rng & random_source) const;
+			coordinate_gen & coord_source) const;
 		std::pair<double, double> grnd(double xmean, double ymean,
-			double sigma_in, rng & random_source) const;
+			double sigma_in, coordinate_gen & coord_source) const;
 		// Get preferences according to distance.
 
 	protected:
 		std::vector<double> rnd_vector(size_t size,
-			rng & random_source) const;
+			coordinate_gen & coord_source) const;
 
 	public:
 		gaussian_generator() : spatial_generator() {
@@ -54,4 +52,3 @@ class gaussian_generator : public spatial_generator {
 
 		std::string name() const;
 };
-#endif

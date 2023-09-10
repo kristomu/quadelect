@@ -10,20 +10,27 @@
 #include <vector>
 
 
-// TODO: FIX!!! Needs to have multidimensional sigma or none at all!
+// If we need it later, implement a general covariance matrix.
 
 std::pair<double, double> gaussian_generator::grnd(double sigma_in,
-	rng & random_source) const {
+	coordinate_gen & coord_source) const {
 
 	// Box-Mueller, dammit. We really should have something that requires
 	// only a single invocation of the RNG in most situations, but bah.
 
 	double x = 0, y = 0, rad = 0;
 
+	// TODO: ??? Why are we interested only in 2D here? Well, that's
+	// because grnd implicitly returns two Gaussians, because that's
+	// how Marsaglia's method works. But consider how we would
+	// generalize this for multidimensional Gaussians...
+	std::vector<double> coordinates(2);
+
 	while (rad > 1.0 || rad == 0) {
+		coordinates = coord_source.get_coordinate(2);
 		// Choose x,y on the square (-1, -1) to (+1, +1)
-		x = -1 + 2 * random_source.drand();
-		y = -1 + 2 * random_source.drand();
+		x = -1 + 2 * coordinates[0];
+		y = -1 + 2 * coordinates[1];
 
 		// Calculate the squared radius from origin to see if we're
 		// within the unit circle.
@@ -37,21 +44,20 @@ std::pair<double, double> gaussian_generator::grnd(double sigma_in,
 }
 
 std::pair<double, double> gaussian_generator::grnd(double xmean,
-	double ymean,
-	double sigma_in, rng & random_source) const {
-	std::pair<double, double> unadorned = grnd(sigma_in, random_source);
+	double ymean, double sigma_in, coordinate_gen & coord_source) const {
+	std::pair<double, double> unadorned = grnd(sigma_in, coord_source);
 
 	return (std::pair<double, double>(unadorned.first + xmean,
 				unadorned.second + ymean));
 }
 
 std::pair<double, double> gaussian_generator::grnd(double mean_in,
-	double sigma_in, rng & random_source) const {
-	return (grnd(mean_in, mean_in, sigma_in, random_source));
+	double sigma_in, coordinate_gen & coord_source) const {
+	return (grnd(mean_in, mean_in, sigma_in, coord_source));
 }
 
 std::vector<double> gaussian_generator::rnd_vector(size_t size,
-	rng & random_source) const {
+	coordinate_gen & coord_source) const {
 
 	// assert size > 0 blah de blah.
 	assert(size > 0);
@@ -63,9 +69,9 @@ std::vector<double> gaussian_generator::rnd_vector(size_t size,
 		std::pair<double, double> gaussian_sample;
 		if (!center.empty() && center.size() >= 2)
 			gaussian_sample = grnd(center[0], center[1], dispersion[0],
-					random_source);
+					coord_source);
 		else {
-			gaussian_sample = grnd(dispersion[0], random_source);
+			gaussian_sample = grnd(dispersion[0], coord_source);
 		}
 
 		toRet.push_back(gaussian_sample.first);

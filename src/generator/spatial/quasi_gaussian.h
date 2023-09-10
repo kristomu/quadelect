@@ -15,6 +15,14 @@
 // due to details involving the conversion process from uniform to Gaussian;
 // TODO fix later.
 
+// Even though spatial generators now take *any* coordinate generator, we
+// still need a mutable QMC object, because we have no way of making
+// ballot generators accept nonrandom sources. This has to do with some
+// generators requiring random sources or resampling, or being very slow
+// without - e.g. impartial culture could be done with drand(), but the
+// double generation would be much slower than generating an integer...
+// So the redesign is not done yet.
+
 #include "spatial.h"
 #include "../../stats/quasirandom/r_sequence.h"
 #include <vector>
@@ -25,15 +33,15 @@ class quasi_gaussian_generator : public spatial_generator {
 		mutable r_sequence qmc_sampler;
 
 		std::pair<double, double> grnd(double sigma_in,
-			rng & random_source) const;
+			coordinate_gen & coord_source) const;
 		std::pair<double, double> grnd(double mean_in, double sigma_in,
-			rng & random_source) const;
+			coordinate_gen & coord_source) const;
 		std::pair<double, double> grnd(double xmean, double ymean,
-			double sigma_in, rng & random_source) const;
+			double sigma_in, coordinate_gen & coord_source) const;
 
 	protected:
 		std::vector<double> rnd_vector(size_t size,
-			rng & random_source) const;
+			coordinate_gen & coord_source) const;
 
 	public:
 		quasi_gaussian_generator() : spatial_generator(), qmc_sampler(2) {

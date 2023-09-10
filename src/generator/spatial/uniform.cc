@@ -3,14 +3,18 @@
 
 
 std::vector<double> uniform_generator::rnd_vector(size_t size,
-	rng & random_source) const {
+	coordinate_gen & coord_source) const {
 
-	std::vector<double> output(size, 0);
+	std::vector<double> coord = coord_source.get_coordinate(
+			size);
 
-	for (size_t counter = 0; counter < size; ++counter)
-		output[counter] = random_source.drand(
-				center[counter]-dispersion[counter],
-				center[counter]+dispersion[counter]);
+	// Rescale and offset.
+	for (size_t i = 0; i < size; ++i) {
+		double min = center[i] - dispersion[i],
+			   max = center[i] + dispersion[i];
 
-	return (output);
+		coord[i] = (min + coord[i]) * (max-min);
+	}
+
+	return coord;
 }

@@ -17,10 +17,10 @@
 // cand in order of increasing f(x,y). This is unlike, say, IC, in that there
 // are utilities of some sort in the picture.
 
-#ifndef _VOTE_BG_SPATIAL
-#define _VOTE_BG_SPATIAL
+#pragma once
 
 #include "../ballotgen.h"
+#include "../../stats/coordinate_gen.h"
 
 
 // TODO: Provide "get_minimum_value" and "get_maximum_value" functions.
@@ -59,8 +59,8 @@ class spatial_generator : public pure_ballot_generator {
 		std::vector<double> center;
 		std::vector<double> dispersion;
 
-		virtual std::vector<double> rnd_vector(size_t size, rng &
-			random_source) const = 0;
+		virtual std::vector<double> rnd_vector(size_t size,
+			coordinate_gen & coord_source) const = 0;
 		virtual std::vector<double> max_dim_vector(size_t dimensions) const;
 		// TODO: "get random coordinate" which would be used for
 		// sampling the circle of truncation in a manner consistent with
@@ -69,7 +69,7 @@ class spatial_generator : public pure_ballot_generator {
 	protected:
 		std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
-			rng & random_source) const;
+			rng & coord_source) const;
 
 	public:
 		spatial_generator() : pure_ballot_generator() {
@@ -136,5 +136,3 @@ class spatial_generator : public pure_ballot_generator {
 		// Should also return dimensions, etc.
 		virtual std::string name() const = 0;
 };
-
-#endif

@@ -1,15 +1,13 @@
 // Uniform distribution: the default is that the voter is at a random value
 // on [0...1]^2.
 
-#ifndef _VOTE_BG_SPATIAL_UNIFORM
-#define _VOTE_BG_SPATIAL_UNIFORM
-
+#pragma once
 #include "spatial.h"
-
 
 class uniform_generator : public spatial_generator {
 	protected:
-		std::vector<double> rnd_vector(size_t size, rng & random_source) const;
+		std::vector<double> rnd_vector(size_t size,
+			coordinate_gen & coord_source) const;
 
 	public:
 		uniform_generator() : spatial_generator() {
@@ -41,4 +39,3 @@ class uniform_generator : public spatial_generator {
 			return ("Uniform spatial");
 		}
 };
-#endif
