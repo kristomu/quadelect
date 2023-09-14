@@ -501,7 +501,7 @@ void test_many_one_scenario(int numiters, size_t & global_iter_count,
 	for (int iter = 0; iter < numiters; ++iter) {
 
 		// Do we want mono-raise or mono-add-top? Decide with a coin flip.
-		if (randomizer.drand() < 0.5) {
+		if (randomizer.next_double() < 0.5) {
 			mono_test = &mrtest;
 		} else {
 			mono_test = &mattest;
@@ -521,7 +521,7 @@ void test_many_one_scenario(int numiters, size_t & global_iter_count,
 
 		// Quick and dirty scaling to catch methods that only fail
 		// on non-integer outputs.
-		double scale_factor = randomizer.drand(0.5, 1);
+		double scale_factor = randomizer.next_double(0.5, 1);
 		// Reduce numerical imprecision by making the floating point
 		// integral divided by a power of two.
 		scale_factor = round(scale_factor * 65536) / 65536.0;

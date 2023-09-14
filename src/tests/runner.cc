@@ -151,7 +151,7 @@ test_result test_runner::attempt_finding_failure(bool only_one) {
 
 	size_t numcands = numcands_min;
 	if (numcands_max > numcands_min) {
-		numcands = randomizer->irand(numcands_min, numcands_max+1);
+		numcands = randomizer->next_int(numcands_min, numcands_max+1);
 	}
 
 	ballots = ballot_gen->generate_ballots(numvoters,

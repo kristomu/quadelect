@@ -128,9 +128,9 @@ void coalitional_strategy::add_strategic_election_inner(
 	partial_disproof.data.clear();
 	partial_disproof.disprover_name = name();
 
-	size_t num_coalitions = randomizer->irand(1, 4);
+	size_t num_coalitions = randomizer->next_int(1, 4);
 	size_t winner = cache.grouped_by_challenger[0].winner;
-	size_t chosen_challenger = skip_number(randomizer->irand(0, numcands-1),
+	size_t chosen_challenger = skip_number(randomizer->next_int(numcands-1),
 			winner);
 
 	const ballots_by_support * grouped_ballots =
@@ -154,14 +154,14 @@ void coalitional_strategy::add_strategic_election_inner(
 		// given max support, just spend the remaining voting power on
 		// a single strategic ballot.
 
-		// This is also the reason why the drand has a 0.5 minimum;
+		// This is also the reason why the next_double has a 0.5 minimum;
 		// that's so that the rounded weight will always be at least 1.
 
 		if (i == num_coalitions-1 || max_support_per_coalition < 1) {
 			strategic_ballot.set_weight(unassigned_weight);
 		} else {
 			strategic_ballot.set_weight(round(
-					randomizer->drand(0.5,max_support_per_coalition)));
+					randomizer->next_double(0.5,max_support_per_coalition)));
 		}
 
 		strategic_ballot.set_weight(std::min(

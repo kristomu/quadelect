@@ -13,12 +13,16 @@
 #include <stdexcept>
 #include "../coordinate_gen.h"
 
+const size_t R_SEQ_NOT_INITED = (size_t) -1;
+
 class r_sequence : public coordinate_gen {
 	private:
 		std::vector<double> alpha_roots;
 		std::vector<double> current_state, current_point;
 
 		void set_alpha_roots(size_t dimension);
+
+		size_t query_pos = R_SEQ_NOT_INITED;
 
 	public:
 		r_sequence(size_t dimension) {
@@ -30,6 +34,25 @@ class r_sequence : public coordinate_gen {
 			// the state by one.
 			next();
 		}
+
+		bool is_independent() const {
+			return false;
+		}
+		void start_query();
+
+		void end_query();
+
+		using coordinate_gen::next_long;
+		using coordinate_gen::next_int;
+		using coordinate_gen::next_double;
+
+		double next_double();
+
+		uint64_t next_long();
+		uint64_t next_long(uint64_t modulus);
+
+		uint32_t next_int();
+		uint32_t next_int(uint32_t modulus);
 
 		// Maybe I could make this into an iterator... :-P
 

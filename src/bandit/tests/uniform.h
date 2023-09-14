@@ -20,7 +20,7 @@ class Uniform : public Test {
 		}
 
 		double perform_test() {
-			return (randomizer.drand(0, p));
+			return (randomizer.next_double(0, p));
 		}
 		std::string name() const {
 			return ("Uniform(" + dtos(p)+")");

@@ -3,7 +3,7 @@
 #include "bernoulli.h"
 
 double Bernoulli::perform_test() {
-	if (randomizer.drand() < p) {
+	if (randomizer.next_double() < p) {
 		return (1);
 	} else {
 		return (0);

@@ -19,7 +19,7 @@ class dirichlet : public impartial_gen {
 
 	protected:
 		double get_sample(rng & random_source) const {
-			return (-log(1 - random_source.drand()));
+			return (-log(1 - random_source.next_double()));
 		}
 
 	public:

@@ -478,7 +478,7 @@ int main(int argc, char * * argv) {
 	std::string int_source_file = "interpret.txt";
 
 	rng randomizer(get_abs_time());
-	uint64_t seed = randomizer.long_rand();
+	uint64_t seed = randomizer.next_long();
 
 	bool success = true;
 

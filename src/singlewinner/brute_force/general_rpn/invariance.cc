@@ -25,7 +25,7 @@ std::vector<double> get_test_vector(int numcands, rng & randomizer) {
 
 	std::vector<double> out(factorial(numcands));
 	for (int i = 0; i < factorial(numcands); ++i) {
-		out[i] = randomizer.drand();
+		out[i] = randomizer.next_double();
 	}
 	return out;
 }

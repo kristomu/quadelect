@@ -156,7 +156,7 @@ std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
 		// HACK HACK. TODO, FIX.
 		int fraction = total_weight;
 		while (total_weight/(double)fraction < 1) {
-			fraction = round(total_weight * randomizer.drand());
+			fraction = round(total_weight * randomizer.next_double());
 		}
 		if (fraction == 0) {
 			++fraction;

@@ -37,7 +37,7 @@ std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 
 		size_t this_far;
 		if (do_truncate && candidates.size() > 1) {
-			this_far = random_source.irand(1, candidates.size());
+			this_far = random_source.next_int(1, candidates.size());
 		} else	{
 			this_far = candidates.size();
 		}

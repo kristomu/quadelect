@@ -79,13 +79,13 @@ long double rng::ldrand() {
 
 	long double d;
 	do {
-		d = ((long_rand() * RS_SCALE) + long_rand()) * RS_SCALE;
+		d = ((next_long() * RS_SCALE) + next_long()) * RS_SCALE;
 	} while (d >= 1);
 
 	return (d);
 }
 
-double rng::drand() {
+double rng::next_double() {
 
 	// Same as above, only double precision. This assumes a double with
 	// no more than 64 bits fraction.
@@ -98,7 +98,7 @@ double rng::drand() {
 	double d;
 
 	do {
-		baseval = long_rand();
+		baseval = next_long();
 		lower = baseval;
 		upper = baseval >> 32ULL;
 
@@ -108,11 +108,7 @@ double rng::drand() {
 	return (d);
 }
 
-double rng::drand(double min, double max) {
-	return (min + drand()*(max-min));
-}
-
-uint64_t rng::lrand(uint64_t modulus) {
+uint64_t rng::next_long(uint64_t modulus) {
 	if (modulus == 0) {
 		return (0);
 	}
@@ -125,29 +121,21 @@ uint64_t rng::lrand(uint64_t modulus) {
 
 	// If the modulus evenly divides maxVal, then we're done.
 	if (remainder == 0) {
-		return (long_rand() % modulus);
+		return (next_long() % modulus);
 	}
 
 	// Otherwise, keep trying until we're inside a range that *does*.
 	uint64_t randval;
 
 	do {
-		randval = long_rand();
+		randval = next_long();
 	} while (randval < remainder);
 
 	// And return a modulo on that.
 	return ((randval - remainder)%modulus);
 }
 
-uint64_t rng::lrand(uint64_t begin, uint64_t end) {
-	if (end < begin) {
-		return (lrand(end, begin));
-	}
-
-	return (begin + lrand(end-begin));
-}
-
-uint32_t rng::irand(uint32_t modulus) {
+uint32_t rng::next_int(uint32_t modulus) {
 	// Same thing, 32 bit edition.
 
 	if (modulus == 0) {
@@ -158,30 +146,22 @@ uint32_t rng::irand(uint32_t modulus) {
 	uint32_t remainder = maxVal % modulus;
 
 	if (remainder == 0) {
-		return (irand() % modulus);
+		return (next_int() % modulus);
 	}
 
 	uint32_t randval;
 	do {
-		randval = irand();
+		randval = next_int();
 	} while (randval < remainder);
 
 	return ((randval - remainder)%modulus);
-}
-
-uint32_t rng::irand(uint32_t begin, uint32_t end) {
-	if (end < begin) {
-		return (irand(end, begin));
-	}
-
-	return (begin + irand(end-begin));
 }
 
 std::vector<double> rng::get_coordinate(size_t dimension) {
 	std::vector<double> out(dimension);
 
 	for (size_t i = 0; i < dimension; ++i) {
-		out[i] = drand();
+		out[i] = next_double();
 	}
 
 	return out;
@@ -193,7 +173,7 @@ std::vector<double> rng::get_coordinate(size_t dimension) {
 	rng myRNG(1);
 
 	for (int counter = 0; counter < 100000; ++counter)
-		accumulated += myRNG.drand();
+		accumulated += myRNG.next_double();
 
 	cout << accumulated << endl;
 }*/

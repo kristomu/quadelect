@@ -45,7 +45,7 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 
 	for (copeland_scenario x: canonical_scenarios) {
 		for (copeland_scenario y: canonical_scenarios) {
-			test_generator cur_test(randomizer.long_rand());
+			test_generator cur_test(randomizer.next_long());
 
 			std::cout << "Combination " << x.to_string() << ", "
 				<< y.to_string() << ":";
@@ -63,7 +63,7 @@ std::vector<test_instance_generator> get_all_permitted_test_generators(
 				test_instance_generator to_add(cur_test);
 				// Set a different seed but use the same sampler and
 				// polytope as we created earlier.
-				to_add.tgen.set_rng_seed(randomizer.long_rand());
+				to_add.tgen.set_rng_seed(randomizer.next_long());
 
 				// Get the scenarios by sampling once.
 				relative_test_instance ti = to_add.tgen.

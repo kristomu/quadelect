@@ -27,10 +27,9 @@
 //	3. Insertion sort (std::sort), and
 //	4. Rank matrix clearing.
 
-// The latter can be omitted with some clever preinitialization
-// by observing that "a voter's ranked ballot consists all integers
-// 0..numcands in some order" is an invariant once the ballot has been
-// initialized once. But it would make the code considerably uglier.
+// It would seem that point 4 could be moved out of the loop, because "each
+// voter lists every candidate in some order" is an invariant. But doing so
+// actually slows down the execution! I have no idea why.
 
 // It's possible that point 2 could be sped up by using a Ziggurat algorithm,
 // but I don't know if it would play nice with Quasi-Monte Carlo. See
@@ -112,10 +111,10 @@ void set_voter_scores(
 
 class sorter {
 	public:
-		const double * reference;
+		const std::vector<double> * reference;
 
 		bool operator()(cand_t a, cand_t b) const {
-			return reference[a] > reference[b];
+			return (*reference)[a] > (*reference)[b];
 		}
 };
 
@@ -124,10 +123,10 @@ sorter score_sorter;
 void update_rank_vector(std::vector<cand_t> & rank_out,
 	const std::vector<double> & scores, size_t numcands) {
 
-	score_sorter.reference = scores.data();
+	score_sorter.reference = &scores;
 
-	for (size_t i = 0; i < numcands; ++i) {
-		rank_out[i] = i;
+	for (size_t cand = 0; cand < numcands; ++cand) {
+		rank_out[cand] = cand;
 	}
 
 	// Use the scores to sort the ranks.

@@ -95,7 +95,7 @@ bool mono_raise_delete::alter_ballot(const ordering & input,
 			int cur_score = spos->get_score();
 			rand_displace = cur_score;
 			if (highest_score != cur_score) {
-				rand_displace = randomizer.irand(
+				rand_displace = randomizer.next_int(
 						cur_score,
 						highest_score);
 				// Always raise by at least one, unless
@@ -180,7 +180,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 			rand_displace = cur_score;
 			if (highest_score != cur_score)
 				rand_displace = std::min((double)randomizer.
-						irand(cur_score, highest_score),
+						next_int(cur_score, highest_score),
 						rand_displace + 1);
 
 			to_add = candscore(spos->get_candidate_num(),
@@ -208,7 +208,7 @@ bool mono_raise_random::alter_ballot(const ordering & input,
 	for (size_t counter = 0; counter < used.size(); ++counter)
 		if (!used[counter])
 			output.insert(candscore(counter, rand_displace -
-					(randomizer.drand() + 0.01)));
+					(randomizer.next_double() + 0.01)));
 
 	output.insert(to_add);
 

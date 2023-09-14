@@ -190,8 +190,8 @@ std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 		randomizer.s_rand(curiter);
 	}
 
-	int numcands = randomizer.irand(min_candidates, max_candidates+1);
-	int numvoters = randomizer.irand(min_voters, max_voters+1);
+	int numcands = randomizer.next_int(min_candidates, max_candidates+1);
+	int numvoters = randomizer.next_int(min_voters, max_voters+1);
 
 	if (give_brief_status)
 		toRet = "Now going on " + dtos(curiter) + " with " +

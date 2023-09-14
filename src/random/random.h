@@ -26,7 +26,20 @@ class rng : public coordinate_gen {
 		uint64_t rng64(uint64_t * s);
 
 	public:
-		typedef uint64_t result_type;
+
+		// Some boilerplate duie to coordinate_gen
+		bool is_independent() const {
+			return true;
+		}
+
+		// Perhaps we should enforce that start_query needs to be
+		// called once before the RNG is ever used... and perhaps
+		// count the number of variates generated between queries
+		// for debug purposes? TODO???
+		void start_query() {}
+		void end_query() {}
+
+		//typedef uint64_t result_type;
 
 		void s_rand(uint64_t seed_in); // Now passes Crush (not BigCrush)
 		void s_rand();                 // from entropy source
@@ -37,35 +50,37 @@ class rng : public coordinate_gen {
 			s_rand(seed_in);
 		}
 
-		uint64_t long_rand() {
-			return (rng64(seed));
+		using coordinate_gen::next_long;
+		using coordinate_gen::next_int;
+		using coordinate_gen::next_double;
+
+		uint64_t next_long() {
+			return rng64(seed);
 		}
 
-		uint32_t irand() {
-			return (long_rand());
+		uint32_t next_int() {
+			return next_long();
 		}
 		long double ldrand();
-		double drand();
-		double drand(double min, double max);
+		double next_double();
 
-		// Ranges. Note that these are all half-open, i.e. [begin, end)
-		uint64_t lrand(uint64_t modulus);
-		uint64_t lrand(uint64_t begin, uint64_t end);
-
-		uint32_t irand(uint32_t modulus);
-		uint32_t irand(uint32_t begin, uint32_t end);
+		// Ranges. Note that these are all half-open, i.e. [0 ... modulus)
+		uint64_t next_long(uint64_t modulus);
+		uint32_t next_int(uint32_t modulus);
 
 		std::vector<double> get_coordinate(size_t dimension);
+
+		/*
 
 		// Used for random_shuffle etc. Assumes pointers are no longer
 		// than 64 bit. Perhaps using () is a bit of a hack, but the
 		// alternatives are worse. (Is there an off-by-one here?)
 		uint64_t operator()(uint64_t end) {
-			return (lrand(end));
+			return next_long(end);
 		}
 
 		uint64_t operator()() {
-			return long_rand();
+			return next_long();
 		}
 
 		uint64_t max() const {
@@ -73,5 +88,5 @@ class rng : public coordinate_gen {
 		}
 		uint64_t min() const {
 			return 0;
-		}
+		}*/
 };

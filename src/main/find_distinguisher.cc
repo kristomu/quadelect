@@ -61,8 +61,8 @@ int main(int argc, const char ** argv) {
 		// as to sample a large region of election space where the
 		// discrepancies (if any) might be hidden.
 
-		int numcands = randomizer.lrand(4, 10);
-		int numvoters = randomizer.lrand(1, 127);
+		int numcands = randomizer.next_int(4, 10);
+		int numvoters = randomizer.next_int(1, 127);
 
 
 		std::list<ballot_group> ballots = ballot_gen.generate_ballots(numvoters,

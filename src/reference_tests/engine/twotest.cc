@@ -202,8 +202,8 @@ bool twotest_engine::run_tests(int iterations, rng & random_source) {
 
 	// Generate a base ballot set.
 
-	int num_voters = random_source.irand(min_num_voters, max_num_voters);
-	int num_cands = random_source.irand(min_num_candidates,
+	int num_voters = random_source.next_int(min_num_voters, max_num_voters);
+	int num_cands = random_source.next_int(min_num_candidates,
 			max_num_candidates);
 
 	std::list<ballot_group> base_ballots = generator->generate_ballots(

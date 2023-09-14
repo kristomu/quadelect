@@ -138,8 +138,8 @@ billiard_sampler<T>::random_unit_vector(
 
 		while (rad > 1.0 || rad == 0) {
 			// Choose x,y on the square (-1, -1) to (+1, +1)
-			x = -1 + 2 * randomizer.drand();
-			y = -1 + 2 * randomizer.drand();
+			x = -1 + 2 * randomizer.next_double();
+			y = -1 + 2 * randomizer.next_double();
 
 			// Calculate the squared radius from origin to see if we're
 			// within the unit circle.
@@ -287,7 +287,7 @@ template<typename T> ray billiard_sampler<T>::billiard_walk_preserving(
 	for (int i = 0; i < max_retries; ++i) {
 		candidate.dir = random_unit_vector(dimension);
 
-		double max_distance = -tau_distance * log(randomizer.drand());
+		double max_distance = -tau_distance * log(randomizer.next_double());
 
 		if (billiard_walk_internal(polytope_to_sample, candidate,
 				max_distance, max_reflections)) {

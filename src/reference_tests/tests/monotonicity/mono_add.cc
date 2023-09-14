@@ -23,9 +23,9 @@ bool mono_add_plump::add_ballots(const std::vector<int> & data,
 	// of total.
 
 	double wt;
-	if (randomizer.drand() < 0.2 && total_weight > 1) {
+	if (randomizer.next_double() < 0.2 && total_weight > 1) {
 		wt = 1;
-	} else	wt = total_weight * (1 - (log(10-randomizer.drand()*9)/
+	} else	wt = total_weight * (1 - (log(10-randomizer.next_double()*9)/
 					log(10)));
 
 	int cand = data[0];
@@ -51,10 +51,10 @@ bool mono_add_top::add_ballots(const std::vector<int> & data,
 	// See above.
 
 	double wt;
-	if (randomizer.drand() < 0.5 && total_weight > 1) {
-		wt = round(randomizer.drand() * 10);
+	if (randomizer.next_double() < 0.5 && total_weight > 1) {
+		wt = round(randomizer.next_double() * 10);
 	} else {
-		wt = std::max(1.0, round(randomizer.drand() * total_weight));
+		wt = std::max(1.0, round(randomizer.next_double() * total_weight));
 	}
 
 	// wt <= 0 shouldn't happen

@@ -67,7 +67,7 @@ bool mono_sub_top::alter_ballot(const ordering & input, ordering & output,
 	// generator to function?)
 	for (size_t counter = 0; counter < numcands; ++counter)
 		if (counter != cand_to_change) {
-			output.insert(candscore(counter, randomizer.drand()));
+			output.insert(candscore(counter, randomizer.next_double()));
 		}
 
 	return (true);
