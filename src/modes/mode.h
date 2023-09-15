@@ -15,18 +15,24 @@
 //	- v<std::string> provide_status() - Gives a set of strings that inform the
 //			user about status so far. In BR this is just the stats.
 
-// BLUESKY: Merge operator so we can split this among multiple processes. Real
-// Bluesky^n: v<std::string> op for dumping the data that needs to be synced - then
-// we can do client-server! (Albeit without redundancy.)
+// BLUESKY: Merge operator so we can split this among multiple processes.
+// Real Bluesky^n: v<std::string> op for dumping the data that needs to be
+// synced - then we can do client-server! (Albeit without redundancy.)
 
-#ifndef _VOTE_MODE
-#define _VOTE_MODE
+// Now that we're aiming to use quasi MC, there's a bit of a problem.
+// We want different parts to use either MC or QMC depending on the
+// settings. For instance, if we do Yee with Quasi-Monte Carlo, we don't
+// want that *candidate positions* to be chosen using QMC! So how do we
+// provide such information to the modes without having to turn things
+// inside-out by IoC etc? That's not an option because it would ruin the
+// current simple design...
+
+#pragma once
 
 #include "../random/random.h"
 
 #include <vector>
 #include <string>
-
 
 class mode {
 
@@ -41,5 +47,3 @@ class mode {
 
 		virtual std::vector<std::string> provide_status() const = 0;
 };
-
-#endif

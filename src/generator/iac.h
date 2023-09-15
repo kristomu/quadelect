@@ -17,7 +17,7 @@
 class iac : public pure_ballot_generator {
 	protected:
 		std::list<ballot_group> generate_ballots_int(int num_voters,
-			int numcands, bool do_truncate, rng & random_source) const;
+			int numcands, bool do_truncate, coordinate_gen & coord_source) const;
 
 	public:
 		std::string name() const {

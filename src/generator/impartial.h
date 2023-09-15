@@ -13,7 +13,7 @@
 class impartial : public impartial_gen {
 
 	protected:
-		double get_sample(rng & random_source) const {
+		double get_sample(coordinate_gen & coord_source) const {
 			return (1);
 		}
 

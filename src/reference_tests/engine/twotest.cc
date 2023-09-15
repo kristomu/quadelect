@@ -193,7 +193,8 @@ twotest_engine::twotest_engine(unsigned int max_iters,
 // both assuming A > ... and B > ...; if so, we have a counterexample no matter
 // who wins and so the method fails it.
 
-bool twotest_engine::run_tests(int iterations, rng & random_source) {
+bool twotest_engine::run_tests(int iterations,
+	coordinate_gen & coord_source) {
 
 	cache_map orig_cache;
 
@@ -202,12 +203,12 @@ bool twotest_engine::run_tests(int iterations, rng & random_source) {
 
 	// Generate a base ballot set.
 
-	int num_voters = random_source.next_int(min_num_voters, max_num_voters);
-	int num_cands = random_source.next_int(min_num_candidates,
+	int num_voters = coord_source.next_int(min_num_voters, max_num_voters);
+	int num_cands = coord_source.next_int(min_num_candidates,
 			max_num_candidates);
 
 	std::list<ballot_group> base_ballots = generator->generate_ballots(
-			num_voters, num_cands, random_source);
+			num_voters, num_cands, coord_source);
 
 	// If every test is winner_only, then only count winners, otherwise
 	// require a full ordering. The reasoning would be that doing full

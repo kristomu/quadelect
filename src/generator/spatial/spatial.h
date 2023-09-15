@@ -69,7 +69,7 @@ class spatial_generator : public pure_ballot_generator {
 	protected:
 		std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
-			rng & coord_source) const;
+			coordinate_gen & coord_source) const;
 
 	public:
 		spatial_generator() : pure_ballot_generator() {
@@ -113,7 +113,8 @@ class spatial_generator : public pure_ballot_generator {
 		}
 		bool fix_candidate_positions(int num_cands,
 			const std::vector<std::vector<double> > cand_positions);
-		bool fix_candidate_positions(int num_cands, rng & randomizer);
+		bool fix_candidate_positions(int num_cands,
+			coordinate_gen & coord_source);
 		std::vector<std::vector<double> > get_fixed_candidate_pos() const;
 
 		// For setting parameters of the associated distribution.

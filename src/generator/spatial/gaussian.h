@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "../../stats/distributions/gaussian.h"
+
 #include "spatial.h"
 #include <vector>
 #include <list>
@@ -14,13 +16,7 @@
 
 class gaussian_generator : public spatial_generator {
 	private:
-		std::pair<double, double> grnd(double sigma_in,
-			coordinate_gen & coord_source) const;
-		std::pair<double, double> grnd(double mean_in, double sigma_in,
-			coordinate_gen & coord_source) const;
-		std::pair<double, double> grnd(double xmean, double ymean,
-			double sigma_in, coordinate_gen & coord_source) const;
-		// Get preferences according to distance.
+		gaussian_dist gdist;
 
 	protected:
 		std::vector<double> rnd_vector(size_t size,

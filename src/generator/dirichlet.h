@@ -18,8 +18,8 @@
 class dirichlet : public impartial_gen {
 
 	protected:
-		double get_sample(rng & random_source) const {
-			return (-log(1 - random_source.next_double()));
+		double get_sample(coordinate_gen & coord_source) const {
+			return (-log(1 - coord_source.next_double()));
 		}
 
 	public:

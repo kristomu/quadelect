@@ -12,8 +12,7 @@
 // calculating social utilities, every voter has a social preference for a
 // candidate, he just doesn't know some of them if he truncates.
 
-#ifndef _BALLOT_GENERATOR
-#define _BALLOT_GENERATOR
+#pragma once
 
 #include "../singlewinner/method.h"
 #include "../tools/ballot_tools.h"
@@ -29,7 +28,7 @@ class pure_ballot_generator {
 
 		virtual std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
-			rng & random_source) const = 0;
+			coordinate_gen & coord_source) const = 0;
 
 	public:
 		// Inheriting classes will have to set defaults on these
@@ -50,25 +49,21 @@ class pure_ballot_generator {
 		// We ask for truncation because some criteria, like
 		// mono-append, make no sense without.
 		std::list<ballot_group> generate_ballots(int num_voters,
-			int numcands, rng & random_source) const {
+			int numcands, coordinate_gen & coord_source) const {
 			ballot_tools bt;
 			if (compress)
-				return (bt.compress(generate_ballots_int(
-								num_voters,
-								numcands,
-								truncate,
-								random_source
-							)));
+				return bt.compress(generate_ballots_int(
+							num_voters, numcands, truncate,
+							coord_source));
 			else
-				return (generate_ballots_int(num_voters,
-							numcands, truncate,
-							random_source));
+				return generate_ballots_int(num_voters,
+						numcands, truncate, coord_source);
 		}
 
 		ballot_group generate_ballot(int numcands,
-			rng & random_source) const {
+			coordinate_gen & coord_source) const {
 			return *generate_ballots(1, numcands,
-					random_source).begin();
+					coord_source).begin();
 		}
 
 		virtual std::string name() const = 0;
@@ -81,12 +76,12 @@ class pure_ballot_generator {
 class indiv_ballot_generator : public pure_ballot_generator {
 	protected:
 		virtual ordering generate_ordering(int numcands,
-			bool do_truncate, rng & random_source)
+			bool do_truncate, coordinate_gen & coord_source)
 		const = 0;
 
 		std::list<ballot_group> generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
-			rng & random_source) const;
+			coordinate_gen & coord_source) const;
 
 	public:
 		indiv_ballot_generator() : pure_ballot_generator() {}
@@ -96,5 +91,3 @@ class indiv_ballot_generator : public pure_ballot_generator {
 			pure_ballot_generator(compress_in, do_truncate) {}
 
 };
-
-#endif

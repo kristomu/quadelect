@@ -6,7 +6,7 @@
 
 
 std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
-	int numcands, bool do_truncate, rng & random_source) const {
+	int numcands, bool do_truncate, coordinate_gen & coord_source) const {
 
 	// Fill a vector with 0...numcands, then shuffle randomly, then turn
 	// into ordering. The reason we don't use generate_ordering
@@ -33,11 +33,11 @@ std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 		to_add.contents.clear();
 
 		random_shuffle(candidates.begin(), candidates.end(),
-			random_source);
+			coord_source);
 
 		size_t this_far;
 		if (do_truncate && candidates.size() > 1) {
-			this_far = random_source.next_int(1, candidates.size());
+			this_far = coord_source.next_int(1, candidates.size());
 		} else	{
 			this_far = candidates.size();
 		}
@@ -59,7 +59,7 @@ std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 			}
 		}
 
-		to_add.set_weight(get_sample(random_source));
+		to_add.set_weight(get_sample(coord_source));
 		total_weight += to_add.get_weight();
 		toRet.push_back(to_add);
 	}

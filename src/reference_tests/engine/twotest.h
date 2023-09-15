@@ -71,7 +71,7 @@ class twotest_engine {
 		void add_test(twotest * twotest_in);
 
 		// Returns false if there's nothing to test, otherwise true.
-		bool run_tests(int iterations, rng & random_source);
+		bool run_tests(int iterations, coordinate_gen & coord_source);
 };
 
 #endif

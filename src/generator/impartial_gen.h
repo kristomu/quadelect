@@ -21,10 +21,10 @@ class impartial_gen : public pure_ballot_generator {
 	private:
 		std::list<ballot_group> generate_ballots_int(
 			int num_voters, int numcands,
-			bool do_truncate, rng & random_source) const;
+			bool do_truncate, coordinate_gen & coord_source) const;
 
 	protected:
-		virtual double get_sample(rng & random_source) const = 0;
+		virtual double get_sample(coordinate_gen & coord_source) const = 0;
 
 	public:
 		impartial_gen(bool compress_in) :

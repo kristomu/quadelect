@@ -30,7 +30,7 @@ std::vector<double> spatial_generator::max_dim_vector(
 
 std::list<ballot_group> spatial_generator::generate_ballots_int(
 	int num_voters,
-	int numcands, bool do_truncate, rng & random_source) const {
+	int numcands, bool do_truncate, coordinate_gen & coord_source) const {
 
 	std::list<ballot_group> toRet;
 
@@ -56,7 +56,7 @@ std::list<ballot_group> spatial_generator::generate_ballots_int(
 	} else {
 		for (counter = 0; counter < (size_t)numcands; ++counter)
 			cand_positions.push_back(rnd_vector(num_dimensions,
-					random_source));
+					coord_source));
 	}
 
 	// Then, for each candidate, determine his position. If we need to
@@ -77,7 +77,7 @@ std::list<ballot_group> spatial_generator::generate_ballots_int(
 		our_entry.set_weight(1);
 
 		// Get our location.
-		voter_pos = rnd_vector(num_dimensions, random_source);
+		voter_pos = rnd_vector(num_dimensions, coord_source);
 
 		// Dump distances to all the candidates and get the minimum
 		// distance (which may be needed for truncation).
@@ -206,7 +206,7 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 }
 
 bool spatial_generator::fix_candidate_positions(int num_cands,
-	rng & random_source) {
+	coordinate_gen & coord_source) {
 	if (num_cands < 1) {
 		return (false);    // Surely you jest!
 	}
@@ -215,7 +215,7 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 
 	for (int counter = 0; counter < num_cands; ++counter)
 		cand_positions.push_back(rnd_vector(num_dimensions,
-				random_source));
+				coord_source));
 
 	return (fix_candidate_positions(num_cands, cand_positions));
 }

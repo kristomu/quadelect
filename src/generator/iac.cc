@@ -8,7 +8,7 @@
 
 std::list<ballot_group> iac::generate_ballots_int(
 	int num_voters, int numcands, bool do_truncate,
-	rng & random_source) const {
+	coordinate_gen & coord_source) const {
 
 	if (do_truncate) {
 		throw std::runtime_error("Impartial anon. culture does not support truncation.");
@@ -19,7 +19,7 @@ std::list<ballot_group> iac::generate_ballots_int(
 
 	size_t i;
 	for (i = 0; i < num_permutations-1; ++i) {
-		interval_source[i] = random_source.next_int(num_voters+1);
+		interval_source[i] = coord_source.next_int(num_voters+1);
 	}
 
 	interval_source.push_back(0);

@@ -168,6 +168,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/confidence.cc
 	src/stats/coordinate_gen.cc
+	src/stats/distributions/gaussian.cc
 	src/stats/quasirandom/r_sequence.cc
 	src/tests/provider.cc
 	src/tests/runner.cc

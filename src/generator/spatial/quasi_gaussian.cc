@@ -4,57 +4,10 @@
 #include <assert.h>
 #include <vector>
 
-std::pair<double, double> quasi_gaussian_generator::grnd(double sigma_in,
-	coordinate_gen & coord_source) const {
-
-	double x = 0, y = 0, rad = 0;
-
-	std::vector<double> quasi_out;
-
-	// Use the Box-Muller transform because I'm not sure how rejection
-	// sampling will interact with the low disc sequence. It may be fine.
-	// TODO, test.
-
-	// At least Box-Muller itself is fine:
-	// ÖKTEN, Giray; GÖNCÜ, Ahmet. Generating low-discrepancy sequences from the
-	// normal distribution: Box–Muller or inverse transform?. Mathematical and
-	// Computer Modelling, 2011, 53.5-6: 1268-1281.
-	// https://doi.org/10.1016/j.mcm.2010.12.011
-
-	quasi_out = qmc_sampler.next();
-
-	double r = sqrt(-2 * log(quasi_out[0]));
-	double theta = 2 * M_PI * quasi_out[1];
-
-	return std::pair<double, double>(
-			sigma_in * r * cos(theta),
-			sigma_in * r * sin(theta));
-
-	// Okay, now we have (x,y) within the unit circle. Transform to get a
-	// random Gaussian distributed variable.
-	double conv_factor = sigma_in * sqrt(-2.0 * log(rad) / rad);
-	return (std::pair<double, double>(x * conv_factor, y * conv_factor));
-}
-
-std::pair<double, double> quasi_gaussian_generator::grnd(double xmean,
-	double ymean,
-	double sigma_in, coordinate_gen & coord_source) const {
-	std::pair<double, double> unadorned = grnd(sigma_in, coord_source);
-
-	return (std::pair<double, double>(unadorned.first + xmean,
-				unadorned.second + ymean));
-}
-
-std::pair<double, double> quasi_gaussian_generator::grnd(double mean_in,
-	double sigma_in, coordinate_gen & coord_source) const {
-	return (grnd(mean_in, mean_in, sigma_in, coord_source));
-}
+// Not necessarily random, so "rnd" doesn't really fit. TODO rename?
 
 std::vector<double> quasi_gaussian_generator::rnd_vector(size_t size,
 	coordinate_gen & coord_source) const {
-
-	// assert size > 0 blah de blah.
-	assert(size > 0);
 
 	std::vector<double> toRet;
 	toRet.reserve(size);
@@ -62,10 +15,10 @@ std::vector<double> quasi_gaussian_generator::rnd_vector(size_t size,
 	for (size_t counter = 0; counter < size; counter += 2) {
 		std::pair<double, double> gaussian_sample;
 		if (!center.empty() && center.size() >= 2)
-			gaussian_sample = grnd(center[0], center[1], dispersion[0],
-					coord_source);
+			gaussian_sample = gdist.get(center[0], center[1], dispersion[0],
+					qmc_sampler);
 		else {
-			gaussian_sample = grnd(dispersion[0], coord_source);
+			gaussian_sample = gdist.get(dispersion[0], qmc_sampler);
 		}
 
 		toRet.push_back(gaussian_sample.first);

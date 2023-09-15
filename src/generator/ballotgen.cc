@@ -4,7 +4,7 @@
 
 std::list<ballot_group> indiv_ballot_generator::generate_ballots_int(
 	int num_voters,
-	int numcands, bool do_truncate, rng & random_source) const {
+	int numcands, bool do_truncate, coordinate_gen & coord_source) const {
 
 	std::list<ballot_group> toRet;
 	ballot_group to_add;
@@ -12,7 +12,7 @@ std::list<ballot_group> indiv_ballot_generator::generate_ballots_int(
 
 	for (int counter = 0; counter < num_voters; ++counter) {
 		to_add.contents = generate_ordering(numcands, do_truncate,
-				random_source);
+				coord_source);
 		toRet.push_back(to_add);
 	}
 

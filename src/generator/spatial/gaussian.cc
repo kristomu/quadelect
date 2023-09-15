@@ -9,58 +9,10 @@
 #include <assert.h>
 #include <vector>
 
-
-// If we need it later, implement a general covariance matrix.
-
-std::pair<double, double> gaussian_generator::grnd(double sigma_in,
-	coordinate_gen & coord_source) const {
-
-	// Box-Mueller, dammit. We really should have something that requires
-	// only a single invocation of the RNG in most situations, but bah.
-
-	double x = 0, y = 0, rad = 0;
-
-	// TODO: ??? Why are we interested only in 2D here? Well, that's
-	// because grnd implicitly returns two Gaussians, because that's
-	// how Marsaglia's method works. But consider how we would
-	// generalize this for multidimensional Gaussians...
-	std::vector<double> coordinates(2);
-
-	while (rad > 1.0 || rad == 0) {
-		coordinates = coord_source.get_coordinate(2);
-		// Choose x,y on the square (-1, -1) to (+1, +1)
-		x = -1 + 2 * coordinates[0];
-		y = -1 + 2 * coordinates[1];
-
-		// Calculate the squared radius from origin to see if we're
-		// within the unit circle.
-		rad = x * x + y * y;
-	}
-
-	// Okay, now we have (x,y) within the unit circle. Transform to get a
-	// random Gaussian distributed variable.
-	double conv_factor = sigma_in * sqrt(-2.0 * log(rad) / rad);
-	return (std::pair<double, double>(x * conv_factor, y * conv_factor));
-}
-
-std::pair<double, double> gaussian_generator::grnd(double xmean,
-	double ymean, double sigma_in, coordinate_gen & coord_source) const {
-	std::pair<double, double> unadorned = grnd(sigma_in, coord_source);
-
-	return (std::pair<double, double>(unadorned.first + xmean,
-				unadorned.second + ymean));
-}
-
-std::pair<double, double> gaussian_generator::grnd(double mean_in,
-	double sigma_in, coordinate_gen & coord_source) const {
-	return (grnd(mean_in, mean_in, sigma_in, coord_source));
-}
+// Not necessarily random, so "rnd" doesn't really fit. TODO rename?
 
 std::vector<double> gaussian_generator::rnd_vector(size_t size,
 	coordinate_gen & coord_source) const {
-
-	// assert size > 0 blah de blah.
-	assert(size > 0);
 
 	std::vector<double> toRet;
 	toRet.reserve(size);
@@ -68,10 +20,10 @@ std::vector<double> gaussian_generator::rnd_vector(size_t size,
 	for (size_t counter = 0; counter < size; counter += 2) {
 		std::pair<double, double> gaussian_sample;
 		if (!center.empty() && center.size() >= 2)
-			gaussian_sample = grnd(center[0], center[1], dispersion[0],
+			gaussian_sample = gdist.get(center[0], center[1], dispersion[0],
 					coord_source);
 		else {
-			gaussian_sample = grnd(dispersion[0], coord_source);
+			gaussian_sample = gdist.get(dispersion[0], coord_source);
 		}
 
 		toRet.push_back(gaussian_sample.first);

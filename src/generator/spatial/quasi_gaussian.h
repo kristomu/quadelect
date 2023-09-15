@@ -25,19 +25,15 @@
 
 #include "spatial.h"
 #include "../../stats/quasirandom/r_sequence.h"
+#include "../../stats/distributions/gaussian.h"
+
 #include <vector>
 #include <list>
 
 class quasi_gaussian_generator : public spatial_generator {
 	private:
 		mutable r_sequence qmc_sampler;
-
-		std::pair<double, double> grnd(double sigma_in,
-			coordinate_gen & coord_source) const;
-		std::pair<double, double> grnd(double mean_in, double sigma_in,
-			coordinate_gen & coord_source) const;
-		std::pair<double, double> grnd(double xmean, double ymean,
-			double sigma_in, coordinate_gen & coord_source) const;
+		gaussian_dist gdist;
 
 	protected:
 		std::vector<double> rnd_vector(size_t size,
