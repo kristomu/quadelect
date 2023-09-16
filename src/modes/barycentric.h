@@ -49,12 +49,12 @@ class barycentric : public mode {
 			inited = false;
 		}
 
-		bool init(rng & randomizer);
+		bool init(coordinate_gen &);
 		int get_max_rounds() const;
 		int get_current_round() const;
 
 		std::string do_round(bool give_brief_status, bool reseed,
-			rng & randomizer);
+			coordinate_gen &);
 
 		std::vector<std::string> provide_status() const;
 

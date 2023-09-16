@@ -61,6 +61,15 @@ class coordinate_gen {
 		// sources like RNGs.
 		virtual bool is_independent() const = 0;
 
+		// Very rudimentary random access capabilities. Get a seed
+		// or return 0 if there coordinate generator doesn't support
+		// random access. Note that the QMC generator should allow
+		// random access, but that hasn't been implemented yet. TODO!!!
+		// This is all *very* rudimentary!
+		virtual uint64_t get_initial_seed() const {
+			return 0;
+		}
+
 		virtual void start_query() = 0;
 		virtual void end_query() = 0;
 

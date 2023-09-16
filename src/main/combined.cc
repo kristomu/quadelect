@@ -28,14 +28,15 @@
 #include "../generator/all.h"
 
 // Single-winner methods, including metamethods.
-
-// DONE: Meta-header that includes all of these.
-// TODO? Perhaps move the "factory" itself into that, too.
 #include "../singlewinner/all.h"
 #include "../singlewinner/get_methods.h"
 
 // Interpreters for the interpreter mode
 #include "../interpreter/all.h"
+
+// Stats
+#include "../stats/coordinate_gen.h"
+#include "../stats/quasirandom/r_sequence.h"
 
 // More later. POC for now. Perhaps also do something with the fact that C++
 // doesn't have garbage collection -- i.e. clean up after ourselves.
@@ -99,12 +100,30 @@ bayesian_regret setup_regret(
 	return (br);
 }
 
+// To do Yee maps we need two coordinate sources: one that's random
+// that decides the position of the candidates, and another that is used
+// to sample the Gaussian (normal distribution) around the center as
+// part of the Yee map. The first should be random, but the second
+// doesn't need to be. Thus the candidate_coords_rng here is set to
+// be an rng, not any coordinate generator. The other source will be used
+// when calling do_round.
+
+// TODO: Determine what uniform is used for, compare to gaussian.
+// These should not be demanding particular types of generator,
+// they should be requesting them for a certain purpose, and the
+// caller should be able to substitute whatever it wants.
+
+// I should refactor to separate out the distributions from the
+// *ballot generators*. This would make spatial generators easy and
+// not need hacks like getting candidate positions by peering into
+// candscores.
+
 template<typename T> yee setup_yee(
 	std::vector<std::shared_ptr<election_method> > & methods,
 	int num_voters, int num_cands,
 	bool do_use_autopilot, std::string case_prefix, int picture_size,
 	double sigma, T & gaussian, uniform_generator & uniform,
-	rng & randomizer) {
+	rng & candidate_coords_rng) {
 
 	yee to_output;
 
@@ -113,12 +132,15 @@ template<typename T> yee setup_yee(
 		throw std::runtime_error("Yee diagram: Could not set parameters!");
 	}
 
+	// yuck HACK
+	to_output.set_initial_seed(candidate_coords_rng);
+
 	to_output.set_voter_pdf(&gaussian);
 	to_output.set_candidate_pdf(&uniform);
 
 	to_output.add_methods(methods.begin(), methods.end());
 
-	if (!to_output.init(randomizer)) {
+	if (!to_output.init(candidate_coords_rng)) {
 		throw std::runtime_error("Yee diagram: Could not initialize!");
 	}
 
@@ -801,7 +823,6 @@ int main(int argc, char * * argv) {
 
 	uniform_generator uniform(true, false);
 	gaussian_generator gaussian(true, false);
-	quasi_gaussian_generator qgaussian(true, false);
 
 	if (run_yee) {
 		std::cout << "Setting up Yee..." << std::endl;
@@ -829,15 +850,9 @@ int main(int argc, char * * argv) {
 				"long time." << std::endl;
 		}
 
-		if (yee_quasi_gaussian) {
-			yee_mode = setup_yee(methods, yee_voters, yee_candidates,
-					yee_autopilot, yee_prefix, yee_size, yee_sigma,
-					qgaussian, uniform, randomizer);
-		} else {
-			yee_mode = setup_yee(methods, yee_voters, yee_candidates,
-					yee_autopilot, yee_prefix, yee_size, yee_sigma,
-					gaussian, uniform, randomizer);
-		}
+		yee_mode = setup_yee(methods, yee_voters, yee_candidates,
+				yee_autopilot, yee_prefix, yee_size, yee_sigma,
+				gaussian, uniform, randomizer);
 
 		mode_running = &yee_mode;
 
@@ -893,8 +908,21 @@ int main(int argc, char * * argv) {
 
 	std::vector<double> time_elapsed_per_round;
 
-	while ((progress = mode_running->do_round(true, false, randomizer))
-		!= "") {
+
+	// If we're running Yee in QMC mode, the coordinate generator used
+	// to sample ballots should instead be a 2D low discrepancy sequence.
+	// This is rather opaque and design modifications are very much needed
+	// to make this less ugly.
+
+	r_sequence quasirandom_generator(2);
+
+	coordinate_gen * ballot_coord_source = &randomizer;
+	if (yee_quasi_gaussian) {
+		ballot_coord_source = &quasirandom_generator;
+	}
+
+	while ((progress = mode_running->do_round(true, false,
+					*ballot_coord_source)) != "") {
 		std::cout << progress << std::endl;
 
 		double this_instance = (get_abs_time() - cur_checkpoint);

@@ -211,7 +211,7 @@ interpreter_mode::interpreter_mode(
 	inited = false;
 }
 
-bool interpreter_mode::init(rng & randomizer) {
+bool interpreter_mode::init() {
 
 	bool debug = false;
 
@@ -265,7 +265,7 @@ int interpreter_mode::get_current_round() const {
 }
 
 std::string interpreter_mode::do_round(bool give_brief_status, bool reseed,
-	rng & randomizer, cache_map * cache) {
+	coordinate_gen &, cache_map * cache) {
 
 	// If we aren't inited, return to tell them no go.
 	if (!inited) {
@@ -274,10 +274,6 @@ std::string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 
 	if (cur_iter >= get_max_rounds()) {
 		return ("");    // All done, so signal it.
-	}
-
-	if (reseed) {
-		randomizer.s_rand(cur_iter);
 	}
 
 	std::string output = "OK";
@@ -302,8 +298,8 @@ std::string interpreter_mode::do_round(bool give_brief_status, bool reseed,
 }
 
 std::string interpreter_mode::do_round(bool give_brief_status, bool reseed,
-	rng & randomizer) {
-	return (do_round(give_brief_status, reseed, randomizer, NULL));
+	coordinate_gen & not_used) {
+	return (do_round(give_brief_status, reseed, not_used, NULL));
 }
 
 // More results than status, so more in the vein of the Bayesian Regret mode

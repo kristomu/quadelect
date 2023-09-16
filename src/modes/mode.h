@@ -38,12 +38,12 @@ class mode {
 
 	public:
 
-		virtual bool init(rng & randomizer) = 0;
+		virtual bool init(coordinate_gen & coord_source) = 0;
 		virtual int get_max_rounds() const = 0;
 		virtual int get_current_round() const = 0;
 
 		virtual std::string do_round(bool give_brief_status,
-			bool reseed, rng & randomizer) = 0;
+			bool reseed, coordinate_gen & coord_source) = 0;
 
 		virtual std::vector<std::string> provide_status() const = 0;
 };

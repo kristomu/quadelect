@@ -75,7 +75,7 @@ class bayesian_regret : public mode {
 		// Create stats for a single method given by its index
 		// in the methods array.
 		bool init_one(size_t idx);
-		bool init(rng & randomizer); // This will also clear stats.
+		bool init(coordinate_gen &); // This will also clear stats.
 
 		int get_max_rounds() const {
 			return (maxiters);
@@ -91,11 +91,18 @@ class bayesian_regret : public mode {
 		// INTERROUND going on at the same time, for instance.
 		// Hm, that will be harder than I thought... I may need
 		// hash names to do that properly.
+		// NOTE: This will definitely not work with QMC because the
+		// dimension is also decided by the coordinate generator.
+		// We need multiple coordinate generators to do any proper
+		// sampling here - one per dimension.
+
+		// Also note that reseed does nothing here; I should probably
+		// remove it.
 		std::string do_round(bool give_brief_status, bool reseed,
-			rng & randomizer, cache_map * cache);
+			coordinate_gen & coord_source, cache_map * cache);
 
 		std::string do_round(bool give_brief_status, bool reseed,
-			rng & randomizer);
+			coordinate_gen & coord_source);
 
 		std::vector<std::string> provide_status() const;
 };

@@ -119,7 +119,6 @@ add_library(quadelect_lib src/ballots.cc
 	src/generator/iac.cc
 	src/generator/impartial_gen.cc
 	src/generator/spatial/gaussian.cc
-	src/generator/spatial/quasi_gaussian.cc
 	src/generator/spatial/spatial.cc
 	src/generator/spatial/uniform.cc
 	src/grad_median/grad_median.cc

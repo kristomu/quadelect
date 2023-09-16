@@ -45,7 +45,7 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	int min_num_voters_in, int max_num_voters_in,
 	bool use_autopilot_in, double autopilot_factor_in,
 	int autopilot_history_in, cache_map * cache,
-	rng & randomizer) const {
+	coordinate_gen & ballot_coord_source) const {
 
 	size_t num_cands = am_ac_winners[0].size(),
 		   num_methods = am_ac_winners.size();
@@ -87,7 +87,7 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 		// Note: generate_ballots is quite expensive. Consider the value
 		// of using autopilot...
 		ballots = ballotgen.generate_ballots(round(cur_num_voters),
-				num_cands, randomizer);
+				num_cands, ballot_coord_source);
 
 		cache->clear();
 
@@ -427,23 +427,25 @@ bool yee::set_candidate_positions(std::vector<std::vector<double> > &
 	return (true);
 }
 
-bool yee::randomize_candidate_positions(rng & randomizer) {
+bool yee::randomize_candidate_positions(
+	coordinate_gen & candidate_coord_source) {
 
 	// If the user hasn't specified any parameters, it's impossible to know
 	// how many candidate positions to randomize!
 	if (!specified_params) {
-		return (false);
+		return false;
 	}
 
 	inited = false;
 	voter_pdf->unfix_candidate_positions();
-	if (!candidate_pdf->fix_candidate_positions(num_candidates, randomizer)) {
-		return (false);
+	if (!candidate_pdf->fix_candidate_positions(num_candidates,
+			candidate_coord_source)) {
+		return false;
 	}
-	// ???: Also do the move-to-voter-pdf thing here?
 
+	set_initial_seed(candidate_coord_source); // XXX: HACK!
 	manual_cand_positions = false;
-	return (true);
+	return true;
 }
 
 void yee::add_method(std::shared_ptr<const election_method> to_add) {
@@ -456,7 +458,7 @@ void yee::clear_methods() {
 	e_methods.clear();
 }
 
-bool yee::init(rng & randomizer) {
+bool yee::init(coordinate_gen & candidate_coord_source) {
 
 	//  If the user hasn't specified any parameters, no go.
 	if (!specified_params) {
@@ -485,7 +487,7 @@ bool yee::init(rng & randomizer) {
 	if (!manual_cand_positions) {
 		candidate_pdf->set_params(2, true); // 2D
 
-		if (!randomize_candidate_positions(randomizer)) {
+		if (!randomize_candidate_positions(candidate_coord_source)) {
 			throw std::logic_error("Yee diagram: Could not randomize "
 				"candidate positions!");
 		}
@@ -530,7 +532,7 @@ int yee::get_max_rounds() const {
 }
 
 std::string yee::do_round(bool give_brief_status, bool reseed,
-	rng & randomizer) {
+	coordinate_gen & ballot_coord_source) {
 
 	if (!inited) {
 		throw std::runtime_error("Yee diagram: Needs to be "
@@ -555,7 +557,7 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 					min_num_voters, max_num_voters,
 					use_autopilot, autopilot_factor,
 					autopilot_history_len, &cmap,
-					randomizer);
+					ballot_coord_source);
 
 			if (contrib == -1) {
 				std::cerr << "Yee: error at round " << cur_round
@@ -592,7 +594,7 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 
 		try {
 			draw_pictures(run_prefix + "_" + code,
-				method_name, randomizer.get_initial_seed(),
+				method_name, initial_seed,
 				winners_all_m_all_cand[method_no],
 				candidate_colors, candidate_posns,
 				inner_radius, outer_radius,

@@ -83,17 +83,20 @@ class interpreter_mode : public mode {
 			std::vector<std::shared_ptr<election_method> > & methods_in);
 
 		// There really isn't much to do but init.
-		bool init(rng & randomizer);
+		bool init(coordinate_gen &) {
+			return init();
+		}
+		bool init();
 
 		int get_max_rounds() const;
 		// 0 if nothing's going on.
 		int get_current_round() const;
 
 		std::string do_round(bool give_brief_status, bool reseed,
-			rng & randomizer, cache_map * cache);
+			coordinate_gen &, cache_map * cache);
 
 		std::string do_round(bool give_brief_status, bool reseed,
-			rng & randomizer);
+			coordinate_gen & not_used);
 
 		std::vector<std::string> provide_status() const;
 };

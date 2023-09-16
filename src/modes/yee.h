@@ -72,8 +72,8 @@ class yee : public mode {
 			am_ac_winners, int min_num_voters_in,
 			int max_num_voters_in, bool do_use_autopilot,
 			double autopilot_factor_in,
-			int autopilot_history_in,
-			cache_map * cache, rng & randomizer) const;
+			int autopilot_history_in, cache_map * cache,
+			coordinate_gen & ballot_coord_source) const;
 
 		// Given complete winners arrays, draw the different pictures
 		// that visualize those arrays. The method name and RNG seed
@@ -108,13 +108,18 @@ class yee : public mode {
 		void set_candidate_pdf(spatial_generator * candidate);
 		bool set_candidate_positions(std::vector<std::vector<double> > &
 			positions);
-		bool randomize_candidate_positions(rng & randomizer);
+
+		// Is "randomize" the correct word? QMC generators are kind of
+		// deterministic after all. XXX???
+		bool randomize_candidate_positions(coordinate_gen &
+			candidate_coord_source);
 
 		void add_method(std::shared_ptr<const election_method> to_add);
 		template<typename T> void add_methods(T start_iter, T end_iter);
 		void clear_methods();
 
-		bool init(rng & randomizer); // Will reinit if already inited.
+		// Will reinit if already inited.
+		bool init(coordinate_gen & candidate_coord_source);
 
 		// Each round is one column. Having each round be a point and
 		// then having to return a string would get real expensive
@@ -123,12 +128,22 @@ class yee : public mode {
 		// If not inited, who knows? If inited, xsize + num_methods.
 		int get_max_rounds() const;
 		int get_current_round() const {
-			return (cur_round);
+			return cur_round;
 		}
 
 		// Reseed does nothing here.
+		// I also have a problem: the seed we're interested in comes
+		// from the candidate coordinate source/RNG, but this only
+		// accepts one - the one fed to the ballot generator. I need
+		// to deal with that somehow. For now, accept this insanely
+		// ugly hack.. TODO!
 		std::string do_round(bool give_brief_status, bool reseed,
-			rng & randomizer);
+			coordinate_gen & ballot_coord_source);
+
+		uint64_t initial_seed = 0;
+		void set_initial_seed(coordinate_gen & candidate_coord_source) {
+			initial_seed = candidate_coord_source.get_initial_seed();
+		}
 
 		std::vector<std::string> provide_status() const;
 };

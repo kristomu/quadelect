@@ -161,33 +161,30 @@ void barycentric::add_method(std::shared_ptr<const election_method >
 	e_methods.push_back(to_add);
 }
 
-bool barycentric::init(rng & randomizer) {
-	std::cout << "INIT 1" << std::endl;
+bool barycentric::init(coordinate_gen &) {
 	// If there are no methods, there's nothing we can do.
 	if (e_methods.empty()) {
-		return (false);
+		return false;
 	}
-
-	std::cout << "INIT 2" << std::endl;
 
 	// Okay, set candidate colors. There are three candidates.
 	cand_colors = get_candidate_colors(3, false);
 
 	cur_round = 0;
 	max_rounds = e_methods.size();
-	return (true);
+	return true;
 }
 
 int barycentric::get_max_rounds() const {
-	return (max_rounds);
+	return max_rounds;
 }
 
 int barycentric::get_current_round() const {
-	return (cur_round);
+	return cur_round;
 }
 
 std::string barycentric::do_round(bool give_brief_status, bool reseed,
-	rng & randomizer) {
+	coordinate_gen &) {
 
 	std::cout << "DO_ROUND" << std::endl;
 
