@@ -15,10 +15,10 @@ std::vector<double> quasi_gaussian_generator::rnd_vector(size_t size,
 	for (size_t counter = 0; counter < size; counter += 2) {
 		std::pair<double, double> gaussian_sample;
 		if (!center.empty() && center.size() >= 2)
-			gaussian_sample = gdist.get(center[0], center[1], dispersion[0],
+			gaussian_sample = gdist.get_2D(center[0], center[1], dispersion[0],
 					qmc_sampler);
 		else {
-			gaussian_sample = gdist.get(dispersion[0], qmc_sampler);
+			gaussian_sample = gdist.get_2D(dispersion[0], qmc_sampler);
 		}
 
 		toRet.push_back(gaussian_sample.first);
