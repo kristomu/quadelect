@@ -164,7 +164,7 @@ bool bayesian_regret::init_one(size_t idx) {
 	return (true);
 }
 
-bool bayesian_regret::init(coordinate_gen &) {
+bool bayesian_regret::init() {
 
 	curiter = 0;
 	method_stats.clear();
@@ -177,10 +177,13 @@ bool bayesian_regret::init(coordinate_gen &) {
 	return (inited);
 }
 
-std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
-	coordinate_gen & coord_source, cache_map * cache) {
+std::string bayesian_regret::do_round(bool give_brief_status,
+	cache_map * cache) {
 
-	if (!coord_source.is_independent()) {
+	std::shared_ptr<coordinate_gen> coord_source =
+		coordinate_sources[PURPOSE_MULTIPURPOSE];
+
+	if (!coord_source->is_independent()) {
 		throw std::invalid_argument("bayesian_regret: QMC is not yet supported.");
 	}
 
@@ -190,8 +193,8 @@ std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 
 	std::string toRet_denied = "", toRet = "OK";
 
-	int numcands = coord_source.next_int(min_candidates, max_candidates+1);
-	int numvoters = coord_source.next_int(min_voters, max_voters+1);
+	int numcands = coord_source->next_int(min_candidates, max_candidates+1);
+	int numvoters = coord_source->next_int(min_voters, max_voters+1);
 
 	if (give_brief_status)
 		toRet = "Now going on " + dtos(curiter) + " with " +
@@ -201,7 +204,7 @@ std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 	// This lets the test use multiple generators; they are each
 	// used (numrounds)/(num_generators) times.
 	std::list<ballot_group> ballots = generators[curiter % generators.size()]->
-		generate_ballots(numvoters, numcands, coord_source);
+		generate_ballots(numvoters, numcands, *coord_source);
 
 	// Get the utility scores, maximum and minimum. (TODO?? If we're
 	// checking medians, shouldn't this be median ratings instead? etc. for
@@ -259,11 +262,10 @@ std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
 	return (toRet);
 }
 
-std::string bayesian_regret::do_round(bool give_brief_status, bool reseed,
-	coordinate_gen & coord_source) {
+std::string bayesian_regret::do_round(bool give_brief_status) {
 	cache_map cache;
 
-	return (do_round(give_brief_status, reseed, coord_source, &cache));
+	return (do_round(give_brief_status, &cache));
 }
 
 std::vector<std::string> bayesian_regret::provide_status() const {

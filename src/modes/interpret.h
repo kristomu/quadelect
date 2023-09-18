@@ -48,6 +48,10 @@ class interpreter_mode : public mode {
 
 		void invalidate();
 
+		bool is_valid_purpose(uint32_t purpose) const {
+			return false;
+		}
+
 	public:
 		void set_ballots(const std::list<ballot_group> & ballot_in);
 		bool set_ballots(const std::list<ballot_group> & ballot_in,
@@ -83,22 +87,22 @@ class interpreter_mode : public mode {
 			std::vector<std::shared_ptr<election_method> > & methods_in);
 
 		// There really isn't much to do but init.
-		bool init(coordinate_gen &) {
-			return init();
-		}
 		bool init();
 
 		int get_max_rounds() const;
 		// 0 if nothing's going on.
 		int get_current_round() const;
 
-		std::string do_round(bool give_brief_status, bool reseed,
-			coordinate_gen &, cache_map * cache);
+		std::string do_round(bool give_brief_status,
+			cache_map * cache);
 
-		std::string do_round(bool give_brief_status, bool reseed,
-			coordinate_gen & not_used);
+		std::string do_round(bool give_brief_status);
 
 		std::vector<std::string> provide_status() const;
+
+		std::string name() const {
+			return "Ballot interpreter";
+		}
 };
 
 template<typename T> void interpreter_mode::add_methods(T start_iter,

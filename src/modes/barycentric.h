@@ -40,6 +40,10 @@ class barycentric : public mode {
 		std::string get_codename(const election_method & in,
 			size_t bytes) const;
 
+		bool is_valid_purpose(uint32_t purpose) const {
+			return false;
+		}
+
 		bool inited;
 		int max_rounds, cur_round;
 
@@ -49,18 +53,21 @@ class barycentric : public mode {
 			inited = false;
 		}
 
-		bool init(coordinate_gen &);
+		bool init();
 		int get_max_rounds() const;
 		int get_current_round() const;
 
-		std::string do_round(bool give_brief_status, bool reseed,
-			coordinate_gen &);
+		std::string do_round(bool give_brief_status);
 
 		std::vector<std::string> provide_status() const;
 
 		// Add methods.
 		void add_method(std::shared_ptr<const election_method > to_add);
 		template<typename T> void add_methods(T start_iter, T end_iter);
+
+		std::string name() const {
+			return "Barycentric";
+		}
 };
 
 template<typename T> void barycentric::add_methods(T start_iter,

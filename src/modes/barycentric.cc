@@ -7,15 +7,18 @@
 
 #include "../spookyhash/SpookyV2.h"
 
+// Turns a string of the type "ABC" into a ranked ballot corresponding
+// to A>B>C.
 ordering strict_ballot(std::string input) {
 
 	ordering output;
 
-	for (size_t counter = 0; counter < input.size(); ++counter)
+	for (size_t counter = 0; counter < input.size(); ++counter) {
 		output.insert(candscore(input[counter] - 'A',
 				input.size() - counter));
+	}
 
-	return (output);
+	return output;
 }
 
 std::list<ballot_group>  barycentric::generate_ballot_set(double x,
@@ -155,13 +158,13 @@ std::string barycentric::get_codename(const election_method & in,
 
 // ---- //
 
-void barycentric::add_method(std::shared_ptr<const election_method >
-	to_add) {
+void barycentric::add_method(
+	std::shared_ptr<const election_method > to_add) {
 	inited = false;
 	e_methods.push_back(to_add);
 }
 
-bool barycentric::init(coordinate_gen &) {
+bool barycentric::init() {
 	// If there are no methods, there's nothing we can do.
 	if (e_methods.empty()) {
 		return false;
@@ -183,10 +186,7 @@ int barycentric::get_current_round() const {
 	return cur_round;
 }
 
-std::string barycentric::do_round(bool give_brief_status, bool reseed,
-	coordinate_gen &) {
-
-	std::cout << "DO_ROUND" << std::endl;
+std::string barycentric::do_round(bool give_brief_status) {
 
 	// For the method in question:
 	//	For every pixel,
@@ -265,7 +265,7 @@ std::string barycentric::do_round(bool give_brief_status, bool reseed,
 
 	++cur_round;
 
-	return (status + "OK");
+	return status + "OK";
 }
 
 std::vector<std::string> barycentric::provide_status() const {

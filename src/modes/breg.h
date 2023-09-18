@@ -34,6 +34,10 @@ class bayesian_regret : public mode {
 
 		std::vector<double> utilities;
 
+		bool is_valid_purpose(uint32_t purpose) const {
+			return purpose == PURPOSE_MULTIPURPOSE;
+		}
+
 	public:
 
 		bayesian_regret();
@@ -75,7 +79,7 @@ class bayesian_regret : public mode {
 		// Create stats for a single method given by its index
 		// in the methods array.
 		bool init_one(size_t idx);
-		bool init(coordinate_gen &); // This will also clear stats.
+		bool init(); // This will also clear stats.
 
 		int get_max_rounds() const {
 			return (maxiters);
@@ -98,13 +102,16 @@ class bayesian_regret : public mode {
 
 		// Also note that reseed does nothing here; I should probably
 		// remove it.
-		std::string do_round(bool give_brief_status, bool reseed,
-			coordinate_gen & coord_source, cache_map * cache);
+		std::string do_round(bool give_brief_status,
+			cache_map * cache);
 
-		std::string do_round(bool give_brief_status, bool reseed,
-			coordinate_gen & coord_source);
+		std::string do_round(bool give_brief_status);
 
 		std::vector<std::string> provide_status() const;
+
+		std::string name() const {
+			return "Bayesian regret";
+		}
 };
 
 // These have to be in the header since they're templated functions.

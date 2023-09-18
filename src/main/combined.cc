@@ -83,7 +83,7 @@ bayesian_regret setup_regret(
 	std::vector<std::shared_ptr<election_method> > & methods,
 	std::vector<std::shared_ptr<pure_ballot_generator> > & generators,
 	int maxiters, int min_candidates, int max_candidates,
-	int min_voters, int max_voters, rng & randomizer) {
+	int min_voters, int max_voters, uint64_t rng_seed) {
 
 	// Do something with Bayesian regret here. DONE: Move over
 	// to modes.
@@ -92,8 +92,11 @@ bayesian_regret setup_regret(
 		min_voters, max_voters, false, MS_INTRAROUND,
 		generators, methods);
 
+	br.set_coordinate_gen(PURPOSE_MULTIPURPOSE,
+		std::make_shared<rng>(rng_seed));
+
 	// TODO: Throw the exception inside the bayesian regret code instead.
-	if (!br.init(randomizer)) {
+	if (!br.init()) {
 		throw std::runtime_error("Bayesian Regret: could not initialize!");
 	}
 
@@ -118,12 +121,12 @@ bayesian_regret setup_regret(
 // not need hacks like getting candidate positions by peering into
 // candscores.
 
-template<typename T> yee setup_yee(
+yee setup_yee(
 	std::vector<std::shared_ptr<election_method> > & methods,
 	int num_voters, int num_cands,
 	bool do_use_autopilot, std::string case_prefix, int picture_size,
-	double sigma, T & gaussian, uniform_generator & uniform,
-	rng & candidate_coords_rng) {
+	double sigma, spatial_generator & gaussian, uniform_generator & uniform,
+	uint64_t rng_seed, bool quasi_monte_carlo) {
 
 	yee to_output;
 
@@ -132,15 +135,24 @@ template<typename T> yee setup_yee(
 		throw std::runtime_error("Yee diagram: Could not set parameters!");
 	}
 
-	// yuck HACK
-	to_output.set_initial_seed(candidate_coords_rng);
+	std::shared_ptr<rng> rng_ptr = std::make_shared<rng>(rng_seed);
+
+	to_output.set_coordinate_gen(PURPOSE_CANDIDATE_DATA, rng_ptr);
+
+	if (quasi_monte_carlo) {
+		to_output.set_coordinate_gen(PURPOSE_BALLOT_GENERATOR,
+			std::make_shared<r_sequence>(2));
+	} else {
+		to_output.set_coordinate_gen(PURPOSE_BALLOT_GENERATOR,
+			rng_ptr);
+	}
 
 	to_output.set_voter_pdf(&gaussian);
 	to_output.set_candidate_pdf(&uniform);
 
 	to_output.add_methods(methods.begin(), methods.end());
 
-	if (!to_output.init(candidate_coords_rng)) {
+	if (!to_output.init()) {
 		throw std::runtime_error("Yee diagram: Could not initialize!");
 	}
 
@@ -148,14 +160,13 @@ template<typename T> yee setup_yee(
 }
 
 barycentric setup_bary(
-	std::vector<std::shared_ptr<election_method> > & methods,
-	rng & randomizer) {
+	std::vector<std::shared_ptr<election_method> > & methods) {
 
 	barycentric to_output;
 
 	to_output.add_methods(methods.begin(), methods.end());
 
-	if (!to_output.init(randomizer)) {
+	if (!to_output.init()) {
 		throw std::runtime_error("Barycentric: Could not initialize!");
 	}
 
@@ -165,11 +176,11 @@ barycentric setup_bary(
 std::pair<bool, interpreter_mode> setup_interpreter(
 	std::vector<std::shared_ptr<election_method> > & methods,
 	std::vector<std::shared_ptr<interpreter> > & interpreters,
-	std::vector<std::string> & unparsed, rng & randomizer) {
+	std::vector<std::string> & unparsed) {
 
 	interpreter_mode toRet(interpreters, methods, unparsed);
 
-	bool inited = toRet.init(randomizer);
+	bool inited = toRet.init();
 
 	if (!inited) {
 		std::cerr << "Interpreter mode error: Cannot parse ballot data!"
@@ -183,7 +194,7 @@ std::pair<bool, interpreter_mode> setup_interpreter(
 std::pair<bool, interpreter_mode> setup_interpreter_from_file(
 	std::vector<std::shared_ptr<election_method> > & methods,
 	std::vector<std::shared_ptr<interpreter> > & interpreters,
-	std::string file_name, rng & randomizer) {
+	std::string file_name) {
 
 	std::ifstream inf(file_name.c_str());
 
@@ -199,7 +210,7 @@ std::pair<bool, interpreter_mode> setup_interpreter_from_file(
 	std::vector<std::string> unparsed = slurp_file(inf, false);
 	inf.close();
 
-	return (setup_interpreter(methods, interpreters, unparsed, randomizer));
+	return (setup_interpreter(methods, interpreters, unparsed));
 }
 
 /// --- ///
@@ -476,7 +487,7 @@ int main(int argc, char * * argv) {
 
 	double yee_sigma = 0.3;
 	int yee_size = 240, yee_voters = 1000, yee_candidates = 4;
-	bool yee_autopilot = true, yee_quasi_gaussian = false;
+	bool yee_autopilot = true, yee_quasi_mc = false;
 	std::string yee_prefix = "default";
 
 	int breg_rounds = 20000, breg_min_cands = 3, breg_max_cands = 20,
@@ -635,7 +646,7 @@ int main(int argc, char * * argv) {
 						}
 						break;
 					case 's': // -yq	Yee: enable quasi-gaussian
-						yee_quasi_gaussian = true;
+						yee_quasi_mc = true;
 						yee_autopilot = false; // Autopilot interferes
 						break;
 					case 'p': // -ic [filename]
@@ -829,7 +840,7 @@ int main(int argc, char * * argv) {
 		std::cout << "\t\t- sigma: " << yee_sigma << std::endl;
 		std::cout << "\t\t- picture size: " << yee_size << std::endl;
 		std::cout << "\t\t- integration mode: ";
-		if (yee_quasi_gaussian) {
+		if (yee_quasi_mc) {
 			std::cout << "Quasi-Monte Carlo\n";
 		} else {
 			std::cout << "Monte Carlo\n";
@@ -852,7 +863,8 @@ int main(int argc, char * * argv) {
 
 		yee_mode = setup_yee(methods, yee_voters, yee_candidates,
 				yee_autopilot, yee_prefix, yee_size, yee_sigma,
-				gaussian, uniform, randomizer);
+				gaussian, uniform, randomizer.get_initial_seed(),
+				yee_quasi_mc);
 
 		mode_running = &yee_mode;
 
@@ -873,7 +885,8 @@ int main(int argc, char * * argv) {
 
 		br_mode = setup_regret(methods, generators,
 				breg_rounds, breg_min_cands, breg_max_cands,
-				breg_min_voters, breg_max_voters, randomizer);
+				breg_min_voters, breg_max_voters,
+				randomizer.get_initial_seed());
 
 		mode_running = &br_mode;
 	}
@@ -881,7 +894,7 @@ int main(int argc, char * * argv) {
 	if (run_bary) {
 		std::cout << "Setting up barycentric visualization" << std::endl;
 
-		bary_mode = setup_bary(methods, randomizer);
+		bary_mode = setup_bary(methods);
 
 		mode_running = &bary_mode;
 	}
@@ -894,7 +907,7 @@ int main(int argc, char * * argv) {
 		std::cout << "\t\t- number of methods: " << methods.size() << std::endl;
 
 		int_mode = setup_interpreter_from_file(methods, interpreters,
-				int_source_file, randomizer);
+				int_source_file);
 
 		if (!int_mode.first) {
 			return (-1);    // Something wrong, outta here.
@@ -908,21 +921,7 @@ int main(int argc, char * * argv) {
 
 	std::vector<double> time_elapsed_per_round;
 
-
-	// If we're running Yee in QMC mode, the coordinate generator used
-	// to sample ballots should instead be a 2D low discrepancy sequence.
-	// This is rather opaque and design modifications are very much needed
-	// to make this less ugly.
-
-	r_sequence quasirandom_generator(2);
-
-	coordinate_gen * ballot_coord_source = &randomizer;
-	if (yee_quasi_gaussian) {
-		ballot_coord_source = &quasirandom_generator;
-	}
-
-	while ((progress = mode_running->do_round(true, false,
-					*ballot_coord_source)) != "") {
+	while ((progress = mode_running->do_round(true)) != "") {
 		std::cout << progress << std::endl;
 
 		double this_instance = (get_abs_time() - cur_checkpoint);

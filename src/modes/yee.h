@@ -87,6 +87,14 @@ class yee : public mode {
 			double inner_radius_in, double outer_radius_in,
 			double hue_factor) const;
 
+		bool is_valid_purpose(uint32_t purpose) const {
+			return purpose == PURPOSE_BALLOT_GENERATOR
+				|| purpose == PURPOSE_CANDIDATE_DATA;
+		}
+
+		using mode::init;
+		bool init(coordinate_gen & candidate_coord_source);
+
 	public:
 
 		yee();
@@ -109,17 +117,16 @@ class yee : public mode {
 		bool set_candidate_positions(std::vector<std::vector<double> > &
 			positions);
 
-		// Is "randomize" the correct word? QMC generators are kind of
-		// deterministic after all. XXX???
-		bool randomize_candidate_positions(coordinate_gen &
+		bool set_candidate_positions(coordinate_gen &
 			candidate_coord_source);
+		bool set_candidate_positions();
 
 		void add_method(std::shared_ptr<const election_method> to_add);
 		template<typename T> void add_methods(T start_iter, T end_iter);
 		void clear_methods();
 
 		// Will reinit if already inited.
-		bool init(coordinate_gen & candidate_coord_source);
+		bool init();
 
 		// Each round is one column. Having each round be a point and
 		// then having to return a string would get real expensive
@@ -131,21 +138,13 @@ class yee : public mode {
 			return cur_round;
 		}
 
-		// Reseed does nothing here.
-		// I also have a problem: the seed we're interested in comes
-		// from the candidate coordinate source/RNG, but this only
-		// accepts one - the one fed to the ballot generator. I need
-		// to deal with that somehow. For now, accept this insanely
-		// ugly hack.. TODO!
-		std::string do_round(bool give_brief_status, bool reseed,
-			coordinate_gen & ballot_coord_source);
-
-		uint64_t initial_seed = 0;
-		void set_initial_seed(coordinate_gen & candidate_coord_source) {
-			initial_seed = candidate_coord_source.get_initial_seed();
-		}
+		std::string do_round(bool give_brief_status);
 
 		std::vector<std::string> provide_status() const;
+
+		std::string name() const {
+			return "Yee renderer";
+		}
 };
 
 template<typename T> void yee::add_methods(T start_iter, T end_iter) {

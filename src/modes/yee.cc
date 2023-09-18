@@ -427,7 +427,7 @@ bool yee::set_candidate_positions(std::vector<std::vector<double> > &
 	return (true);
 }
 
-bool yee::randomize_candidate_positions(
+bool yee::set_candidate_positions(
 	coordinate_gen & candidate_coord_source) {
 
 	// If the user hasn't specified any parameters, it's impossible to know
@@ -443,9 +443,13 @@ bool yee::randomize_candidate_positions(
 		return false;
 	}
 
-	set_initial_seed(candidate_coord_source); // XXX: HACK!
 	manual_cand_positions = false;
 	return true;
+}
+
+bool yee::set_candidate_positions() {
+	return set_candidate_positions(
+			*coordinate_sources[PURPOSE_CANDIDATE_DATA]);
 }
 
 void yee::add_method(std::shared_ptr<const election_method> to_add) {
@@ -487,7 +491,7 @@ bool yee::init(coordinate_gen & candidate_coord_source) {
 	if (!manual_cand_positions) {
 		candidate_pdf->set_params(2, true); // 2D
 
-		if (!randomize_candidate_positions(candidate_coord_source)) {
+		if (!set_candidate_positions(candidate_coord_source)) {
 			throw std::logic_error("Yee diagram: Could not randomize "
 				"candidate positions!");
 		}
@@ -521,6 +525,11 @@ bool yee::init(coordinate_gen & candidate_coord_source) {
 	return (true);
 }
 
+bool yee::init() {
+	return init(*(coordinate_sources.find(
+					PURPOSE_CANDIDATE_DATA)->second));
+}
+
 // If we've inited, there's one round for each column as well as one round for
 // each method at the end (to plot).
 int yee::get_max_rounds() const {
@@ -531,8 +540,7 @@ int yee::get_max_rounds() const {
 	return (x_size + e_methods.size());
 }
 
-std::string yee::do_round(bool give_brief_status, bool reseed,
-	coordinate_gen & ballot_coord_source) {
+std::string yee::do_round(bool give_brief_status) {
 
 	if (!inited) {
 		throw std::runtime_error("Yee diagram: Needs to be "
@@ -557,7 +565,7 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 					min_num_voters, max_num_voters,
 					use_autopilot, autopilot_factor,
 					autopilot_history_len, &cmap,
-					ballot_coord_source);
+					*coordinate_sources[PURPOSE_BALLOT_GENERATOR]);
 
 			if (contrib == -1) {
 				std::cerr << "Yee: error at round " << cur_round
@@ -593,6 +601,10 @@ std::string yee::do_round(bool give_brief_status, bool reseed,
 		// certain file.
 
 		try {
+			uint64_t initial_seed =
+				coordinate_sources[PURPOSE_CANDIDATE_DATA]->
+				get_initial_seed();
+
 			draw_pictures(run_prefix + "_" + code,
 				method_name, initial_seed,
 				winners_all_m_all_cand[method_no],
