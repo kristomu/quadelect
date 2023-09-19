@@ -96,7 +96,7 @@ class copeland_scenario {
 			abstract_condmat * condorcet_matrix) const;
 
 		std::vector<std::vector<bool> > election_to_copeland_matrix(const
-			std::list<ballot_group> & election, size_t numcands) const;
+			election_t & election, size_t numcands) const;
 
 		std::vector<bool> int_to_vbool(size_t numcands) const;
 
@@ -151,7 +151,7 @@ class copeland_scenario {
 		{}
 
 		// From a ballot set (election)
-		copeland_scenario(const std::list<ballot_group> & election,
+		copeland_scenario(const election_t & election,
 			size_t numcands) :
 			copeland_scenario(election_to_copeland_matrix(election,
 					numcands)) {}
@@ -230,7 +230,7 @@ class copeland_scenario {
 				number_of_candidates != other.number_of_candidates;
 		}
 
-		void operator=(const std::list<ballot_group> & election) {
+		void operator=(const election_t & election) {
 			std::vector<std::vector<bool> > copeland_matrix =
 				election_to_copeland_matrix(election, get_numcands());
 

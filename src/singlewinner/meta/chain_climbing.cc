@@ -81,7 +81,7 @@ void chain_climbing::determine_winners(
 }
 
 std::vector<bool> chain_climbing::get_winners(
-	const std::list<ballot_group> & election,
+	const election_t & election,
 	const std::vector<bool> & hopefuls,
 	ordering base_method_ordering) const {
 
@@ -100,7 +100,7 @@ std::vector<bool> chain_climbing::get_winners(
 // Lifted from meta/benham.
 
 std::pair<ordering, bool> chain_climbing::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

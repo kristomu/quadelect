@@ -105,7 +105,7 @@ int main() {
 	for (int i = 0; i < iterations; ++i) {
 		cache.clear();
 
-		std::list<ballot_group> ballots = impart_anon_c.generate_ballots(
+		election_t ballots = impart_anon_c.generate_ballots(
 				numvoters, numcands, randomizer);
 
 		for (method_idx = 0; method_idx < methods.size(); ++method_idx) {

@@ -11,8 +11,8 @@
 
 // What's next?
 // ballot_group --> factorial format vector
-// std::list<ballot_group> --> factorial format vector
-// std::list<ballot_group> --> std::list<ballot_group> permuting candidate names
+// election_t --> factorial format vector
+// election_t --> election_t permuting candidate names
 
 // We may need the inverse of kth_permutation for this.
 
@@ -23,17 +23,17 @@
 void inc_ballot_vector(const ballot_group & ballot_to_add,
 	std::vector<double> & permutation_count_vector, size_t numcands);
 
-std::vector<double> get_ballot_vector(const std::list<ballot_group> &
+std::vector<double> get_ballot_vector(const election_t &
 	election,
 	size_t numcands);
 
 std::vector<double> get_ballot_vector(const election_scenario_pair & esp);
 
-std::list<ballot_group> relabel_election_candidates(
-	const std::list<ballot_group> & election_in,
+election_t relabel_election_candidates(
+	const election_t & election_in,
 	const std::vector<int> & candidate_relabeling,
 	bool disallow_elimination);
 
-std::list<ballot_group> permute_election_candidates(
-	const std::list<ballot_group> & election_in,
+election_t permute_election_candidates(
+	const election_t & election_in,
 	const std::vector<int> & candidate_permutation);

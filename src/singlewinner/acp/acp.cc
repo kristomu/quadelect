@@ -3,13 +3,13 @@
 #include "../../pairwise/matrix.h"
 
 int adjusted_cond_plur::get_adjusted_winner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	size_t base_winner, size_t num_candidates) const {
 
 	// Truncate after the base method winner and create
 	// a Condorcet matrix based on this.
-	std::list<ballot_group> truncated_papers =
+	election_t truncated_papers =
 		ballot_tools::truncate_after(papers, base_winner);
 
 	condmat pairwise_matrix(truncated_papers, num_candidates, CM_WV);
@@ -25,7 +25,7 @@ int adjusted_cond_plur::get_adjusted_winner(
 }
 
 std::pair<ordering, bool> adjusted_cond_plur::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

@@ -3,7 +3,7 @@
 #include "../../pairwise/matrix.h"
 
 std::pair<ordering, bool> dmt_set::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {

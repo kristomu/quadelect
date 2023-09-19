@@ -22,7 +22,7 @@ struct relative_test_instance {
 
 class test_generator {
 	private:
-		std::list<ballot_group> vector_election_to_ordering_format(
+		election_t vector_election_to_ordering_format(
 			const std::vector<double> & election, int numcands) const;
 		uint64_t rng_seed;
 

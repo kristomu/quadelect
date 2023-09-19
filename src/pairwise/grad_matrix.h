@@ -44,7 +44,7 @@ class cond_borda_matrix : public abstract_condmat {
 
 		cond_borda_matrix(pairwise_type type_in) :
 			abstract_condmat(type_in) {}
-		cond_borda_matrix(const std::list<ballot_group> & scores,
+		cond_borda_matrix(const election_t & scores,
 			size_t num_candidates_in, pairwise_type kind,
 			bool cardinal, completion_type completion_in);
 		cond_borda_matrix(const cond_borda_matrix & in,
@@ -58,7 +58,7 @@ class cond_borda_matrix : public abstract_condmat {
 		void set_num_candidates(size_t candidates);
 
 		// Add Range (cardinal distances) here later?
-		void count_ballots(const std::list<ballot_group> & scores,
+		void count_ballots(const election_t & scores,
 			size_t num_candidates_in, bool cardinal,
 			completion_type completion);
 

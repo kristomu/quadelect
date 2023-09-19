@@ -3,7 +3,7 @@
 #include "../pairwise/simple_methods.h"
 
 std::pair<ordering, bool> sv_att_second::elect_inner(
-	const std::list<ballot_group> &
+	const election_t &
 	papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,

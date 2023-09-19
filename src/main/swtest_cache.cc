@@ -37,7 +37,7 @@ int main() {
 	srandom(seed);
 	srand48(seed);
 
-	std::list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
+	election_t ballots = ic.generate_ballots(17, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;
@@ -80,7 +80,7 @@ int main() {
 	for (counter = 0; counter < 400000; ++counter) {
 		cache.clear();
 		int numcand = 4;
-		std::list<ballot_group> orig = ic.generate_ballots(
+		election_t orig = ic.generate_ballots(
 				random() % 17 + 2, numcand, randomizer);
 
 		if (mrtest.pass(&le_plur, orig,

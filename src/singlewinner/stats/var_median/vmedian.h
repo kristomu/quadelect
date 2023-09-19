@@ -39,7 +39,7 @@
 class vi_median_ratings : public election_method {
 
 	private:
-		grad_fracile aggregate_ratings(const std::list<ballot_group> &
+		grad_fracile aggregate_ratings(const election_t &
 			papers, int num_candidates, const std::vector<bool> &
 			hopefuls, bool do_norm, double minimum,
 			double maximum) const;
@@ -55,7 +55,7 @@ class vi_median_ratings : public election_method {
 	protected:
 
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;

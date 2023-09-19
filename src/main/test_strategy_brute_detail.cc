@@ -125,7 +125,7 @@ void test_strategy(std::shared_ptr<const election_method> to_test,
 	impartial ic(true, false);
 	//impartial ballot_gen(true, false);
 
-	std::list<ballot_group> ballots;
+	election_t ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have

@@ -8,7 +8,7 @@
 // written with efficiency in mind, just to get something done.
 void ifpp_method_x::find_eliminated_plurality_counts(
 	std::map<std::vector<bool>, std::vector<double> > & first_pref_counts,
-	const std::list<ballot_group> & election,
+	const election_t & election,
 	std::vector<bool> & remaining_candidates,
 	int num_remaining) const {
 
@@ -57,7 +57,7 @@ void ifpp_method_x::find_eliminated_plurality_counts(
 
 std::map<std::vector<bool>, std::vector<double> >
 ifpp_method_x::get_eliminated_plurality_counts(
-	const std::list<ballot_group> & election,
+	const election_t & election,
 	std::vector<bool> hopefuls) const {
 
 	int num_hopefuls = 0;
@@ -165,7 +165,7 @@ std::vector<double> ifpp_method_x::find_candidate_scores(
 }
 
 std::vector<double> ifpp_method_x::get_candidate_scores(
-	const std::list<ballot_group> & election,
+	const election_t & election,
 	std::vector<bool> hopefuls, int num_candidates) const {
 
 	std::map<std::vector<bool>, std::vector<double> >
@@ -179,7 +179,7 @@ std::vector<double> ifpp_method_x::get_candidate_scores(
 }
 
 std::pair<ordering, bool> ifpp_method_x::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

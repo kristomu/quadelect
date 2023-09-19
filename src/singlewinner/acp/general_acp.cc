@@ -3,7 +3,7 @@
 #include "../../pairwise/matrix.h"
 
 std::pair<ordering, bool> generalized_acp::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
@@ -22,13 +22,13 @@ std::pair<ordering, bool> generalized_acp::elect_inner(
 	// ultimate winners.
 
 	std::vector<bool> was_pairwise_winner(num_candidates, false);
-	std::list<ballot_group> pairwise_outcomes_election;
+	election_t pairwise_outcomes_election;
 
 	for (int base_winner: base_winners) {
 
 		// Truncate after the base method winner and create
 		// a Condorcet matrix based on this.
-		std::list<ballot_group> truncated_papers =
+		election_t truncated_papers =
 			ballot_tools::truncate_after(papers, base_winner);
 
 		condmat pairwise_matrix(truncated_papers, num_candidates, CM_WV);

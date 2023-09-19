@@ -29,7 +29,7 @@ class contingent_vote : public election_method {
 
 	public:
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;

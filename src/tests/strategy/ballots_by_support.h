@@ -13,8 +13,8 @@
 // challenger wins thus don't count as supporting the challenger.
 class ballots_by_support {
 	public:
-		std::list<ballot_group> supporting_challenger,
-			others;
+		election_t supporting_challenger,
+				   others;
 
 		double challenger_support, other_support;
 		size_t winner, challenger;
@@ -34,10 +34,10 @@ class ballots_by_support {
 
 		// Initialize data according to a given set of ballots.
 		void group_by_support(
-			const std::list<ballot_group> & ballots,
+			const election_t & ballots,
 			size_t winner_in, size_t challenger_in);
 
-		ballots_by_support(const std::list<ballot_group> & ballots,
+		ballots_by_support(const election_t & ballots,
 			size_t winner_in, size_t challenger_in) {
 
 			group_by_support(ballots, winner_in, challenger_in);

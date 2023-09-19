@@ -20,8 +20,8 @@ class test_reversal_symmetry : public twotest {
 	protected:
 		// No data needed, hence we don't need to redef
 		// generate_aux_data.
-		std::pair<bool, std::list<ballot_group> > rearrange_ballots(
-			const std::list<ballot_group> & input,
+		std::pair<bool, election_t> rearrange_ballots(
+			const election_t & input,
 			int numcands,
 			const std::vector<int> & data) const;
 

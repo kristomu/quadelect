@@ -5,13 +5,13 @@
 #include "../../../../linear_model/constraints/pairwise.h"
 #include "../../../../linear_model/constraints/general.h"
 
-std::list<ballot_group> test_generator::vector_election_to_ordering_format(
+election_t test_generator::vector_election_to_ordering_format(
 	const std::vector<double> & election, int numcands) const {
 
 	std::vector<int> cur_cand_ordering(numcands);
 	std::iota(cur_cand_ordering.begin(), cur_cand_ordering.end(), 0);
 
-	std::list<ballot_group> out_election;
+	election_t out_election;
 	int perm_number = 0;
 
 	do {
@@ -161,7 +161,7 @@ relative_test_instance test_generator::sample_instance(
 	size_t i;
 
 	// This is kinda unwieldy: we go from std::vector<double> to
-	// std::list<ballot_group> only so we can rotate and determine scenarios;
+	// election_t only so we can rotate and determine scenarios;
 	// then we go right back because gen_custom_function takes std::vector<double>.
 	// TODO at some later time: skip the middle man. Probably will involve
 	// making a std::vector<double> election class.

@@ -53,7 +53,7 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 // generalization of early majority, eventually.
 
 std::pair<ordering, bool> loser_elimination::elect_inner(const
-	std::list<ballot_group> &
+	election_t &
 	papers, const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

@@ -13,7 +13,7 @@
 // here. If the method in question wishes, it can override the function with a
 // quicker one - that's why it's virtual.
 std::pair<ordering, bool> election_method::elect_inner(
-	const std::list<ballot_group> & papers, int num_candidates,
+	const election_t & papers, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	std::vector<bool> hopefuls(num_candidates, true);
@@ -25,7 +25,7 @@ std::pair<ordering, bool> election_method::elect_inner(
 // Cache wrappers.
 
 std::pair<ordering, bool> election_method::elect_detailed(
-	const std::list<ballot_group> & papers, int num_candidates,
+	const election_t & papers, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// Do a few sanity checks.
@@ -72,7 +72,7 @@ std::pair<ordering, bool> election_method::elect_detailed(
 }
 
 std::pair<ordering, bool> election_method::elect_detailed(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
@@ -132,7 +132,7 @@ std::pair<ordering, bool> election_method::elect_detailed(
 }
 
 // Public wrappers.
-ordering election_method::elect(const std::list<ballot_group> & papers,
+ordering election_method::elect(const election_t & papers,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 
@@ -140,7 +140,7 @@ ordering election_method::elect(const std::list<ballot_group> & papers,
 			first);
 }
 
-ordering election_method::elect(const std::list<ballot_group> & papers,
+ordering election_method::elect(const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

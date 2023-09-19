@@ -84,13 +84,13 @@ class ballot_tools {
 		static ballot_group truncate_after(const ballot_group & in,
 			size_t truncate_after_candidate_num);
 
-		static std::list<ballot_group> truncate_after(
-			const std::list<ballot_group> & ballots,
+		static election_t truncate_after(
+			const election_t & ballots,
 			size_t truncate_after_candidate_num);
 
-		std::list<ballot_group> sort_ballots(const std::list<ballot_group> &
+		election_t sort_ballots(const election_t &
 			to_sort) const;
-		std::list<ballot_group> compress(const std::list<ballot_group> &
+		election_t compress(const election_t &
 			uncompressed) const;
 
 		std::string ballot_to_text(const ballot_group & rank_ballot,
@@ -98,20 +98,20 @@ class ballot_tools {
 			bool numeric) const;
 
 		std::vector<std::string> ballots_to_text(std::string prefix,
-			const std::list<ballot_group> & rank_ballots,
+			const election_t & rank_ballots,
 			const std::map<size_t, std::string> & reverse_cand_lokoup,
 			bool numeric) const;
 
-		std::vector<std::string> ballots_to_text(const std::list<ballot_group> &
+		std::vector<std::string> ballots_to_text(const election_t &
 			rank_ballots, const std::map<size_t, std::string> &
 			reverse_cand_lookup, bool numeric) const;
 
-		void print_ranked_ballots(const std::list<ballot_group> &
+		void print_ranked_ballots(const election_t &
 			rank_ballots) const;
 
 		// Multiply all the weights by factor. Used for covering
 		// methods more thoroughly when doing monotonicity checks etc.
-		std::list<ballot_group> rescale(const std::list<ballot_group> & ballots,
+		election_t rescale(const election_t & ballots,
 			double factor) const;
 
 };

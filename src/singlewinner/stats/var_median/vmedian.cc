@@ -10,7 +10,7 @@
 
 
 grad_fracile vi_median_ratings::aggregate_ratings(
-	const std::list<ballot_group> & papers, int num_candidates,
+	const election_t & papers, int num_candidates,
 	const std::vector<bool> & hopefuls, bool do_norm, double minimum,
 	double maximum) const {
 
@@ -22,7 +22,7 @@ grad_fracile vi_median_ratings::aggregate_ratings(
 
 	double score;
 
-	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (election_t::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 
 		double local_min = INFINITY, local_max = -INFINITY;
@@ -237,7 +237,7 @@ std::pair<ordering, bool> vi_median_ratings::get_ranks(
 }
 
 std::pair<ordering, bool> vi_median_ratings::elect_inner(
-	const std::list<ballot_group> & papers,const std::vector<bool> & hopefuls,
+	const election_t & papers,const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * /*cache*/, bool winner_only) const {
 
 	// First, get the ballots into a more managable format.

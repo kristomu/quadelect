@@ -47,10 +47,10 @@ std::map<size_t, std::string> interpreter_mode::gen_default_lookup(
 // to need at least q.
 
 int interpreter_mode::get_max_candidates(
-	const std::list<ballot_group> & in) const {
+	const election_t & in) const {
 	size_t maxval = 0;
 
-	for (std::list<ballot_group>::const_iterator pos = in.begin(); pos !=
+	for (election_t::const_iterator pos = in.begin(); pos !=
 		in.end(); ++pos) {
 		maxval = std::max(maxval, pos->contents.size());
 
@@ -87,7 +87,7 @@ bool interpreter_mode::parse_ballots(bool debug) {
 
 	// Otherwise, let's get going!
 
-	std::pair<std::map<size_t, std::string>, std::list<ballot_group> > parsed =
+	std::pair<std::map<size_t, std::string>, election_t> parsed =
 		to_use->interpret_ballots(input_ballots_unparsed, debug);
 
 	if (parsed.second.empty()) {
@@ -110,7 +110,7 @@ void interpreter_mode::invalidate() {
 }
 
 // Add ballots we want to count.
-void interpreter_mode::set_ballots(const std::list<ballot_group> &
+void interpreter_mode::set_ballots(const election_t &
 	ballot_in) {
 
 	invalidate();
@@ -125,7 +125,7 @@ void interpreter_mode::set_ballots(const std::list<ballot_group> &
 	cand_lookup = gen_default_lookup(maxval);
 }
 
-bool interpreter_mode::set_ballots(const std::list<ballot_group> &
+bool interpreter_mode::set_ballots(const election_t &
 	ballot_in,
 	const std::map<size_t, std::string> & candidate_names) {
 
@@ -179,7 +179,7 @@ void interpreter_mode::clear_interpreters() {
 interpreter_mode::interpreter_mode(
 	std::vector<std::shared_ptr<interpreter> > & interpreters_in,
 	std::vector<std::shared_ptr<election_method> > & methods_in,
-	std::list<ballot_group> & ballots_in) {
+	election_t & ballots_in) {
 
 	interpreters = interpreters_in;
 	add_methods(methods_in.begin(), methods_in.end());

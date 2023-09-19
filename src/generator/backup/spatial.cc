@@ -25,7 +25,7 @@ class spatial_generator : public pure_ballot_generator {
 		std::vector<double> rnd_vector(int size) const;
 
 	protected:
-		std::list<ballot_group> generate_ballots_int(int num_voters,
+		election_t generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate) const;
 
 	public:
@@ -62,11 +62,11 @@ std::vector<double> spatial_generator::rnd_vector(int size) const {
 	return (output);
 }
 
-std::list<ballot_group> spatial_generator::generate_ballots_int(
+election_t spatial_generator::generate_ballots_int(
 	int num_voters,
 	int numcands, bool do_truncate) const {
 
-	std::list<ballot_group> toRet;
+	election_t toRet;
 
 	int dimension = 2;
 

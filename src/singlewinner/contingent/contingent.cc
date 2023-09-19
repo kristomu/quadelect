@@ -14,7 +14,7 @@ double contingent_vote::get_possible_finalist_score(
 }
 
 std::pair<ordering, bool> contingent_vote::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
@@ -24,7 +24,7 @@ std::pair<ordering, bool> contingent_vote::elect_inner(
 	condmat pairwise_matrix(papers, num_candidates, CM_PAIRWISE_OPP);
 
 	double numvoters = 0;
-	std::list<ballot_group>::const_iterator ballot_pos;
+	election_t::const_iterator ballot_pos;
 
 	for (ballot_pos = papers.begin(); ballot_pos != papers.end();
 		++ballot_pos) {

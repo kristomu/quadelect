@@ -13,7 +13,7 @@
 
 
 struct disproof {
-	std::list<ballot_group> unmodified_ballots, modified_ballots;
+	election_t unmodified_ballots, modified_ballots;
 	ordering unmodified_ordering, modified_ordering;
 	std::vector<size_t> modification_data;
 	bool complete;

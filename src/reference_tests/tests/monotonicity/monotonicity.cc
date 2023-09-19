@@ -22,7 +22,7 @@ ordering::const_iterator monotonicity::find_cand(const ordering &
 }
 
 std::vector<size_t> monotonicity::generate_aux_data(
-	const std::list<ballot_group> & input, size_t numcands) const {
+	const election_t & input, size_t numcands) const {
 
 	assert(!input.empty());
 
@@ -65,8 +65,8 @@ std::vector<size_t> monotonicity::generate_aux_data(
 // number_to_add < 0 means "find out on your own". It's ugly and
 // it doesn't really belong here but eh...
 
-std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
-	const std::list<ballot_group> & input,
+std::pair<bool, election_t> monotonicity::rearrange_ballots(
+	const election_t & input,
 	size_t numcands, size_t number_to_add,
 	const std::vector<size_t> & data) const {
 
@@ -77,12 +77,12 @@ std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
 
 	int counter = -1, ballot_idx = 0;
 
-	std::pair<bool, std::list<ballot_group> > output;
+	std::pair<bool, election_t> output;
 	output.first = false;
 
 	double total_weight = 0;
 
-	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
+	for (election_t::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
 		total_weight += pos->get_weight();
 
@@ -173,8 +173,8 @@ std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
 	return (output);
 }
 
-std::pair<bool, std::list<ballot_group> > monotonicity::rearrange_ballots(
-	const std::list<ballot_group> & input,
+std::pair<bool, election_t> monotonicity::rearrange_ballots(
+	const election_t & input,
 	size_t numcands, const std::vector<size_t> & data) const {
 
 	return rearrange_ballots(input, numcands, -1, data);

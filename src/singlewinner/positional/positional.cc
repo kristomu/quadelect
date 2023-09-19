@@ -14,11 +14,11 @@
 // Perhaps also a function that returns how many nonzero positions exist, so
 // that it only counts the first votes for Plurality. DONE.
 
-double positional::get_weight_sum(const std::list<ballot_group> & input)
+double positional::get_weight_sum(const election_t & input)
 const {
 	double weight_sum = 0;
 
-	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
+	for (election_t::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
 		weight_sum += pos->get_weight();
 	}
@@ -67,7 +67,7 @@ ordering positional::pos_elect(const std::vector<std::vector<double> > &
 	return (social_order);
 }
 
-ordering positional::elect_to_ordering(const std::list<ballot_group> &
+ordering positional::elect_to_ordering(const election_t &
 	input,
 	size_t num_candidates, size_t num_hopefuls,
 	const std::vector<bool> * hopefuls) const {
@@ -79,7 +79,7 @@ ordering positional::elect_to_ordering(const std::list<ballot_group> &
 }
 
 std::pair<ordering, bool> positional::elect_inner(const
-	std::list<ballot_group> &
+	election_t &
 	input,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
@@ -90,7 +90,7 @@ std::pair<ordering, bool> positional::elect_inner(const
 }
 
 std::pair<ordering, bool> positional::elect_inner(const
-	std::list<ballot_group> &
+	election_t &
 	input,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {

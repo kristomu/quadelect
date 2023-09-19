@@ -79,7 +79,7 @@ copeland_scenario::condorcet_to_copeland_matrix(const
 
 std::vector<std::vector<bool> >
 copeland_scenario::election_to_copeland_matrix(const
-	std::list<ballot_group> & election, size_t numcands) const {
+	election_t & election, size_t numcands) const {
 
 	// TODO: Move to mutable.
 	condmat condorcet_matrix(CM_PAIRWISE_OPP);

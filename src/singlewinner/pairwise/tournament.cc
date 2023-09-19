@@ -128,7 +128,7 @@ int cond_tournament::get_victor(int check_a, int check_b, int level, int
 	}
 }
 
-ordering cond_tournament::internal_elect(const std::list<ballot_group> &
+ordering cond_tournament::internal_elect(const election_t &
 	papers,
 	const condmat &	matrix, const ordering & seed,
 	const std::vector<bool> & hopefuls, int num_candidates,
@@ -269,7 +269,7 @@ cond_tournament::cond_tournament(election_method * base_method,
 }
 
 std::pair<ordering, bool> cond_tournament::elect_inner(
-	const std::list<ballot_group> & papers, const ordering & seed,
+	const election_t & papers, const ordering & seed,
 	const condmat & matrix, bool winner_only) const {
 
 	std::vector<bool> all_hopeful(matrix.get_num_candidates(), true);
@@ -281,7 +281,7 @@ std::pair<ordering, bool> cond_tournament::elect_inner(
 }
 
 std::pair<ordering, bool> cond_tournament::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
@@ -299,7 +299,7 @@ std::pair<ordering, bool> cond_tournament::elect_inner(
 }
 
 std::pair<ordering, bool> cond_tournament::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
 

@@ -1,7 +1,7 @@
 #include "no_elimination_irv.h"
 
 std::vector<double> no_elimination_irv::get_scores(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates) const {
 
@@ -139,7 +139,7 @@ std::vector<double> no_elimination_irv::get_scores(
 }
 
 std::pair<ordering, bool> no_elimination_irv::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 

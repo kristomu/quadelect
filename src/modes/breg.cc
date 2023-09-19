@@ -203,7 +203,7 @@ std::string bayesian_regret::do_round(bool give_brief_status,
 
 	// This lets the test use multiple generators; they are each
 	// used (numrounds)/(num_generators) times.
-	std::list<ballot_group> ballots = generators[curiter % generators.size()]->
+	election_t ballots = generators[curiter % generators.size()]->
 		generate_ballots(numvoters, numcands, *coord_source);
 
 	// Get the utility scores, maximum and minimum. (TODO?? If we're

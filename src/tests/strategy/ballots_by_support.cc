@@ -2,7 +2,7 @@
 #include <numeric>
 
 void ballots_by_support::group_by_support(
-	const std::list<ballot_group> & ballots,
+	const election_t & ballots,
 	size_t winner_in, size_t challenger_in) {
 
 	reset(winner_in, challenger_in);

@@ -24,14 +24,14 @@ class barycentric : public mode {
 		std::vector<std::shared_ptr<const election_method> > e_methods;
 		std::vector<std::vector<double> > cand_colors;
 
-		std::list<ballot_group>  generate_ballot_set(double x, double y,
+		election_t  generate_ballot_set(double x, double y,
 			double maxvoters, std::string first_group,
 			std::string sec_group, std::string third_group,
 			double x_1, double y_1, double x_2,
 			double y_2, double x_3, double y_3) const;
 
 		// Returns empty list if it's not inside the triangle.
-		std::list<ballot_group> generate_ballot_set(double x, double y,
+		election_t generate_ballot_set(double x, double y,
 			double maxvoters) const;
 
 		std::vector<std::vector<double> > get_candidate_colors(int numcands,

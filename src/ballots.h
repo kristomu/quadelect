@@ -1,7 +1,8 @@
-#ifndef _VOTE_BALLOTS
-#define _VOTE_BALLOTS
+#pragma once
 
 #include <assert.h>
+
+#include <boost/container/flat_set.hpp>
 
 #include <unordered_map>
 #include <stdexcept>
@@ -62,10 +63,11 @@ class candscore {
 
 };
 
-typedef std::set<candscore, std::greater<candscore> > ordering;
+typedef boost::container::flat_set<candscore, std::greater<candscore> >
+ordering;
 
-typedef std::pair<ordering, ordering>
-cache_orderings; // first is full, second is winner only.
+// The first is full, second is winner only.
+typedef std::pair<ordering, ordering> cache_orderings;
 
 // Does this doom all our matrices to use doubles? Seems like it - the problem
 // is that we need doubles for reweighted votes, but all other times, ints
@@ -133,4 +135,4 @@ class ballot_group {
 		}
 };
 
-#endif
+typedef std::list<ballot_group> election_t;

@@ -49,14 +49,14 @@ class positional_aggregator {
 		// Perhaps protected, with only the one without zero_run_advice
 		// available to the public.
 		std::vector<std::vector<double> > get_positional_matrix(const
-			std::list<ballot_group> & ballots,
+			election_t & ballots,
 			int num_candidates, int num_hopefuls,
 			const std::vector<bool> * hopefuls,
 			positional_type kind,
 			int zero_run_advice) const;
 
 		std::vector<std::vector<double> > get_positional_matrix(const
-			std::list<ballot_group> & ballots,
+			election_t & ballots,
 			int num_candidates, int num_hopefuls,
 			const std::vector<bool> * hopefuls,
 			positional_type kind) const;

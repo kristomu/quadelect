@@ -27,13 +27,13 @@ class ifpp_method_x : public election_method {
 
 		void find_eliminated_plurality_counts(
 			std::map<std::vector<bool>, std::vector<double> > & first_pref_counts,
-			const std::list<ballot_group> & election,
+			const election_t & election,
 			std::vector<bool> & remaining_candidates,
 			int num_remaining) const;
 
 		std::map<std::vector<bool>, std::vector<double> >
 		get_eliminated_plurality_counts(
-			const std::list<ballot_group> & election,
+			const election_t & election,
 			std::vector<bool> hopefuls) const;
 
 		std::vector<double> find_candidate_scores(
@@ -43,12 +43,12 @@ class ifpp_method_x : public election_method {
 			std::vector<bool> & remaining_candidates) const;
 
 		std::vector<double> get_candidate_scores(
-			const std::list<ballot_group> & election,
+			const election_t & election,
 			std::vector<bool> hopefuls, int num_candidates) const;
 
 	public:
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;

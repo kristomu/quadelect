@@ -38,13 +38,13 @@ class no_elimination_irv : public election_method {
 
 	private:
 		std::vector<double> get_scores(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates) const;
 
 	public:
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;

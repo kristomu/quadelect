@@ -24,7 +24,7 @@
 
 class disproof {
 	public:
-		std::list<ballot_group> before_election, after_election;
+		election_t before_election, after_election;
 		ordering before_outcome, after_outcome;
 		std::map<std::string, size_t> data;
 		std::string disprover_name;

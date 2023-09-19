@@ -43,7 +43,7 @@ bool condmat::set_internal(size_t candidate, size_t against,
 
 condmat::condmat(pairwise_type type_in) : abstract_condmat(type_in) {}
 
-condmat::condmat(const std::list<ballot_group> & scores,
+condmat::condmat(const election_t & scores,
 	size_t num_candidates,
 	pairwise_type kind) : abstract_condmat(kind) {
 
@@ -82,7 +82,7 @@ condmat::condmat(const condmat & in,
 // count ballots go here. Then test.
 
 // Perhaps bool clear.
-void condmat::count_ballots(const std::list<ballot_group> & scores,
+void condmat::count_ballots(const election_t & scores,
 	size_t num_candidates) {
 
 	// For each ballot
@@ -105,7 +105,7 @@ void condmat::count_ballots(const std::list<ballot_group> & scores,
 	bool debug = false;
 	num_voters = 0;
 
-	for (std::list<ballot_group>::const_iterator ballot = scores.begin();
+	for (election_t::const_iterator ballot = scores.begin();
 		ballot != scores.end(); ++ballot) {
 
 		fill(seen.begin(), seen.end(), false);

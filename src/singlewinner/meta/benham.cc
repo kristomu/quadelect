@@ -50,7 +50,7 @@ void benham_meta::determine_winners(
 }
 
 std::vector<bool> benham_meta::get_winners(
-	const std::list<ballot_group> & election,
+	const election_t & election,
 	std::vector<bool> hopefuls,
 	ordering base_method_ordering) const {
 
@@ -66,7 +66,7 @@ std::vector<bool> benham_meta::get_winners(
 }
 
 std::pair<ordering, bool> benham_meta::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

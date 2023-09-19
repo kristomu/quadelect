@@ -63,7 +63,7 @@ class dsc : public desc_coalition_method {
 
 	protected:
 		std::vector<coalition_data> get_coalitions(
-			const std::list<ballot_group> & election,
+			const election_t & election,
 			const std::vector<bool> & hopefuls,
 			int numcands) const {
 

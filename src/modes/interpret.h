@@ -24,7 +24,7 @@ class interpreter_mode : public mode {
 	private:
 		std::vector<std::shared_ptr<election_method> > methods;
 		std::vector<std::shared_ptr<interpreter> > interpreters;
-		std::list<ballot_group> input_ballots;
+		election_t input_ballots;
 		std::vector<std::string> input_ballots_unparsed;
 		std::list<ordering> results;
 		std::map<size_t, std::string> cand_lookup;
@@ -39,7 +39,7 @@ class interpreter_mode : public mode {
 
 		// Get an upper bound on how many candidates we need to have
 		// mapped.
-		int get_max_candidates(const std::list<ballot_group> & in) const;
+		int get_max_candidates(const election_t & in) const;
 
 		// Interpret unparsed ballots. If it can't find any suitable
 		// methods, it'll return false.
@@ -53,8 +53,8 @@ class interpreter_mode : public mode {
 		}
 
 	public:
-		void set_ballots(const std::list<ballot_group> & ballot_in);
-		bool set_ballots(const std::list<ballot_group> & ballot_in,
+		void set_ballots(const election_t & ballot_in);
+		bool set_ballots(const election_t & ballot_in,
 			const std::map<size_t, std::string> & candidate_names);
 		// ... set_unparsed_ballots ...
 
@@ -77,7 +77,7 @@ class interpreter_mode : public mode {
 		interpreter_mode(
 			std::vector<std::shared_ptr<interpreter> > & interpreters_in,
 			std::vector<std::shared_ptr<election_method> > & methods_in,
-			std::list<ballot_group> & ballots_in);
+			election_t & ballots_in);
 		interpreter_mode(
 			std::vector<std::shared_ptr<interpreter> > & interpreters_in,
 			std::vector<std::shared_ptr<election_method> > & methods_in,

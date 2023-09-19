@@ -67,7 +67,7 @@ class spatial_generator : public pure_ballot_generator {
 		// the points distribution.
 
 	protected:
-		std::list<ballot_group> generate_ballots_int(int num_voters,
+		election_t generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
 			coordinate_gen & coord_source) const;
 

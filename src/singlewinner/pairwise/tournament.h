@@ -47,7 +47,7 @@ class cond_tournament : public election_method {
 
 		// We need to run it multiple times to get a full ordering.
 		// Not yet, though; gotta crawl etc.
-		ordering internal_elect(const std::list<ballot_group> & papers,
+		ordering internal_elect(const election_t & papers,
 			const condmat & matrix, const ordering & seed,
 			const std::vector<bool> & hopefuls, int
 			num_candidates, bool winner_only) const;
@@ -57,16 +57,16 @@ class cond_tournament : public election_method {
 			bool single_round);
 		// TODO, make these into elect_inner.
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const ordering & seed, const condmat &
 			matrix, bool winner_only) const;
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 

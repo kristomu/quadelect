@@ -30,12 +30,12 @@ class benham_meta : public election_method {
 			ordering remaining_ordering) const;
 
 		std::vector<bool> get_winners(
-			const std::list<ballot_group> & election,
+			const election_t & election,
 			std::vector<bool> hopefuls,
 			ordering base_method_ordering) const;
 
 	public:
-		std::pair<ordering, bool> elect_inner(const std::list<ballot_group> &
+		std::pair<ordering, bool> elect_inner(const election_t &
 			papers, const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;

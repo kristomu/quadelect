@@ -71,7 +71,7 @@ double median_ratings::get_trunc_mean_destructively(
 // Like in Cardinal Ratings, this determines each candidate's rating. Ratings
 // for candidates not defined as hopeful will be zero.
 std::vector<double> median_ratings::aggregate_ratings(
-	const std::list<ballot_group> &
+	const election_t &
 	papers, int num_candidates,
 	const std::vector<bool> & hopefuls) const {
 
@@ -97,7 +97,7 @@ std::vector<double> median_ratings::aggregate_ratings(
 
 	double global_max = -INFINITY, global_min = INFINITY;
 
-	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (election_t::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 
 		// Do we need to normalize? If so, find the max and min hopeful
@@ -174,7 +174,7 @@ std::vector<double> median_ratings::aggregate_ratings(
 }
 
 std::pair<ordering, bool> median_ratings::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

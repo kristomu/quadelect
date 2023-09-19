@@ -61,7 +61,7 @@ class twotest {
 		// Pick a candidate to move for mono-raise, a ranking to add
 		// for mono-add-top, etc., and then seed for random raising.
 		virtual std::vector<size_t> generate_aux_data(
-			const std::list<ballot_group> & input,
+			const election_t & input,
 			size_t numcands) const {
 			return (std::vector<size_t>(0));
 		}
@@ -69,8 +69,8 @@ class twotest {
 		// Always provides the same modification with the same data.
 		// The boolean is false if we couldn't alter the ballots
 		// according to the data (i.e. symmetric ballots in reversal).
-		virtual std::pair<bool, std::list<ballot_group> > rearrange_ballots(
-			const std::list<ballot_group> & input,
+		virtual std::pair<bool, election_t> rearrange_ballots(
+			const election_t & input,
 			size_t numcands,
 			const std::vector<size_t> & data) const = 0;
 
@@ -104,11 +104,11 @@ class twotest {
 			cache_map * unmod_cache, cache_map * mod_cache);
 
 		virtual ternary pass(const election_method * base,
-			const std::list<ballot_group> & input,
+			const election_t & input,
 			int num_candidates, cache_map * unmod_cache,
 			cache_map * mod_cache);
 		ternary pass(const election_method * base,
-			const std::list<ballot_group> & input,
+			const election_t & input,
 			int num_candidates);
 		// Run a test with the same ballot and modified as last time.
 		// If unmod_last_set is true, we don't try to find the outcome
@@ -125,7 +125,7 @@ class twotest {
 		// Returns false if/when all methods have disproofs if
 		// skip_already_false is true, otherwise returns true.
 		bool pass_many(const std::vector<ordering> & base_outcomes,
-			const std::list<ballot_group> & original_ballots,
+			const election_t & original_ballots,
 			int num_candidates, int num_nc_iters, const
 			std::vector<const election_method *> &
 			methods_to_test,
@@ -136,7 +136,7 @@ class twotest {
 				mwbase, int council_size, int num_candidates);
 
 		virtual ternary pass_multiwinner(const multiwinner_method *
-				mwbase, const std::list<ballot_group> & input,
+				mwbase, const election_t & input,
 				int council_size, int num_candidates);*/
 		// Pass_multiwinner. Also enable winner_only in the case
 		// of MW, since it's just [winning council ] > [all others].

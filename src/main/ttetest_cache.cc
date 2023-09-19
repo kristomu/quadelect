@@ -63,7 +63,7 @@ int main() {
 	srandom(seed);
 	srand48(seed);
 
-	std::list<ballot_group> ballots = ic.generate_ballots(17, 4, randomizer);
+	election_t ballots = ic.generate_ballots(17, 4, randomizer);
 
 	// Print 'em.
 	ballot_tools btools;

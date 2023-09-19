@@ -36,7 +36,7 @@ class gaussian_generator : public spatial_generator {
 		gaussian_generator(bool do_truncate,
 			const std::vector<double> & center, double sigma);
 
-		std::list<ballot_group> get_gaussians(const
+		election_t get_gaussians(const
 			std::vector<std::vector<double> > &
 			cand_positions, int num_voters) const;
 };
@@ -119,12 +119,12 @@ gaussian_generator();
 */
 // Oops, is this indiv after all?
 
-std::list<ballot_group> gaussian_generator::get_gaussians(
+election_t gaussian_generator::get_gaussians(
 	const std::vector<std::vector<double> > & cand_positions,
 	const std::vector<double> & center, int num_voters,
 	double sigma) const {
 
-	std::list<ballot_group> to_ret; // uncompressed
+	election_t to_ret; // uncompressed
 
 	for (int counter = 0; counter < num_voters; ++counter) {
 		to_ret.push_back(get_dist_pref(center, cand_positions, sigma));

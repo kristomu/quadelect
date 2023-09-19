@@ -6,7 +6,7 @@
 // add 0 to the beginning and |V| to the end, and then take the differences to get
 // the counts per ballot.
 
-std::list<ballot_group> iac::generate_ballots_int(
+election_t iac::generate_ballots_int(
 	int num_voters, int numcands, bool do_truncate,
 	coordinate_gen & coord_source) const {
 
@@ -26,7 +26,7 @@ std::list<ballot_group> iac::generate_ballots_int(
 	interval_source.push_back(num_voters);
 	std::sort(interval_source.begin(), interval_source.end());
 
-	std::list<ballot_group> ballots;
+	election_t ballots;
 
 	// Create a ballot order that we'll iterate through.
 	std::vector<int> candidate_order(numcands, 0);

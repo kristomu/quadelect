@@ -63,7 +63,7 @@ bool rank_order_int::is_this_format(const std::vector<std::string> &
 	return (true);
 }
 
-std::pair<std::map<size_t, std::string>, std::list<ballot_group> >
+std::pair<std::map<size_t, std::string>, election_t>
 rank_order_int::interpret_ballots(
 	const std::vector<std::string> & inputs, bool debug) const {
 
@@ -81,7 +81,7 @@ rank_order_int::interpret_ballots(
 	// done.
 
 	std::map<std::string, size_t> fwd;
-	std::pair<std::map<size_t, std::string>, std::list<ballot_group> > to_ret;
+	std::pair<std::map<size_t, std::string>, election_t> to_ret;
 	int candidates = 0;
 
 	if (debug) {
@@ -208,7 +208,7 @@ rank_order_int::interpret_ballots(
 
 	// Postprocess the ballots so the ratings are all positive (seems to
 	// make a diff for median, etc).
-	for (std::list<ballot_group>::iterator lbpos = to_ret.second.begin();
+	for (election_t::iterator lbpos = to_ret.second.begin();
 		lbpos != to_ret.second.end(); ++lbpos) {
 		ordering replacement;
 

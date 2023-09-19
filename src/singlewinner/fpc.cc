@@ -3,7 +3,7 @@
 #include "../pairwise/matrix.h"
 
 std::pair<ordering, bool> first_pref_copeland::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
@@ -12,7 +12,7 @@ std::pair<ordering, bool> first_pref_copeland::elect_inner(
 
 	size_t i, j;
 	double numvoters = 0;
-	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (election_t::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 		numvoters += pos->get_weight();
 	}

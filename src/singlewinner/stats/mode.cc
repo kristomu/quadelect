@@ -10,7 +10,7 @@
 #include <iterator>
 
 std::pair<ordering, bool> mode_ratings::elect_inner(const
-	std::list<ballot_group> &
+	election_t &
 	papers, const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * /*cache*/, bool /*winner_only*/) const {
 
@@ -23,7 +23,7 @@ std::pair<ordering, bool> mode_ratings::elect_inner(const
 
 	std::vector<std::map<double, double> > mode_maps(num_candidates);
 
-	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (election_t::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos)
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos)

@@ -9,17 +9,17 @@
 #include "rev_symmetry.h"
 
 
-std::pair<bool, std::list<ballot_group> >
+std::pair<bool, election_t>
 test_reversal_symmetry::rearrange_ballots(
-	const std::list<ballot_group> & input, int numcands,
+	const election_t & input, int numcands,
 	const std::vector<int> & data) const {
 
 	// Very simple (if perhaps slow) - just insert the candidates with
 	// negated scores.
 
-	std::pair<bool, std::list<ballot_group> > modified;
+	std::pair<bool, election_t> modified;
 
-	for (std::list<ballot_group>::const_iterator pos = input.begin(); pos !=
+	for (election_t::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
 		ballot_group to_insert;
 		to_insert.set_weight(pos->get_weight());

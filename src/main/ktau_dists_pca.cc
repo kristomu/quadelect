@@ -209,7 +209,7 @@ int main() {
 	srand48(seed);
 	rng randomizer(seed);
 
-	std::list<ballot_group> ballots;
+	election_t ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have

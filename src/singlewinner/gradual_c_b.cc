@@ -31,7 +31,7 @@ std::string gradual_cond_borda::determine_name() const {
 }
 
 std::pair<ordering, bool> gradual_cond_borda::elect_inner(const
-	std::list<ballot_group> & papers, const std::vector<bool> & hopefuls,
+	election_t & papers, const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
 	size_t num_hopefuls = 0;

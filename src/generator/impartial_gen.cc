@@ -5,7 +5,7 @@
 #include <list>
 
 
-std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
+election_t impartial_gen::generate_ballots_int(int num_voters,
 	int numcands, bool do_truncate, coordinate_gen & coord_source) const {
 
 	// Fill a vector with 0...numcands, then shuffle randomly, then turn
@@ -17,7 +17,7 @@ std::list<ballot_group> impartial_gen::generate_ballots_int(int num_voters,
 	std::vector<int> candidates(numcands, 0);
 	iota(candidates.begin(), candidates.end(), 0);
 
-	std::list<ballot_group> toRet;
+	election_t toRet;
 	ballot_group to_add;
 	to_add.set_weight(1);
 

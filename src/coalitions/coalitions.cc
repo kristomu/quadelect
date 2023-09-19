@@ -6,7 +6,7 @@
 // equal-last candidates for truncated ballots.
 
 std::vector<coalition_data> get_solid_coalitions(
-	const std::list<ballot_group> & elections,
+	const election_t & elections,
 	const std::vector<bool> & hopefuls, int numcands) {
 
 	// Go through the ballot set, incrementing the coalition counts.
@@ -20,7 +20,7 @@ std::vector<coalition_data> get_solid_coalitions(
 		}
 	}
 
-	for (std::list<ballot_group>::const_iterator ballot = elections.begin();
+	for (election_t::const_iterator ballot = elections.begin();
 		ballot != elections.end(); ++ballot) {
 
 		current_coalition.clear();

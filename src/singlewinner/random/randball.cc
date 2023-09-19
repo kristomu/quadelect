@@ -8,7 +8,7 @@
 
 
 std::pair<ordering, bool> random_ballot::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
@@ -19,7 +19,7 @@ std::pair<ordering, bool> random_ballot::elect_inner(
 	// in genetic algorithms.
 
 	double num_voters = 0;
-	std::list<ballot_group>::const_iterator pos;
+	election_t::const_iterator pos;
 	ordering::const_iterator opos;
 
 	for (pos = papers.begin(); pos != papers.end(); ++pos) {

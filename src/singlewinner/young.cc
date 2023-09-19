@@ -16,7 +16,7 @@
 
 
 std::pair<double, double> young::get_young_score(const
-	std::list<ballot_group> &
+	election_t &
 	papers,
 	size_t candidate, size_t num_candidates, size_t num_ballots,
 	const std::vector<bool> & hopeful, bool relaxed,
@@ -102,7 +102,7 @@ std::pair<double, double> young::get_young_score(const
 		tie_val = 1/(double)(num_candidates * (num_candidates-1));
 	}
 
-	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (election_t::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 		// If not relaxed, we can't handle non-integer ballot sizes.
 		assert(relaxed || pos->get_weight() == round(pos->get_weight()));
@@ -380,7 +380,7 @@ std::string young::determine_name() const {
 	return (retval);
 }
 
-std::pair<ordering, bool> young::elect_inner(const std::list<ballot_group>
+std::pair<ordering, bool> young::elect_inner(const election_t
 	& papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * /*cache*/, bool /*winner_only*/) const {

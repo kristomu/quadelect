@@ -51,7 +51,7 @@ class young : public election_method {
 		// linear programming score. The second is the integer
 		// programming score, or -1 if running relaxed.
 		std::pair<double, double> get_young_score(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			size_t candidate, size_t num_candidates,
 			size_t num_ballots, const std::vector<bool> & hopefuls,
 			bool relaxed, bool symmetric_completion,
@@ -61,7 +61,7 @@ class young : public election_method {
 
 	public:
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;

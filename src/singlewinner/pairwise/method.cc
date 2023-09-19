@@ -44,7 +44,7 @@ std::pair<ordering, bool> pairwise_method::pair_elect(
 // even though I'll then pay the price by having to allocate them all the time.
 
 std::pair<ordering, bool> pairwise_method::elect_inner(
-	const std::list<ballot_group> & papers, int num_candidates,
+	const election_t & papers, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	// If the cache is non-NULL and it has a Condorcet matrix, make use of
@@ -78,7 +78,7 @@ std::pair<ordering, bool> pairwise_method::elect_inner(
 }
 
 std::pair<ordering, bool> pairwise_method::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

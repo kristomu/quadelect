@@ -39,5 +39,5 @@ class coalition_data {
 };
 
 std::vector<coalition_data> get_solid_coalitions(
-	const std::list<ballot_group> & election,
+	const election_t & election,
 	const std::vector<bool> & hopefuls, int numcands);

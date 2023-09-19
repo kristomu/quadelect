@@ -81,7 +81,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 	//uniform_generator spatial(true, false);
 	impartial true_ic(true, false);
 
-	std::list<ballot_group> ballots;
+	election_t ballots;
 
 	// A bunch of times, generate ballots and clear the cache. Then try
 	// these ballots against numerous Condorcet methods. If we have
@@ -173,14 +173,14 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 
 			//std::cout << "Trying to rig in favor of " << counter << std::endl;
 
-			std::list<ballot_group> prefers_winner;
+			election_t prefers_winner;
 			double num_prefers_challenger = 0;
 
 			// Find those who prefer the challenger. Add those that
 			// don't into prefers_winner and add up the score of those that
 			// do.
 
-			for (std::list<ballot_group>::const_iterator bgpos = ballots.begin();
+			for (election_t::const_iterator bgpos = ballots.begin();
 				bgpos != ballots.end(); ++bgpos) {
 				int saw_winner = -1, saw_challenger = -1;
 				int rank = 0;
@@ -221,7 +221,7 @@ void test_strategy(election_method * to_test, rng & randomizer) {
 				int iterations = 1 + tries % 3, q;
 				double cumul = 0;
 				for (q = 0; q < iterations; ++q) {
-					std::list<ballot_group> strategy;
+					election_t strategy;
 					while (strategy.empty()) {
 						strategy = ic.generate_ballots(1, numcands, randomizer);
 					}

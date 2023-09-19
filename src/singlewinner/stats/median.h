@@ -33,14 +33,14 @@ class median_ratings : public election_method {
 			double num_voters, bool already_sorted,
 			double distance) const;
 
-		std::vector<double> aggregate_ratings(const std::list<ballot_group> &
+		std::vector<double> aggregate_ratings(const election_t &
 			papers, int num_candidates, const std::vector<bool> &
 			hopefuls) const;
 
 	protected:
 
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates,
 			cache_map * cache, bool winner_only) const;

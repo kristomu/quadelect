@@ -38,7 +38,7 @@ class pure_ballot_generator {
 		// Provides an empty ballot on error.
 		// We ask for truncation because some criteria, like
 		// mono-append, make no sense without.
-		std::list<ballot_group> generate_ballots(int num_voters,
+		election_t generate_ballots(int num_voters,
 			int numcands) const {
 			ballot_tools bt;
 			if (compress)
@@ -49,7 +49,7 @@ class pure_ballot_generator {
 				return (generate_ballots(num_voters, numcands,
 							truncate));
 		}
-		virtual std::list<ballot_group> generate_ballots(int num_voters,
+		virtual election_t generate_ballots(int num_voters,
 			int numcands, bool do_truncate) const = 0;
 };
 
@@ -68,10 +68,10 @@ class indiv_ballot_generator : private pure_ballot_generator {
 		indiv_ballot_generator(bool compress_in, bool do_truncate) :
 			pure_ballot_generator(compress_in, do_truncate) {}
 
-		std::list<ballot_group> generate_ballots(int num_voters,
+		election_t generate_ballots(int num_voters,
 			int numcands, bool do_truncate) const;
 		// WHAT??? TODO: Find out WTH is going on here.
-		std::list<ballot_group> generate_ballots(int num_voters,
+		election_t generate_ballots(int num_voters,
 			int numcands) const {
 			ballot_tools bt;
 			if (compress)
@@ -86,11 +86,11 @@ class indiv_ballot_generator : private pure_ballot_generator {
 
 };
 
-std::list<ballot_group> indiv_ballot_generator::generate_ballots(
+election_t indiv_ballot_generator::generate_ballots(
 	int num_voters,
 	int numcands, bool do_truncate) const {
 
-	std::list<ballot_group> toRet;
+	election_t toRet;
 	ballot_group to_add;
 	to_add.set_weight(1);
 
@@ -114,13 +114,13 @@ class impartial : public pure_ballot_generator {
 		impartial(bool compress_in, bool do_truncate) :
 			pure_ballot_generator(compress_in, do_truncate) {}
 
-		std::list<ballot_group> generate_ballots(
+		election_t generate_ballots(
 			int num_voters, int numcands,
 			bool do_truncate) const;
 };
 
 //ordering impartial::generate_ordering(int numcands, bool do_truncate) const {
-std::list<ballot_group> impartial::generate_ballots(int num_voters,
+election_t impartial::generate_ballots(int num_voters,
 	int numcands,
 	bool do_truncate) const {
 
@@ -133,7 +133,7 @@ std::list<ballot_group> impartial::generate_ballots(int num_voters,
 	std::vector<int> candidates(numcands, 0);
 	iota(candidates.begin(), candidates.end(), 0);
 
-	std::list<ballot_group> toRet;
+	election_t toRet;
 	ballot_group to_add;
 	to_add.set_weight(1);
 

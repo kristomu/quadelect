@@ -63,10 +63,10 @@ class monotonicity : public twotest {
 		}
 
 		// For mono-add-top, etc. If it returns false, nothing was done,
-		// otherwise some ballots have been added to std::list<ballot_group>.
+		// otherwise some ballots have been added to election_t.
 		virtual bool add_ballots(const std::vector<size_t> & data,
 			rng & randomizer,
-			std::list<ballot_group> & input,
+			election_t & input,
 			double total_weight, size_t numcands) const {
 			return (false);
 		}
@@ -76,7 +76,7 @@ class monotonicity : public twotest {
 		// to alter, then either 0 (lower) or 1 (raise), then a list
 		// of ballot numbers to modify. We might also need a seed for
 		// how far we're going to move the candidate in each ballot.
-		std::vector<size_t> generate_aux_data(const std::list<ballot_group> &
+		std::vector<size_t> generate_aux_data(const election_t &
 			input,
 			size_t numcands) const;
 
@@ -88,14 +88,14 @@ class monotonicity : public twotest {
 			return data;
 		}
 
-		std::pair<bool, std::list<ballot_group> > rearrange_ballots(
-			const std::list<ballot_group> & input,
+		std::pair<bool, election_t> rearrange_ballots(
+			const election_t & input,
 			size_t numcands, size_t number_to_add,
 			const std::vector<size_t> & data) const;
 
 
-		std::pair<bool, std::list<ballot_group> > rearrange_ballots(
-			const std::list<ballot_group> & input,
+		std::pair<bool, election_t> rearrange_ballots(
+			const election_t & input,
 			size_t numcands,
 			const std::vector<size_t> & data) const;
 

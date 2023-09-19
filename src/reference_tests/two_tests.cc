@@ -27,7 +27,7 @@ ordering twotest::synthesize_single_winner(const std::list<int> &
 
 
 ternary twotest::pass(const election_method * base,
-	const std::list<ballot_group> & input,
+	const election_t & input,
 	int num_candidates, cache_map * unmod_cache,
 	cache_map * mod_cache) {
 
@@ -36,7 +36,7 @@ ternary twotest::pass(const election_method * base,
 	disproof_out.unmodified_ordering.clear();
 
 	// Get some random data.
-	std::pair<bool, std::list<ballot_group> > arrangement;
+	std::pair<bool, election_t> arrangement;
 	arrangement.first = false;
 
 	disproof_out.modification_data = generate_aux_data(input,
@@ -71,7 +71,7 @@ ternary twotest::pass(const election_method * base,
 }
 
 ternary twotest::pass(const election_method * base,
-	const std::list<ballot_group> & input,
+	const election_t & input,
 	int num_candidates) {
 
 	return (pass(base, input, num_candidates, NULL, NULL));
@@ -84,7 +84,7 @@ ternary twotest::pass_specd(const election_method * base,
 	disproof_out = to_test;
 
 	// Generate the modified ballots.
-	std::pair<bool, std::list<ballot_group> > arrangement;
+	std::pair<bool, election_t> arrangement;
 	arrangement = rearrange_ballots(disproof_out.unmodified_ballots,
 			num_candidates, disproof_out.modification_data);
 
@@ -195,7 +195,7 @@ ternary twotest::pass_last(const election_method * base,
 // Possible TODO: pass mod_cache instead of making it. Depends on how much time
 // it takes to create a new map vs clearing it.
 bool twotest::pass_many(const std::vector<ordering> & base_outcomes,
-	const std::list<ballot_group> & original_ballots,
+	const election_t & original_ballots,
 	int num_candidates, int num_nc_iters,
 	const std::vector<const election_method *> & methods_to_test,
 	std::vector<method_test_info> & compliance_data,
@@ -276,7 +276,7 @@ bool twotest::pass_many(const std::vector<ordering> & base_outcomes,
 		// Otherwise, generate the actual modified ballot group and
 		// start testing! It might still not be applicable or even
 		// possible,  but we don't know that yet.
-		std::pair<bool, std::list<ballot_group> > arrangement =
+		std::pair<bool, election_t> arrangement =
 			rearrange_ballots(disproof_out.unmodified_ballots,
 				num_candidates,
 				disproof_out.modification_data);
@@ -384,7 +384,7 @@ bool twotest::pass_many(const std::vector<ordering> & base_outcomes,
 }
 
 ternary twotest::pass_multiwinner(const multiwinner_method * base_mw,
-		const std::list<ballot_group> & input, int council_size,
+		const election_t & input, int council_size,
 		int num_candidates) {
 
 	// Second verse, same as the first. (See above)
@@ -395,7 +395,7 @@ ternary twotest::pass_multiwinner(const multiwinner_method * base_mw,
         disproof_out.unmodified_ballots = input;
 
         // Get some random data.
-        std::pair<bool, std::list<ballot_group> > arrangement;
+        std::pair<bool, election_t> arrangement;
         arrangement.first = false;
 
         disproof_out.modification_data = generate_aux_data(input,

@@ -26,7 +26,7 @@ class pure_ballot_generator {
 	protected:
 		bool truncate, compress;
 
-		virtual std::list<ballot_group> generate_ballots_int(int num_voters,
+		virtual election_t generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
 			coordinate_gen & coord_source) const = 0;
 
@@ -48,7 +48,7 @@ class pure_ballot_generator {
 		// Provides an empty ballot on error.
 		// We ask for truncation because some criteria, like
 		// mono-append, make no sense without.
-		std::list<ballot_group> generate_ballots(int num_voters,
+		election_t generate_ballots(int num_voters,
 			int numcands, coordinate_gen & coord_source) const {
 			ballot_tools bt;
 			if (compress)
@@ -79,7 +79,7 @@ class indiv_ballot_generator : public pure_ballot_generator {
 			bool do_truncate, coordinate_gen & coord_source)
 		const = 0;
 
-		std::list<ballot_group> generate_ballots_int(int num_voters,
+		election_t generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
 			coordinate_gen & coord_source) const;
 

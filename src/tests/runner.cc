@@ -1,7 +1,7 @@
 #include "runner.h"
 
 size_t test_runner::get_num_failed_criteria(
-	const std::list<ballot_group> & ballots, ordering honest_outcome,
+	const election_t & ballots, ordering honest_outcome,
 	size_t numcands, bool only_one, bool verbose) {
 
 	// Ties are a problem. We could consider the test to be disproven

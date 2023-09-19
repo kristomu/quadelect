@@ -26,7 +26,7 @@ class test_runner : public Test {
 		size_t numcands_min, numcands_max;
 		int total_generation_attempts;
 		std::shared_ptr<const election_method> method;
-		std::list<ballot_group> ballots;
+		election_t ballots;
 		std::shared_ptr<pure_ballot_generator> ballot_gen;
 		size_t disproof_attempts_per_election;
 
@@ -52,7 +52,7 @@ class test_runner : public Test {
 		// Side effect: also populates the failed_criteria array.
 		// (TODO: Something less ugly.)
 		size_t get_num_failed_criteria(
-			const std::list<ballot_group> & ballots,
+			const election_t & ballots,
 			ordering honest_outcome, size_t numcands,
 			bool only_one, bool verbose);
 

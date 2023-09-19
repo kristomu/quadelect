@@ -65,7 +65,7 @@ int main(int argc, const char ** argv) {
 		int numvoters = randomizer.next_int(1, 127);
 
 
-		std::list<ballot_group> ballots = ballot_gen.generate_ballots(numvoters,
+		election_t ballots = ballot_gen.generate_ballots(numvoters,
 				numcands, randomizer);
 
 		methodA = methods[0]->elect(ballots, numcands, true);

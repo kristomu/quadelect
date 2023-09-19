@@ -8,7 +8,7 @@
 // defined as hopeful will be zero. [TODO: Something about this when all scores
 // are negative.]
 std::vector<double> cardinal_ratings::aggregate_ratings(
-	const std::list<ballot_group> &	papers, int num_candidates,
+	const election_t &	papers, int num_candidates,
 	const std::vector<bool> & hopefuls) const {
 
 	std::vector<double> ratings(num_candidates, 0);
@@ -17,7 +17,7 @@ std::vector<double> cardinal_ratings::aggregate_ratings(
 
 	double score;
 
-	for (std::list<ballot_group>::const_iterator pos = papers.begin(); pos !=
+	for (election_t::const_iterator pos = papers.begin(); pos !=
 		papers.end(); ++pos) {
 		// Assert that we're dealing with a rated ballot. Maybe using
 		// a throw would be better, but I don't know those.
@@ -83,7 +83,7 @@ std::vector<double> cardinal_ratings::aggregate_ratings(
 }
 
 std::pair<ordering, bool> cardinal_ratings::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 

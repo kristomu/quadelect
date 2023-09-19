@@ -69,7 +69,7 @@ beatpath::beatpath(const abstract_condmat & input, pairwise_type type_in,
 }
 
 // ... I think?
-beatpath::beatpath(const std::list<ballot_group> & scores,
+beatpath::beatpath(const election_t & scores,
 	size_t num_candidates,
 	pairwise_type type_in) : abstract_condmat(CM_PAIRWISE_OPP) {
 	make_beatpaths(condmat(scores, num_candidates, type_in),

@@ -72,7 +72,7 @@ void positional_aggregator::aggregate(const ballot_group & input,
 
 std::vector<std::vector<double> >
 positional_aggregator::get_positional_matrix(
-	const std::list<ballot_group> & ballots, int num_candidates,
+	const election_t & ballots, int num_candidates,
 	int num_hopefuls, const std::vector<bool> * hopefuls,
 	positional_type kind, int zero_run_advice) const {
 
@@ -94,7 +94,7 @@ positional_aggregator::get_positional_matrix(
 
 	// For all the ballots, incorporate into the matrix.
 
-	for (std::list<ballot_group>::const_iterator bpos = ballots.begin();
+	for (election_t::const_iterator bpos = ballots.begin();
 		bpos != ballots.end(); ++bpos)
 		aggregate(*bpos, num_candidates, num_hopefuls, hopefuls,
 			positional_matrix, kind, zero_run_advice);
@@ -104,7 +104,7 @@ positional_aggregator::get_positional_matrix(
 
 std::vector<std::vector<double> >
 positional_aggregator::get_positional_matrix(const
-	std::list<ballot_group> & ballots, int num_candidates,
+	election_t & ballots, int num_candidates,
 	int num_hopefuls, const std::vector<bool> * hopefuls,
 	positional_type kind) const {
 

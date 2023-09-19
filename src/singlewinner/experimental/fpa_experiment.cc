@@ -7,7 +7,7 @@
 #include <vector>
 
 std::pair<ordering, bool> fpa_experiment::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
@@ -22,7 +22,7 @@ std::pair<ordering, bool> fpa_experiment::elect_inner(
 	ordering plurality_result = ((election_method *)&plur)->elect(papers,
 			hopefuls, num_candidates, NULL, false);
 
-	/*ordering elect(const std::list<ballot_group> & papers,
+	/*ordering elect(const election_t & papers,
 	            const std::vector<bool> & hopefuls,
 	            int num_candidates, cache_map * cache,
 	            bool winner_only) const;*/

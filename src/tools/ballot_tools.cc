@@ -510,11 +510,11 @@ ballot_group ballot_tools::truncate_after(const ballot_group & in,
 			ballot_is_complete, in.rated);
 }
 
-std::list<ballot_group> ballot_tools::truncate_after(
-	const std::list<ballot_group> & ballots,
+election_t ballot_tools::truncate_after(
+	const election_t & ballots,
 	size_t truncate_after_candidate_num) {
 
-	std::list<ballot_group> truncated_ballots;
+	election_t truncated_ballots;
 
 	for (const ballot_group & group: ballots) {
 		truncated_ballots.push_back(truncate_after(group,
@@ -524,10 +524,9 @@ std::list<ballot_group> ballot_tools::truncate_after(
 	return truncated_ballots;
 }
 
-std::list<ballot_group> ballot_tools::sort_ballots(const
-	std::list<ballot_group> &
-	to_sort) const {
-	std::list<ballot_group> sorted = to_sort;
+election_t ballot_tools::sort_ballots(const
+	election_t & to_sort) const {
+	election_t sorted = to_sort;
 
 	sorted.sort(otools.sorter);
 
@@ -535,8 +534,8 @@ std::list<ballot_group> ballot_tools::sort_ballots(const
 }
 
 
-std::list<ballot_group> ballot_tools::compress(const
-	std::list<ballot_group> &
+election_t ballot_tools::compress(const
+	election_t &
 	uncompressed) const {
 
 	// You asked for n log n, here it is.
@@ -545,8 +544,8 @@ std::list<ballot_group> ballot_tools::compress(const
 		return (uncompressed);
 	}
 
-	std::list<ballot_group> compressed = sort_ballots(uncompressed);
-	std::list<ballot_group>::iterator check, check_against;
+	election_t compressed = sort_ballots(uncompressed);
+	election_t::iterator check, check_against;
 
 	for (check = compressed.begin(); check != compressed.end(); ++check) {
 		check_against = check;
@@ -582,13 +581,13 @@ std::string ballot_tools::ballot_to_text(const ballot_group & rank_ballot,
 }
 
 std::vector<std::string> ballot_tools::ballots_to_text(std::string prefix,
-	const std::list<ballot_group> & rank_ballots,
+	const election_t & rank_ballots,
 	const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
 	std::vector<std::string> output;
 
-	for (std::list<ballot_group>::const_iterator pos = rank_ballots.begin();
+	for (election_t::const_iterator pos = rank_ballots.begin();
 		pos != rank_ballots.end(); ++pos) {
 		output.push_back(prefix + ballot_to_text(*pos,
 				reverse_cand_lookup, numeric));
@@ -602,14 +601,14 @@ std::vector<std::string> ballot_tools::ballots_to_text(std::string prefix,
 }
 
 std::vector<std::string> ballot_tools::ballots_to_text(
-	const std::list<ballot_group> &
+	const election_t &
 	rank_ballots, const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
 	return (ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
 }
 
-void ballot_tools::print_ranked_ballots(const std::list<ballot_group> &
+void ballot_tools::print_ranked_ballots(const election_t &
 	rank_ballots) const {
 
 	std::map<size_t, std::string> fakecand = get_default_candidate_labeling();
@@ -620,9 +619,9 @@ void ballot_tools::print_ranked_ballots(const std::list<ballot_group> &
 			"\n"));
 }
 
-std::list<ballot_group> ballot_tools::rescale(
-	const std::list<ballot_group> & ballots, double factor) const {
-	std::list<ballot_group> out;
+election_t ballot_tools::rescale(
+	const election_t & ballots, double factor) const {
+	election_t out;
 
 	for (ballot_group ballot: ballots) {
 		ballot.set_weight(ballot.get_weight() * factor);

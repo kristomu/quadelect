@@ -67,11 +67,11 @@ class election_method {
 		// otherwise false. Upon error, let the bool be undefined and
 		// return an empty ordering.
 		virtual std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 		virtual std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & papers,
+			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const = 0;
@@ -81,21 +81,21 @@ class election_method {
 		// The next two shouldn't be publicly used; instead, they're
 		// used in combination methods that have to know if what they're
 		// returning is winner_only or not.
-		std::pair<ordering, bool> elect_detailed(const std::list<ballot_group> &
+		std::pair<ordering, bool> elect_detailed(const election_t &
 			papers, int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
-		std::pair<ordering, bool> elect_detailed(const std::list<ballot_group> &
+		std::pair<ordering, bool> elect_detailed(const election_t &
 			papers, const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
 		// Public wrappers for cache.
-		ordering elect(const std::list<ballot_group> & papers,
+		ordering elect(const election_t & papers,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 		// For elimination. Make better, later.
-		ordering elect(const std::list<ballot_group> & papers,
+		ordering elect(const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
@@ -103,13 +103,13 @@ class election_method {
 		// Public wrappers for when there is no cache. These just
 		// forward to the appropriate elect method with cache set to
 		// NULL.
-		ordering elect(const std::list<ballot_group> & papers,
+		ordering elect(const election_t & papers,
 			int num_candidates, bool winner_only) const {
 			return (elect(papers, num_candidates, NULL,
 						winner_only));
 		}
 
-		ordering elect(const std::list<ballot_group> & papers,
+		ordering elect(const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, bool winner_only) const {
 			return (elect(papers, hopefuls, num_candidates,

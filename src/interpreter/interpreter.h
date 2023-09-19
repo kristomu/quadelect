@@ -24,7 +24,7 @@ class interpreter {
 		virtual bool is_this_format(const std::vector<std::string> &
 			inputs) const = 0;
 
-		virtual std::pair<std::map<size_t, std::string>, std::list<ballot_group> >
+		virtual std::pair<std::map<size_t, std::string>, election_t>
 		interpret_ballots(const std::vector<std::string> & inputs,
 			bool debug) const = 0;
 

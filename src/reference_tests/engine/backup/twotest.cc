@@ -143,7 +143,7 @@ twotest_engine::twotest_engine(unsigned int max_iters, bool effective,
 // up this part by a lot.
 void twotest_engine::run_single_test(const std::vector<ordering> &
 	base_outcomes,
-	const std::list<ballot_group> & original_ballots, int num_candidates,
+	const election_t & original_ballots, int num_candidates,
 	int num_nc_iters, const twotest * test, const
 	std::vector<election_method *> & methods_to_test, const
 	std::vector<method_test_info> & compliance_data,
@@ -222,7 +222,7 @@ void twotest_engine::run_single_test(const std::vector<ordering> &
 		// Otherwise, generate the modified ballot set and start
 		// testing! They might still not be applicable, but we don't
 		// know that yet.
-		std::pair<bool, std::list<ballot_group> > arrangement =
+		std::pair<bool, election_t> arrangement =
 			test->rearrange_ballots(original_ballots,
 				num_candidates, data);
 
@@ -285,7 +285,7 @@ bool twotest_engine::run_tests(int iterations) {
 		int num_voters = bracket_random(min_num_voters, max_num_voters);
 		int num_cands = bracket_random(min_num_cands, max_num_cands);
 
-		std::list<ballot_group> base_ballot = generator->generate_ballots(
+		election_t base_ballot = generator->generate_ballots(
 				num_voters, num_cands);
 
 		// Group together all tests that can build upon this

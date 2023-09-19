@@ -21,7 +21,7 @@ ordering strict_ballot(std::string input) {
 	return output;
 }
 
-std::list<ballot_group>  barycentric::generate_ballot_set(double x,
+election_t  barycentric::generate_ballot_set(double x,
 	double y,
 	double maxvoters, std::string first_group, std::string sec_group,
 	std::string third_group, double x_1, double y_1, double x_2,
@@ -38,10 +38,10 @@ std::list<ballot_group>  barycentric::generate_ballot_set(double x,
 	l_3 = 1 - (l_1 + l_2);
 
 	if (l_1 < 0 || l_2 < 0 || l_3 < 0) {
-		return (std::list<ballot_group>());
+		return (election_t());
 	}
 
-	std::list<ballot_group> toRet;
+	election_t toRet;
 	toRet.push_back(ballot_group(l_1 * maxvoters, strict_ballot(
 				first_group), true, false));
 	toRet.push_back(ballot_group(l_2 * maxvoters, strict_ballot(
@@ -52,7 +52,7 @@ std::list<ballot_group>  barycentric::generate_ballot_set(double x,
 	return (toRet);
 }
 
-std::list<ballot_group>  barycentric::generate_ballot_set(double x,
+election_t  barycentric::generate_ballot_set(double x,
 	double y, double maxvoters) const {
 
 	// We have four groups:
@@ -67,7 +67,7 @@ std::list<ballot_group>  barycentric::generate_ballot_set(double x,
 	// The three gropus are ABC, BCA, and CAB, so we can explore Condorcet
 	// cycles in greater detail.
 
-	std::list<ballot_group> ballots;
+	election_t ballots;
 
 	if (ballots.empty())
 		ballots = generate_ballot_set(x, y, maxvoters, "ABC", "BCA",
@@ -235,7 +235,7 @@ std::string barycentric::do_round(bool give_brief_status) {
 
 	for (int y = 0; y < ysize; ++y) {
 		for (int x = 0; x < xsize; ++x) {
-			std::list<ballot_group> barycentric_ballot =
+			election_t barycentric_ballot =
 				generate_ballot_set(x / (double)xsize,
 					y / (double)ysize,
 					numvoters);

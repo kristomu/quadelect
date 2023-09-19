@@ -2,11 +2,11 @@
 
 #include "ballotgen.h"
 
-std::list<ballot_group> indiv_ballot_generator::generate_ballots_int(
+election_t indiv_ballot_generator::generate_ballots_int(
 	int num_voters,
 	int numcands, bool do_truncate, coordinate_gen & coord_source) const {
 
-	std::list<ballot_group> toRet;
+	election_t toRet;
 	ballot_group to_add;
 	to_add.set_weight(1);
 

@@ -693,7 +693,7 @@ int cond_brute_rpn::check_dmtbr(int num_attempts) const {
 // try to break it by adding epsilon to each ranking in turn.
 
 std::pair<ordering, bool> cond_brute_rpn::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache,
 	bool winner_only) const {
@@ -710,7 +710,7 @@ std::pair<ordering, bool> cond_brute_rpn::elect_inner(
 
 	std::vector<double> counts(6, 0); // ABC ACB BAC BCA CAB CBA
 
-	for (std::list<ballot_group>::const_iterator bpos = papers.begin();
+	for (election_t::const_iterator bpos = papers.begin();
 		bpos != papers.end(); ++bpos) {
 		// Go through the ballot in question and determine which category
 		// it falls into of the complete ballots above. If neither, get

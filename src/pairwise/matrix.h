@@ -57,7 +57,7 @@ class condmat : public abstract_condmat {
 
 	public:
 		condmat(pairwise_type type_in);
-		condmat(const std::list<ballot_group> & scores, size_t num_candidates,
+		condmat(const election_t & scores, size_t num_candidates,
 			pairwise_type kind);
 		// Should we permit condmat(input, kind)? Does that break
 		// or enhance encapsulation?
@@ -73,7 +73,7 @@ class condmat : public abstract_condmat {
 						value));
 		}
 
-		void count_ballots(const std::list<ballot_group> & scores,
+		void count_ballots(const election_t & scores,
 			size_t num_candidates);
 
 		// Perhaps "expand candidates by one, contract by one" here?

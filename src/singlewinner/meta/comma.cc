@@ -9,7 +9,7 @@
 
 #include "comma.h"
 
-std::pair<ordering, bool> comma::elect_inner(const std::list<ballot_group>
+std::pair<ordering, bool> comma::elect_inner(const election_t
 	& papers,
 	const std::vector<bool> & hopefuls, int num_candidates, cache_map *
 	cache, bool winner_only) const {

@@ -15,9 +15,9 @@ class positional : public election_method {
 
 	private:
 		// Used for quota methods.
-		double get_weight_sum(const std::list<ballot_group> & input) const;
+		double get_weight_sum(const election_t & input) const;
 
-		ordering elect_to_ordering(const std::list<ballot_group> & input,
+		ordering elect_to_ordering(const election_t & input,
 			size_t num_candidates, size_t num_hopefuls,
 			const std::vector<bool> * hopefuls) const;
 
@@ -55,12 +55,12 @@ class positional : public election_method {
 		// Interfaces
 		// Beware: still uses int for numcands.
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & input,
+			const election_t & input,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
 
 		std::pair<ordering, bool> elect_inner(
-			const std::list<ballot_group> & input,
+			const election_t & input,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;

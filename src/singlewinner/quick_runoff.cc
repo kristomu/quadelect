@@ -30,14 +30,14 @@ ordering quick_runoff::winner_to_ordering(size_t winner,
 }
 
 std::pair<ordering, bool> quick_runoff::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
 	plurality plurality_eval(PT_FRACTIONAL);
 
 	double numvoters = 0;
-	std::list<ballot_group>::const_iterator pos;
+	election_t::const_iterator pos;
 	for (pos = papers.begin(); pos != papers.end(); ++pos) {
 		numvoters += pos->get_weight();
 	}

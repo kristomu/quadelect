@@ -50,9 +50,9 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	size_t num_cands = am_ac_winners[0].size(),
 		   num_methods = am_ac_winners.size();
 
-	std::vector<std::list<ballot_group> > autopilot_am(num_methods);
+	std::vector<election_t> autopilot_am(num_methods);
 	std::vector<int> num_identical(num_methods, 0);
-	std::list<ballot_group> ballots;
+	election_t ballots;
 
 	// Arrange these so (0,0) is at the bottom left?
 	std::vector<double> relative(2);

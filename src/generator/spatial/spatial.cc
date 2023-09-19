@@ -28,11 +28,11 @@ std::vector<double> spatial_generator::max_dim_vector(
 	return (toRet);
 }
 
-std::list<ballot_group> spatial_generator::generate_ballots_int(
+election_t spatial_generator::generate_ballots_int(
 	int num_voters,
 	int numcands, bool do_truncate, coordinate_gen & coord_source) const {
 
-	std::list<ballot_group> toRet;
+	election_t toRet;
 
 	// First generate the candidate positions.
 	// Hm, perhaps this is where JGA's strategy test differs from mine.
@@ -41,7 +41,7 @@ std::list<ballot_group> spatial_generator::generate_ballots_int(
 
 	// Optimize: could make this part of the class, and mutable.
 	// Optimize: could also make this take a list<..>& as input and then
-	// have an auxiliary generate_ballots_int create std::list<ballot_group>,
+	// have an auxiliary generate_ballots_int create election_t,
 	// run this on it, and return it. Probably not worth too much, given
 	// that we have to compress anyway.
 	std::vector<std::vector<double> > cand_positions;
@@ -72,9 +72,11 @@ std::list<ballot_group> spatial_generator::generate_ballots_int(
 
 	std::vector<double> max_vector = max_dim_vector(num_dimensions);
 
+	ballot_group our_entry;
+	our_entry.set_weight(1);
+
 	for (counter = 0; counter < (size_t)num_voters; ++counter) {
-		ballot_group our_entry;
-		our_entry.set_weight(1);
+		our_entry.contents.clear();
 
 		// Get our location.
 		voter_pos = rnd_vector(num_dimensions, coord_source);
@@ -144,13 +146,15 @@ std::list<ballot_group> spatial_generator::generate_ballots_int(
 
 			// If warren_utility is true, use Warren's utility
 			// model.
-			if (warren_utility)
+			if (warren_utility) {
 				our_entry.contents.insert(candscore(sec, 1 /
 						(spacing + our_dist)));
+			}
 			// ... otherwise use JGA's.
-			else
+			else {
 				our_entry.contents.insert(candscore(sec,
 						max_distance-our_dist));
+			}
 		}
 
 		our_entry.complete = (our_entry.contents.size() ==

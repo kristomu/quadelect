@@ -15,7 +15,7 @@
 ////////////////////
 
 bool mono_add_plump::add_ballots(const std::vector<int> & data,
-	rng & randomizer, std::list<ballot_group> & input,
+	rng & randomizer, election_t & input,
 	double total_weight, int numcands) const {
 
 	// Logarithmic hack for weight. If the random choice < 0.2, then 1.
@@ -45,7 +45,7 @@ bool mono_add_plump::add_ballots(const std::vector<int> & data,
 // hand, the random input ballot could handle that...
 
 bool mono_add_top::add_ballots(const std::vector<int> & data,
-	rng & randomizer, std::list<ballot_group> & input,
+	rng & randomizer, election_t & input,
 	double total_weight, int numcands) const {
 
 	// See above.

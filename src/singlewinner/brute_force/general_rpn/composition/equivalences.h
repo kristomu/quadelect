@@ -159,7 +159,7 @@ class fixed_cand_equivalences {
 // different stuff in different classes.
 
 struct election_scenario_pair {
-	std::list<ballot_group> election;
+	election_t election;
 	copeland_scenario scenario;
 	ssize_t from_perspective_of;
 };

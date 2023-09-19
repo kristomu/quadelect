@@ -44,7 +44,7 @@ class loser_elimination : public election_method {
 
 	protected:
 		std::pair<ordering, bool> elect_inner(const
-			std::list<ballot_group> & papers,
+			election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
@@ -85,7 +85,7 @@ template<typename T> class elim_shortcut : public election_method {
 		virtual std::string common_name() const = 0;
 
 		std::pair<ordering, bool> elect_inner(const
-			std::list<ballot_group> & papers,
+			election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const {

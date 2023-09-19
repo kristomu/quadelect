@@ -49,7 +49,7 @@ bool desc_coalition_method::can_candidate_win(
 }
 
 std::pair<ordering, bool> desc_coalition_method::elect_inner(
-	const std::list<ballot_group> & papers,
+	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
