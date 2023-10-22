@@ -60,6 +60,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/experimental/3exp.cc
 	src/singlewinner/experimental/fpa_experiment.cc
 	src/singlewinner/experimental/sv2.cc
+	src/singlewinner/experimental/takedown.cc
 	src/singlewinner/experimental/tup.cc
 	src/singlewinner/fpc.cc
 	src/singlewinner/gradual_c_b.cc

@@ -8,12 +8,12 @@
 #include "no_elimination_irv.h"
 #include "quick_runoff.h"
 #include "young.h"
-#include "desc_coalitions/all.h"
 
 #include "elimination.h"
 #include "method.h"
 
 #include "acp/all.h"
+#include "desc_coalitions/all.h"
 #include "meta/all.h"
 #include "pairwise/all.h"
 #include "positional/all.h"

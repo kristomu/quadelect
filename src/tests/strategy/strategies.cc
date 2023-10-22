@@ -88,6 +88,10 @@ void two_sided_reverse::add_strategic_election_inner(
 	// Create a ballot with weight equal to the number of voters preferring
 	// the challenger to the winner, with ordering equal to the reverse
 	// of the honest outcome.
+	// If there is none, skip.
+	if (grouped_ballots->challenger_support == 0) {
+		return;    // ???
+	}
 	ordering honest_outcome = partial_disproof.before_outcome;
 	ballot_group strategic_ballot(grouped_ballots->challenger_support,
 		ordering_tools().reverse(honest_outcome), true, false);

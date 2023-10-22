@@ -215,6 +215,12 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 		all_methods.push_back(std::make_shared<sv_att_second>());
 		all_methods.push_back(std::make_shared<fpa_experiment>());
 		all_methods.push_back(std::make_shared<donated_contingent_vote>());
+
+		// Maybe expand later
+		all_methods.push_back(std::make_shared<cte>(std::make_shared<plurality>
+				(PT_WHOLE)));
+		all_methods.push_back(std::make_shared<cte>(std::make_shared<borda>
+				(PT_WHOLE)));
 	}
 
 	// Then expand:

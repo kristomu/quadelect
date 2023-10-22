@@ -65,7 +65,7 @@ std::pair<ordering, bool> quick_runoff::elect_inner(
 
 		auto next_in_line = std::next(pos);
 
-		// Skiop non-hopefuls.
+		// Skip non-hopefuls.
 		while (next_in_line != plurality_outcome.end() &&
 			!hopefuls[next_in_line->get_candidate_num()]) {
 			++next_in_line;
