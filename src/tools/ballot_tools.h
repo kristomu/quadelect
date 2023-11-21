@@ -70,7 +70,7 @@ class ordering_tools {
 
 };
 
-///// Ballots.
+///// Ballots and elections.
 
 class ballot_tools {
 	private:
@@ -108,6 +108,9 @@ class ballot_tools {
 
 		void print_ranked_ballots(const election_t &
 			rank_ballots) const;
+
+		static double get_num_voters(const election_t &
+			rank_ballots);
 
 		// Multiply all the weights by factor. Used for covering
 		// methods more thoroughly when doing monotonicity checks etc.

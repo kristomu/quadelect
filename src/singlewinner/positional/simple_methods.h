@@ -43,6 +43,16 @@ class sweep : public positional {
 			positional(kind_in) {
 			sweep_point = sweep_setting;
 		}
+
+		sweep(positional_type kind_in) :
+			positional(kind_in) {
+			sweep_point = 1;
+		}
+
+		void set_sweep_point(double sw_in) {
+			sweep_point = sw_in;
+		}
+
 };
 
 // Example of how to make a positional method.

@@ -76,6 +76,8 @@ std::vector<std::shared_ptr<positional> > get_positional_methods(
 
 	std::vector<std::shared_ptr<positional> > pmethods;
 
+	pmethods.push_back(std::make_shared<bucklin>());
+
 	for (std::vector<positional_type>::const_iterator pos = types.begin();
 		pos !=
 		types.end(); ++pos) {

@@ -534,9 +534,8 @@ election_t ballot_tools::sort_ballots(const
 }
 
 
-election_t ballot_tools::compress(const
-	election_t &
-	uncompressed) const {
+election_t ballot_tools::compress(
+	const election_t & uncompressed) const {
 
 	// You asked for n log n, here it is.
 
@@ -601,8 +600,8 @@ std::vector<std::string> ballot_tools::ballots_to_text(std::string prefix,
 }
 
 std::vector<std::string> ballot_tools::ballots_to_text(
-	const election_t &
-	rank_ballots, const std::map<size_t, std::string> & reverse_cand_lookup,
+	const election_t & rank_ballots,
+	const std::map<size_t, std::string> & reverse_cand_lookup,
 	bool numeric) const {
 
 	return (ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
@@ -617,6 +616,16 @@ void ballot_tools::print_ranked_ballots(const election_t &
 			false);
 	copy(fv.begin(), fv.end(), std::ostream_iterator<std::string>(std::cout,
 			"\n"));
+}
+
+double ballot_tools::get_num_voters(const election_t & rank_ballots) {
+	double numvoters = 0;
+
+	for (const ballot_group & g: rank_ballots) {
+		numvoters += g.get_weight();
+	}
+
+	return numvoters;
 }
 
 election_t ballot_tools::rescale(
