@@ -24,7 +24,7 @@ class ordering_tools {
 		ordering_sorter sorter;
 
 		// Return a reverse ordering (winner becomes loser etc)
-		ordering reverse(const ordering & in) const;
+		static ordering reverse(const ordering & in);
 		// Return an ordering where all but the winners have been
 		// removed.
 		ordering winner_only(const ordering & in) const;
@@ -87,6 +87,8 @@ class ballot_tools {
 		static election_t truncate_after(
 			const election_t & ballots,
 			size_t truncate_after_candidate_num);
+
+		static election_t reverse(const election_t & ballots);
 
 		election_t sort_ballots(const election_t &
 			to_sort) const;

@@ -90,7 +90,7 @@ bool ordering_sorter::operator()(const ballot_group & a,
 
 // The ordering tools themselves.
 
-ordering ordering_tools::reverse(const ordering & in) const {
+ordering ordering_tools::reverse(const ordering & in) {
 
 	ordering out;
 
@@ -522,6 +522,20 @@ election_t ballot_tools::truncate_after(
 	}
 
 	return truncated_ballots;
+}
+
+election_t ballot_tools::reverse(const election_t & ballots) {
+
+	election_t reversed;
+
+	for (const ballot_group & group: ballots) {
+		reversed.push_back(
+			ballot_group(group.get_weight(),
+				ordering_tools::reverse(group.contents),
+				group.complete, group.rated));
+	}
+
+	return reversed;
 }
 
 election_t ballot_tools::sort_ballots(const
