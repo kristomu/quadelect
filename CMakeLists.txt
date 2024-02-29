@@ -63,6 +63,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/experimental/sv2.cc
 	src/singlewinner/experimental/takedown.cc
 	src/singlewinner/experimental/tup.cc
+	src/singlewinner/experimental/rmr1.cc
 	src/singlewinner/fpc.cc
 	src/singlewinner/gradual_c_b.cc
 	src/singlewinner/meta/chain_climbing.cc
@@ -181,6 +182,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/tools/cp_tools.cc
 	src/tools/factoradic.cc
 	src/tools/time_tools.cc
+	src/singlewinner/sets/inner_burial.cc
 	src/tools/tools.cc)
 
 # Set the different executables.
