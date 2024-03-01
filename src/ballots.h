@@ -114,6 +114,25 @@ class ballot_group {
 			return contents.rbegin()->get_score();
 		}
 
+		candscore get_candidate(size_t candidate_number) const {
+			for (candscore cs: contents) {
+				if (cs.get_candidate_num() == candidate_number) {
+					return cs;
+				}
+			}
+
+			throw std::logic_error("get_candidate: Could not find "
+				"candidate!");
+		}
+
+		void replace_score(candscore old_candscore, double new_score) {
+			// Remove the old candscore...
+			contents.erase(old_candscore);
+			// Set its score and reinsert.
+			old_candscore.set_score(new_score);
+			contents.insert(old_candscore);
+		}
+
 		void replace_score(size_t candidate_number, double new_score) {
 			candscore this_cddt(-1, -1);
 			bool found_candidate = false;
@@ -127,11 +146,8 @@ class ballot_group {
 				throw std::logic_error("replace_score: Could not find "
 					"candidate!");
 			}
-			// Remove the old candscore...
-			contents.erase(this_cddt);
-			// Set its score and reinsert.
-			this_cddt.set_score(new_score);
-			contents.insert(this_cddt);
+
+			replace_score(this_cddt, new_score);
 		}
 };
 

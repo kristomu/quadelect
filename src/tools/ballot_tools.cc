@@ -168,9 +168,9 @@ bool ordering_tools::has_multiple_winners(const ordering & in) {
 	return false;
 }
 
-std::list<int> ordering_tools::get_winners(const ordering & in) {
+std::vector<int> ordering_tools::get_winners(const ordering & in) {
 
-	std::list<int> winners;
+	std::vector<int> winners;
 
 	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
 		pos->get_score() == in.begin()->get_score(); ++pos) {
@@ -185,7 +185,7 @@ bool ordering_tools::is_winner(const ordering & in,
 
 	// This may be slower than an optimized loop that aborts once
 	// the winner has been found, but deal with that later if required.
-	std::list<int> winners = get_winners(in);
+	std::vector<int> winners = get_winners(in);
 
 	return std::find(winners.begin(), winners.end(), candidate_num)
 		!= winners.end();

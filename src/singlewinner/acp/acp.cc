@@ -33,7 +33,7 @@ std::pair<ordering, bool> adjusted_cond_plur::elect_inner(
 			num_candidates, cache, false);
 
 	// Get the base method (usually Plurality) winners.
-	std::list<int> base_winners = ordering_tools::get_winners(
+	std::vector<int> base_winners = ordering_tools::get_winners(
 			base_outcome);
 
 	// Now call the get_adjusted_winners function for all such Plurality

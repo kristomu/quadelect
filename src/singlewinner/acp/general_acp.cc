@@ -11,7 +11,7 @@ std::pair<ordering, bool> generalized_acp::elect_inner(
 			num_candidates, cache, false);
 
 	// Get the base method winners.
-	std::list<int> base_winners = ordering_tools::get_winners(
+	std::vector<int> base_winners = ordering_tools::get_winners(
 			base_outcome);
 
 	// Now create a derived matrix for each base winner, and
@@ -55,7 +55,7 @@ std::pair<ordering, bool> generalized_acp::elect_inner(
 		pw_outcome = ordering_tools::ranked_tiebreak(pw_outcome,
 				favors_base, num_candidates);
 
-		std::list<int> pw_winners = ordering_tools::get_winners(
+		std::vector<int> pw_winners = ordering_tools::get_winners(
 				pw_outcome);
 
 		for (int pw_winner: pw_winners) {

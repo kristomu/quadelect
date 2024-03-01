@@ -222,4 +222,7 @@ target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk png)
 add_executable(qe_dim src/main/dimensionality.cc)
 target_link_libraries(qe_dim qe_singlewinner_methods quadelect_lib)
 
+add_executable(monotonator src/main/monotonator.cc)
+target_link_libraries(monotonator qe_singlewinner_methods quadelect_lib)
+
 add_executable(yee_reference_benchmark src/reference/yee_borda.cc)
