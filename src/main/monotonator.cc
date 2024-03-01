@@ -115,13 +115,22 @@ int main() {
 					after_ordering);
 
 			bool old_winner_present = false;
+			bool weakly_monotone = after_winners.size() <= winners.size();
 
 			for (int new_winner: after_winners) {
 				old_winner_present |= (new_winner == winner);
 			}
 
-			if (!old_winner_present) {
-				std::cout << "Damn! Not monotone!" << std::endl;
+			if (!old_winner_present || !weakly_monotone) {
+				if (!old_winner_present) {
+					std::cout << "Damn! Not monotone!" << std::endl <<
+						"[strong fail] ";
+				}
+				if (!weakly_monotone) {
+					std::cout << "Oops! Weakly nonmonotone - the "
+						"number of winners increased." << std::endl <<
+						"[weak fail] ";
+				}
 				std::cout << numvoters << " voters, " << numcands
 					<< " candidates\n";
 
