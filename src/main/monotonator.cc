@@ -58,6 +58,8 @@ int main() {
 	std::cout << "Time to test " << method_tested->name()
 		<< " for monotonicity failures!\n\n\n";
 
+	std::vector<int> shuffle_indices(max_numvoters+1);
+
 	for (size_t i = 0;; ++i) {
 		if ((i & 15) == 0) {
 			std::cerr << "." << std::flush;
@@ -68,6 +70,9 @@ int main() {
 
 		auto ballots_before = ballot_gen->generate_ballots(
 				numvoters, numcands, rnd);
+
+		// Sort the ballots to make reading them easier.
+		ballots_before.sort();
 
 		ordering before_ordering = method_tested->elect(
 				ballots_before, numcands, true);
@@ -82,8 +87,12 @@ int main() {
 			std::vector<ballot_group> after_vector(ballots_before.begin(),
 				ballots_before.end());
 
-			std::random_shuffle(after_vector.begin(),
-				after_vector.end());
+			std::iota(shuffle_indices.begin(),
+				shuffle_indices.begin() + numvoters,
+				0);
+
+			std::random_shuffle(shuffle_indices.begin(),
+				shuffle_indices.begin() + numvoters);
 
 			size_t votes_to_alter = rnd.next_int(numvoters);
 
@@ -98,11 +107,16 @@ int main() {
 				// just above the current candidate so that it's
 				// raised at least one step, but eh, TODO.
 
-				candscore cur_cs = after_vector[k].get_candidate(
+				// We use shuffle indices so that the order of the
+				// ballots does not change, making it easier to see
+				// what was changed.
+				int idx = shuffle_indices[k];
+
+				candscore cur_cs = after_vector[idx].get_candidate(
 						winner);
-				after_vector[k].replace_score(cur_cs,
+				after_vector[idx].replace_score(cur_cs,
 					rnd.next_double(cur_cs.get_score(),
-						after_vector[k].get_max_score()+1));
+						after_vector[idx].get_max_score()+1));
 			}
 
 			std::list<ballot_group> ballots_after(after_vector.begin(),

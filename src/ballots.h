@@ -88,6 +88,14 @@ class ballot_group {
 		ballot_group(double weight_in, const ordering & cont,
 			bool complete_in, bool rated_in);
 
+		bool operator<(const ballot_group & other) const {
+			if (contents != other.contents) {
+				return contents < other.contents;
+			}
+
+			return weight < other.weight;
+		}
+
 		double get_weight() const {
 			return weight;
 		}
