@@ -2,11 +2,6 @@
 
 #include "rmr1.h"
 
-// beats[k][x][y] is true iff candidate x disqualifies y on
-// every set of cardinality k and less.
-
-typedef std::vector<std::vector<std::vector<bool> > > beats_tensor;
-
 beats_tensor rmr1::get_k_disqualifications(const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates) const {
@@ -125,6 +120,100 @@ beats_tensor rmr1::get_k_disqualifications(const election_t & papers,
 	return beats;
 }
 
+int rmr1::get_score_defeated(const beats_tensor & beats,
+	const std::vector<bool> & hopefuls,
+	int candidate, int num_candidates) const {
+
+	// Start with everybody having max penalty (i.e. never winning).
+	int first_victory_level = num_candidates + 1;
+	if (!hopefuls[candidate]) {
+		return first_victory_level;
+	}
+
+	// Start with the pairwise defeats.
+	std::vector<std::vector<bool> > current_beats = beats[2];
+
+	// And assume we're defeated.
+	bool defeated = true;
+
+	for (int k = 2; k <= num_candidates && defeated; ++k) {
+		// Check if there are any defeats against us that we
+		// can erase, and check if that makes us undefeated.
+
+		defeated = false;
+
+		// NOTE: We can *not* short-circuit here because we need
+		// to erase every defeat that can be erased, even though
+		// we might already know we're defeated by someone else.
+
+		for (int challenger = 0; challenger < num_candidates;
+			++challenger) {
+
+			if (!hopefuls[challenger] || challenger == candidate) {
+				continue;
+			}
+
+			// Is the disqualification against us no longer active?
+			// Break it.
+			if (!beats[k][challenger][candidate]) {
+				current_beats[challenger][candidate] = false;
+			}
+
+			defeated |= current_beats[challenger][candidate];
+		}
+
+		if (!defeated) {
+			first_victory_level = k;
+		}
+	}
+
+	return -first_victory_level;
+}
+
+int rmr1::get_score_defeating(const beats_tensor & beats,
+	const std::vector<bool> & hopefuls,
+	int candidate, int num_candidates) const {
+
+	if (!hopefuls[candidate]) {
+		return 0;
+	}
+
+	bool defeating = true;
+	int score = 0;
+
+	for (int k = 2; k <= num_candidates && defeating; ++k) {
+		// Check if we're defeating anyone else and how many
+		// candidates are defeating us.
+
+		defeating = false;
+		int defeated_by = 0;
+
+		for (int challenger = 0; challenger < num_candidates;
+			++challenger) {
+
+			if (!hopefuls[challenger] || challenger == candidate) {
+				continue;
+			}
+
+			defeating |= beats[k][candidate][challenger];
+
+			// Nonmonotone HACK, come up with something better later.
+			if (beats[k][challenger][candidate]) {
+				++defeated_by;
+			}
+		}
+
+		if (defeating) {
+			// HACK: ditto. Since defeated_by is always less than
+			// num_candidates, this in effect works as "k, with the number
+			// of candidates beating us breaking any ties".
+			score = (k * num_candidates) - defeated_by;
+		}
+	}
+
+	return score;
+}
+
 std::pair<ordering, bool> rmr1::elect_inner(
 	const election_t & papers,
 	const std::vector<bool> & hopefuls,
@@ -133,56 +222,6 @@ std::pair<ordering, bool> rmr1::elect_inner(
 	beats_tensor beats = get_k_disqualifications(
 			papers, hopefuls, num_candidates);
 
-	// Start with everybody having max penalty (i.e. never winning).
-	std::vector<int> first_victory_level(num_candidates,
-		num_candidates + 1);
-
-	// Make the case for each candidate.
-	for (size_t cand = 0; cand < (size_t)num_candidates; ++cand) {
-		if (!hopefuls[cand]) {
-			continue;
-		}
-
-		// Start with the pairwise defeats.
-		std::vector<std::vector<bool> > current_beats = beats[2];
-
-		// And assume we're defeated.
-		bool defeated = true;
-
-		for (int k = 2; k <= num_candidates && defeated; ++k) {
-			// Check if there are any defeats against us that we
-			// can erase, and check if that makes us undefeated.
-
-			defeated = false;
-
-			// NOTE: We can *not* short-circuit here because we need
-			// dto erase every defeat that can be erased, even though
-			// we might already know we're defeated by someone else.
-
-			for (size_t challenger = 0; challenger < (size_t)num_candidates;
-				++challenger) {
-
-				if (!hopefuls[challenger] || challenger == cand) {
-					continue;
-				}
-
-				// Is the disqualification against us no longer active?
-				// Break it.
-				if (!beats[k][challenger][cand]) {
-					current_beats[challenger][cand] = false;
-				}
-
-				defeated |= current_beats[challenger][cand];
-			}
-
-			if (!defeated) {
-				first_victory_level[cand] = k;
-			}
-		}
-	}
-
-	// Turn the first level at which each candidate wins into an
-	// ordering.
 	ordering rmr_ordering;
 
 	for (int cand = 0; cand < num_candidates; ++cand) {
@@ -190,7 +229,22 @@ std::pair<ordering, bool> rmr1::elect_inner(
 			continue;
 		}
 
-		rmr_ordering.insert(candscore(cand, -first_victory_level[cand]));
+		int score;
+
+		switch (chosen_type) {
+			case RMR_DEFEATED:
+				score = get_score_defeated(beats,
+						hopefuls, cand, num_candidates);
+				break;
+			case RMR_DEFEATING:
+				score = get_score_defeating(beats,
+						hopefuls, cand, num_candidates);
+				break;
+			default:
+				throw std::invalid_argument("RMRA1: Invalid type!");
+		}
+
+		rmr_ordering.insert(candscore(cand, score));
 	}
 
 	return std::pair<ordering, bool>(rmr_ordering, false);

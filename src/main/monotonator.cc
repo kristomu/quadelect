@@ -10,6 +10,7 @@
 #include "../singlewinner/experimental/rmr1.h"
 #include "../singlewinner/meta/all.h"
 #include "../singlewinner/pairwise/simple_methods.h"
+#include "../singlewinner/sets/all.h"
 #include "../random/random.h"
 
 #include "../generator/all.h"
@@ -41,15 +42,17 @@ int main() {
 
 	size_t inner_iters = 10000;
 
-	int max_numvoters = 15, max_numcands = 4; // E.g.
+	int max_numvoters = 30, max_numcands = 6; // E.g.
 
 	rng rnd(0); // TODO get seed from an entropy source, see quadelect proper
 
 	auto method_tested =
 		//std::make_shared<instant_runoff_voting>(PT_WHOLE, true);
-		std::make_shared<comma>(std::make_shared<rmr1>(),
-			std::make_shared<ext_minmax>(CM_WV, false));
-	//std::make_shared<rmr1>();
+		/*std::make_shared<comma>(std::make_shared<rmr1>(RMR_DEFEATED),
+			std::make_shared<ext_minmax>(CM_WV, false));*/
+		//std::make_shared<rmr1>(RMR_DEFEATING);
+		std::make_shared<comma>(std::make_shared<inner_burial_set>(),
+			std::make_shared<rmr1>(RMR_DEFEATING));
 	//std::make_shared<ext_minmax>(CM_WV, false);
 
 	std::shared_ptr<impartial> ballot_gen =
