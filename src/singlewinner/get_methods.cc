@@ -226,7 +226,9 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 		all_methods.push_back(std::make_shared<cte>(std::make_shared<borda>
 				(PT_WHOLE)));
 
-		all_methods.push_back(std::make_shared<rmr1>());
+		all_methods.push_back(std::make_shared<rmr1>(RMR_DEFEATED));
+		all_methods.push_back(std::make_shared<rmr1>(RMR_DEFEATING));
+		all_methods.push_back(std::make_shared<rmr1>(RMR_TWO_WAY));
 	}
 
 	// Then expand:

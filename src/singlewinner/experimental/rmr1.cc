@@ -214,6 +214,49 @@ int rmr1::get_score_defeating(const beats_tensor & beats,
 	return score;
 }
 
+int rmr1::get_score_two_way(const beats_tensor & beats,
+	const std::vector<bool> & hopefuls,
+	int candidate, int num_candidates) const {
+
+	int score = -(num_candidates+1);
+
+	if (!hopefuls[candidate]) {
+		return score;
+	}
+
+	// Could possibly break ties to try to deter nonmonotonicity, like
+	// this: of every other candidate defeating someone on this level
+	// but not yet being undefeated, how close are they to being undefeated
+	// on subelections containing the candidate in question? Closer is
+	// worse.
+
+	// Or some kind of DSV where f(A, B) checks who wins when A,
+	// alternatively B, is made to be top-ranked. But I'll have to take
+	// a break before doing anything that complex.
+
+	for (int k = 2; k <= num_candidates; ++k) {
+		bool defeated = false;
+		bool defeating_someone = false;
+
+		for (int challenger = 0; challenger < num_candidates;
+			++challenger) {
+
+			if (candidate == challenger) {
+				continue;
+			}
+
+			defeated |= beats[k][challenger][candidate];
+			defeating_someone |= beats[k][candidate][challenger];
+		}
+
+		if (!defeated && defeating_someone) {
+			return -k;
+		}
+	}
+
+	return score;
+}
+
 std::pair<ordering, bool> rmr1::elect_inner(
 	const election_t & papers,
 	const std::vector<bool> & hopefuls,
@@ -240,12 +283,23 @@ std::pair<ordering, bool> rmr1::elect_inner(
 				score = get_score_defeating(beats,
 						hopefuls, cand, num_candidates);
 				break;
+			case RMR_TWO_WAY:
+				score = get_score_two_way(beats,
+						hopefuls, cand, num_candidates);
+				break;
 			default:
 				throw std::invalid_argument("RMRA1: Invalid type!");
 		}
 
 		rmr_ordering.insert(candscore(cand, score));
 	}
+
+	/*std::cout << "DEBUG election\n";
+	ballot_tools().print_ranked_ballots(papers);
+	std::cout << "\n";
+
+	std::cout << "DEBUG outcome: " << ordering_tools::ordering_to_text(
+		rmr_ordering, true) << std::endl;*/
 
 	return std::pair<ordering, bool>(rmr_ordering, false);
 

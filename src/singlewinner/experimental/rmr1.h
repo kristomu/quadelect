@@ -33,6 +33,11 @@
 // the general idea is that raising A can never break A ~> B on any
 // sub-election.
 
+// RMR_TWO_WAY:
+// Find the lowest rank at which A disqualifies someone and isn't
+// disqualified by someone else. If there is none, then the rank is set to
+// num candidates+1. The rank is A's penalty, so lower is better.
+
 // --------------------
 
 // The disqualification relation is the same as for the resistant/inner
@@ -48,7 +53,7 @@
 #include "../../pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
-enum rmr_type { RMR_DEFEATED, RMR_DEFEATING };
+enum rmr_type { RMR_DEFEATED, RMR_DEFEATING, RMR_TWO_WAY };
 
 // beats[k][x][y] is true iff candidate x disqualifies y on
 // every set of cardinality k and less.
@@ -75,6 +80,11 @@ class rmr1 : public election_method {
 			const std::vector<bool> & hopefuls,
 			int candidate, int num_candidates) const;
 
+		int get_score_two_way(
+			const beats_tensor & beats,
+			const std::vector<bool> & hopefuls,
+			int candidate, int num_candidates) const;
+
 	public:
 		std::pair<ordering, bool> elect_inner(
 			const election_t & papers,
@@ -88,6 +98,8 @@ class rmr1 : public election_method {
 					return "EXP: RMRA1-defeated";
 				case RMR_DEFEATING:
 					return "EXP: RMRA1-defeating-tiebreak";
+				case RMR_TWO_WAY:
+					return "EXP: RMRA1-two-way";
 				default:
 					throw std::invalid_argument("RMRA1: Invalid type!");
 			}
@@ -97,7 +109,8 @@ class rmr1 : public election_method {
 		// whole, and this uses fractional.
 		rmr1(rmr_type chosen_type_in) : plurality_method(PT_FRACTIONAL) {
 			if (chosen_type_in != RMR_DEFEATED &&
-				chosen_type_in != RMR_DEFEATING) {
+				chosen_type_in != RMR_DEFEATING &&
+				chosen_type_in != RMR_TWO_WAY) {
 				throw std::invalid_argument("RMRA1: Invalid type!");
 			}
 
