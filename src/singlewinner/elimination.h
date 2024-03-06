@@ -130,6 +130,18 @@ class instant_runoff_voting : public elim_shortcut<plurality> {
 					false, use_first_diff) {}
 };
 
+class IFPP : public elim_shortcut<plurality> {
+	protected:
+		std::string common_name() const {
+			return "IFPP";
+		}
+
+	public:
+		IFPP(positional_type equal_rank_handling,
+			bool use_first_diff) : elim_shortcut(equal_rank_handling,
+					true, use_first_diff) {}
+};
+
 class baldwin : public elim_shortcut<borda> {
 	protected:
 		std::string common_name() const {
