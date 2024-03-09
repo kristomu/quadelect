@@ -59,6 +59,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/elimination.cc
 	src/singlewinner/experimental/3exp.cc
 	src/singlewinner/experimental/beat_chain.cc
+	src/singlewinner/experimental/disqelim.cc
 	src/singlewinner/experimental/fpa_experiment.cc
 	src/singlewinner/experimental/sv2.cc
 	src/singlewinner/experimental/takedown.cc
