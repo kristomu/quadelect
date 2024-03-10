@@ -179,6 +179,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/tests/strategy/ballots_by_support.cc
 	src/tests/strategy/strategies.cc
 	src/tests/test.cc
+	src/tests/quick_dirty/monotonicity.cc
 	src/tools/ballot_tools.cc
 	src/tools/cp_tools.cc
 	src/tools/factoradic.cc
