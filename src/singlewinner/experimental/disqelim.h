@@ -76,4 +76,9 @@ class disqelim : public election_method {
 		}
 
 		disqelim() : plurality_method(PT_FRACTIONAL) {}
+
+		disqelim(std::shared_ptr<election_method> base_method_in) :
+			plurality_method(PT_FRACTIONAL) {
+			set_base_method(base_method_in);
+		}
 };
