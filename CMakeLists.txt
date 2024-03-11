@@ -212,6 +212,9 @@ target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib glpk)
 add_executable(bandit_search src/main/test_strategy_linbrute_bandit.cc)
 target_link_libraries(bandit_search qe_singlewinner_methods quadelect_lib glpk)
 
+add_executable(bandit_monotonicity src/main/test_monotonicity_bandit.cc)
+target_link_libraries(bandit_monotonicity qe_singlewinner_methods quadelect_lib glpk)
+
 add_executable(fixed_strategy src/main/test_strategy_fixed.cc)
 target_link_libraries(fixed_strategy qe_singlewinner_methods quadelect_lib glpk)
 
