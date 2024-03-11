@@ -14,13 +14,20 @@
 
 class monotone_check : public Test {
 	private:
-		std::shared_ptr<impartial> ballot_gen;
+		std::shared_ptr<pure_ballot_generator> ballot_gen;
 		std::shared_ptr<rng> rnd;
 		std::shared_ptr<election_method> method_tested;
 
 		// How many attempts should we make in trying to get a
 		// particular election to show nonmonotonicity?
 		size_t tests_per_election;
+
+		// This is entirely a convenience feature: the number of
+		// elections to try before giving up and returning that the
+		// method is monotone. The point is to make bandit stats
+		// show a value different from 1 when the methods aren't
+		// monotone, even if the monotonicity rate is very high.
+		size_t elections_tested_at_once;
 
 		int max_numcands, max_numvoters;
 		int numcands, numvoters;
@@ -36,7 +43,7 @@ class monotone_check : public Test {
 		int winner;
 
 	public:
-		monotone_check(std::shared_ptr<impartial> ballot_gen_in,
+		monotone_check(std::shared_ptr<pure_ballot_generator> ballot_gen_in,
 			std::shared_ptr<rng> rnd_in,
 			std::shared_ptr<election_method> method_in,
 			int max_numcands_in, int max_numvoters_in) {
@@ -52,7 +59,8 @@ class monotone_check : public Test {
 			old_winner_present = true;
 			weakly_monotone = true;
 
-			tests_per_election = 8192; // fix later
+			tests_per_election = 15; // fix later
+			elections_tested_at_once = 15; // ditto
 		}
 
 		double perform_test(); // returns 1 if monotone, 0 otherwise
