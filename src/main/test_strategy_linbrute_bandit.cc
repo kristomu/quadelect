@@ -82,12 +82,13 @@
 // of the set wins, then the method is vulnerable. Assume the exact member is
 // found using backroom dealing or whatnot.
 
-void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
-	to_test,
-	rng & randomizer, std::shared_ptr<pure_ballot_generator> ballotgen,
+void test_with_bandits(
+	std::vector<std::shared_ptr<election_method> > & to_test,
+	std::shared_ptr<rng> randomizer,
+	std::shared_ptr<pure_ballot_generator> ballotgen,
 	bool find_most_susceptible) {
 
-	std::vector<BinomialBandit> bandits;
+	std::vector<std::shared_ptr<BinomialBandit> > bandits;
 
 	// sts: Tests that count how many times we find a strategy
 	// reverse_sts: Tests that count how many times we fail.
@@ -97,9 +98,9 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 	// reverse_sts will find those that are most susceptible.
 
 	std::vector<test_runner> sts;
-	std::vector<ReverseTest> reverse_sts;
+	std::vector<std::shared_ptr<Test> > test_ptrs;
 
-	int numvoters = 97;
+	int numvoters = 997;
 	int initial_numcands = 5, numcands = initial_numcands;
 
 	std::cout << "Number of candidates = " << numcands << std::endl;
@@ -116,7 +117,7 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 		int tries_to_get_strat = 4096; // was 4096
 
 		sts.push_back(test_runner(ballotgen,
-				numvoters, numcands, numcands, randomizer, to_test[i],
+				numvoters, numcands, numcands, *randomizer.get(), to_test[i],
 				tries_to_get_strat));
 
 		// We're testing the rate of failure of "strategy immunity" criteria,
@@ -129,18 +130,16 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 		}
 	}
 
-	// Needs to be done this way because inserting stuff into sts can
-	// alter pointers.
-	for (i = 0; i < sts.size(); ++i) {
-		reverse_sts.push_back(ReverseTest(&sts[i]));
-	}
-
 	for (i = 0; i < to_test.size(); ++i) {
+		std::shared_ptr<Test> test_to_add;
+
 		if (find_most_susceptible) {
-			bandits.push_back(BinomialBandit(&reverse_sts[i]));
+			test_to_add = std::make_shared<ReverseTest>(
+					&sts[i]);
 		} else {
-			bandits.push_back(BinomialBandit(&sts[i]));
+			test_to_add = std::shared_ptr<Test>(&sts[i]);
 		}
+		bandits.push_back(std::make_shared<BinomialBandit>(test_to_add));
 	}
 
 	Lil_UCB lil_ucb;
@@ -186,7 +185,7 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 			size_t k;
 			for (k = 0; k < bandits.size(); ++k) {
 				// TODO: Some kind of get C here...
-				so_far.push_back(std::pair<double, int>(bandits[k].get_mean(), k));
+				so_far.push_back(std::pair<double, int>(bandits[k]->get_mean(), k));
 			}
 			sort(so_far.begin(), so_far.end());
 			reverse(so_far.begin(), so_far.end());
@@ -194,10 +193,10 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 			size_t how_many = 10;
 			std::cout << "Interim report (by mean):" << std::endl;
 			for (k = 0; k < std::min(how_many, sts.size()); ++k) {
-				double mean = bandits[so_far[k].second].get_mean();
+				double mean = bandits[so_far[k].second]->get_mean();
 
-				int num_pulls = bandits[so_far[k].second].get_num_pulls();
-				int num_successes = bandits[so_far[k].second].get_num_successes();
+				int num_pulls = bandits[so_far[k].second]->get_num_pulls();
+				int num_successes = bandits[so_far[k].second]->get_num_successes();
 
 				std::pair<double, double> c_i = ci.bin_prop_interval(
 						corrected_significance, num_successes, num_pulls);
@@ -205,14 +204,14 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 				double middle = round((1 - mean) * 1000)/1000.0;
 				double upper = round((1 - c_i.first) * 1000)/1000.0;
 
-				std::cout << k+1 << ". " << bandits[so_far[k].second].name() << "(" <<
+				std::cout << k+1 << ". " << bandits[so_far[k].second]->name() << "(" <<
 					lower << ", " << middle << ", " << upper << ")" << std::endl;
 			}
 
 		}
 	}
 
-	const Bandit * results = lil_ucb.get_best_bandit_so_far();
+	std::shared_ptr<Bandit> results = lil_ucb.get_best_bandit_so_far();
 
 	std::cout << "Best so far is " << results->name() <<
 		std::endl; //<< " with CB of " << results.second << std::endl;
@@ -223,58 +222,6 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 int main(int argc, const char ** argv) {
 	std::vector<std::shared_ptr<election_method> > condorcets;
 	std::vector<std::shared_ptr<election_method> > condorcetsrc;
-
-	int counter;
-
-	// HACK for ACP variants
-
-	std::vector<std::shared_ptr<pairwise_method> > sets_and_methods;
-
-	sets_and_methods.push_back(std::make_shared<condorcet_set>());
-	sets_and_methods.push_back(std::make_shared<mdd_set>(true));
-	sets_and_methods.push_back(std::make_shared<mdd_set>(false));
-	sets_and_methods.push_back(std::make_shared<partition_set>(false));
-
-	sets_and_methods.push_back(std::make_shared<cdtt_set>());
-	sets_and_methods.push_back(std::make_shared<cgtt_set>());
-	sets_and_methods.push_back(std::make_shared<landau_set>());
-	sets_and_methods.push_back(std::make_shared<schwartz_set>());
-	sets_and_methods.push_back(std::make_shared<sdom_set>());
-	sets_and_methods.push_back(std::make_shared<pdom_set>());
-	sets_and_methods.push_back(std::make_shared<smith_set>());
-
-	sets_and_methods.push_back(std::make_shared<copeland>(CM_WV));
-
-	sets_and_methods.push_back(std::make_shared<dquick>(CM_WV));
-	sets_and_methods.push_back(std::make_shared<kemeny>(CM_WV));
-	sets_and_methods.push_back(std::make_shared<maxmin>(CM_WV));
-	sets_and_methods.push_back(std::make_shared<schulze>(CM_WV));
-
-	// Reasonable convergence defaults.
-	sets_and_methods.push_back(std::make_shared<sinkhorn>(CM_WV, 0.01, true));
-	sets_and_methods.push_back(std::make_shared<sinkhorn>(CM_WV, 0.01, false));
-	sets_and_methods.push_back(std::make_shared<hits>(CM_WV, 0.001));
-	sets_and_methods.push_back(std::make_shared<odm_atan>(CM_WV, 0.001));
-	sets_and_methods.push_back(std::make_shared<odm_tanh>(CM_WV, 0.001));
-	sets_and_methods.push_back(std::make_shared<odm>(CM_WV, 0.001));
-
-	// Keener
-	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, false,
-			false));
-	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, false,
-			true));
-	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, true,
-			false));
-	sets_and_methods.push_back(std::make_shared<keener>(CM_WV, 0.001, true,
-			true));
-
-	sets_and_methods.push_back(std::make_shared<ext_minmax>(CM_WV, false));
-	sets_and_methods.push_back(std::make_shared<ext_minmax>(CM_WV, true));
-	sets_and_methods.push_back(std::make_shared<ord_minmax>(CM_WV));
-
-	sets_and_methods.push_back(std::make_shared<copeland>(CM_WV, 2, 2, 1));
-	sets_and_methods.push_back(std::make_shared<copeland>(CM_WV, 2, 1, 0));
-
 
 	std::vector<std::shared_ptr<election_method> > methods =
 		get_singlewinner_methods(false, false);
@@ -290,43 +237,20 @@ int main(int argc, const char ** argv) {
 	condorcets.push_back(std::make_shared<slash>(
 			std::make_shared<smith_set>(),
 			std::make_shared<ifpp_method_x>()));
-	// TODO FIX LATER
-	condorcets.push_back(std::make_shared<benham_meta>(&si));
-
-	/*for (pairwise_method * set_method: sets_and_methods) {
-		//for (election_method * emeth: methods_ref) {
-			generalized_acp * gen_acp = new generalized_acp(
-				&si, set_method);
-
-			condorcets.push_back(new comma(gen_acp, &xf));
-			condorcets.push_back(new comma(gen_acp, &xe));
-			condorcets.push_back(gen_acp);
-		//}
-	}*/
-
-	reverse(condorcets.begin(), condorcets.end());
 
 	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
 
-	// Generate separate RNGs for each thread.
-	const int numthreads = 16;
-	std::vector<rng> randomizers;
+	std::shared_ptr<rng> randomizer;
 	time_t startpt = time(NULL);    // randomize timer
+	randomizer = std::make_shared<rng>(startpt);
 
-	for (counter = 0; counter < numthreads; ++counter) {
-		randomizers.push_back(rng(startpt + counter));
-	}
-
+	// !!! If you set the first parameter to true, then the monotonicity
+	// checker explodes. Don't do that. TODO: Error handling...
 	std::shared_ptr<pure_ballot_generator> ballotgen =
-		std::make_shared<impartial>(true, false);
-	// Something is wrong with this one. TODO: Check later.
-	//ballotgens.push_back(new dirichlet(false));
-	// And this one; it trips num_prefers_challenger - cumul. Determine why.
-	// int dimensions = 4;
-	//ballotgens.push_back(new gaussian_generator(true, false, dimensions,
-	//		false));
+		std::make_shared<impartial>(false, false);
 
-	test_with_bandits(condorcets, randomizers[0], ballotgen, false);
 
-	return (0);
+	test_with_bandits(condorcets, randomizer, ballotgen, false);
+
+	return 0;
 }

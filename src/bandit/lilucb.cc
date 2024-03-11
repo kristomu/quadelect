@@ -27,7 +27,8 @@ double Lil_UCB::C(int num_plays_this, size_t num_bandits) const {
 	return (score);
 }
 
-void Lil_UCB::load_bandits(std::vector<Bandit *> & bandits) {
+void Lil_UCB::load_bandits(std::vector<std::shared_ptr<Bandit> > &
+	bandits) {
 
 	// Empty the queue of what might already be there.
 	// STL priority queues don't have a .clear() for some reason.

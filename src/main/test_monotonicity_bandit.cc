@@ -39,9 +39,8 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 	to_test, std::shared_ptr<rng> randomizer,
 	std::shared_ptr<pure_ballot_generator> ballotgen) {
 
-	std::vector<monotone_check> tests;
-	std::vector<ReverseTest> reverse_sts;
-	std::vector<BinomialBandit> bandits;
+	std::vector<std::shared_ptr<monotone_check> > tests;
+	std::vector<std::shared_ptr<BinomialBandit> > bandits;
 
 	int max_numvoters = 100, max_numcands = 4;
 
@@ -51,17 +50,15 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 	size_t i;
 
 	for (i = 0; i < to_test.size(); ++i) {
-		tests.push_back(monotone_check(ballotgen,
-				randomizer, to_test[i], max_numcands,
+		tests.push_back(std::make_shared<monotone_check>(
+				ballotgen, randomizer, to_test[i], max_numcands,
 				max_numvoters));
 	}
 
 	for (i = 0; i < to_test.size(); ++i) {
-		reverse_sts.push_back(ReverseTest(&tests[i]));
-	}
+		std::shared_ptr<Test> test_to_add = std::shared_ptr<Test>(tests[i]);
 
-	for (i = 0; i < to_test.size(); ++i) {
-		bandits.push_back(BinomialBandit(&tests[i]));
+		bandits.push_back(std::make_shared<BinomialBandit>(test_to_add));
 	}
 
 	Lil_UCB lil_ucb;
@@ -109,7 +106,7 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 			size_t k;
 			for (k = 0; k < bandits.size(); ++k) {
 				// TODO: Some kind of get C here...
-				so_far.push_back(std::pair<double, int>(bandits[k].get_mean(), k));
+				so_far.push_back(std::pair<double, int>(bandits[k]->get_mean(), k));
 			}
 			sort(so_far.begin(), so_far.end());
 			reverse(so_far.begin(), so_far.end());
@@ -117,10 +114,10 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 			size_t how_many = 10;
 			std::cout << "Interim report (by mean):" << std::endl;
 			for (k = 0; k < std::min(how_many, tests.size()); ++k) {
-				double mean = bandits[so_far[k].second].get_mean();
+				double mean = bandits[so_far[k].second]->get_mean();
 
-				int num_pulls = bandits[so_far[k].second].get_num_pulls();
-				int num_successes = bandits[so_far[k].second].get_num_successes();
+				int num_pulls = bandits[so_far[k].second]->get_num_pulls();
+				int num_successes = bandits[so_far[k].second]->get_num_successes();
 
 				std::pair<double, double> c_i = ci.bin_prop_interval(
 						corrected_significance, num_successes, num_pulls);
@@ -128,14 +125,14 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 				double middle = round((mean) * 1000)/1000.0;
 				double upper = round((c_i.second) * 1000)/1000.0;
 
-				std::cout << k+1 << ". " << bandits[so_far[k].second].name() << "(" <<
+				std::cout << k+1 << ". " << bandits[so_far[k].second]->name() << "(" <<
 					lower << ", " << middle << ", " << upper << ")" << std::endl;
 			}
 
 		}
 	}
 
-	const Bandit * results = lil_ucb.get_best_bandit_so_far();
+	std::shared_ptr<Bandit> results = lil_ucb.get_best_bandit_so_far();
 
 	std::cout << "Best so far is " << results->name() <<
 		std::endl; //<< " with CB of " << results.second << std::endl;
@@ -146,8 +143,6 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 int main(int argc, const char ** argv) {
 	std::vector<std::shared_ptr<election_method> > condorcets;
 	std::vector<std::shared_ptr<election_method> > condorcetsrc;
-
-	int counter;
 
 	std::vector<std::shared_ptr<election_method> > methods =
 		get_singlewinner_methods(true, false);
@@ -197,7 +192,7 @@ int main(int argc, const char ** argv) {
 		std::make_shared<impartial>(false, false);
 
 
-	test_with_bandits(condorcets, randomizers, ballotgen);
+	test_with_bandits(condorcets, randomizer, ballotgen);
 
-	return (0);
+	return 0;
 }

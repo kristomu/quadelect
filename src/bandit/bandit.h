@@ -1,17 +1,17 @@
-#ifndef _BANDIT_BANDIT
-#define _BANDIT_BANDIT
+#pragma once
 
 #include "tests/tests.h"
 #include <string>
+#include <memory>
 
 class Bandit {
 	protected:
 		double accumulated_reward;
 		int num_pulls;
-		Test * arm;
+		std::shared_ptr<Test> arm;
 
 	public:
-		Bandit(Test * input_arm) : arm(input_arm) {
+		Bandit(std::shared_ptr<Test> input_arm) : arm(input_arm) {
 			accumulated_reward = 0;
 			num_pulls = 0;
 		}
@@ -38,5 +38,3 @@ class Bandit {
 			return (arm->name());
 		}
 };
-
-#endif

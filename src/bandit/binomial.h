@@ -1,5 +1,4 @@
-#ifndef _BANDIT_BINOMIAL
-#define _BANDIT_BINOMIAL
+#pragma once
 
 #include "tests/tests.h"
 #include "bandit.h"
@@ -15,7 +14,7 @@ class BinomialBandit : public Bandit {
 		int num_successes;
 
 	public:
-		BinomialBandit(Test * input_arm) : Bandit(input_arm) {
+		BinomialBandit(std::shared_ptr<Test> input_arm) : Bandit(input_arm) {
 			num_successes = 0;
 		}
 
@@ -24,5 +23,3 @@ class BinomialBandit : public Bandit {
 			return (num_successes);
 		}
 };
-
-#endif

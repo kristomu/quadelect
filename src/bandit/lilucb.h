@@ -1,7 +1,7 @@
-#ifndef _BANDIT_LIL_UCB
-#define _BANDIT_LIL_UCB
+#pragma once
 
 #include "bandit.h"
+#include <memory>
 #include <vector>
 #include <queue>
 
@@ -11,7 +11,7 @@
 
 class queue_entry {
 	public:
-		Bandit * bandit_ref;
+		std::shared_ptr<Bandit> bandit_ref;
 		double score;
 
 		// a is less than (inferior to) b if a's score is less
@@ -22,7 +22,6 @@ class queue_entry {
 			}
 			return (bandit_ref->get_num_pulls() >=
 					other.bandit_ref->get_num_pulls());
-			//return (score < other.score);
 		}
 };
 
@@ -40,7 +39,9 @@ class Lil_UCB {
 						num_bandits));
 		}
 
-		queue_entry create_queue_entry(Bandit * bandit, size_t num_bandits) {
+		queue_entry create_queue_entry(std::shared_ptr<Bandit> bandit,
+			size_t num_bandits) {
+
 			queue_entry out;
 			out.bandit_ref = bandit;
 			out.score = get_score(*bandit, num_bandits);
@@ -56,14 +57,14 @@ class Lil_UCB {
 			delta = 0.01; // Default
 		}
 
-		void load_bandits(std::vector<Bandit *> & bandits);
+		void load_bandits(std::vector<std::shared_ptr<Bandit> > & bandits);
 
 		// Slightly clumsy way of permitting polymorphism without limiting
 		// ourselves to vectors
 		template<typename T> void load_bandits(T & bandits) {
-			std::vector<Bandit *> translation_container;
+			std::vector<std::shared_ptr<Bandit>> translation_container;
 			for (size_t i = 0; i < bandits.size(); ++i) {
-				translation_container.push_back(&bandits[i]);
+				translation_container.push_back(bandits[i]);
 			}
 			load_bandits(translation_container);
 		}
@@ -73,9 +74,7 @@ class Lil_UCB {
 		// being confident.
 		double pull_bandit_arms(int maxiters);
 
-		const Bandit * get_best_bandit_so_far() const {
+		const std::shared_ptr<Bandit> get_best_bandit_so_far() const {
 			return (bandit_queue.top().bandit_ref);
 		}
 };
-
-#endif
