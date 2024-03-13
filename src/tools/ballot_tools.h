@@ -39,6 +39,10 @@ class ordering_tools {
 		static std::vector<int> get_winners(const ordering & in);
 		static bool is_winner(const ordering & in, int candidate_num);
 
+		// Checks if the ordering has any explicitly equal-ranked
+		// candidates. NOTE: Does not check truncation! TODO?
+		static bool has_some_equal_rank(const ordering & in);
+
 		static std::list<candscore> get_loser_candscores(const ordering & in);
 
 		// Break ties in "tied" according to tiebreaker and return
@@ -53,7 +57,7 @@ class ordering_tools {
 			size_t num_candidates);
 
 		// Returns true if everybody who is ranked is also tied.
-		bool has_equal_rank(const ordering & to_check) const;
+		bool all_ranked_equal(const ordering & to_check) const;
 
 		static std::string ordering_to_text(const ordering & rank_ballot,
 			const std::map<size_t, std::string> & reverse_cand_lookup,

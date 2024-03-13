@@ -37,9 +37,24 @@ class monotone_check : public Test {
 		// Everything below this point is used for
 		// printing counterexamples. Very ugly. TODO: Fix.
 
+		// We have weak nonmonotonicity if the candidate we raised
+		// is no longer in the set of winners after raising, or the
+		// number of winners increased (lowering the probability that
+		// this candidate could win).
+		// We have strong nonmonotonicity if none of the winners
+		// of the first election are winners of the second.
+
+		// (Really, we have strong if for every winner of the first
+		// election, there exists some way to raise him that makes
+		// him lose. But that's not implemented here yet.)
+
+		// I might want a different definition that basically says
+		// "some compositions of this method could be nonmonotone".
+		// Not sure yet though...
+
 		ordering before_ordering, after_ordering;
 		election_t ballots_before, ballots_after;
-		bool old_winner_present, weakly_monotone;
+		bool weakly_nonmonotone, strongly_nonmonotone, equal_rank;
 		int winner;
 
 	public:
@@ -56,8 +71,8 @@ class monotone_check : public Test {
 
 			shuffle_indices.resize(max_numvoters_in+1);
 
-			old_winner_present = true;
-			weakly_monotone = true;
+			weakly_nonmonotone = false;
+			strongly_nonmonotone = false;
 
 			tests_per_election = 15; // fix later
 			elections_tested_at_once = 15; // ditto

@@ -191,6 +191,26 @@ bool ordering_tools::is_winner(const ordering & in,
 		!= winners.end();
 }
 
+bool ordering_tools::has_some_equal_rank(const ordering & in) {
+	bool first;
+	double last_score = 0;
+
+	// We need to do some pump priming: the first candidate
+	// listed can't be equal to anyone else, so just skip
+	// the comparison.
+
+	for (const candscore & cs: in) {
+		if (!first && last_score == cs.get_score()) {
+			return true;
+		}
+
+		last_score = cs.get_score();
+		first = false;
+	}
+
+	return false;
+}
+
 std::list<candscore> ordering_tools::get_loser_candscores(
 	const ordering & in) {
 
@@ -394,7 +414,7 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 	return (output);
 }
 
-bool ordering_tools::has_equal_rank(const ordering & to_check) const {
+bool ordering_tools::all_ranked_equal(const ordering & to_check) const {
 
 	// Can't this be replaced by
 	//	return (to_check.begin()->get_score() ==

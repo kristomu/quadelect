@@ -1,5 +1,4 @@
-#ifndef _VOTE_SW_EMETH
-#define _VOTE_SW_EMETH
+#pragma once
 
 #include "../ballots.h"
 #include "../tools/tools.h"
@@ -54,7 +53,7 @@
 // proceed as if that was a complete ballot set with only the hopefuls
 // actually mentioned.
 
-// ABC
+// (Mostly) abstract base class.
 class election_method {
 
 	protected:
@@ -123,12 +122,11 @@ class election_method {
 
 		// Perhaps also complexity estimate (so we can determine on-the-
 		// fly whether to include CPO-STV etc), and what criteria the
-		// method is known to fail.
+		// method is known to fail. The latter could possibly come with
+		// proof (counterexamples) for failures.
 
 		virtual std::string name() const = 0;
 
 		// Virtual destructor so delete removes inherited classes' data.
 		virtual ~election_method() {}
 };
-
-#endif

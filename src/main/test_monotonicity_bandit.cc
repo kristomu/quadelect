@@ -147,6 +147,22 @@ int main(int argc, const char ** argv) {
 	std::vector<std::shared_ptr<election_method> > methods =
 		get_singlewinner_methods(true, false);
 
+	int stepsize = 1, offset = 0;
+
+	if (argc > 2) {
+
+		int cand_stepsize = atoi(argv[2]);
+		int cand_offset = atoi(argv[1]);
+
+		if (cand_stepsize >= cand_offset && cand_stepsize > 1) {
+			stepsize = cand_stepsize;
+			offset = cand_offset;
+
+			std::cout << "Enabling poor man's multiprocessing mode: shard " <<
+				offset << "/" << stepsize << std::endl;
+		}
+	}
+
 	condorcet_set xd;
 	smith_set xe;
 	schwartz_set xf;
@@ -156,7 +172,14 @@ int main(int argc, const char ** argv) {
 	auto rmrb_ref = std::make_shared<rmr1>(RMR_DEFEATED);
 	auto rmrc_ref = std::make_shared<rmr1>(RMR_DEFEATING);
 
+	int i = 0;
+
 	for (auto & method: methods) {
+
+		if (i++ % stepsize != offset) {
+			continue;
+		}
+
 		std::string name = method->name();
 
 		auto de = std::make_shared<disqelim>(method);

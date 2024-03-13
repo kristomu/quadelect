@@ -95,15 +95,14 @@ std::pair<ordering, bool> gradual_cond_borda::elect_inner(const
 	}
 
 	// HACK HACK
-	// Remember, comma is suspect (no longer).
-	// Also consider early abort, particularly if winner_only is true.
+	// Consider early abort, particularly if winner_only is true.
 	ordering base = base_method->pair_elect(gcb, hopefuls, false).first,
 			 current;
 	bool can_advance = true;
 
 	ordering_tools otools;
 
-	while (can_advance && otools.has_equal_rank(base)) {
+	while (can_advance && otools.all_ranked_equal(base)) {
 		can_advance = gcb.update();
 		current = base_method->pair_elect(gcb, hopefuls, false).first;
 		base = otools.ranked_tiebreak(base, current, num_candidates);

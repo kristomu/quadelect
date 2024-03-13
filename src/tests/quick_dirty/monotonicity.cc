@@ -13,6 +13,24 @@
 
 #include "../../bandit/tests/tests.h"
 
+// https://stackoverflow.com/questions/12940522
+
+bool is_disjoint(const std::vector<int> & x, const std::vector<int> & y) {
+	std::vector<int>::const_iterator i = x.begin();
+	std::vector<int>::const_iterator j = y.begin();
+
+	while (i != x.end() && j != y.end()) {
+		if (*i == *j) {
+			return false;
+		} else if (*i < *j) {
+			++i;
+		} else {
+			++j;
+		}
+	}
+	return true;
+}
+
 double monotone_check::perform_test() {
 
 	for (size_t election = 0; election < elections_tested_at_once;
@@ -99,16 +117,44 @@ double monotone_check::perform_test() {
 			std::vector<int> after_winners = ordering_tools::get_winners(
 					after_ordering);
 
-			old_winner_present = false;
-			weakly_monotone = after_winners.size() <= winners.size();
+			// We have weak nonmonotonicity if the candidate we raised
+			// is no longer in the set of winners after raising.
 
-			for (int new_winner: after_winners) {
-				old_winner_present |= (new_winner == winner);
+			strongly_nonmonotone = false;
+			weakly_nonmonotone = true;
+
+			for (int after_winner: after_winners) {
+				weakly_nonmonotone &= (after_winner != winner);
 			}
 
-			if (!old_winner_present || !weakly_monotone) {
-				return 0;
+			weakly_nonmonotone |= after_winners.size() > winners.size();
+
+			// We have strong nonmonotonicity if none of the winners
+			// of the first election are winners of the second.
+
+			// We can't have strong nonmonotonicity without weak, so skip
+			// otherwise.
+
+			if (!weakly_nonmonotone) {
+				continue;
 			}
+
+			// I haven't specified that get_winners should return something
+			// in sorted order. If I later change it then this will start
+			// to mysteriously fail unless I sort them, like this...
+			std::sort(winners.begin(), winners.end());
+			std::sort(after_winners.begin(), after_winners.end());
+
+			equal_rank = ordering_tools::has_some_equal_rank(
+					before_ordering) ||
+				ordering_tools::has_some_equal_rank(
+					after_ordering);
+
+			strongly_nonmonotone = is_disjoint(winners, after_winners);
+
+			assert(!(strongly_nonmonotone && !weakly_nonmonotone));
+
+			return 0;
 		}
 	}
 
@@ -116,15 +162,18 @@ double monotone_check::perform_test() {
 }
 
 void monotone_check::print_counterexample() {
-	if (!old_winner_present || !weakly_monotone) {
-		if (!old_winner_present) {
-			std::cout << "Damn! Not monotone!" << std::endl <<
-				"[strong fail] ";
+	if (weakly_nonmonotone || strongly_nonmonotone) {
+		std::string unique = "";
+		if (!equal_rank) {
+			unique = ", unique";
 		}
-		if (!weakly_monotone) {
-			std::cout << "Oops! Weakly nonmonotone - the "
-				"number of winners increased." << std::endl <<
-				"[weak fail] ";
+
+		if (strongly_nonmonotone) {
+			std::cout << "Damn! Not monotone!" << std::endl <<
+				"[strong fail" << unique <<"] ";
+		} else if (weakly_nonmonotone) {
+			std::cout << "Oops! Weakly nonmonotone.\n" <<
+				"[weak fail" << unique << "] ";
 		}
 		std::cout << numvoters << " voters, " << numcands
 			<< " candidates\n";
