@@ -126,10 +126,14 @@ std::pair<double, double> gaussian_dist::get_2D(
 std::pair<double, double> gaussian_dist::get_2D(double xmean,
 	double ymean, double sigma_in, coordinate_gen & coord_source) const {
 
-	std::vector<double> coordinate = coord_source.get_coordinate(2);
+	coord_source.start_query();
 
-	return {
-		qnorm(coordinate[0], xmean, sigma_in),
-		qnorm(coordinate[1], ymean, sigma_in)
+	std::pair<double, double> coord = {
+		qnorm(coord_source.next_double(), xmean, sigma_in),
+		qnorm(coord_source.next_double(), ymean, sigma_in)
 	};
+
+	coord_source.end_query();
+
+	return coord;
 }
