@@ -54,7 +54,6 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	std::vector<int> num_identical(num_methods, 0);
 	election_t ballots;
 
-	// Arrange these so (0,0) is at the bottom left?
 	std::vector<double> relative(2);
 	relative[0] = x / (double) xsize_in;
 	relative[1] = y / (double) ysize_in;
@@ -240,6 +239,19 @@ void yee::draw_pictures(std::string prefix,
 
 			picture_out.put_pixel(x, y, prospective_pixel);
 		}
+	}
+
+	// Add coordinate data.
+	int cand = 0;
+	for (const std::vector<double> & position: get_candidate_positions()) {
+		std::string coords;
+		for (size_t j = 0; j < position.size(); ++j) {
+			coords += dtos(position[j]);
+			if (j+1 != position.size()) {
+				coords += ", ";
+			}
+		}
+		picture_out.add_text("Candidate " + itos(cand++) + " coords", coords);
 	}
 
 	picture_out.add_text("Voting method", method_name);
@@ -450,6 +462,26 @@ bool yee::set_candidate_positions(
 bool yee::set_candidate_positions() {
 	return set_candidate_positions(
 			*coordinate_sources[PURPOSE_CANDIDATE_DATA]);
+}
+
+std::vector<std::vector<double> > yee::get_candidate_positions() const {
+	return voter_pdf->get_fixed_candidate_pos();
+}
+
+void yee::print_candidate_positions() const {
+	int cand = 0;
+
+	std::cout << "Candidate coordinates:" << std::endl;
+	for (const std::vector<double> & position: get_candidate_positions()) {
+		std::cout << "\tcandidate " << cand << ": ";
+		for (size_t j = 0; j < position.size(); ++j) {
+			std::cout << position[j];
+			if (j+1 != position.size()) {
+				std::cout << ", ";
+			}
+		}
+		std::cout << "\n";
+	}
 }
 
 void yee::add_method(std::shared_ptr<const election_method> to_add) {

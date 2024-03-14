@@ -121,6 +121,10 @@ class yee : public mode {
 			candidate_coord_source);
 		bool set_candidate_positions();
 
+		std::vector<std::vector<double> > get_candidate_positions() const;
+
+		void print_candidate_positions() const;
+
 		void add_method(std::shared_ptr<const election_method> to_add);
 		template<typename T> void add_methods(T start_iter, T end_iter);
 		void clear_methods();

@@ -866,6 +866,8 @@ int main(int argc, char * * argv) {
 				gaussian, uniform, randomizer.get_initial_seed(),
 				yee_quasi_mc);
 
+		yee_mode.print_candidate_positions();
+
 		mode_running = &yee_mode;
 
 	}
