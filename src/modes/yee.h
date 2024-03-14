@@ -20,6 +20,9 @@ class yee : public mode {
 		bool specified_params, inited, manual_cand_positions;
 		int cur_round;
 
+		// Canvas coordinates
+		double x_min, x_max, y_min, y_max;
+
 		// Parameters.
 		int min_num_voters, max_num_voters, num_candidates;
 		bool use_autopilot; double autopilot_factor;

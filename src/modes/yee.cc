@@ -55,8 +55,10 @@ long long yee::check_pixel(int x, int y, int xsize_in, int ysize_in,
 	election_t ballots;
 
 	std::vector<double> relative(2);
-	relative[0] = x / (double) xsize_in;
-	relative[1] = y / (double) ysize_in;
+	relative[0] = renorm(0.0, (double)x_size, (double)x,
+			x_min, x_max);
+	relative[1] = renorm(0.0, (double)y_size, (double)y,
+			y_min, y_max);
 
 	if (!ballotgen.set_center(relative)) {
 		return (-1);
@@ -177,9 +179,12 @@ void yee::draw_pictures(std::string prefix,
 	double adj_inner_radius = 1.5/(double)x_size + 1.5/(double)y_size;
 
 	for (int y = 0; y < y_size; ++y) {
-		adj_coords[1] = y / (double)y_size;
+		adj_coords[1] = renorm(0.0, (double)y_size, (double)y,
+				y_min, y_max);
 		for (int x = 0; x < x_size; ++x) {
-			adj_coords[0] = x / (double)x_size;
+			adj_coords[0] = renorm(0.0, (double)x_size, (double)x,
+					x_min, x_max);
+
 			// If there's a tie, we output the mean color. If we
 			// go to LAB at some later point, this may become more
 			// complex.
@@ -339,6 +344,14 @@ yee::yee() {
 	manual_cand_positions = false;
 
 	voter_pdf = NULL; candidate_pdf = NULL;
+
+	// TODO later, allow for custom canvas sizes to zoom in on
+	// interesting features of a Yee diagram.
+
+	x_min = 0;
+	x_max = 1;
+	y_min = 0;
+	y_max = 1;
 };
 
 bool yee::set_params(int min_voters_in, int max_voters_in,
@@ -473,7 +486,7 @@ void yee::print_candidate_positions() const {
 
 	std::cout << "Candidate coordinates:" << std::endl;
 	for (const std::vector<double> & position: get_candidate_positions()) {
-		std::cout << "\tcandidate " << cand << ": ";
+		std::cout << "\tcandidate " << cand++ << ": ";
 		for (size_t j = 0; j < position.size(); ++j) {
 			std::cout << position[j];
 			if (j+1 != position.size()) {
