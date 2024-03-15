@@ -38,6 +38,18 @@
 // disqualified by someone else. If there is none, then the rank is set to
 // num candidates+1. The rank is A's penalty, so lower is better.
 
+// RMR_SCHWARTZ_EXP:
+// Starting at the second level, find the union of smallest sets of candidates
+// who are undisqualified by everybody outside the set. Rearrange the current
+// ordering of candidates so that members of these sets come before those who
+// don't, while otherwise respecting the current order. Refine the order by
+// going up the levels this way.
+// Or alternatively: Starting at level k=2, calculate the Schwartz set based on
+// disqualifications at that level. Update the base order to be (Schwartz at
+// level k),(base order), then increment.
+// This version passes Smith. Still not monotone, but it's much more decisive
+// than the others here.
+
 // --------------------
 
 // The disqualification relation is the same as for the resistant/inner
@@ -53,7 +65,7 @@
 #include "../../pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
-enum rmr_type { RMR_DEFEATED, RMR_DEFEATING, RMR_TWO_WAY };
+enum rmr_type { RMR_DEFEATED, RMR_DEFEATING, RMR_TWO_WAY, RMR_SCHWARTZ_EXP };
 
 // beats[k][x][y] is true iff candidate x disqualifies y on
 // every set of cardinality k and less.
@@ -69,6 +81,12 @@ class rmr1 : public election_method {
 			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates) const;
+
+		condmat get_defeating_matrix(const beats_tensor & beats,
+			const std::vector<bool> & hopefuls, int level) const;
+
+		ordering iterative_schwartz(const beats_tensor & beats,
+			const std::vector<bool> & hopefuls) const;
 
 		int get_score_defeated(
 			const beats_tensor & beats,
@@ -100,6 +118,8 @@ class rmr1 : public election_method {
 					return "EXP: RMRA1-defeating-tiebreak";
 				case RMR_TWO_WAY:
 					return "EXP: RMRA1-two-way";
+				case RMR_SCHWARTZ_EXP:
+					return "EXP: RMRA1-Schwartz";
 				default:
 					throw std::invalid_argument("RMRA1: Invalid type!");
 			}
@@ -110,7 +130,8 @@ class rmr1 : public election_method {
 		rmr1(rmr_type chosen_type_in) : plurality_method(PT_FRACTIONAL) {
 			if (chosen_type_in != RMR_DEFEATED &&
 				chosen_type_in != RMR_DEFEATING &&
-				chosen_type_in != RMR_TWO_WAY) {
+				chosen_type_in != RMR_TWO_WAY &&
+				chosen_type_in != RMR_SCHWARTZ_EXP) {
 				throw std::invalid_argument("RMRA1: Invalid type!");
 			}
 

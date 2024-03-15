@@ -229,6 +229,7 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 		all_methods.push_back(std::make_shared<rmr1>(RMR_DEFEATED));
 		all_methods.push_back(std::make_shared<rmr1>(RMR_DEFEATING));
 		all_methods.push_back(std::make_shared<rmr1>(RMR_TWO_WAY));
+		all_methods.push_back(std::make_shared<rmr1>(RMR_SCHWARTZ_EXP));
 
 		// This has interesting almost-monotone properties.
 		all_methods.push_back(std::make_shared<comma>(

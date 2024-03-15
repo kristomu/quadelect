@@ -2,6 +2,11 @@
 
 #include "rmr1.h"
 
+#include "../pairwise/method.h"
+#include "../sets/max_elements/schwartz.h"
+
+#include <iostream>
+
 beats_tensor rmr1::get_k_disqualifications(const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates) const {
@@ -119,6 +124,72 @@ beats_tensor rmr1::get_k_disqualifications(const election_t & papers,
 
 	return beats;
 }
+
+condmat rmr1::get_defeating_matrix(const beats_tensor & beats,
+	const std::vector<bool> & hopefuls, int level) const {
+
+	int num_candidates = hopefuls.size();
+
+	// Define a Condorcet matrix for the weak defeats relation.
+	// A weakly defeats B if the highest level k where either A~(k)~>B
+	// or B~(k)~>A, we have A~(k)~>B.
+
+	condmat matrix(num_candidates, 1, CM_PAIRWISE_OPP);
+
+	for (int candidate = 0; candidate < num_candidates; ++candidate) {
+		if (!hopefuls[candidate]) {
+			continue;
+		}
+
+		for (int challenger = 0; challenger < candidate; ++challenger) {
+			if (!hopefuls[challenger]) {
+				continue;
+			}
+
+			if (beats[level][candidate][challenger]) {
+				matrix.add(candidate, challenger, 1);
+				matrix.add(challenger, candidate, 0);
+			}
+
+			if (beats[level][challenger][candidate]) {
+				matrix.add(candidate, challenger, 0);
+				matrix.add(challenger, candidate, 1);
+			}
+		}
+	}
+
+	return matrix;
+}
+
+ordering rmr1::iterative_schwartz(const beats_tensor & beats,
+	const std::vector<bool> & hopefuls) const {
+
+	ordering base;
+	bool first = true;
+	size_t num_candidates = hopefuls.size();
+
+	// Either direction works. But only this one appears to be Smith.
+	//for (int level = num_candidates; level >= 2; --level) {
+	for (int level = 2; level <= (int)num_candidates; ++level) {
+		condmat matrix = get_defeating_matrix(beats, hopefuls, level);
+		ordering this_level_out = schwartz_set().pair_elect(
+				matrix, hopefuls, NULL, false).first;
+
+		if (first) {
+			base = this_level_out;
+			first = false;
+		} else {
+			// Doing it the other way (i.e. current,base instead of
+			// base,current) also is Resistant, for some reason.
+			base = ordering_tools().ranked_tiebreak(base, this_level_out,
+					num_candidates);
+		}
+
+	}
+
+	return base;
+}
+
 
 int rmr1::get_score_defeated(const beats_tensor & beats,
 	const std::vector<bool> & hopefuls,
@@ -265,6 +336,11 @@ std::pair<ordering, bool> rmr1::elect_inner(
 	beats_tensor beats = get_k_disqualifications(
 			papers, hopefuls, num_candidates);
 
+	if (chosen_type == RMR_SCHWARTZ_EXP) {
+		return std::pair<ordering, bool>(
+				iterative_schwartz(beats, hopefuls), false);
+	}
+
 	ordering rmr_ordering;
 
 	for (int cand = 0; cand < num_candidates; ++cand) {
@@ -273,6 +349,8 @@ std::pair<ordering, bool> rmr1::elect_inner(
 		}
 
 		int score;
+
+		assert(chosen_type != RMR_SCHWARTZ_EXP);
 
 		switch (chosen_type) {
 			case RMR_DEFEATED:
@@ -293,13 +371,6 @@ std::pair<ordering, bool> rmr1::elect_inner(
 
 		rmr_ordering.insert(candscore(cand, score));
 	}
-
-	/*std::cout << "DEBUG election\n";
-	ballot_tools().print_ranked_ballots(papers);
-	std::cout << "\n";
-
-	std::cout << "DEBUG outcome: " << ordering_tools::ordering_to_text(
-		rmr_ordering, true) << std::endl;*/
 
 	return std::pair<ordering, bool>(rmr_ordering, false);
 
