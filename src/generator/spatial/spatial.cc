@@ -34,6 +34,11 @@ election_t spatial_generator::generate_ballots_int(
 
 	election_t toRet;
 
+	// I'm ripping out the truncation logic because
+	// it's so bad anyway. FIX LATER.
+	assert(!do_truncate);
+
+
 	// First generate the candidate positions.
 	// Hm, perhaps this is where JGA's strategy test differs from mine.
 	// Perhaps his sets candidates uniformly, then have a Gaussian dist.
@@ -65,15 +70,16 @@ election_t spatial_generator::generate_ballots_int(
 
 	// TODO: Move to another function.
 
-	size_t eff_dimensions = ceil(num_dimensions);
+	//size_t eff_dimensions = ceil(num_dimensions);
 
-	std::vector<double> voter_pos, max_dist(eff_dimensions, 0),
-		distances_to_cand(numcands, 0);
+	std::vector<double> voter_pos, distances_to_cand(numcands, 0);
 
 	std::vector<double> max_vector = max_dim_vector(num_dimensions);
 
 	ballot_group our_entry;
 	our_entry.set_weight(1);
+
+	double max_distance = 0;
 
 	for (counter = 0; counter < (size_t)num_voters; ++counter) {
 		our_entry.contents.clear();
@@ -89,60 +95,16 @@ election_t spatial_generator::generate_ballots_int(
 					cand_positions[sec]);
 
 			mindist = std::min(mindist, distances_to_cand[sec]);
-		}
-
-		// Report all distances within this area. If we're not going
-		// to truncate, include everyone...
-		double care_within = num_dimensions;
-
-		// Determine the maximum possible distance that's still within
-		// the space. It's used to adjust utilities if we're not using
-		// Warren's utility model or truncation.
-		double max_distance = INFINITY;
-
-		if (do_truncate || !warren_utility) {
-			// Find the closest point by this observation: for each
-			// dimension, if we're closer to the zero-edge than the
-			// other edge, the closest point is at the other edge,
-			// otherwise it's at the zero edge. This can be done
-			// because distance is decomposable.
-
-			for (sec = 0; sec < eff_dimensions; ++sec) {
-				if (voter_pos[sec] > max_vector[sec] * 0.5) {
-					max_dist[sec] = 0;    // TODO, min?
-				} else	{
-					max_dist[sec] = max_vector[sec];
-				}
-			}
-
-			max_distance = distance(voter_pos, max_dist);
-		}
-
-		if (do_truncate) {
-			// If we're going to truncate, pick a random distance
-			// between ourselves and the farthest corner. All
-			// candidates more distant than that get truncated.
-			care_within = drand48() * distance(voter_pos, max_dist);
-
-			// If the distance is closer than the closest candidate,
-			// expand so at least one candidate gets rated.
-			if (care_within < mindist) {
-				care_within = mindist;
-			}
+			max_distance = std::max(max_distance, distances_to_cand[sec]);
 		}
 
 		// Compatibility with Warren.
 		double spacing = sqrt(0.6 * num_dimensions);
 
-		// Expensive part ahead!
 		// For all candidates...
 		for (sec = 0; sec < (size_t)numcands; ++sec) {
 			// Get distance to candidate.
 			double our_dist = distances_to_cand[sec];
-
-			if (our_dist > care_within) {
-				continue;
-			}
 
 			// If warren_utility is true, use Warren's utility
 			// model.
@@ -152,6 +114,7 @@ election_t spatial_generator::generate_ballots_int(
 			}
 			// ... otherwise use JGA's.
 			else {
+				assert(our_dist <= max_distance);
 				our_entry.contents.insert(candscore(sec,
 						max_distance-our_dist));
 			}
@@ -163,6 +126,8 @@ election_t spatial_generator::generate_ballots_int(
 
 		toRet.push_back(our_entry);
 	}
+
+	//ballot_tools().print_ranked_ballots(toRet);
 
 	return (toRet);
 }
