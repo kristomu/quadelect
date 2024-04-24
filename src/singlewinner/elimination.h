@@ -7,6 +7,8 @@
 
 #include "positional/simple_methods.h"
 
+#include "../pairwise/matrix.h"
+
 #include <list>
 #include <memory>
 
@@ -23,6 +25,9 @@ class loser_elimination : public election_method {
 	private:
 		std::shared_ptr<const election_method> base;
 
+		// Pairwise matrix for bottom-two runoff.
+		mutable condmat pairwise;
+
 		// If average_loser_elim is true, then all candidates at
 		// or below mean score is eliminated. If not, only the loser
 		// is eliminated.
@@ -35,6 +40,9 @@ class loser_elimination : public election_method {
 		// ballot that expresses a difference between the tied
 		// candidates.
 		bool first_differences;
+
+		// If enabled, do BTR.
+		bool bottom_two_runoff;
 
 		std::string cached_name;
 
@@ -56,6 +64,11 @@ class loser_elimination : public election_method {
 		loser_elimination(
 			std::shared_ptr<const election_method> base_method,
 			bool average_loser, bool use_first_diff);
+
+		loser_elimination(
+			std::shared_ptr<const election_method> base_method,
+			bool average_loser, bool use_first_diff,
+			bool btr_in);
 
 		std::string name() const {
 			return (cached_name);

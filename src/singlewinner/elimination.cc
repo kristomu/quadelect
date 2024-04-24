@@ -53,12 +53,14 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 // generalization of early majority, eventually.
 
 std::pair<ordering, bool> loser_elimination::elect_inner(const
-	election_t &
-	papers, const std::vector<bool> & hopefuls, int num_candidates,
-	cache_map * cache, bool winner_only) const {
+	election_t & papers, const std::vector<bool> & hopefuls,
+	int num_candidates, cache_map * cache, bool winner_only) const {
 
 	std::list<ordering> base_method_tiebreaks;
 	std::vector<bool> base_hopefuls = hopefuls;
+
+	std::vector<int> losers;
+	std::vector<int> almost_losers;
 
 	std::pair<ordering, bool> output;
 	output.second = false;
@@ -66,10 +68,16 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 	// Determine the number of hopefuls we have.
 	size_t num_hopefuls = 0, counter;
 
-	for (counter = 0; counter < (size_t)num_candidates; ++counter)
+	for (counter = 0; counter < (size_t)num_candidates; ++counter) {
 		if (hopefuls[counter]) {
 			++num_hopefuls;
 		}
+	}
+
+	if (bottom_two_runoff) {
+		pairwise = condmat(CM_PAIRWISE_OPP);
+		pairwise.count_ballots(papers, (size_t)num_candidates);
+	}
 
 	int rank = 0;
 
@@ -105,6 +113,7 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 		ordering::const_reverse_iterator rpos;
 
 		if (average_loser_elim) {
+			std::cout << "ALE" << std::endl;
 			double total = 0;
 			int inner_num_cands = 0;
 
@@ -187,10 +196,51 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 
 			// Determine loser and add him to the elimination list,
 			// then actually eliminate him.
+
+			// This is an ugly hack: what we really need to do is recurse
+			// on every choice of loser to determine who can actually
+			// win (or become second, third, etc). TODO: Do that later.
+
+			losers.clear();
+			almost_losers.clear();
+
+			auto pos = mod_this_round.rbegin(),
+				 almost_loser_start = mod_this_round.rbegin();
+
+			while (pos != mod_this_round.rend() &&
+				pos->get_score() == mod_this_round.rbegin()->get_score()) {
+				losers.push_back(pos->get_candidate_num());
+				++pos;
+			}
+
+			// Get the almost losers if there are any.
+
+			if (pos != mod_this_round.rend()) {
+				almost_loser_start = pos;
+
+				while (pos != mod_this_round.rend() &&
+					pos->get_score() == almost_loser_start->get_score()) {
+					almost_losers.push_back(pos->get_candidate_num());
+					++pos;
+				}
+
+			}
+
+			// YUCK! In essence this does a tiebreak based on the candidate
+			// number! FIX LATER!
+
 			// TODO: Eliminate all last ranked if there's still a
 			// tie.
-			int loser = mod_this_round.rbegin()->
-				get_candidate_num();
+			int loser = losers[0];
+
+			// If we're doing bottom two runoff and the loser
+			// beats the first almost-loser pairwise, then the almost loser
+			// becomes the new loser.
+			if (bottom_two_runoff && !almost_losers.empty()) {
+				if (pairwise.beats(loser, almost_losers[0])) {
+					loser = almost_losers[0];
+				}
+			}
 
 			output.first.insert(candscore(loser, rank++));
 
@@ -215,15 +265,35 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 
 loser_elimination::loser_elimination(
 	std::shared_ptr<const election_method> base_method,
-	bool average_loser, bool use_first_diff) {
+	bool average_loser, bool use_first_diff) : pairwise(CM_PAIRWISE_OPP) {
 
 	assert(base_method != NULL);
 	base = base_method;
 	average_loser_elim = average_loser;
 	first_differences = use_first_diff;
+	bottom_two_runoff = false;
 
 	cached_name = determine_name();
 }
+
+loser_elimination::loser_elimination(
+	std::shared_ptr<const election_method> base_method,
+	bool average_loser, bool use_first_diff,
+	bool btr_in) : pairwise(CM_PAIRWISE_OPP) {
+
+	assert(base_method != NULL);
+
+	// Can't do bottom-two runoff with average loser
+	assert(!(average_loser && btr_in));
+
+	base = base_method;
+	average_loser_elim = average_loser;
+	first_differences = use_first_diff;
+	bottom_two_runoff = btr_in;
+
+	cached_name = determine_name();
+}
+
 
 std::string loser_elimination::determine_name() const {
 
@@ -232,7 +302,13 @@ std::string loser_elimination::determine_name() const {
 	if (average_loser_elim) {
 		ref = "AVGEliminate-[" + base->name() + "]";
 	} else	{
-		ref = "Eliminate-[" + base->name() + "]";
+		if (bottom_two_runoff) {
+			ref = "BTREliminate-[";
+		} else {
+			ref = "Eliminate-[";
+		}
+
+		ref += base->name() + "]";
 	}
 
 	if (first_differences) {
