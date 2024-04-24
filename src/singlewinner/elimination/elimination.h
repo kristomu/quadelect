@@ -1,13 +1,13 @@
 #pragma once
 
-#include "method.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
-#include "../tools/ballot_tools.h"
+#include "../method.h"
+#include "../../ballots.h"
+#include "../../tools/tools.h"
+#include "../../tools/ballot_tools.h"
 
-#include "positional/simple_methods.h"
+#include "../positional/simple_methods.h"
 
-#include "../pairwise/matrix.h"
+#include "../../pairwise/matrix.h"
 
 #include <list>
 #include <memory>

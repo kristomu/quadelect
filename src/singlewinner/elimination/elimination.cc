@@ -1,10 +1,4 @@
-#include "method.h"
-#include "../tools/tools.h"
-#include "../ballots.h"
-#include "../tools/ballot_tools.h"
-
 #include "elimination.h"
-
 #include <list>
 
 // Loser-elimination meta-method. This method takes a base method and

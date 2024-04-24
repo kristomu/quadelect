@@ -50,13 +50,13 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/brute_force/brute.cc
 	src/singlewinner/brute_force/bruterpn.cc
 	src/singlewinner/brute_force/rpn/custom_func.cc
-	src/singlewinner/contingent/contingent.cc
 	src/singlewinner/contingent/donation.cc
 	src/singlewinner/desc_coalitions/desc_coalition.cc
 	src/singlewinner/dmt/fpa_fpc.cc
 	src/singlewinner/dmt/ifpp_like.cc
 	src/singlewinner/dmt/strat_ifpp.cc
-	src/singlewinner/elimination.cc
+	src/singlewinner/elimination/auto_runoff.cc
+	src/singlewinner/elimination/elimination.cc
 	src/singlewinner/experimental/3exp.cc
 	src/singlewinner/experimental/beat_chain.cc
 	src/singlewinner/experimental/disqelim.cc

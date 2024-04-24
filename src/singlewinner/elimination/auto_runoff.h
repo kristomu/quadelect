@@ -15,11 +15,20 @@
 // than the "obvious" way of giving each candidate its mean finalist
 // score.
 
+// TODO, make top-two in general, giving us STAR for cheap.
+// Now kinda works, but what a HACK! XXX
+
 #pragma once
 
 #include "../method.h"
+#include "../positional/simple_methods.h"
 
-class contingent_vote : public election_method {
+#include <memory>
+
+class auto_runoff : public election_method {
+	private:
+		std::shared_ptr<const election_method> base;
+
 	protected:
 		// Returns the finalist score of the candidate "finalist".
 		virtual double get_possible_finalist_score(size_t finalist,
@@ -33,6 +42,21 @@ class contingent_vote : public election_method {
 			const std::vector<bool> & hopefuls,
 			int num_candidates, cache_map * cache,
 			bool winner_only) const;
+
+		auto_runoff(std::shared_ptr<const election_method> base_method) {
+			base = base_method;
+		}
+
+		virtual std::string name() const {
+			return "Auto-runoff-[" + base->name() + "]";
+		}
+};
+
+class contingent_vote: public auto_runoff {
+	public:
+		// TODO? Expose the fractional/whole parameter to the outside.
+		contingent_vote() : auto_runoff(std::make_shared<plurality>(
+					PT_FRACTIONAL)) {}
 
 		virtual std::string name() const {
 			return "Contingent vote";

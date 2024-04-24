@@ -8,6 +8,8 @@
 #include <list>
 #include <set>
 
+#include "../singlewinner/stats/median.h"
+
 #include "../tools/ballot_tools.h"
 #include "../ballots.h"
 #include "../tools/tools.h"
@@ -20,7 +22,7 @@
 #include "../singlewinner/gradual_c_b.h"
 
 #include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
+#include "../singlewinner/elimination/all.h"
 #include "../singlewinner/brute_force/all.h"
 #include "../singlewinner/positional/positional.h"
 #include "../singlewinner/positional/simple_methods.h"
@@ -227,47 +229,60 @@ int main(int argc, const char ** argv) {
 	std::vector<pairwise_ident> types;
 	types.push_back(CM_WV);
 
+	// The great cosmic vote-off
+	// We want to test these methods with four candidates, 29 voters,
+	// impartial culture. Strictly speaking, though, I would really
+	// want to have a spatial model.
+
+	int numvoters, numcands;
+
 	if (argc < 3) {
 		std::cerr << "Usage: " << argv[0] << " [num voters]"
 			<< " [num candidates]" << std::endl;
-		return (-1);
+		std::cerr << "Assuming 29 voters, 4 candidates.\n";
+		numvoters = 29;
+		numcands = 4;
+	} else {
+		numvoters = atoi(argv[1]);
+		numcands = atoi(argv[2]);
 	}
 
-	int numvoters = atoi(argv[1]), numcands = atoi(argv[2]);
+	// Smith//Score				don't have this
+	// Approval, MR				don't have this
+	// Smith//Approval			don't have this
+	// Double Defeat Hare		don't have this
+	// Majority Judgement		don't have this
+	// Max Strength Tr BP		don't have this
+	// STAR						don't have this
+	// Approval					which one? don't have this
+	// Margins-Sorted			don't have these
+	// RCIPE					don't have this
+
+	// Woodall					Smith//IRV
+	// Schwartz-Woodall			Schwartz//IRV
+	// Benham					Benham
+
+	// Ranked Robin				Copeland//Borda
+	// Minmax(wv)				Minmax(wv)
+
+	// Plurality				Plurality
+	// IRV						IRV
+
+	// Schulze					Schulze
+	// Baldwin					Eliminate-[Borda]
+	// Black					Condorcet//Borda
+
+	// Raynaud(Gross Loser)		Eliminate-[Minmax(whatever)] since no truncation
+	//							I should implement Gross Loser, though
+	//							later.
+
+	// Smith//DAC				Smith//DAC
+
+	// RP(wv)					RP(wv)
 
 	//string name = argv[1];
 	//ifstream tests_in(argv[1]);
 	std::vector<unsigned long long> tests;
-
-	/*while (!tests_in.eof()) {
-	    unsigned long long tin;
-	    tests_in >> tin;
-	    if (incounter >= got_this_far_last_time &&
-	            incounter % numprocs == thisproc) {
-	        condorcet_src.push_back(new cond_brute(tin));
-	    }
-	    ++incounter;
-	}*/
-
-	// This is why you shouldn't rely entirely on IC. Antiplurality does
-	// extremely well on IC alone, for some reason. (Maybe something to
-	// keep in mind for bandits...)
-	// chosen_methods.push_back(new comma(new antiplurality(PT_WHOLE), new smith_set()));
-	// Sinkhorn and Keener all have around 0.85 IC susceptibility.
-	// MMPO fails to impress. 0.78 IC susceptibility
-	//chosen_methods.push_back(new ext_minmax(CM_PAIRWISE_OPP, false));
-	// Smith,FPP also fails to impress. 0.78 IC susceptibility
-	//chosen_methods.push_back(new comma(new plurality(PT_WHOLE), new smith_set()));
-	// And alas. With 4 cddts, Smith-IRV does much better than fpA-fpC.
-	/*condorcet_src.push_back(new fpa_experiment());
-	condorcet_src.push_back(new minmaxy_experimental());
-	condorcet_src.push_back(new loser_elimination(new plurality(PT_WHOLE), false, true));
-	condorcet_src.push_back(new loser_elimination(new antiplurality(PT_WHOLE), false, true));
-	condorcet_src.push_back(new antiplurality(PT_WHOLE));
-	condorcet_src.push_back(new schulze(CM_WV));*/
-
-	//std::cout << "Test time!" << std::endl;
-	//std::cout << "Thy name is " << name << std::endl;
 
 	auto cond_ptr = std::make_shared<condorcet_set>();
 	auto smith_ptr = std::make_shared<smith_set>();
@@ -275,47 +290,85 @@ int main(int argc, const char ** argv) {
 	auto landau_ptr = std::make_shared<landau_set>();
 	auto copeland_ptr = std::make_shared<copeland>(CM_WV);
 
-	condorcet_src.push_back(std::make_shared<instant_runoff_voting>(PT_WHOLE,
-			true));
-	condorcet_src.push_back(std::make_shared<fpa_experiment>());
+	auto irv = std::make_shared<instant_runoff_voting>(PT_WHOLE, true);
+	auto m_borda = std::make_shared<borda>(PT_WHOLE);
+	auto m_minmax = std::make_shared<ord_minmax>(CM_WV, false);
+	auto m_plur = std::make_shared<plurality>(PT_WHOLE);
 
-	for (counter = 0; counter < condorcet_src.size(); ++counter) {
-		if (numcands < 4) {
-			// faster
-			chosen_methods.push_back(std::make_shared<slash>(cond_ptr,
-					condorcet_src[counter]));
-			chosen_methods.push_back(std::make_shared<comma>(cond_ptr,
-					condorcet_src[counter]));
-		} else {
-			// more general
-			chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
-					condorcet_src[counter]));
-			chosen_methods.push_back(std::make_shared<comma>(smith_ptr,
-					condorcet_src[counter]));
-			chosen_methods.push_back(std::make_shared<slash>(schwartz_ptr,
-					condorcet_src[counter]));
-			chosen_methods.push_back(std::make_shared<comma>(schwartz_ptr,
-					condorcet_src[counter]));
-		}
-	}
+	auto m_range = std::make_shared<cardinal_ratings>(0, 10, false);
 
-	// Landau
-	for (counter = 0; counter < condorcet_src.size(); ++counter) {
-		chosen_methods.push_back(std::make_shared<slash>(copeland_ptr,
-				condorcet_src[counter]));
-		chosen_methods.push_back(std::make_shared<comma>(copeland_ptr,
-				condorcet_src[counter]));
-		chosen_methods.push_back(std::make_shared<slash>(landau_ptr,
-				condorcet_src[counter]));
-		chosen_methods.push_back(std::make_shared<comma>(landau_ptr,
-				condorcet_src[counter]));
-	}
+	// Approval, MR				don't have this
+	// Smith//Approval			don't have this
+	// Double Defeat Hare		don't have this
+	// Majority Judgement		don't have this
+	// Max Strength Tr BP		don't have this
+	// STAR						don't have this
+	// Approval					which one? don't have this
+	// Margins-Sorted			don't have these
 
-	chosen_methods.push_back(std::make_shared<instant_runoff_voting>(PT_WHOLE,
-			true));
+	// This isn't admissible, but if it were, would give an indication
+	// of where MJ falls.
+	//chosen_methods.push_back(std::make_shared<median_ratings>(0, 10, false, true));
+
+	// First Borda for reference (checking against JGA's published figures)
+	// And BTR-IRV to show Robert Bristow-Johnson.
+	chosen_methods.push_back(std::make_shared<loser_elimination>(m_plur,
+			false, true, true));
+
+	// Smith//Score (but beware, raw Range gives me much higher results than JGA
+	// gets).
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr, m_range));
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
+			std::make_shared<cardinal_ratings>(0, 10, true)));
+	chosen_methods.push_back(m_borda);
+
+	// RCIPE					Eliminate-[[Cond. nonloser], Plurality]
+	chosen_methods.push_back(std::make_shared<loser_elimination>(
+			std::make_shared<comma>(
+				std::make_shared<condorcet_nonloser_set>(),
+				m_plur),
+			false, true));
+
+	// Woodall					Smith//IRV
+	// Schwartz-Woodall			Schwartz//IRV
+	// Benham					Benham
+
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr, irv));
+	chosen_methods.push_back(std::make_shared<slash>(schwartz_ptr, irv));
+	chosen_methods.push_back(std::make_shared<benham_meta>(irv));
+
+	// Ranked Robin				Copeland//Borda
+	// Minmax(wv)				Minmax(wv)
+
+	chosen_methods.push_back(std::make_shared<slash>(copeland_ptr, m_borda));
+	chosen_methods.push_back(m_minmax);
+
+	// Plurality				Plurality
+	// IRV						IRV
+
+	chosen_methods.push_back(m_plur);
+	chosen_methods.push_back(irv);
+
+	// Schulze					Schulze
+	// Baldwin					Eliminate-[Borda]
+	// Black					Condorcet//Borda
+
 	chosen_methods.push_back(std::make_shared<schulze>(CM_WV));
+	chosen_methods.push_back(std::make_shared<baldwin>(PT_WHOLE, true));
+	chosen_methods.push_back(std::make_shared<slash>(cond_ptr, m_borda));
 
-	chosen_methods = get_singlewinner_methods(false, false);
+	// Raynaud(Gross Loser)		Eliminate-[Minmax(whatever)] since no truncation
+	//							I should implement Gross Loser, though
+	//							later.
+	// Smith//DAC				Smith//DAC
+	// RP(wv)					RP(wv)
+
+	chosen_methods.push_back(std::make_shared<loser_elimination>(m_minmax,
+			false, true));
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
+			std::make_shared<dsc>()));
+	chosen_methods.push_back(std::make_shared<ranked_pairs>(CM_WV, false));
+
 	std::cout << "There are " << chosen_methods.size() << " methods." <<
 		std::endl;
 
@@ -331,11 +384,14 @@ int main(int argc, const char ** argv) {
 	int dimensions = 4;
 	// Something is wrong with this one. Check later.
 	//ballotgens.push_back(std::make_shared<dirichlet>(false));
-	ballotgens.push_back(std::make_shared<impartial>(true, false));
-	ballotgens.push_back(std::make_shared<gaussian_generator>(
-			true, false, dimensions, false));
+	//ballotgens.push_back(std::make_shared<impartial>(true, false));
+	auto gauss = std::make_shared<gaussian_generator>(
+			true, false, dimensions, false);
+	gauss->set_dispersion(1);
 
-	int num_iterations = 5000; //100000;
+	ballotgens.push_back(gauss);
+
+	int num_iterations = 25000; //100000;
 	int num_strategy_attempts_per_iter = 3*768; // must have 3 as a factor!
 
 	for (size_t bg = 0; bg < ballotgens.size(); ++bg) {

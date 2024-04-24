@@ -14,7 +14,7 @@
 #include "../generator/impartial.h"
 
 #include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h" // Should this be in meta?
+#include "../singlewinner/elimination/all.h" // Should this be in meta?
 #include "../singlewinner/meta/comma.h"
 #include "../singlewinner/sets/all.h"
 #include "../singlewinner/positional/simple_methods.h"

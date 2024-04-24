@@ -1,26 +1,23 @@
-#include "contingent.h"
+#include "auto_runoff.h"
 
 #include "../../pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
-double contingent_vote::get_possible_finalist_score(
+double auto_runoff::get_possible_finalist_score(
 	size_t finalist, size_t challenger,
 	const condmat & pairwise_matrix,
 	const std::vector<bool> & hopefuls,
-	const std::vector<double> & plur_scores) const {
+	const std::vector<double> & base_scores) const {
 
 	return pairwise_matrix.get_magnitude(finalist,
 			challenger);
 }
 
-std::pair<ordering, bool> contingent_vote::elect_inner(
+std::pair<ordering, bool> auto_runoff::elect_inner(
 	const election_t & papers,
 	const std::vector<bool> & hopefuls, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
-	// TODO? Expose the fractional/whole parameter to the outside.
-
-	plurality plurality_eval(PT_FRACTIONAL);
 	condmat pairwise_matrix(papers, num_candidates, CM_PAIRWISE_OPP);
 
 	double numvoters = 0;
@@ -31,31 +28,31 @@ std::pair<ordering, bool> contingent_vote::elect_inner(
 		numvoters += ballot_pos->get_weight();
 	}
 
-	ordering plurality_outcome = plurality_eval.elect(papers, hopefuls,
+	ordering base_outcome = base->elect(papers, hopefuls,
 			num_candidates, cache, false);
 
 	std::vector<double> scores(num_candidates, 0),
-		plur_scores(num_candidates, 0);
+		base_scores(num_candidates, 0);
 
-	// First transform the Plurality outcome into a form that's easier to
+	// First transform the base method outcome into a form that's easier to
 	// access. (I've used this lots of times now, should I extract?)
 
 	ordering::const_iterator pos;
-	for (pos = plurality_outcome.begin(); pos !=
-		plurality_outcome.end(); ++pos) {
-		plur_scores[pos->get_candidate_num()] = pos->get_score();
+	for (pos = base_outcome.begin(); pos !=
+		base_outcome.end(); ++pos) {
+		base_scores[pos->get_candidate_num()] = pos->get_score();
 	}
 
 	// Determine the finalist set.
 
 	std::vector<size_t> finalists;
 
-	double plurality_winner_score, plurality_second_place_score;
-	plurality_winner_score = plurality_outcome.begin()->get_score();
+	double base_winner_score, base_second_place_score;
+	base_winner_score = base_outcome.begin()->get_score();
 
 	// Get the winners.
-	for (pos = plurality_outcome.begin(); pos != plurality_outcome.end()
-		&& pos->get_score() == plurality_winner_score; ++pos) {
+	for (pos = base_outcome.begin(); pos != base_outcome.end()
+		&& pos->get_score() == base_winner_score; ++pos) {
 		if (hopefuls[pos->get_candidate_num()]) {
 			finalists.push_back(pos->get_candidate_num());
 		}
@@ -64,14 +61,14 @@ std::pair<ordering, bool> contingent_vote::elect_inner(
 	// Now pos is at the first second-place finisher, or at the end if
 	// it's a full tie.
 
-	// If we have multiple Plurality winners, then the second-placers
+	// If we have multiple base method winners, then the second-placers
 	// can't possibly win. Thus we shouldn't add them to the finalists
 	// set.
-	if (pos != plurality_outcome.end() && finalists.size() < 2) {
-		plurality_second_place_score = pos->get_score();
+	if (pos != base_outcome.end() && finalists.size() < 2) {
+		base_second_place_score = pos->get_score();
 
-		for (; pos != plurality_outcome.end() && pos->get_score() ==
-			plurality_second_place_score; ++pos) {
+		for (; pos != base_outcome.end() && pos->get_score() ==
+			base_second_place_score; ++pos) {
 			if (hopefuls[pos->get_candidate_num()]) {
 				finalists.push_back(pos->get_candidate_num());
 			}
@@ -93,19 +90,19 @@ std::pair<ordering, bool> contingent_vote::elect_inner(
 			}
 
 			// If neither of the two candidates provided has the
-			// maximum Plurality score, then this pair can't be an
+			// maximum base method score, then this pair can't be an
 			// actual finalist pair because at least one of the
 			// candidates must've been eliminated; so skip it.
 
-			if (plur_scores[finalist] < plurality_winner_score &&
-				plur_scores[challenger] < plurality_winner_score) {
+			if (base_scores[finalist] < base_winner_score &&
+				base_scores[challenger] < base_winner_score) {
 				continue;
 			}
 
 			scores[finalist] = std::max(scores[finalist],
 					get_possible_finalist_score(finalist,
 						challenger, pairwise_matrix,
-						hopefuls, plur_scores));
+						hopefuls, base_scores));
 		}
 	}
 

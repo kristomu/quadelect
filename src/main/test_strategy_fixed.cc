@@ -18,7 +18,7 @@
 #include "../singlewinner/gradual_c_b.h"
 
 #include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
+#include "../singlewinner/elimination/all.h"
 #include "../singlewinner/positional/positional.h"
 #include "../singlewinner/positional/simple_methods.h"
 
@@ -41,6 +41,7 @@
 #include "../singlewinner/pairwise/dodgson_approxs.h"
 
 #include "../singlewinner/experimental/3exp.h"
+#include "../singlewinner/experimental/rmr1.h"
 #include "../singlewinner/brute_force/brute.h"
 #include "../singlewinner/brute_force/bruterpn.h"
 
@@ -94,107 +95,6 @@ std::pair<double, double> confidence_interval(int n, double p_mean,
 	return (std::pair<double, double>(p_mark - W, p_mark + W));
 }
 
-// TODO?? Multiple election method support? I wouldn't have to generate a bunch
-// of elections over and over per method in that case. But then the test runner
-// won't work very well as a multi-armed bandit test... Ow, design can be hard
-// sometimes.
-
-// num_methods here is used for the Bonferroni correction for the confidence
-// intervals.
-
-void test_strategy(std::shared_ptr<election_method> to_test,
-	rng & randomizer,
-	int num_methods, std::shared_ptr<pure_ballot_generator> ballot_gen) {
-
-	// Generate a random ballot set.
-	// First should be true: compress the ballots. Second, that's
-	// whether truncation is permitted.
-	// TODO later: fix last-rank problem with gradual-cond-borda.
-	// Also fix memory-hogging loop of doom in positional if this is set on.
-	//impartial ballot_gen(/*true, true*/true, true);
-	//spatial_generator ballot_gen(true, false, 4, false);
-
-	//int dimensions = 4;
-
-	//gaussian_generator ballot_gen(true, false, dimensions, false);
-	//spatial_generator spatial(true, false);
-	impartial iic(true, false);
-	//impartial ballot_gen(true, false);
-
-	// A bunch of times, generate ballots and clear the cache. Then try
-	// these ballots against numerous Condorcet methods. If we have
-	// cached the Condorcet data, that should be faster than if we haven't,
-	// but one probably needs Valgrind to see the difference.
-
-	std::cerr << "Now trying " << to_test->name() << std::endl;
-
-	//cache_map cache;		// TODO: Support for this please
-
-	// TODO: check if that actually works.
-	int numvoters = 97; // was 29
-	int initial_numcands = 5, numcands = initial_numcands;
-
-	// --- //
-
-	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
-	ballotgens.push_back(ballot_gen);
-
-	int tests_per_ballot = 32768;//512;
-	test_provider tests;
-	test_runner st(ballot_gen, numvoters, numcands, numcands,
-		randomizer, to_test, tests_per_ballot);
-
-	// We're testing the rate of failure of "strategy immunity" criteria,
-	// i.e. the presence of opportunities for manipulation.
-	st.set_name("Strategy");
-
-	for (auto test: tests.get_tests_by_category("Strategy")) {
-		st.add_test(test);
-	}
-
-	int worked = 0, f;
-	int fmax = 2000; //50000;
-	int total_generation_attempts = 0;
-	for (f = 0; f < fmax; ++f) {
-
-		if ((f & 63) == 63) {
-			std::cerr << "." << std::flush;
-		}
-		if ((f & 4095) == 4095) {
-			std::cerr << f/(double)fmax << std::flush;
-		}
-
-		if (st.perform_test() == 0) {
-			++worked;
-		}
-	}
-
-	total_generation_attempts = st.get_total_generation_attempts();
-
-	// Do a simple proportions test
-	double prop = worked/(double)f;
-
-	double significance = 0.05;
-	double zv = ppnd7(1-significance/num_methods);
-
-	std::pair<double, double> c_i = confidence_interval(f, prop, zv);
-
-	double lower_bound = c_i.first;
-	double upper_bound = c_i.second;
-
-	lower_bound = round(lower_bound*10000)/10000.0;
-	upper_bound = round(upper_bound*10000)/10000.0;
-
-	double tiefreq = (total_generation_attempts-f)/(double)f;
-	tiefreq = round(tiefreq*10000)/1000.0;
-
-	std::cout << "Worked in " << worked << " ("<< lower_bound << ", " <<
-		upper_bound
-		<< ") out of " << f << " for " <<
-		to_test->name() << " ties: " << total_generation_attempts-f << " ("
-		<< tiefreq << ")" << std::endl;
-}
-
 void get_itemized_stats(
 	std::shared_ptr<election_method> to_test, rng & randomizer,
 	int num_methods, std::shared_ptr<pure_ballot_generator> ballot_gen) {
@@ -205,10 +105,10 @@ void get_itemized_stats(
 
 	std::cerr << "Itemized stats: Now trying " << to_test->name() << std::endl;
 
-	int numvoters = 97;
-	int initial_numcands = 5, numcands = initial_numcands;
+	int numvoters = 99;
+	int initial_numcands = 4, numcands = initial_numcands;
 
-	int tests_per_ballot = 32768;//512;
+	int tests_per_ballot = 32767;//1024;//32768;//512;
 	test_provider tests;
 	test_runner st(ballot_gen, numvoters, numcands, numcands,
 		randomizer, to_test, tests_per_ballot);
@@ -218,7 +118,7 @@ void get_itemized_stats(
 		st.add_test(test);
 	}
 
-	size_t f, fmax = 50000, num_non_ties = 0;
+	size_t f, fmax = 500000, num_non_ties = 0;
 	int total_generation_attempts = 0;
 	for (f = 0; f < fmax; ++f) {
 
@@ -342,74 +242,93 @@ int main(int argc, const char ** argv) {
 	std::vector<std::shared_ptr<election_method> > chosen_methods;
 	std::vector<std::shared_ptr<election_method> > to_be_condorcified;
 
-	size_t counter;
+	auto cond_ptr = std::make_shared<condorcet_set>();
+	auto smith_ptr = std::make_shared<smith_set>();
+	auto schwartz_ptr = std::make_shared<schwartz_set>();
+	auto landau_ptr = std::make_shared<landau_set>();
+	auto copeland_ptr = std::make_shared<copeland>(CM_WV);
 
-	std::vector<pairwise_ident> types;
-	types.push_back(CM_WV);
+	auto irv = std::make_shared<instant_runoff_voting>(PT_WHOLE, true);
+	auto m_borda = std::make_shared<borda>(PT_WHOLE);
+	auto m_minmax = std::make_shared<ord_minmax>(CM_WV, false);
+	auto m_plur = std::make_shared<plurality>(PT_WHOLE);
 
-	/*for (election_method * method: lots) {
-		to_be_condorcified.push_back(
-			new loser_elimination(
-			method, false, false));
-		to_be_condorcified.push_back(
-			new loser_elimination(
-			method, false, true));
-		to_be_condorcified.push_back(
-			new loser_elimination(
-			method, true, false));
-		to_be_condorcified.push_back(
-			new loser_elimination(
-			method, true, true));
-	}*/
+	auto m_range = std::make_shared<cardinal_ratings>(0, 10, false);
 
-	condorcet_set xc;
-	smith_set xsm;
-	schwartz_set xs;
-	landau_set xl;
-	fpa_max_fpc fmf;
-	donated_contingent_vote dcv;
-	contingent_vote cv;
-	ifpp_method_x si;
-	std::shared_ptr<ifpp_method_x> strat_ifpp =
-		std::make_shared<ifpp_method_x>();
-	std::shared_ptr<smith_set> smith = std::make_shared<smith_set>();
+	// Smith//Score				don't have this
+	// Approval, MR				don't have this
+	// Smith//Approval			don't have this
+	// Double Defeat Hare		don't have this
+	// Majority Judgement		don't have this
+	// Max Strength Tr BP		don't have this
+	// STAR						don't have this
+	// Approval					which one? don't have this
+	// Margins-Sorted			don't have these
+	// RCIPE					don't have this
 
-	to_be_condorcified.push_back(
-		std::make_shared<instant_runoff_voting>(PT_WHOLE, true));
-	to_be_condorcified.push_back(std::make_shared<no_elimination_irv>());
-	to_be_condorcified.push_back(std::make_shared<ifpp_method_x>());
-	to_be_condorcified.push_back(std::make_shared<contingent_vote>());
-	to_be_condorcified.push_back(std::make_shared<donated_contingent_vote>());
-	to_be_condorcified.push_back(std::make_shared<contingent_vote>());
-	to_be_condorcified.push_back(std::make_shared<ifpp_like_fpa_fpc>());
-	to_be_condorcified.push_back(std::make_shared<fpa_sum_fpc>());
-	to_be_condorcified.push_back(std::make_shared<fpa_max_fpc>());
-	to_be_condorcified.push_back(std::make_shared<quick_runoff>());
-	to_be_condorcified.push_back(std::make_shared<plurality>(PT_WHOLE));
+	// First Borda for reference (checking against JGA's published figures)
+	chosen_methods.push_back(m_range);
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr, m_range));
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
+			std::make_shared<cardinal_ratings>(0, 10, true)));
+	chosen_methods.push_back(m_borda);
 
-	std::cout << "Test time!" << std::endl;
+	// Woodall					Smith//IRV
+	// Schwartz-Woodall			Schwartz//IRV
+	// Benham					Benham
 
-	for (counter = 0; counter < to_be_condorcified.size(); ++counter) {
-		//chosen_methods.push_back(new comma(new slash(to_be_condorcified[counter], &xs), &xl));
-		chosen_methods.push_back(std::make_shared<comma>(
-				smith, to_be_condorcified[counter]));
-		chosen_methods.push_back(std::make_shared<slash>(
-				smith, to_be_condorcified[counter]));
-	}
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr, irv));
+	chosen_methods.push_back(std::make_shared<slash>(schwartz_ptr, irv));
+	chosen_methods.push_back(std::make_shared<benham_meta>(irv));
 
-	//std::copy(lots.begin(), lots.end(), std::back_inserter(chosen_methods));
+	// Ranked Robin				Copeland//Borda
+	// Minmax(wv)				Minmax(wv)
 
-	//chosen_methods.push_back(new antiplurality(PT_WHOLE));
+	chosen_methods.push_back(std::make_shared<slash>(copeland_ptr, m_borda));
+	chosen_methods.push_back(m_minmax);
+
+	// Plurality				Plurality
+	// IRV						IRV
+
+	chosen_methods.push_back(m_plur);
+	chosen_methods.push_back(irv);
+
+	// Schulze					Schulze
+	// Baldwin					Eliminate-[Borda]
+	// Black					Condorcet//Borda
+
+	chosen_methods.push_back(std::make_shared<schulze>(CM_WV));
+	chosen_methods.push_back(std::make_shared<baldwin>(PT_WHOLE, true));
+	chosen_methods.push_back(std::make_shared<slash>(cond_ptr, m_borda));
+
+	// Raynaud(Gross Loser)		Eliminate-[Minmax(whatever)] since no truncation
+	//							I should implement Gross Loser, though
+	//							later.
+	// Smith//DAC				Smith//DAC
+	// RP(wv)					RP(wv)
+
+	chosen_methods.push_back(std::make_shared<loser_elimination>(m_minmax,
+			false, true));
+	chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
+			std::make_shared<dsc>()));
+	chosen_methods.push_back(std::make_shared<ranked_pairs>(CM_WV, false));
 
 	std::cout << "There are " << chosen_methods.size() << " methods." <<
 		std::endl;
 
+
 	std::vector<rng> randomizers;
 	randomizers.push_back(rng(1));
 
+	int dimensions = 4;
+
 	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
+	auto gauss = std::make_shared<gaussian_generator>(
+			true, false, dimensions, false);
+	gauss->set_dispersion(1);
+	ballotgens.push_back(gauss);
 	//int dimensions = 4;
-	ballotgens.push_back(std::make_shared<impartial>(true, false));
+	//ballotgens.push_back(std::make_shared<impartial>(true, false));
 	// Something is wrong with this one. Check later.
 	/*ballotgens.push_back(new gaussian_generator(true, false, dimensions,
 			false));*/
@@ -417,6 +336,8 @@ int main(int argc, const char ** argv) {
 
 	int stepsize = atoi(argv[2]);
 	int offset = atoi(argv[1]);
+
+	size_t counter;
 
 	for (size_t bg = 0; bg < ballotgens.size(); ++bg) {
 		std::cout << "Using ballot domain " << ballotgens[bg]->name() << std::endl;

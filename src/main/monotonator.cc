@@ -8,7 +8,7 @@
 #include "../tools/ballot_tools.h"
 #include "../ballots.h"
 
-#include "../singlewinner/elimination.h"
+#include "../singlewinner/elimination/all.h"
 #include "../singlewinner/experimental/all.h"
 #include "../singlewinner/meta/all.h"
 #include "../singlewinner/pairwise/simple_methods.h"

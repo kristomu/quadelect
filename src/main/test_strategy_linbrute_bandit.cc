@@ -19,7 +19,6 @@
 #include "../singlewinner/gradual_c_b.h"
 
 #include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
 #include "../singlewinner/positional/positional.h"
 #include "../singlewinner/positional/simple_methods.h"
 
