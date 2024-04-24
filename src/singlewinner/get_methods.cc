@@ -104,6 +104,7 @@ std::vector<std::shared_ptr<pairwise_method> > get_pairwise_sets() {
 
 	std::vector<std::shared_ptr<pairwise_method> > pw_sets;
 
+	pw_sets.push_back(std::make_shared<condorcet_nonloser_set>());
 	pw_sets.push_back(std::make_shared<condorcet_set>());
 	pw_sets.push_back(std::make_shared<mdd_set>(true));
 	pw_sets.push_back(std::make_shared<mdd_set>(false));
