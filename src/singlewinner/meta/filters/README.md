@@ -9,3 +9,6 @@ ballot information to composite methods like STAR while still keeping track
 of the voters' real preferences.
 
 Composing methods like this is inelegant, but the alternatives are worse still.
+
+TODO: Make filters able to interface with generators too, so that strategy
+generators can generate ballots that _aren't_ normalized.

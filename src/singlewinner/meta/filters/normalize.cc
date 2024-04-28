@@ -1,4 +1,3 @@
-
 #include "normalize.h"
 
 std::pair<ordering, bool> normalize::elect_inner(
@@ -8,7 +7,7 @@ std::pair<ordering, bool> normalize::elect_inner(
 	// Create the derived ballots.
 	election_t derived_papers;
 
-	for (const ballot_group & g: derived_papers) {
+	for (const ballot_group & g: papers) {
 		ballot_group out;
 		out.set_weight(g.get_weight());
 
@@ -53,7 +52,6 @@ std::pair<ordering, bool> normalize::elect_inner(
 					cs.get_candidate_num(), score));
 		}
 		derived_papers.push_back(out);
-
 	}
 
 	return forward_to->elect_detailed(derived_papers,
