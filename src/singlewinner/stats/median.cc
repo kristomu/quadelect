@@ -48,12 +48,6 @@ double median_ratings::get_trunc_mean_destructively(
 		}
 	}
 
-	std::cout << "DEBUG: " << lower - array.begin() << " " << upper -
-		array.begin()
-		<< " vs " << std::endl;
-	std::cout << floor(num_voters * 0.5) << " " << ceil(num_voters * 0.5) <<
-		std::endl;
-
 	assert(lower != array.end());  // shouldn't happen.
 
 	// First calculate the median (or average of bimedians).
@@ -189,7 +183,7 @@ std::pair<ordering, bool> median_ratings::elect_inner(
 
 	std::pair<ordering, bool> medians(ordering(), false);
 
-	for (int counter = 0; counter < scores.size(); ++counter)
+	for (size_t counter = 0; counter < scores.size(); ++counter)
 		if (hopefuls[counter])
 			medians.first.insert(candscore(counter,
 					scores[counter]));

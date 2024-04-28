@@ -74,6 +74,8 @@ std::vector<double> cardinal_ratings::aggregate_ratings(
 			score = std::min((double)maximum, std::max((double)minimum,
 						score));
 
+			score = round(score);
+
 			ratings[sec->get_candidate_num()] += pos->get_weight() *
 				score;
 		}
