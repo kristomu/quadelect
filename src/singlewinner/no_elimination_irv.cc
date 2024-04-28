@@ -72,7 +72,7 @@ std::vector<double> no_elimination_irv::get_scores(
 
 		// This might not strictly be the correct thing to do, check later
 		// with Kevin's definition.
-		// TODO.
+		// TODO. (It isn't and it's probably what leads to such awful Benham-Meta performance. We should return in order of pseudo-elimination instead.)
 
 		if (num_remaining_candidates == 1 && is_type_one) {
 			for (cand = 0; cand < num_candidates; ++cand) {

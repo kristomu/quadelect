@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "contingent.h"
+#include "../elimination/auto_runoff.h"
 
 class donated_contingent_vote : public contingent_vote {
 	protected:

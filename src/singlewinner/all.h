@@ -9,7 +9,7 @@
 #include "quick_runoff.h"
 #include "young.h"
 
-#include "elimination.h"
+#include "elimination/all.h"
 #include "method.h"
 
 #include "acp/all.h"
