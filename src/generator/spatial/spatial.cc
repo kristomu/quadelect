@@ -29,8 +29,8 @@ std::vector<double> spatial_generator::max_dim_vector(
 }
 
 election_t spatial_generator::generate_ballots_int(
-	int num_voters,
-	int numcands, bool do_truncate, coordinate_gen & coord_source) const {
+	int num_voters, int numcands, bool do_truncate,
+	coordinate_gen & coord_source) const {
 
 	election_t toRet;
 
@@ -40,9 +40,6 @@ election_t spatial_generator::generate_ballots_int(
 
 
 	// First generate the candidate positions.
-	// Hm, perhaps this is where JGA's strategy test differs from mine.
-	// Perhaps his sets candidates uniformly, then have a Gaussian dist.
-	// for voters, whereas mine would have a Gaussian for both...
 
 	// Optimize: could make this part of the class, and mutable.
 	// Optimize: could also make this take a list<..>& as input and then
@@ -70,11 +67,7 @@ election_t spatial_generator::generate_ballots_int(
 
 	// TODO: Move to another function.
 
-	//size_t eff_dimensions = ceil(num_dimensions);
-
 	std::vector<double> voter_pos, distances_to_cand(numcands, 0);
-
-	std::vector<double> max_vector = max_dim_vector(num_dimensions);
 
 	ballot_group our_entry;
 	our_entry.set_weight(1);
@@ -127,16 +120,14 @@ election_t spatial_generator::generate_ballots_int(
 		toRet.push_back(our_entry);
 	}
 
-	//ballot_tools().print_ranked_ballots(toRet);
-
-	return (toRet);
+	return toRet;
 }
 
 bool spatial_generator::set_params(size_t num_dimensions_in,
 	bool warren_util_in) {
 
 	if (num_dimensions_in < 1) {
-		return (false);
+		return false;
 	}
 
 	warren_utility = warren_util_in;
@@ -148,7 +139,48 @@ bool spatial_generator::set_params(size_t num_dimensions_in,
 		center.resize(num_dimensions, 0);
 	}
 
-	return (true);
+	return true;
+}
+
+double spatial_generator::get_score_quantile(
+	coordinate_gen & coord_source, double p, int iterations) const {
+
+	// Very slow way of doing this: I ought to refactor the ballot
+	// generation instead so both it and this can call on the same
+	// logic. Then the ballot generation wouldn't need to be protected.
+
+	// NOTE: This doesn't really work because max_distance destroys the
+	// independence of the ratings. I need to set a fixed max_distance to
+	// fix that problem. JGA uses max_distance = 0, i.e. ratings just
+	// negative of distance. However, I think there are some methods
+	// that implicitly depend on lowest rank being zero, so I can't do
+	// that. (Is that true???) Unless I'm mistaken, I need a max_distance
+	// that is constant and only very rarely is exceeded. TODO: Handle that
+	// somehow.
+
+	std::vector<double> scores;
+
+	for (int i = 0; i < 1; ++i) {
+
+		election_t election = generate_ballots_int(
+				iterations, 1, false, coord_source);
+
+		for (const ballot_group & g: election) {
+
+			// Quick and dirty check because we don't support
+			// non-unit weights yet. There are ways to do this; do that
+			// later if needed.
+			assert(g.get_weight() < 1.1 && g.get_weight() > 0.99);
+
+			for (const candscore & cs: g.contents) {
+				scores.push_back(cs.get_score());
+			}
+		}
+	}
+
+	std::sort(scores.begin(), scores.end());
+
+	return scores[(size_t)round((scores.size()-1) * p)];
 }
 
 bool spatial_generator::fix_candidate_positions(int num_cands,
@@ -190,8 +222,7 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 }
 
 std::vector<std::vector<double> >
-spatial_generator::get_fixed_candidate_pos()
-const {
+spatial_generator::get_fixed_candidate_pos() const {
 
 	// If no positions have been fixed, there's nothing we can do!
 	if (!fixed) {

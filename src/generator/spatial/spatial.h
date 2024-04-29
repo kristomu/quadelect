@@ -62,9 +62,6 @@ class spatial_generator : public pure_ballot_generator {
 		virtual std::vector<double> rnd_vector(size_t size,
 			coordinate_gen & coord_source) const = 0;
 		virtual std::vector<double> max_dim_vector(size_t dimensions) const;
-		// TODO: "get random coordinate" which would be used for
-		// sampling the circle of truncation in a manner consistent with
-		// the points distribution.
 
 	protected:
 		election_t generate_ballots_int(int num_voters,
@@ -101,11 +98,20 @@ class spatial_generator : public pure_ballot_generator {
 		bool set_params(size_t num_dimensions_in, bool warren_util_in);
 
 		size_t get_num_dimensions() const {
-			return (num_dimensions);
+			return num_dimensions;
 		}
 		bool uses_warren_utility() const {
-			return (warren_utility);
+			return warren_utility;
 		}
+
+		// Returns the maximum score so that voters' ratings will be below
+		// this value with probability p. Used for thresholding with
+		// candidate-independent Range models.
+		// Iterations gives the number of iterations to test to determine
+		// the approximate value. If the subclass can determine the quantile
+		// analytically, this value is ignored.
+		double get_score_quantile(coordinate_gen & coord_source, double p,
+			int iterations) const;
 
 		// For fixing candidate positions.
 		void unfix_candidate_positions() {
