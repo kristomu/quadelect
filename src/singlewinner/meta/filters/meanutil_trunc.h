@@ -28,8 +28,7 @@ class mean_utility_trunc : public election_method {
 		// the use of an integer input is intentional. The casting to
 		// a double makes renormalization easier in the main body of
 		// the code.
-		mean_utility_trunc(std::shared_ptr<const election_method> forward_in,
-			int max_in) {
+		mean_utility_trunc(std::shared_ptr<const election_method> forward_in) {
 			forward_to = forward_in;
 		}
 
