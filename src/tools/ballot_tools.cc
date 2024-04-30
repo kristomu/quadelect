@@ -641,15 +641,28 @@ std::vector<std::string> ballot_tools::ballots_to_text(
 	return (ballots_to_text("", rank_ballots, reverse_cand_lookup, numeric));
 }
 
-void ballot_tools::print_ranked_ballots(const election_t &
-	rank_ballots) const {
+void ballot_tools::print_ballots(const election_t &
+	ballots, bool rated) const {
 
 	std::map<size_t, std::string> fakecand = get_default_candidate_labeling();
 
-	std::vector<std::string> fv = ballots_to_text(rank_ballots, fakecand,
-			false);
+	std::vector<std::string> fv = ballots_to_text(ballots, fakecand,
+			rated);
 	copy(fv.begin(), fv.end(), std::ostream_iterator<std::string>(std::cout,
 			"\n"));
+}
+
+
+void ballot_tools::print_ranked_ballots(const election_t &
+	rank_ballots) const {
+
+	print_ballots(rank_ballots, false);
+}
+
+void ballot_tools::print_rated_ballots(const election_t &
+	rated_ballots) const {
+
+	print_ballots(rated_ballots, true);
 }
 
 double ballot_tools::get_num_voters(const election_t & rank_ballots) {

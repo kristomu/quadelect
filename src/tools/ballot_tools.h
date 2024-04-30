@@ -80,6 +80,9 @@ class ballot_tools {
 	private:
 		ordering_tools otools;
 
+		void print_ballots(const election_t & ballots,
+			bool rated) const;
+
 	public:
 		// Truncates an ordering so that everybody ranked below
 		// the given candidate num will be omitted from the ordering.
@@ -114,6 +117,9 @@ class ballot_tools {
 
 		void print_ranked_ballots(const election_t &
 			rank_ballots) const;
+
+		void print_rated_ballots(const election_t &
+			rated_ballots) const;
 
 		static double get_num_voters(const election_t &
 			rank_ballots);
