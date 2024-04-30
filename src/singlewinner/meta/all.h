@@ -6,4 +6,5 @@
 #include "benham.h"
 #include "chain_climbing.h"
 #include "comma.h"
+#include "filters/all.h"
 #include "slash.h"

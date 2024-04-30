@@ -70,6 +70,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/meta/chain_climbing.cc
 	src/singlewinner/meta/benham.cc
 	src/singlewinner/meta/comma.cc
+	src/singlewinner/meta/filters/clamp.cc
 	src/singlewinner/meta/filters/mean_utility.cc
 	src/singlewinner/meta/filters/meanutil_trunc.cc
 	src/singlewinner/meta/filters/normalize.cc
