@@ -1,8 +1,9 @@
 #pragma once
 
-// This contains code for determining solid coalitions, which is
-// used in the Descending Solid Coalitions method as well as
-// for determining sets based on solid coalitions (such as the
+// This contains code for determining solid and acquiescing coalitions.
+// These are used in the Descending Solid Coalitions and
+// Descending Acquiescing Coalitions methods respectively. The former is
+// also used for determining sets based on solid coalitions (such as the
 // mutual majority set).
 
 // Helper class. Coalition X is greater than Y if X's score is greater, or
@@ -39,5 +40,9 @@ class coalition_data {
 };
 
 std::vector<coalition_data> get_solid_coalitions(
+	const election_t & election,
+	const std::vector<bool> & hopefuls, int numcands);
+
+std::vector<coalition_data> get_acquiescing_coalitions(
 	const election_t & election,
 	const std::vector<bool> & hopefuls, int numcands);

@@ -580,6 +580,9 @@ election_t ballot_tools::compress(
 	election_t compressed = sort_ballots(uncompressed);
 	election_t::iterator check, check_against;
 
+	// TODO: don't compress cardinal ballots, since the
+	// candscore equality operator doesn't work properly.
+
 	for (check = compressed.begin(); check != compressed.end(); ++check) {
 		check_against = check;
 		++check_against;

@@ -1,9 +1,7 @@
 
 // All Descending * Coalitions methods.
 
-#ifndef _VOTE_SW_D_C_ALL
-#define _VOTE_SW_D_C_ALL
+#pragma once
 
+#include "dac.h"
 #include "dsc.h"
-
-#endif

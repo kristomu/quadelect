@@ -190,6 +190,7 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 	all_methods.push_back(std::make_shared<vi_median_ratings>(10, true,
 			false));
 	all_methods.push_back(std::make_shared<vi_median_ratings>(10, true, true));
+	all_methods.push_back(std::make_shared<dac>());
 	all_methods.push_back(std::make_shared<dsc>());
 	all_methods.push_back(std::make_shared<ifpp_like_fpa_fpc>());
 	all_methods.push_back(std::make_shared<fpa_sum_fpc>());
