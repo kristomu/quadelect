@@ -218,6 +218,8 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 			all_methods.push_back(std::make_shared<three_experimental>((texp_type)i));
 		}
 
+		all_methods.push_back(std::make_shared<app_sorted_margins>());
+
 		all_methods.push_back(std::make_shared<sv_att_second>());
 		all_methods.push_back(std::make_shared<fpa_experiment>());
 		//all_methods.push_back(std::make_shared<donated_contingent_vote>());

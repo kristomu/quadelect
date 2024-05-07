@@ -13,6 +13,7 @@
 #include "method.h"
 
 #include "acp/all.h"
+#include "cardinal/all.h"
 #include "desc_coalitions/all.h"
 #include "meta/all.h"
 #include "pairwise/all.h"
