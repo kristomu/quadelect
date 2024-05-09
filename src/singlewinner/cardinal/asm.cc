@@ -59,7 +59,7 @@ std::pair<ordering, bool> app_sorted_margins::elect_inner(
 			approval_margin = fabs(approvals_by_cand[i].first -
 					approvals_by_cand[i+1].first);
 
-			if (!need_sorting || approval_margin < approval_margin_record) {
+			if (!need_sorting || approval_margin <= approval_margin_record) {
 				need_sorting = true;
 				approval_margin_record = approval_margin;
 				recordholder = i;
