@@ -1,5 +1,9 @@
 #include "get_methods.h"
 
+// TODO: Somehow separate out cardinal methods as they're not
+// suited to e.g. the interpreter mode, since that mode only
+// parses ordinal ballot input.
+
 std::vector<std::shared_ptr<pairwise_method> > get_pairwise_methods(
 	const std::vector<pairwise_type> & types,
 	bool include_experimental) {
@@ -16,6 +20,9 @@ std::vector<std::shared_ptr<pairwise_method> > get_pairwise_methods(
 		out.push_back(std::make_shared<kemeny>(*pos));
 		out.push_back(std::make_shared<maxmin>(*pos));
 		out.push_back(std::make_shared<schulze>(*pos));
+
+		// TODO: Ranked Pairs here once it's got full ranking support
+		// and a faster algorithm.
 
 		// Reasonable convergence defaults.
 		if (pos->get() == CM_WV || pos->get() == CM_MARGINS
@@ -190,6 +197,10 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 	all_methods.push_back(std::make_shared<vi_median_ratings>(10, true,
 			false));
 	all_methods.push_back(std::make_shared<vi_median_ratings>(10, true, true));
+	// Cumulative voting
+	all_methods.push_back(std::make_shared<cumulative_voting>(1));
+	// Quadratic voting
+	all_methods.push_back(std::make_shared<cumulative_voting>(2));
 	all_methods.push_back(std::make_shared<dac>());
 	all_methods.push_back(std::make_shared<dsc>());
 	all_methods.push_back(std::make_shared<ifpp_like_fpa_fpc>());

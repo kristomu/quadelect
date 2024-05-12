@@ -51,6 +51,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/brute_force/bruterpn.cc
 	src/singlewinner/brute_force/rpn/custom_func.cc
 	src/singlewinner/cardinal/asm.cc
+	src/singlewinner/cardinal/cumulative.cc
 	src/singlewinner/contingent/donation.cc
 	src/singlewinner/desc_coalitions/desc_coalition.cc
 	src/singlewinner/dmt/fpa_fpc.cc
