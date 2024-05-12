@@ -109,7 +109,7 @@ election_t spatial_generator::generate_ballots_int(
 			else {
 				assert(our_dist <= max_distance);
 				our_entry.contents.insert(candscore(sec,
-						max_distance-our_dist));
+						-our_dist));
 			}
 		}
 
@@ -149,15 +149,6 @@ double spatial_generator::get_score_quantile(
 	// generation instead so both it and this can call on the same
 	// logic. Then the ballot generation wouldn't need to be protected.
 
-	// NOTE: This doesn't really work because max_distance destroys the
-	// independence of the ratings. I need to set a fixed max_distance to
-	// fix that problem. JGA uses max_distance = 0, i.e. ratings just
-	// negative of distance. However, I think there are some methods
-	// that implicitly depend on lowest rank being zero, so I can't do
-	// that. (Is that true???) Unless I'm mistaken, I need a max_distance
-	// that is constant and only very rarely is exceeded. TODO: Handle that
-	// somehow.
-
 	std::vector<double> scores;
 
 	for (int i = 0; i < 1; ++i) {
@@ -168,8 +159,9 @@ double spatial_generator::get_score_quantile(
 		for (const ballot_group & g: election) {
 
 			// Quick and dirty check because we don't support
-			// non-unit weights yet. There are ways to do this; do that
-			// later if needed.
+			// non-unit weights yet. There are ways to handle
+			// weighted votes without a blowup in the length
+			// of the scores array. Do that later if needed.
 			assert(g.get_weight() < 1.1 && g.get_weight() > 0.99);
 
 			for (const candscore & cs: g.contents) {
@@ -209,7 +201,7 @@ bool spatial_generator::fix_candidate_positions(int num_cands,
 bool spatial_generator::fix_candidate_positions(int num_cands,
 	coordinate_gen & coord_source) {
 	if (num_cands < 1) {
-		return (false);    // Surely you jest!
+		return false;    // Surely you jest!
 	}
 
 	std::vector<std::vector<double> > cand_positions;
