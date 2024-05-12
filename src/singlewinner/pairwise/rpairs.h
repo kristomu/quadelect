@@ -25,8 +25,12 @@
 // River:	http://lists.electorama.com/pipermail/
 //				election-methods-electorama.com/2004-October/014018.html
 
-#ifndef _VOTE_P_RPAIRS
-#define _VOTE_P_RPAIRS
+// TODO: Return full ranking. I have to fix this before I make it available
+// through the command line interface. I should also add a parameter that
+// switches between the non-neutral tiebreak and the neutral but not cloneproof
+// non-polytime version.
+
+#pragma once
 
 #include "../../pairwise/matrix.h"
 #include "method.h"
@@ -80,5 +84,3 @@ class ranked_pairs : public pairwise_method {
 			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
 };
-
-#endif

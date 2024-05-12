@@ -2,12 +2,8 @@
 
 #include <iostream>
 
-// TODO: Somehow retain scale invariance, because otherwise a ballot
-// of the type A: 100, B: 50: C: 25 would be treated differently from
-// A: 10, B: 5, C: 2.5, which we don't want.
-
-// Probably just scale all the scores to [0..1] before the p-norm
-// normalization. But I have to actually *do* it. :-P
+// Scales all the scores to [0..1] before the p-norm normalization so
+// that we can pass scale invariance. See the header for more info.
 
 std::pair<ordering, bool> cumulative_voting::elect_inner(
 	const election_t & papers, const std::vector<bool> & hopefuls,
@@ -19,20 +15,24 @@ std::pair<ordering, bool> cumulative_voting::elect_inner(
 
 		ordering ratings = b.contents;
 
-		// Determine the lowest rated hopeful candidate.
+		// Determine the highest and lowest ratings provided.
 		bool found_candidate = false;
-		double bottom_score;
+		double bottom_score = 0, top_score = 0;
 
-		for (auto rev_pos = ratings.rbegin();
-			rev_pos != ratings.rend() && !found_candidate;
-			++rev_pos) {
-
-			if (!hopefuls[rev_pos->get_candidate_num()]) {
+		for (const candscore & cs: ratings) {
+			if (!hopefuls[cs.get_candidate_num()]) {
 				continue;
 			}
 
-			found_candidate = true;
-			bottom_score = rev_pos->get_score();
+			if (!found_candidate) {
+				found_candidate = true;
+				bottom_score = cs.get_score();
+				top_score = cs.get_score();
+			}
+
+			bottom_score = std::min(bottom_score,
+					cs.get_score());
+			top_score = std::max(top_score, cs.get_score());
 		}
 
 		// Exhausted ballot - skip.
@@ -49,7 +49,10 @@ std::pair<ordering, bool> cumulative_voting::elect_inner(
 				continue;
 			}
 
-			p_val += pow(cs.get_score() - bottom_score, p);
+			double norm_score = norm(bottom_score,
+					cs.get_score(), top_score);
+
+			p_val += pow(norm_score, p);
 			assert(finite(p_val));
 		}
 
@@ -66,8 +69,11 @@ std::pair<ordering, bool> cumulative_voting::elect_inner(
 				continue;
 			}
 
+			double norm_score = norm(bottom_score,
+					cs.get_score(), top_score);
+
 			scores[cs.get_candidate_num()] += b.get_weight() *
-				(cs.get_score() - bottom_score) / p_val;
+				round(10 * norm_score / p_val);
 
 			assert(finite(scores[cs.get_candidate_num()]));
 		}
