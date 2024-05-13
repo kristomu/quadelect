@@ -223,16 +223,23 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 			// YUCK! In essence this does a tiebreak based on the candidate
 			// number! FIX LATER!
 
-			// TODO: Eliminate all last ranked if there's still a
-			// tie.
 			int loser = losers[0];
 
-			// If we're doing bottom two runoff and the loser
-			// beats the first almost-loser pairwise, then the almost loser
-			// becomes the new loser.
-			if (bottom_two_runoff && !almost_losers.empty()) {
-				if (pairwise.beats(loser, almost_losers[0])) {
-					loser = almost_losers[0];
+			// If we're doing bottom-two runoff, then if there's more than
+			// one loser, use the other loser as the candidate to compare
+			// against; otherwise use the first almost-loser.
+
+			if (bottom_two_runoff) {
+				int challenger = -1;
+				if (losers.size() > 1) {
+					challenger = losers[1];
+				}
+				if (challenger == -1 && !almost_losers.empty()) {
+					challenger = almost_losers[0];
+				}
+
+				if (challenger != -1 && pairwise.beats(loser, challenger)) {
+					loser = challenger;
 				}
 			}
 

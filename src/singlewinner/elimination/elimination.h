@@ -118,6 +118,18 @@ template<typename T> class elim_shortcut : public election_method {
 					positional_base, average_elimination, first_diff);
 		}
 
+		elim_shortcut(positional_type equal_rank_handling,
+			bool average_elimination, bool use_first_diff,
+			bool btr_elimination) {
+
+			first_diff = use_first_diff;
+
+			positional_base = std::make_shared<T>(equal_rank_handling);
+			eliminator = std::make_shared<loser_elimination>(
+					positional_base, average_elimination, first_diff,
+					btr_elimination);
+		}
+
 		std::string name() const {
 			std::string name_out = positional_base->show_type() +
 				common_name();
@@ -201,4 +213,16 @@ class nanson : public elim_shortcut<borda> {
 		nanson(positional_type equal_rank_handling,
 			bool use_first_diff) : elim_shortcut(equal_rank_handling,
 					true, use_first_diff) {}
+};
+
+class btr_irv : public elim_shortcut<plurality> {
+	protected:
+		std::string common_name() const {
+			return "[BTR-IRV]";
+		}
+
+	public:
+		btr_irv(positional_type equal_rank_handling,
+			bool use_first_diff) : elim_shortcut(equal_rank_handling,
+					false,	 use_first_diff, true) {}
 };
