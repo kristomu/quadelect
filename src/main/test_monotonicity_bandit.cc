@@ -15,13 +15,7 @@
 #include "../singlewinner/positional/as241.h"
 
 #include "../generator/all.h"
-
-
-#include "../bandit/bandit.h"
-#include "../bandit/binomial.h"
 #include "../bandit/lilucb.h"
-
-#include "../bandit/tests/reverse.h"
 
 #include "../tests/strategy/strategies.h"
 #include "../tests/provider.h"
@@ -40,7 +34,6 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 	std::shared_ptr<pure_ballot_generator> ballotgen) {
 
 	std::vector<std::shared_ptr<monotone_check> > tests;
-	std::vector<std::shared_ptr<BinomialBandit> > bandits;
 
 	int max_numvoters = 100, max_numcands = 4;
 
@@ -55,27 +48,24 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 				max_numvoters));
 	}
 
-	for (i = 0; i < to_test.size(); ++i) {
-		std::shared_ptr<Test> test_to_add = std::shared_ptr<Test>(tests[i]);
-
-		bandits.push_back(std::make_shared<BinomialBandit>(test_to_add));
-	}
-
 	Lil_UCB lil_ucb;
-	lil_ucb.load_bandits(bandits);
+	lil_ucb.load_bandits(tests);
 
 	// The stuff below needs a cleanup! TODO
 
 	bool confident = false;
+
+	/* Confidence interval disabled for now. Needs to be fixed, TODO.
 
 	double num_methods = tests.size();
 	double report_significance = 0.05;
 	// Bonferroni correction
 	double corrected_significance = report_significance/num_methods;
 	//double zv = ppnd7(1-report_significance/num_methods);
+	confidence_int ci;
+	*/
 
 	time_t startpt = time(NULL);
-	confidence_int ci;
 
 	for (int j = 1; j < 1000000 && !confident; ++j) {
 		// Bleh, why is min a macro?
@@ -104,9 +94,8 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 			// the best m even when the method is finished for m>1. (We
 			// should really have it work for m>1 somehow.)
 			size_t k;
-			for (k = 0; k < bandits.size(); ++k) {
-				// TODO: Some kind of get C here...
-				so_far.push_back(std::pair<double, int>(bandits[k]->get_mean(), k));
+			for (k = 0; k < tests.size(); ++k) {
+				so_far.push_back(std::pair<double, int>(tests[k]->get_mean_score(), k));
 			}
 			sort(so_far.begin(), so_far.end());
 			reverse(so_far.begin(), so_far.end());
@@ -114,7 +103,9 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 			size_t how_many = 10;
 			std::cout << "Interim report (by mean):" << std::endl;
 			for (k = 0; k < std::min(how_many, tests.size()); ++k) {
-				double mean = bandits[so_far[k].second]->get_mean();
+				double mean = tests[so_far[k].second]->get_mean_score();
+
+				/* Disabled: confidence interval
 
 				int num_pulls = bandits[so_far[k].second]->get_num_pulls();
 				int num_successes = bandits[so_far[k].second]->get_num_successes();
@@ -127,16 +118,21 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 
 				std::cout << k+1 << ". " << bandits[so_far[k].second]->name() << "(" <<
 					lower << ", " << middle << ", " << upper << ")" << std::endl;
+
+				*/
+
+				std::cout << k+1 << ". " << tests[so_far[k].second]->name() << ": "
+					<< mean << std::endl;
 			}
 
 		}
 	}
 
-	std::shared_ptr<Bandit> results = lil_ucb.get_best_bandit_so_far();
+	std::shared_ptr<simulator> results = lil_ucb.get_best_bandit_so_far();
 
 	std::cout << "Best so far is " << results->name() <<
 		std::endl; //<< " with CB of " << results.second << std::endl;
-	std::cout << "It has a mean of " << results->get_mean() << std::endl;
+	std::cout << "It has a mean of " << results->get_mean_score() << std::endl;
 
 }
 

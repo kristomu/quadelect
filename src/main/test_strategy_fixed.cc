@@ -58,7 +58,6 @@
 
 #include "../singlewinner/young.h"
 
-#include "../bandit/bandit.h"
 #include "../bandit/lilucb.h"
 
 #include "../tests/strategy/strategies.h"
@@ -96,7 +95,8 @@ std::pair<double, double> confidence_interval(int n, double p_mean,
 }
 
 void get_itemized_stats(
-	std::shared_ptr<election_method> to_test, rng & randomizer,
+	std::shared_ptr<election_method> to_test,
+	std::shared_ptr<coordinate_gen> randomizer,
 	int num_methods, std::shared_ptr<pure_ballot_generator> ballot_gen) {
 
 	std::map<std::string, std::vector<bool> > results;
@@ -267,10 +267,10 @@ int main(int argc, const char ** argv) {
 	// RCIPE					don't have this
 
 	// First Borda for reference (checking against JGA's published figures)
-	chosen_methods.push_back(m_range);
+	/*chosen_methods.push_back(m_range);
 	chosen_methods.push_back(std::make_shared<slash>(smith_ptr, m_range));
 	chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
-			std::make_shared<cardinal_ratings>(0, 10, true)));
+			std::make_shared<cardinal_ratings>(0, 10, true)));*/
 	chosen_methods.push_back(m_borda);
 
 	// Woodall					Smith//IRV
@@ -317,8 +317,7 @@ int main(int argc, const char ** argv) {
 		std::endl;
 
 
-	std::vector<rng> randomizers;
-	randomizers.push_back(rng(1));
+	std::shared_ptr<rng> randomizer = std::make_shared<rng>(1);
 
 	int dimensions = 4;
 
@@ -345,7 +344,7 @@ int main(int argc, const char ** argv) {
 		for (counter = offset; counter < chosen_methods.size();
 			counter += stepsize) {
 			std::cout << "\t" << counter << ": " << std::flush;
-			get_itemized_stats(chosen_methods[counter], randomizers[0],
+			get_itemized_stats(chosen_methods[counter], randomizer,
 				chosen_methods.size(), ballotgens[bg]);
 		}
 	}

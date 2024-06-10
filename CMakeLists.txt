@@ -120,8 +120,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/young.cc)
 
 add_library(quadelect_lib src/ballots.cc
-	src/bandit/bandit.cc
-	src/bandit/binomial.cc
+	src/simulator/stubs/bernoulli.cc
 	src/bandit/lilucb.cc
 	src/cache.cc
 	src/choose_inc.cc
@@ -175,6 +174,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/reference_tests/two_tests.cc
 	src/singlewinner/brute_force/rpn/chaotic_functions.cc
 	src/singlewinner/stats/cardinal.cc
+	src/simulator/simulator.cc
 	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/confidence.cc
 	src/stats/coordinate_gen.cc

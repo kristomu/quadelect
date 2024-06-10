@@ -20,7 +20,7 @@ class per_ballot_strat : public criterion_test {
 			disproof & partial_disproof, int64_t instance_index,
 			const test_cache & cache, size_t numcands,
 			pure_ballot_generator * ballot_generator,
-			rng * randomizer) const;
+			std::shared_ptr<coordinate_gen> randomizer) const;
 
 	public:
 		virtual ballot_group modify_ballots(ballot_group ballot,
@@ -76,7 +76,7 @@ class two_sided_reverse : public criterion_test {
 			disproof & partial_disproof, int64_t instance_index,
 			const test_cache & cache, size_t numcands,
 			pure_ballot_generator * ballot_generator,
-			rng * randomizer) const;
+			std::shared_ptr<coordinate_gen> randomizer) const;
 
 	public:
 		std::string name() const {
@@ -100,7 +100,7 @@ class coalitional_strategy : public criterion_test {
 			disproof & partial_disproof, int64_t instance_index,
 			const test_cache & cache, size_t numcands,
 			pure_ballot_generator * ballot_generator,
-			rng * randomizer) const;
+			std::shared_ptr<coordinate_gen> randomizer) const;
 
 	public:
 		std::string name() const {

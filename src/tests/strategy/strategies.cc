@@ -6,7 +6,8 @@
 void per_ballot_strat::add_strategic_election_inner(
 	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t /*numcands*/,
-	pure_ballot_generator * ballot_generator, rng * randomizer) const {
+	pure_ballot_generator * ballot_generator,
+	std::shared_ptr<coordinate_gen> randomizer) const {
 
 	partial_disproof.data.clear();
 	partial_disproof.disprover_name = name();
@@ -68,7 +69,8 @@ ballot_group two_sided_strat::modify_ballots(ballot_group ballot,
 void two_sided_reverse::add_strategic_election_inner(
 	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
-	pure_ballot_generator * ballot_generator, rng * randomizer) const {
+	pure_ballot_generator * ballot_generator,
+	std::shared_ptr<coordinate_gen> randomizer) const {
 
 	partial_disproof.data.clear();
 	partial_disproof.disprover_name = name();
@@ -118,7 +120,8 @@ void two_sided_reverse::add_strategic_election_inner(
 void coalitional_strategy::add_strategic_election_inner(
 	disproof & partial_disproof, int64_t instance_index,
 	const test_cache & cache, size_t numcands,
-	pure_ballot_generator * ballot_generator, rng * randomizer) const {
+	pure_ballot_generator * ballot_generator,
+	std::shared_ptr<coordinate_gen> randomizer) const {
 
 	// We currently only support instance index = -1, i.e. a fully
 	// randomized election strategy. I know, we shouldn't mush together

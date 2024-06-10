@@ -4,7 +4,7 @@
 #include "../../ballots.h"
 #include "../../random/random.h"
 #include "../../generator/all.h"
-#include "../../bandit/tests/tests.h"
+#include "../../simulator/simulator.h"
 
 // Quick and dirty monotonicity checker. Something is up with the way I've
 // structured my strategy tests and other classes, and it makes it pretty
@@ -12,10 +12,9 @@
 // clean it up. Until then, I have to find out if my experimental methods
 // are monotone, hence this hack.
 
-class monotone_check : public Test {
+class monotone_check : public simulator {
 	private:
 		std::shared_ptr<pure_ballot_generator> ballot_gen;
-		std::shared_ptr<rng> rnd;
 		std::shared_ptr<election_method> method_tested;
 
 		// How many attempts should we make in trying to get a
@@ -59,12 +58,11 @@ class monotone_check : public Test {
 
 	public:
 		monotone_check(std::shared_ptr<pure_ballot_generator> ballot_gen_in,
-			std::shared_ptr<rng> rnd_in,
+			std::shared_ptr<coordinate_gen> rnd_in,
 			std::shared_ptr<election_method> method_in,
-			int max_numcands_in, int max_numvoters_in) {
+			int max_numcands_in, int max_numvoters_in) : simulator(rnd_in) {
 
 			ballot_gen = ballot_gen_in;
-			rnd = rnd_in;
 			method_tested = method_in;
 			max_numcands = max_numcands_in;
 			max_numvoters = max_numvoters_in;
@@ -78,7 +76,7 @@ class monotone_check : public Test {
 			elections_tested_at_once = 15; // ditto
 		}
 
-		double perform_test(); // returns 1 if monotone, 0 otherwise
+		double do_simulation(); // returns 1 if monotone, 0 otherwise
 
 		std::string name() const {
 			return "Monotone-(" + method_tested->name() + ")";
@@ -90,6 +88,11 @@ class monotone_check : public Test {
 
 		double get_maximum() const {
 			return 1;
+		}
+
+		// More monotonicity = better
+		bool higher_is_better() const {
+			return true;
 		}
 
 		void print_counterexample();

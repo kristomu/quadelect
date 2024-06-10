@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../bandit/tests/tests.h"
+#include "../simulator/simulator.h"
 #include "../tools/tools.h"
 
 #include "../tools/ballot_tools.h"
@@ -17,11 +17,8 @@
 
 enum test_result { TEST_NO_DISPROOFS, TEST_DISPROVEN, TEST_TIE };
 
-// TODO: Rename classes! "Test" here is a multi-armed bandit thing...
-
-class test_runner : public Test {
+class test_runner : public simulator {
 	private:
-		rng * randomizer;
 		int numvoters;
 		size_t numcands_min, numcands_max;
 		int total_generation_attempts;
@@ -43,6 +40,10 @@ class test_runner : public Test {
 		size_t ballot_gen_idx;
 
 		std::string runner_name;
+
+		double find_scale_factor() {
+			return 1; // no scaling needed
+		}
 
 	public:
 		// Returns the number of failed criteria. If only_one is true,
@@ -92,8 +93,9 @@ class test_runner : public Test {
 
 		test_runner(std::shared_ptr<pure_ballot_generator> ballot_gen_in,
 			int numvoters_in, int numcands_in_min, int numcands_in_max,
-			rng & randomizer_in, std::shared_ptr<const election_method> method_in,
-			int attempts_per_election_in) {
+			std::shared_ptr<coordinate_gen> randomizer_in,
+			std::shared_ptr<const election_method> method_in,
+			int attempts_per_election_in) : simulator(randomizer_in) {
 
 			total_generation_attempts = 0;
 			last_run_tried_all_tests = false;
@@ -106,7 +108,6 @@ class test_runner : public Test {
 					"negative or out of range");
 			}
 
-			randomizer = &randomizer_in;
 			method = method_in;
 			numvoters = numvoters_in;
 			numcands_min = numcands_in_min;
@@ -124,41 +125,51 @@ class test_runner : public Test {
 
 		test_runner(std::shared_ptr<pure_ballot_generator> ballot_gen_in,
 			int numvoters_in, int numcands_in,
-			rng & randomizer_in, std::shared_ptr<const election_method> method_in,
+			std::shared_ptr<coordinate_gen> randomizer_in,
+			std::shared_ptr<const election_method> method_in,
 			int strat_attempts_per_try_in) : test_runner(ballot_gen_in,
 					numvoters_in, numcands_in, numcands_in, randomizer_in,
 					method_in, strat_attempts_per_try_in) {}
 
-		double perform_test() {
-			// We need to make a theoretically coherent system for handling
+		// This samples from the Bernoulli distribution of *success rate*, not
+		// failure rate, i.e. a 1 on success and a 0 on failure, which is
+		// opposite what you would expect. TODO: Fix this once I know the
+		// refactor works properly.
+
+		double do_simulation() {
+			// TODO: We need to make a theoretically coherent system for handling
 			// ties. Ties should hurt more the more often they appear.
 
 			switch (attempt_finding_failure(true)) {
 				case TEST_DISPROVEN:
 				case TEST_TIE:
-					return (0);
+					return 0;
 				case TEST_NO_DISPROOFS:
-					return (1);
+					return 1;
 				default:
 					// Should be an assert?
 					throw std::invalid_argument(
-						"perform_test: unknown return code");
+						"test_runner::simulate - unknown return code");
 			}
 		}
 
 		std::string name() const {
-			return (runner_name + " (" +
-					method->name() + ")");
+			return runner_name + " (" +
+				method->name() + ")";
 		}
 
 		int get_total_generation_attempts() const {
-			return (total_generation_attempts);
+			return total_generation_attempts;
 		}
 
 		double get_minimum() const {
-			return (0);
+			return 0;
 		}
 		double get_maximum() const {
-			return (1);
+			return 1;
 		}
+
+		bool higher_is_better() const {
+			return true;
+		};
 };

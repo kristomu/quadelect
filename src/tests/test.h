@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "cache.h"
@@ -9,7 +10,7 @@
 
 #include "../generator/ballotgen.h"
 #include "../singlewinner/method.h"
-#include "../random/random.h"
+#include "../stats/coordinate_gen.h"
 
 // The strategy (test) classes are ultimately meant to be designed like
 // this:
@@ -38,7 +39,7 @@ class criterion_test {
 			disproof & partial_disproof, int64_t instance_index,
 			const test_cache & cache, size_t numcands,
 			pure_ballot_generator * ballot_generator,
-			rng * randomizer) const = 0;
+			std::shared_ptr<coordinate_gen> randomizer) const = 0;
 
 	public:
 		// Check if the cache has the data we'll rely on; if not,
@@ -53,7 +54,7 @@ class criterion_test {
 		void add_strategic_election(disproof & partial_disproof,
 			int64_t instance_index, test_cache & cache,
 			size_t numcands, pure_ballot_generator * ballot_generator,
-			rng * randomizer) {
+			std::shared_ptr<coordinate_gen> randomizer) {
 
 			prepare_cache(cache, partial_disproof, numcands);
 			add_strategic_election_inner(partial_disproof,

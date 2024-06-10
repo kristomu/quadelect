@@ -107,7 +107,7 @@ std::pair<double, double> confidence_interval(int n, double p_mean,
 // found using backroom dealing or whatnot.
 
 void test_strategy(std::shared_ptr<const election_method> to_test,
-	rng & randomizer, int num_methods,
+	std::shared_ptr<rng> randomizer, int num_methods,
 	std::shared_ptr<pure_ballot_generator> ballot_gen,
 	int numvoters, int numcands, int num_iterations,
 	int num_strategy_attempts_per_iter) {
@@ -150,8 +150,8 @@ void test_strategy(std::shared_ptr<const election_method> to_test,
 	// --- //
 
 	test_provider tests;
-	test_runner st(ballot_gen, numvoters, numcands, randomizer,
-		to_test, num_strategy_attempts_per_iter);
+	test_runner st(ballot_gen, numvoters, numcands,
+		randomizer, to_test, num_strategy_attempts_per_iter);
 
 	// We're testing the rate of failure of "strategy immunity" criteria,
 	// i.e. the presence of opportunities for manipulation.
@@ -172,7 +172,7 @@ void test_strategy(std::shared_ptr<const election_method> to_test,
 		// or resistant to strategy.
 
 		// The total number of tests actually performed is retrieved later.
-		if (st.perform_test() == 0) {
+		if (st.simulate() == 0) {
 			++strategy_worked;
 		} else {
 			++strategy_failed;
@@ -296,13 +296,13 @@ int main(int argc, const char ** argv) {
 	auto m_plur = std::make_shared<plurality>(PT_WHOLE);
 
 	auto m_range = std::make_shared<cardinal_ratings>(0, 10, false);
+	auto normed_range = std::make_shared<cardinal_ratings>(0, 10, true);
 
 	// Approval, MR				don't have this
 	// Smith//Approval			don't have this
 	// Double Defeat Hare		don't have this
 	// Majority Judgement		don't have this
 	// Max Strength Tr BP		don't have this
-	// STAR						don't have this
 	// Approval					which one? don't have this
 	// Margins-Sorted			don't have these
 
@@ -312,8 +312,14 @@ int main(int argc, const char ** argv) {
 
 	// First Borda for reference (checking against JGA's published figures)
 	// And BTR-IRV to show Robert Bristow-Johnson.
-	chosen_methods.push_back(std::make_shared<loser_elimination>(m_plur,
-			false, true, true));
+	/*chosen_methods.push_back(std::make_shared<loser_elimination>(m_plur,
+			false, true, true));*/
+
+	// STAR, with Range for reference.
+	chosen_methods.push_back(m_range);
+	chosen_methods.push_back(std::make_shared<auto_runoff>(m_range));
+	chosen_methods.push_back(normed_range);
+	chosen_methods.push_back(std::make_shared<auto_runoff>(normed_range));
 
 	// Smith//Score (but beware, raw Range gives me much higher results than JGA
 	// gets).
@@ -377,8 +383,7 @@ int main(int argc, const char ** argv) {
 		methods_ref.push_back(em_ref.get());
 	}
 
-	std::vector<rng> randomizers;
-	randomizers.push_back(rng(0));
+	std::shared_ptr<rng> randomizer = std::make_shared<rng>(0);
 
 	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
 	int dimensions = 4;
@@ -398,7 +403,7 @@ int main(int argc, const char ** argv) {
 		std::cout << "Using ballot domain " << ballotgens[bg]->name() << std::endl;
 		for (counter = 0; counter < methods_ref.size(); counter ++) {
 			std::cout << "\t" << counter << ": " << std::flush;
-			test_strategy(chosen_methods[counter], randomizers[0],
+			test_strategy(chosen_methods[counter], randomizer,
 				chosen_methods.size(), ballotgens[bg], numvoters, numcands,
 				num_iterations, num_strategy_attempts_per_iter);
 		}

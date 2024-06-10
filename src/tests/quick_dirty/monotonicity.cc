@@ -11,8 +11,6 @@
 #include "../../random/random.h"
 #include "../../generator/all.h"
 
-#include "../../bandit/tests/tests.h"
-
 // https://stackoverflow.com/questions/12940522
 
 bool is_disjoint(const std::vector<int> & x, const std::vector<int> & y) {
@@ -31,7 +29,7 @@ bool is_disjoint(const std::vector<int> & x, const std::vector<int> & y) {
 	return true;
 }
 
-double monotone_check::perform_test() {
+double monotone_check::do_simulation() {
 
 	for (size_t election = 0; election < elections_tested_at_once;
 		++election) {
@@ -54,11 +52,11 @@ double monotone_check::perform_test() {
 		// If the candidate we raised is no longer in the set, scream blue murder
 		// (return failure).
 
-		numvoters = rnd->next_int(3, max_numvoters+1);
-		numcands = rnd->next_int(3, max_numcands+1);
+		numvoters = entropy_source->next_int(3, max_numvoters+1);
+		numcands = entropy_source->next_int(3, max_numcands+1);
 
 		ballots_before = ballot_gen->generate_ballots(
-				numvoters, numcands, *rnd);
+				numvoters, numcands, *entropy_source);
 
 		// Sort the ballots to make reading them easier.
 		ballots_before.sort();
@@ -68,6 +66,8 @@ double monotone_check::perform_test() {
 
 		std::vector<int> winners = ordering_tools::get_winners(
 				before_ordering);
+
+		// TODO: Throw exception if a weight is nonzero.
 
 		for (size_t j = 0; j < tests_per_election; ++j) {
 			winner = winners[j % winners.size()];
@@ -83,7 +83,7 @@ double monotone_check::perform_test() {
 			std::random_shuffle(shuffle_indices.begin(),
 				shuffle_indices.begin() + numvoters);
 
-			size_t votes_to_alter = rnd->next_int(numvoters);
+			size_t votes_to_alter = entropy_source->next_int(numvoters);
 
 			for (size_t k = 0; k < votes_to_alter; ++k) {
 
@@ -104,7 +104,7 @@ double monotone_check::perform_test() {
 				candscore cur_cs = after_vector[idx].get_candidate(
 						winner);
 				after_vector[idx].replace_score(cur_cs,
-					rnd->next_double(cur_cs.get_score(),
+					entropy_source->next_double(cur_cs.get_score(),
 						after_vector[idx].get_max_score()+1));
 			}
 

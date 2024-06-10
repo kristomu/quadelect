@@ -17,8 +17,6 @@
 
 #include "../generator/all.h"
 
-#include "../bandit/tests/tests.h"
-
 int main() {
 
 	int max_numvoters = 30, max_numcands = 4; // E.g.
@@ -50,7 +48,7 @@ int main() {
 			std::cerr << "." << std::flush;
 		}
 
-		double monotone = checker.perform_test();
+		double monotone = checker.do_simulation();
 
 		if (monotone == 0) {
 			checker.print_counterexample();

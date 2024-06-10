@@ -56,12 +56,7 @@
 #include "../singlewinner/stats/mode.h"
 
 #include "../singlewinner/young.h"
-
-#include "../bandit/bandit.h"
-#include "../bandit/binomial.h"
 #include "../bandit/lilucb.h"
-
-#include "../bandit/tests/reverse.h"
 
 #include "../tests/strategy/strategies.h"
 #include "../tests/provider.h"
@@ -87,17 +82,11 @@ void test_with_bandits(
 	std::shared_ptr<pure_ballot_generator> ballotgen,
 	bool find_most_susceptible) {
 
-	std::vector<std::shared_ptr<BinomialBandit> > bandits;
+	if (find_most_susceptible) {
+		throw std::runtime_error("Not implemented yet due to refactor!");
+	}
 
-	// sts: Tests that count how many times we find a strategy
-	// reverse_sts: Tests that count how many times we fail.
-
-	// Since bandits try to maximize the proportion (reward), using sts
-	// will find the methods that resist strategy best, while using
-	// reverse_sts will find those that are most susceptible.
-
-	std::vector<test_runner> sts;
-	std::vector<std::shared_ptr<Test> > test_ptrs;
+	std::vector<std::shared_ptr<simulator> > sims;
 
 	int numvoters = 997;
 	int initial_numcands = 5, numcands = initial_numcands;
@@ -115,49 +104,41 @@ void test_with_bandits(
 		// the time).
 		int tries_to_get_strat = 4096; // was 4096
 
-		sts.push_back(test_runner(ballotgen,
-				numvoters, numcands, numcands, *randomizer.get(), to_test[i],
-				tries_to_get_strat));
+		auto sim = std::make_shared<test_runner>(ballotgen,
+				numvoters, numcands, numcands, randomizer, to_test[i],
+				tries_to_get_strat);
+		sims.push_back(sim);
 
 		// We're testing the rate of failure of "strategy immunity" criteria,
 		// i.e. the presence of opportunities for manipulation.
-		sts.rbegin()->set_name("Strategy");
+		sim->set_name("Strategy");
 
 		// Add some strategies
 		for (auto test: tests.get_tests_by_category("Strategy")) {
-			sts.rbegin()->add_test(test);
+			sim->add_test(test);
 		}
-	}
-
-	for (i = 0; i < to_test.size(); ++i) {
-		std::shared_ptr<Test> test_to_add;
-
-		if (find_most_susceptible) {
-			test_to_add = std::make_shared<ReverseTest>(
-					&sts[i]);
-		} else {
-			test_to_add = std::shared_ptr<Test>(&sts[i]);
-		}
-		bandits.push_back(std::make_shared<BinomialBandit>(test_to_add));
 	}
 
 	Lil_UCB lil_ucb;
-	lil_ucb.load_bandits(bandits);
+	lil_ucb.load_bandits(sims);
 
 	bool confident = false;
 
-	double num_methods = sts.size();
-	double report_significance = 0.05;
+	// Confidence intervals have been disabled for now due to refactor.
+	// FIX LATER.
+
+	//double num_methods = sts.size();
+	//double report_significance = 0.05;
+
 	// Bonferroni correction
-	double corrected_significance = report_significance/num_methods;
-	//double zv = ppnd7(1-report_significance/num_methods);
+	//double corrected_significance = report_significance/num_methods;
+	//confidence_int ci;
 
 	time_t startpt = time(NULL);
-	confidence_int ci;
 
 	for (int j = 1; j < 1000000 && !confident; ++j) {
 		// Bleh, why is min a macro?
-		int num_tries = std::max(100, (int)sts.size());
+		int num_tries = std::max(100, (int)sims.size());
 		// Don't run more than 20k at a time because otherwise
 		// feedback is too slow.
 		//num_tries = std::min(40000, num_tries);
@@ -182,20 +163,22 @@ void test_with_bandits(
 			// the best m even when the method is finished for m>1. (We
 			// should really have it work for m>1 somehow.)
 			size_t k;
-			for (k = 0; k < bandits.size(); ++k) {
+			for (k = 0; k < sims.size(); ++k) {
 				// TODO: Some kind of get C here...
-				so_far.push_back(std::pair<double, int>(bandits[k]->get_mean(), k));
+				so_far.push_back(std::pair<double, int>(sims[k]->get_mean_score(), k));
 			}
 			sort(so_far.begin(), so_far.end());
 			reverse(so_far.begin(), so_far.end());
 
 			size_t how_many = 10;
 			std::cout << "Interim report (by mean):" << std::endl;
-			for (k = 0; k < std::min(how_many, sts.size()); ++k) {
-				double mean = bandits[so_far[k].second]->get_mean();
+			for (k = 0; k < std::min(how_many, sims.size()); ++k) {
+				double mean = sims[so_far[k].second]->get_mean_score();
 
-				int num_pulls = bandits[so_far[k].second]->get_num_pulls();
-				int num_successes = bandits[so_far[k].second]->get_num_successes();
+				// Confidence interval has been disabled. TODO: FIX LATER.
+
+				/*int num_pulls = sims[so_far[k].second]->get_num_pulls();
+				int num_successes = sims[so_far[k].second]->get_num_successes();
 
 				std::pair<double, double> c_i = ci.bin_prop_interval(
 						corrected_significance, num_successes, num_pulls);
@@ -203,18 +186,23 @@ void test_with_bandits(
 				double middle = round((1 - mean) * 1000)/1000.0;
 				double upper = round((1 - c_i.first) * 1000)/1000.0;
 
-				std::cout << k+1 << ". " << bandits[so_far[k].second]->name() << "(" <<
-					lower << ", " << middle << ", " << upper << ")" << std::endl;
+				std::cout << k+1 << ". " << sims[so_far[k].second]->name() << "(" <<
+					lower << ", " << middle << ", " << upper << ")" << std::endl;*/
+
+				double middle = round((1 - mean) * 1000)/1000.0;
+
+				std::cout << k+1 << ". " << sims[so_far[k].second]->name()
+					<< middle << std::endl;
 			}
 
 		}
 	}
 
-	std::shared_ptr<Bandit> results = lil_ucb.get_best_bandit_so_far();
+	std::shared_ptr<simulator> results = lil_ucb.get_best_bandit_so_far();
 
 	std::cout << "Best so far is " << results->name() <<
 		std::endl; //<< " with CB of " << results.second << std::endl;
-	std::cout << "It has a mean of " << results->get_mean() << std::endl;
+	std::cout << "It has a mean of " << results->get_mean_score() << std::endl;
 
 }
 

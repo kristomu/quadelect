@@ -86,7 +86,7 @@ size_t test_runner::get_num_failed_criteria(
 			if (tester->get_num_tries(numcands) < 0) {
 				tester->add_strategic_election(
 					failure_instance, -1, election_data, numcands,
-					ballot_gen.get(), randomizer);
+					ballot_gen.get(), entropy_source);
 				got_strategic_election = true;
 			} else {
 				// If we've tried every instance for this test, skip.
@@ -96,7 +96,7 @@ size_t test_runner::get_num_failed_criteria(
 				}
 				tester->add_strategic_election(failure_instance,
 					instances_tried[i], election_data,
-					numcands, ballot_gen.get(), randomizer);
+					numcands, ballot_gen.get(), entropy_source);
 
 				++instances_tried[i];
 				got_strategic_election = true;
@@ -151,11 +151,11 @@ test_result test_runner::attempt_finding_failure(bool only_one) {
 
 	size_t numcands = numcands_min;
 	if (numcands_max > numcands_min) {
-		numcands = randomizer->next_int(numcands_min, numcands_max+1);
+		numcands = entropy_source->next_int(numcands_min, numcands_max+1);
 	}
 
 	ballots = ballot_gen->generate_ballots(numvoters,
-			numcands, *randomizer);
+			numcands, *entropy_source);
 
 	// First, get the honest winner. If it's a tie, report as such.
 	// Otherwise, check if it's possible to execute a strategy that
