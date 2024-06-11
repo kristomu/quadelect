@@ -1,42 +1,45 @@
 
-#include "../bandit/bandit.h"
 #include "../bandit/lilucb.h"
-
-#include "../bandit/tests/bernoulli.h"
+#include "../simulator/stubs/bernoulli.h"
 
 #include <iostream>
 
 int main(int argc, const char ** argv) {
 
 	int how_many = 500, i;
+	bool maximize = true;
 
-	std::vector<Bandit> bernoullis;
-	double maxmean = 0;
+	std::vector<std::shared_ptr<simulator> > bernoullis;
+	double maxmean = 0, minmean = 1;
 
 	for (i = 0; i < how_many; ++i) {
-		double this_arm_mean = 0.005 * drand48() + i/(double)(2*how_many);
-		bernoullis.push_back(new Bernoulli(this_arm_mean));
+		double this_arm_mean = 0.001 * drand48() + i/(double)(2*how_many);
+		bernoullis.push_back(std::make_shared<bernoulli_stub>(this_arm_mean,
+				maximize, 0));
 		maxmean = std::max(maxmean, this_arm_mean);
+		minmean = std::min(minmean, this_arm_mean);
 	}
 
 	random_shuffle(bernoullis.begin(), bernoullis.end());
 
-	int maxpulls = 40000, iters_so_far = 0;
+	int pulls_per_round = 40000;
 
 	Lil_UCB bandit_tester;
-	bandit_tester.load_bandits(bernoullis);
+	bandit_tester.load_arms(bernoullis);
 
 	double progress;
 
-	while ((progress = bandit_tester.pull_bandit_arms(bernoullis,
-					maxpulls)) != 1) {
+	while ((progress = bandit_tester.pull_bandit_arms(pulls_per_round)) != 1) {
 		std::cout << "Not done yet (progress is " << progress << ")" << std::endl;
-		const Bandit * best = bandit_tester.get_best_bandit_so_far();
+		std::shared_ptr<simulator> best = bandit_tester.get_best_arm_so_far();
 		std::cout << "Best so far is " << best->name() << std::endl;
-		std::cout << "Actual maximum is " << maxmean << std::endl;
-		iters_so_far += maxpulls; // or thereabouts
+		if (maximize) {
+			std::cout << "Actual maximum is " << maxmean << std::endl;
+		} else {
+			std::cout << "Actual minimum is " << minmean << std::endl;
+		}
 	}
 
-	std::cout << "It took about " << iters_so_far
+	std::cout << "It took " << bandit_tester.get_total_num_pulls()
 		<< " pulls to find that out." << std::endl;
 }

@@ -236,4 +236,7 @@ target_link_libraries(qe_dim qe_singlewinner_methods quadelect_lib)
 add_executable(monotonator src/main/monotonator.cc)
 target_link_libraries(monotonator qe_singlewinner_methods quadelect_lib)
 
+add_executable(test_bandit_correctness src/main/test_bandit_correctness.cc)
+target_link_libraries(test_bandit_correctness qe_singlewinner_methods quadelect_lib)
+
 add_executable(yee_reference_benchmark src/reference/yee_borda.cc)

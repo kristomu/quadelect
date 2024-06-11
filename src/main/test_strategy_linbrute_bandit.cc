@@ -120,7 +120,7 @@ void test_with_bandits(
 	}
 
 	Lil_UCB lil_ucb;
-	lil_ucb.load_bandits(sims);
+	lil_ucb.load_arms(sims);
 
 	bool confident = false;
 
@@ -198,7 +198,7 @@ void test_with_bandits(
 		}
 	}
 
-	std::shared_ptr<simulator> results = lil_ucb.get_best_bandit_so_far();
+	std::shared_ptr<simulator> results = lil_ucb.get_best_arm_so_far();
 
 	std::cout << "Best so far is " << results->name() <<
 		std::endl; //<< " with CB of " << results.second << std::endl;

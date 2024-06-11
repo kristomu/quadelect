@@ -49,7 +49,7 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 	}
 
 	Lil_UCB lil_ucb;
-	lil_ucb.load_bandits(tests);
+	lil_ucb.load_arms(tests);
 
 	// The stuff below needs a cleanup! TODO
 
@@ -128,7 +128,7 @@ void test_with_bandits(std::vector<std::shared_ptr<election_method> > &
 		}
 	}
 
-	std::shared_ptr<simulator> results = lil_ucb.get_best_bandit_so_far();
+	std::shared_ptr<simulator> results = lil_ucb.get_best_arm_so_far();
 
 	std::cout << "Best so far is " << results->name() <<
 		std::endl; //<< " with CB of " << results.second << std::endl;

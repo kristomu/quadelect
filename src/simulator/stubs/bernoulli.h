@@ -21,9 +21,10 @@ class bernoulli_stub : public simulator {
 			is_higher_better = is_higher_better_in;
 		}
 
+		// Maximize by default.
 		bernoulli_stub(double p_in,
 			std::shared_ptr<coordinate_gen> entropy) : bernoulli_stub(
-					p_in, false, entropy) {}
+					p_in, true, entropy) {}
 
 		bernoulli_stub(double p_in, bool is_higher_better_in,
 			rseed_t seed) : bernoulli_stub(p_in, is_higher_better_in,
@@ -46,5 +47,9 @@ class bernoulli_stub : public simulator {
 		}
 		double get_maximum() const {
 			return 1;
+		}
+
+		bool higher_is_better() const {
+			return is_higher_better;
 		}
 };

@@ -10,11 +10,11 @@
 // JAMIESON, Kevin, et al. lil’ucb: An optimal exploration algorithm for
 // multi-armed bandits. In: Conference on Learning Theory. 2014. p. 423-439.
 
-typedef std::shared_ptr<simulator> arm;
+typedef std::shared_ptr<simulator> arm_ptr_t;
 
 class queue_entry {
 	public:
-		std::shared_ptr<simulator> bandit_ref;
+		arm_ptr_t arm_ref;
 
 		// This evaluation score is based on the simulator's adjusted score
 		// (so that higher is always better) and on an exploration bias C.
@@ -28,8 +28,8 @@ class queue_entry {
 			if (MAB_eval != other.MAB_eval) {
 				return (MAB_eval < other.MAB_eval);
 			}
-			return (bandit_ref->get_simulation_count() >=
-					other.bandit_ref->get_simulation_count());
+			return (arm_ref->get_simulation_count() >=
+					other.arm_ref->get_simulation_count());
 		}
 };
 
@@ -37,13 +37,12 @@ class Lil_UCB {
 	private:
 		double delta, sigma_sq;
 		int total_num_pulls;
-		std::priority_queue<queue_entry> bandit_queue;
+		std::priority_queue<queue_entry> arm_queue;
 
 		// First define some shim functions used to pretend that a simulator always
 		// is maximizing (higher score is better).
 
-
-		double get_adjusted_max(arm & arm_to_check) {
+		double get_adjusted_max(arm_ptr_t & arm_to_check) {
 			if (arm_to_check->higher_is_better()) {
 				return arm_to_check->get_maximum();
 			} else {
@@ -51,7 +50,7 @@ class Lil_UCB {
 			}
 		}
 
-		double get_adjusted_min(arm & arm_to_check) {
+		double get_adjusted_min(arm_ptr_t & arm_to_check) {
 			if (arm_to_check->higher_is_better()) {
 				return arm_to_check->get_minimum();
 			} else {
@@ -59,7 +58,7 @@ class Lil_UCB {
 			}
 		}
 
-		double get_adjusted_mean(arm & arm_to_check) {
+		double get_adjusted_mean(arm_ptr_t & arm_to_check) {
 			if (arm_to_check->higher_is_better()) {
 				return arm_to_check->get_mean_score();
 			} else {
@@ -69,49 +68,62 @@ class Lil_UCB {
 
 
 		double get_sigma_sq(double minimum, double maximum) const;
-		double C(int num_plays_this, size_t num_bandits) const;
+		double C(int num_plays_this, size_t num_arms) const;
 
-		double get_eval(arm & bandit, size_t num_bandits) {
-			return (get_adjusted_mean(bandit) + C(bandit->get_simulation_count(),
-						num_bandits));
+		double get_eval(arm_ptr_t & arm, size_t num_arms) {
+			return (get_adjusted_mean(arm) + C(arm->get_simulation_count(),
+						num_arms));
 		}
 
-		queue_entry create_queue_entry(arm bandit,
-			size_t num_bandits) {
+		queue_entry create_queue_entry(arm_ptr_t arm,
+			size_t num_arms) {
 
 			queue_entry out;
-			out.bandit_ref = bandit;
-			out.MAB_eval = get_eval(bandit, num_bandits);
+			out.arm_ref = arm;
+			out.MAB_eval = get_eval(arm, num_arms);
 			return (out);
 		}
 
 	public:
-		Lil_UCB(double delta_in) {
+		// This parameter determines how sure we want to be
+		// that the identified best arm is actually best. The
+		// bandit is allowed to return the wrong bandit with
+		// probability delta.
+		void set_accuracy(double delta_in) {
 			delta = delta_in;
 		}
 
-		Lil_UCB() {
-			delta = 0.01; // Default
+		Lil_UCB(double delta_in) {
+			set_accuracy(delta_in);
 		}
 
-		void load_bandits(std::vector<std::shared_ptr<simulator> > & bandits);
+		Lil_UCB() {
+			set_accuracy(0.01); // Default
+		}
+
+		void load_arms(std::vector<arm_ptr_t > & arms);
 
 		// Slightly clumsy way of permitting polymorphism without limiting
 		// ourselves to vectors
-		template<typename T> void load_bandits(T & bandits) {
-			std::vector<std::shared_ptr<simulator>> translation_container;
-			for (size_t i = 0; i < bandits.size(); ++i) {
-				translation_container.push_back(bandits[i]);
+		template<typename T> void load_arms(T & arms) {
+			std::vector<arm_ptr_t> translation_container;
+			for (size_t i = 0; i < arms.size(); ++i) {
+				translation_container.push_back(arms[i]);
 			}
-			load_bandits(translation_container);
+			load_arms(translation_container);
 		}
 
 		// Returns 1 if we're confident of the result, otherwise a
 		// status number on [0,1] indicating how close we are to
-		// being confident.
+		// being confident. The output value can thus be used as a
+		// progress indicator.
 		double pull_bandit_arms(int maxiters);
 
-		const std::shared_ptr<simulator> get_best_bandit_so_far() const {
-			return (bandit_queue.top().bandit_ref);
+		const arm_ptr_t get_best_arm_so_far() const {
+			return (arm_queue.top().arm_ref);
+		}
+
+		int get_total_num_pulls() const {
+			return total_num_pulls;
 		}
 };
