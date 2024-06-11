@@ -221,6 +221,7 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 	all_methods.push_back(std::make_shared<coombs>(PT_WHOLE, true));
 	all_methods.push_back(std::make_shared<ifpp>(PT_WHOLE, true));
 	all_methods.push_back(std::make_shared<nanson>(PT_WHOLE, true));
+	all_methods.push_back(std::make_shared<btr_irv>(PT_WHOLE, true));
 
 	all_methods.push_back(std::make_shared<donated_contingent_vote>());
 

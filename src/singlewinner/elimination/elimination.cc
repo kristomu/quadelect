@@ -107,7 +107,6 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 		ordering::const_reverse_iterator rpos;
 
 		if (average_loser_elim) {
-			std::cout << "ALE" << std::endl;
 			double total = 0;
 			int inner_num_cands = 0;
 
@@ -168,10 +167,11 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 			}
 		} else {
 			// DEBUG
-			if (debug)
+			if (debug) {
 				std::cout << "this_round: " << otools.
 					ordering_to_text(this_round, fakecand,
 						true) << std::endl;
+			}
 
 			// Otherwise, break any potential ties, then get
 			// the loser. Note that the tiebreak function will
@@ -183,10 +183,11 @@ std::pair<ordering, bool> loser_elimination::elect_inner(const
 			ordering mod_this_round = break_tie(this_round,
 					base_method_tiebreaks, num_candidates);
 
-			if (debug)
+			if (debug) {
 				std::cout << "mod_this_round: " << otools.
 					ordering_to_text(mod_this_round,
 						fakecand, true) << std::endl;
+			}
 
 			// Determine loser and add him to the elimination list,
 			// then actually eliminate him.
