@@ -2,12 +2,13 @@
 
 // For generating a d-dimensional R_d quasirandom sequence, as given by
 // https://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
+// archived link with pictures intact: https://web.archive.org/web/20230228120508/https://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/
 
 // This can be used for better Monte-Carlo sampling, and thus should be
 // useful both for Bayesian regret/VSE and Yee maps.
 
 // Note that a Sobol sequence may be better, but this sequence is much easier
-// to program.
+// to implement.
 
 #include <vector>
 #include <stdexcept>

@@ -6,6 +6,9 @@
 void r_sequence::set_alpha_roots(size_t dimension) {
 	double g = 2;
 
+	// Set g = phi_d = the uniue positive root of
+	// x^(dimension+1) = x + 1, using Newton's method.
+
 	// We probably need much fewer than 30 iterations to
 	// reach convergence, but hey, we can afford the CPU
 	// cycles.
