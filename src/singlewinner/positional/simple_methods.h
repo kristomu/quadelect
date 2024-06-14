@@ -1,11 +1,10 @@
 // Different simply implemented positional voting methods.
 
-#ifndef _VOTE_POS_SIMPLE
-#define _VOTE_POS_SIMPLE
+#pragma once
 
 #include "../../ballots.h"
 #include "../method.h"
-#include "as241.h"
+#include "../../stats/confidence/as241.h"
 #include <list>
 #include <vector>
 
@@ -281,5 +280,3 @@ class worstborda : public positional {
 	public:
 		worstborda(positional_type kind_in) : positional(kind_in) {}
 };
-
-#endif

@@ -12,7 +12,7 @@
 #include "../ballots.h"
 #include "../tools/tools.h"
 
-#include "../singlewinner/positional/as241.h"
+#include "../stats/confidence/as241.h"
 
 #include "../generator/all.h"
 #include "../bandit/lilucb.h"

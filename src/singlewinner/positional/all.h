@@ -4,7 +4,6 @@
 #pragma once
 
 #include "aggregator.h"
-#include "as241.h"
 #include "bucklin.h"
 #include "ext_plurality.h"
 #include "ext_antiplur.h"

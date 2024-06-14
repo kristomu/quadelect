@@ -2,14 +2,15 @@
 
 #include "../../ballots.h"
 #include "../method.h"
-#include "as241.c"
 #include <list>
 #include <vector>
 
 #include "simple_methods.h"
-
+#include "../../stats/confidence/as241.c" // ????
 
 /////////////////////////////////////////////
+
+// TODO: What's this?
 
 double nrem::gauss(size_t curcand, size_t num_cands) const {
 
