@@ -38,9 +38,25 @@ class candscore {
 		candscore(size_t candnum_in);
 		candscore(size_t cn_in, double score_in);
 
-		// DONE: Trick this so that candscore a == candscore b if
+		// TODO: Trick this so that candscore a == candscore b if
 		// candidate numbers are equal - to prevent double scores
 		// in rankings/ratings.
+
+		// OOPS, that made compression misbehave with cardinal methods!
+		// DISABLED for now. XXX TODO. Ultimately, this indicates
+		// that we're using the wrong data structure, and that I
+		// need to replace it. ... which I already knew, sort of.
+
+		// Ideally I'd just overload insert() and use a proper
+		// equality operator here. Or encapsulate contents in the
+		// ballot group so that insertion goes through the ballot group
+		// itself... but it's the ordering class that doesn't work
+		// right, not ballot_group, so it should be ordering's
+		// responsibility to clean it up.
+
+		// I could fix this by propagating rated/not rated down into
+		// candscores. Would that be the best solution? I'm not sure...
+
 		// TODO: Handle transitivity failure.
 		bool operator<(const candscore & other) const {
 			if (this == &other || *this == other) {
@@ -54,7 +70,8 @@ class candscore {
 		}
 
 		bool operator==(const candscore & other) const {
-			return (candidate_number == other.candidate_number);
+			return (candidate_number == other.candidate_number &&
+					score == other.score);
 		}
 
 		bool operator>(const candscore & other) const {

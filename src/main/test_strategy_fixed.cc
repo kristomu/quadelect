@@ -11,11 +11,13 @@
 #include "../tools/ballot_tools.h"
 #include "../ballots.h"
 
-#include "../singlewinner/positional/as241.h"
+#include "../stats/confidence/as241.h"
 
 #include "../generator/all.h"
 
 #include "../singlewinner/gradual_c_b.h"
+
+#include "../singlewinner/meta/filters/all.h"
 
 #include "../singlewinner/stats/cardinal.h"
 #include "../singlewinner/elimination/all.h"
@@ -44,6 +46,8 @@
 #include "../singlewinner/experimental/rmr1.h"
 #include "../singlewinner/brute_force/brute.h"
 #include "../singlewinner/brute_force/bruterpn.h"
+
+#include "../singlewinner/cardinal/all.h"
 
 #include "../singlewinner/sets/mdd.h"
 #include "../singlewinner/sets/condorcet.h"
@@ -100,8 +104,6 @@ void get_itemized_stats(
 	int num_methods, std::shared_ptr<pure_ballot_generator> ballot_gen) {
 
 	std::map<std::string, std::vector<bool> > results;
-
-	impartial iic(true, false);
 
 	std::cerr << "Itemized stats: Now trying " << to_test->name() << std::endl;
 
@@ -242,6 +244,21 @@ int main(int argc, const char ** argv) {
 	std::vector<std::shared_ptr<election_method> > chosen_methods;
 	std::vector<std::shared_ptr<election_method> > to_be_condorcified;
 
+	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
+
+	std::shared_ptr<rng> randomizer = std::make_shared<rng>(RNG_ENTROPY);
+
+	int dimensions = 4;
+
+	auto gauss = std::make_shared<gaussian_generator>(
+			true, false, dimensions, false);
+	gauss->set_dispersion(1);
+	ballotgens.push_back(gauss);
+
+	double tenth_percentile = gauss->get_score_quantile(
+			*randomizer, 0.10, 10000);
+	std::cout << "10% rating quantile: " << tenth_percentile << std::endl;
+
 	auto cond_ptr = std::make_shared<condorcet_set>();
 	auto smith_ptr = std::make_shared<smith_set>();
 	auto schwartz_ptr = std::make_shared<schwartz_set>();
@@ -253,25 +270,118 @@ int main(int argc, const char ** argv) {
 	auto m_minmax = std::make_shared<ord_minmax>(CM_WV, false);
 	auto m_plur = std::make_shared<plurality>(PT_WHOLE);
 
-	auto m_range = std::make_shared<cardinal_ratings>(0, 10, false);
+	auto m_range = std::make_shared<cardinal_ratings>(0, 5, false);
+	auto m_range_ten = std::make_shared<cardinal_ratings>(0, 10, false);
+	auto normed_range = std::make_shared<cardinal_ratings>(0, 5, true);
 
-	// Smith//Score				don't have this
+	auto fixed_scale_range = std::make_shared<clamp>(m_range,
+			tenth_percentile, 0, 5);
+	auto fixed_scale_range_ten = std::make_shared<clamp>(m_range_ten,
+			tenth_percentile, 0, 10);
+	auto fixed_scale_approval = std::make_shared<clamp>(
+			std::make_shared<cardinal_ratings>(0, 1, false),
+			tenth_percentile, 0, 1);
+
 	// Approval, MR				don't have this
 	// Smith//Approval			don't have this
 	// Double Defeat Hare		don't have this
 	// Majority Judgement		don't have this
 	// Max Strength Tr BP		don't have this
-	// STAR						don't have this
-	// Approval					which one? don't have this
+	// Approval			which one? don't have this
 	// Margins-Sorted			don't have these
-	// RCIPE					don't have this
 
+	// This isn't admissible, but if it were, would give an indication
+	// of where MJ falls.
+	//chosen_methods.push_back(std::make_shared<median_ratings>(0, 10, false, true));
+
+	/*chosen_methods.push_back(std::make_shared<comma>(
+		std::make_shared<inner_burial_set>(),
+		std::make_shared<borda>(PT_WHOLE)));*/
+
+	/*chosen_methods.push_back(std::make_shared<comma>(
+		std::make_shared<condorcet_set>(),
+		std::make_shared<plurality>(PT_WHOLE)));*/
+
+	chosen_methods.push_back(std::make_shared<btr_irv>(PT_WHOLE, true));
+	//chosen_methods.push_back(std::make_shared<fpa_sum_fpc>());
+
+	// Smith//DAC (mean utility truncation)
+	/*chosen_methods.push_back(std::make_shared<mean_utility_trunc>(
+		std::make_shared<slash>(smith_ptr,
+			std::make_shared<dac>())));*/
+
+	// Range (objective scale)
+	chosen_methods.push_back(fixed_scale_range);		// c'est ridicule!
+	chosen_methods.push_back(fixed_scale_approval);
+
+	// Smith//Range (objective scale)
+	chosen_methods.push_back(std::make_shared<clamp>(
+			std::make_shared<slash>(smith_ptr, m_range_ten), tenth_percentile, 0, 10));
+	chosen_methods.push_back(std::make_shared<clamp>(
+			std::make_shared<slash>(smith_ptr, m_range), tenth_percentile, 0, 5));
+	// STAR (objective scale)
+	chosen_methods.push_back(std::make_shared<clamp>(
+			std::make_shared<auto_runoff>(m_range), tenth_percentile, 0, 5));
+
+	// Approval (mean-utility strategy)
+	auto approval = std::make_shared<mean_utility>(m_range, 1);
+	auto implicit_smith = std::make_shared<mean_utility_trunc>(smith_ptr);
+
+	// Smith//Approval (implicit)
+	chosen_methods.push_back(std::make_shared<comma>(
+			implicit_smith, approval));
+
+	// Normalized Range (ten slot)
+	chosen_methods.push_back(std::make_shared<normalize>(
+			m_range_ten, 10));
+	// Five slot
+	chosen_methods.push_back(std::make_shared<normalize>(
+			m_range, 5));
+
+	/*
 	// First Borda for reference (checking against JGA's published figures)
-	/*chosen_methods.push_back(m_range);
+	// And BTR-IRV to show Robert Bristow-Johnson.
+	chosen_methods.push_back(std::make_shared<loser_elimination>(m_plur,
+			false, true, true));*/
+
+	// Smith//Score (normalized)
+	chosen_methods.push_back(std::make_shared<normalize>(
+			std::make_shared<slash>(smith_ptr, m_range), 5));
+	chosen_methods.push_back(std::make_shared<normalize>(
+			std::make_shared<slash>(smith_ptr, m_range_ten), 10));
+
+	// Approval (mean-utility strategy)
+	chosen_methods.push_back(approval);
+
+	// STAR, with Range for reference.
+	//chosen_methods.push_back(m_range);
+	//chosen_methods.push_back((std::make_shared<auto_runoff>(m_range)));
+	chosen_methods.push_back(std::make_shared<normalize>(
+			m_range, 5));
+	chosen_methods.push_back(std::make_shared<normalize>(
+			std::make_shared<auto_runoff>(m_range), 5));
+	//chosen_methods.push_back(std::make_shared<auto_runoff>(m_range));
+	//chosen_methods.push_back(normed_range);
+	//chosen_methods.push_back(std::make_shared<auto_runoff>(normed_range));
+
+	// Smith//Approval (explicit, normalized):
+	// Smith,above-mean[Approval].
+	chosen_methods.push_back(std::make_shared<comma>(smith_ptr,
+			std::make_shared<mean_utility>(m_range, 1)));
+
+	// Smith//Score (but beware, raw Range gives me much higher results than JGA
+	// gets).
 	chosen_methods.push_back(std::make_shared<slash>(smith_ptr, m_range));
-	chosen_methods.push_back(std::make_shared<slash>(smith_ptr,
-			std::make_shared<cardinal_ratings>(0, 10, true)));*/
+	chosen_methods.push_back(std::make_shared<comma>(smith_ptr,
+			std::make_shared<cardinal_ratings>(0, 10, true)));
 	chosen_methods.push_back(m_borda);
+
+	// RCIPE					Eliminate-[[Cond. nonloser], Plurality]
+	chosen_methods.push_back(std::make_shared<loser_elimination>(
+			std::make_shared<comma>(
+				std::make_shared<condorcet_nonloser_set>(),
+				m_plur),
+			false, true));
 
 	// Woodall					Smith//IRV
 	// Schwartz-Woodall			Schwartz//IRV
@@ -313,19 +423,15 @@ int main(int argc, const char ** argv) {
 			std::make_shared<dsc>()));
 	chosen_methods.push_back(std::make_shared<ranked_pairs>(CM_WV, false));
 
+	//chosen_methods.resize(2);
+
 	std::cout << "There are " << chosen_methods.size() << " methods." <<
 		std::endl;
 
+	/*std::cout << "90% rating quantile: " << gauss->get_score_quantile(
+		randomizers[0], 0.90, 10000) << std::endl;
+	return(0);*/
 
-	std::shared_ptr<rng> randomizer = std::make_shared<rng>(1);
-
-	int dimensions = 4;
-
-	std::vector<std::shared_ptr<pure_ballot_generator> > ballotgens;
-	auto gauss = std::make_shared<gaussian_generator>(
-			true, false, dimensions, false);
-	gauss->set_dispersion(1);
-	ballotgens.push_back(gauss);
 	//int dimensions = 4;
 	//ballotgens.push_back(std::make_shared<impartial>(true, false));
 	// Something is wrong with this one. Check later.
