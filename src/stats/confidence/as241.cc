@@ -1,5 +1,6 @@
 // Algorithm AS 241 from the glass library
-// Used to determine E(k,n) through Blom's approximation, for NREM-opt
+// Used to determine E(k,n) through Blom's approximation, for NREM-opt and
+// confidence intervals.
 
 #include <math.h>
 #include "as241.h"

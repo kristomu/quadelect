@@ -10,6 +10,8 @@
 // and replace the incredibly messy Jeffreys prior there with the A-C
 // interval.
 
+#include "simulator.h"
+
 class bernoulli_simulator : public simulator {
 
 	private:
@@ -30,4 +32,7 @@ class bernoulli_simulator : public simulator {
 		double get_upper_confidence(double p, size_t num_methods) const;
 
 		double simulate();
+
+		bernoulli_simulator(std::shared_ptr<coordinate_gen> entropy_src_in) :
+			simulator(entropy_src_in) {}
 };

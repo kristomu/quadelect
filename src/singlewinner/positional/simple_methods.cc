@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "simple_methods.h"
-#include "../../stats/confidence/as241.c" // ????
 
 /////////////////////////////////////////////
 
