@@ -86,7 +86,7 @@ void test_with_bandits(
 		throw std::runtime_error("Not implemented yet due to refactor!");
 	}
 
-	std::vector<std::shared_ptr<simulator> > sims;
+	std::vector<std::shared_ptr<bernoulli_simulator> > sims;
 
 	int numvoters = 997;
 	int initial_numcands = 5, numcands = initial_numcands;
@@ -102,7 +102,7 @@ void test_with_bandits(
 		// Use higher values to get more accurate strategy
 		// susceptibility values (i.e. succumbs to strategy 10% of
 		// the time).
-		int tries_to_get_strat = 4096; // was 4096
+		int tries_to_get_strat = 512; // was 4096
 
 		auto sim = std::make_shared<test_runner>(ballotgen,
 				numvoters, numcands, numcands, randomizer, to_test[i],
@@ -122,93 +122,69 @@ void test_with_bandits(
 	Lil_UCB lil_ucb;
 	lil_ucb.load_arms(sims);
 
+	// The stuff below needs a cleanup! TODO
+	// It's better now.
+
 	bool confident = false;
 
-	// Confidence intervals have been disabled for now due to refactor.
-	// FIX LATER.
+	double num_methods = sims.size();
+	double report_significance = 0.05;
 
-	//double num_methods = sts.size();
-	//double report_significance = 0.05;
+	time_t start_time = time(NULL);
 
-	// Bonferroni correction
-	//double corrected_significance = report_significance/num_methods;
-	//confidence_int ci;
-
-	time_t startpt = time(NULL);
-
-	for (int j = 1; j < 1000000 && !confident; ++j) {
-		// Bleh, why is min a macro?
-		int num_tries = std::max(100, (int)sims.size());
-		// Don't run more than 20k at a time because otherwise
-		// feedback is too slow.
-		//num_tries = std::min(40000, num_tries);
-		double progress = lil_ucb.pull_bandit_arms(num_tries);
+	while (!confident) {
+		double progress = lil_ucb.timed_pull_bandit_arms(10);
 		if (progress == 1) {
-			std::cout << "Managed in fewer than " << j * num_tries <<
+			std::cout << "Managed in " << lil_ucb.get_total_num_pulls() <<
 				" tries." << std::endl;
+			std::cout << "That took " << time(NULL) - start_time << " seconds."
+				<< std::endl;
 			confident = true;
-		} else {
-			if (time(NULL) - startpt < 2) {
-				continue;
+		}
+
+		std::vector<std::pair<double, int> > so_far;
+
+		// Warning: No guarantee that this will contain the best until
+		// the method is finished; and no guarantee that it will contain
+		// the best m even when the method is finished for m>1. (We
+		// should really have it work for m>1 somehow. See "k-top"
+		// bandits.)
+		size_t k;
+		for (k = 0; k < sims.size(); ++k) {
+			double score = sims[k]->get_mean_score();
+			// We're going to sort the list of sims so that the best come
+			// on top. Since the sort is ascending, we need to negate the
+			// score if higher is better, so that the sort puts the best
+			// (highest scoring in that case) sims on top.
+			if (sims[k]->higher_is_better()) {
+				score = -score;
 			}
-			std::cout << time(NULL) - startpt << "s." << std::endl;
-			std::cout << "After " << j * num_tries << ": " << progress << std::endl;
-			std::vector<std::pair<double, int> > so_far;
-			if (time(NULL) - startpt < 5) {
-				continue;
-			}
-			startpt = time(NULL);
-			// Warning: No guarantee that this will contain the best until
-			// the method is finished; and no guarantee that it will contain
-			// the best m even when the method is finished for m>1. (We
-			// should really have it work for m>1 somehow.)
-			size_t k;
-			for (k = 0; k < sims.size(); ++k) {
-				// TODO: Some kind of get C here...
-				so_far.push_back(std::pair<double, int>(sims[k]->get_mean_score(), k));
-			}
-			sort(so_far.begin(), so_far.end());
-			reverse(so_far.begin(), so_far.end());
+			so_far.push_back(std::pair<double, int>(score, k));
+		}
+		sort(so_far.begin(), so_far.end());
 
-			size_t how_many = 10;
-			std::cout << "Interim report (by mean):" << std::endl;
-			for (k = 0; k < std::min(how_many, sims.size()); ++k) {
-				double mean = sims[so_far[k].second]->get_mean_score();
+		size_t how_many = 10;
+		std::cout << "Current bandit testing progress = "
+			<< progress << std::endl;
+		std::cout << "Interim report (by mean):" << std::endl;
+		for (k = 0; k < std::min(how_many, sims.size()); ++k) {
+			double mean = sims[so_far[k].second]->get_mean_score();
 
-				// Confidence interval has been disabled. TODO: FIX LATER.
+			auto test = sims[so_far[k].second];
+			double lower = test->get_lower_confidence(
+					report_significance, num_methods);
+			double upper = test->get_upper_confidence(
+					report_significance, num_methods);
 
-				/*int num_pulls = sims[so_far[k].second]->get_num_pulls();
-				int num_successes = sims[so_far[k].second]->get_num_successes();
-
-				std::pair<double, double> c_i = ci.bin_prop_interval(
-						corrected_significance, num_successes, num_pulls);
-				double lower = round((1 - c_i.second) * 1000)/1000.0;
-				double middle = round((1 - mean) * 1000)/1000.0;
-				double upper = round((1 - c_i.first) * 1000)/1000.0;
-
-				std::cout << k+1 << ". " << sims[so_far[k].second]->name() << "(" <<
-					lower << ", " << middle << ", " << upper << ")" << std::endl;*/
-
-				double middle = round((1 - mean) * 1000)/1000.0;
-
-				std::cout << k+1 << ". " << sims[so_far[k].second]->name()
-					<< middle << std::endl;
-			}
-
+			std::cout << k+1 << ". " << test->name() << "("
+				<< round(lower, 4)	<<  ", " << round(mean, 4)
+				<< ", " << round(upper, 4) <<  ")" << std::endl;
 		}
 	}
-
-	std::shared_ptr<simulator> results = lil_ucb.get_best_arm_so_far();
-
-	std::cout << "Best so far is " << results->name() <<
-		std::endl; //<< " with CB of " << results.second << std::endl;
-	std::cout << "It has a mean of " << results->get_mean_score() << std::endl;
-
 }
 
 int main(int argc, const char ** argv) {
-	std::vector<std::shared_ptr<election_method> > condorcets;
-	std::vector<std::shared_ptr<election_method> > condorcetsrc;
+	std::vector<std::shared_ptr<election_method> > methods_to_test;
 
 	std::vector<std::shared_ptr<election_method> > methods =
 		get_singlewinner_methods(false, false);
@@ -218,14 +194,16 @@ int main(int argc, const char ** argv) {
 	schwartz_set xf;
 	ifpp_method_x si;
 
-	condorcets.push_back(std::make_shared<comma>(
-			std::make_shared<smith_set>(),
-			std::make_shared<ifpp_method_x>()));
-	condorcets.push_back(std::make_shared<slash>(
-			std::make_shared<smith_set>(),
-			std::make_shared<ifpp_method_x>()));
+	for (auto & m: methods) {
+		methods_to_test.push_back(std::make_shared<comma>(
+				std::make_shared<smith_set>(), m));
+		methods_to_test.push_back(std::make_shared<slash>(
+				std::make_shared<smith_set>(), m));
+		methods_to_test.push_back(m);
+	}
 
-	std::cout << "There are " << condorcets.size() << " methods." << std::endl;
+	std::cout << "There are " << methods_to_test.size()
+		<< " methods." << std::endl;
 
 	std::shared_ptr<rng> randomizer;
 	time_t startpt = time(NULL);    // randomize timer
@@ -237,7 +215,8 @@ int main(int argc, const char ** argv) {
 		std::make_shared<impartial>(false, false);
 
 
-	test_with_bandits(condorcets, randomizer, ballotgen, false);
+	test_with_bandits(methods_to_test, randomizer,
+		ballotgen, false);
 
 	return 0;
 }

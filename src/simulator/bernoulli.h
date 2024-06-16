@@ -33,6 +33,14 @@ class bernoulli_simulator : public simulator {
 
 		double simulate();
 
+		double get_minimum() const {
+			return 0;
+		}
+
+		double get_maximum() const {
+			return 1;
+		}
+
 		bernoulli_simulator(std::shared_ptr<coordinate_gen> entropy_src_in) :
 			simulator(entropy_src_in) {}
 };

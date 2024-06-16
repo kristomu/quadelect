@@ -131,21 +131,29 @@ class test_runner : public bernoulli_simulator {
 					numvoters_in, numcands_in, numcands_in, randomizer_in,
 					method_in, strat_attempts_per_try_in) {}
 
-		// This samples from the Bernoulli distribution of *success rate*, not
-		// failure rate, i.e. a 1 on success and a 0 on failure, which is
-		// opposite what you would expect. TODO: Fix this once I know the
-		// refactor works properly.
+		// This samples from the Bernoulli distribution of failure rates: it
+		// returns 0 if we couldn't find a failure, or 1 if one was found.
+		// The convention for strategy resistance values is to return the
+		// manipulability, not the resistance, thus we do it like this.
+
+		// NOTE: This might lead to a problem later on if/when we generalize
+		// this class to return various criterion failures, because my
+		// monotonicity tester uses the other convention (returning success
+		// rates, not failure rates). One has to give if we're to be consistent.
 
 		double do_simulation() {
 			// TODO: We need to make a theoretically coherent system for handling
-			// ties. Ties should hurt more the more often they appear.
+			// ties. Ties should hurt more the more often they appear. For now,
+			// ties are considered to be strategy failures (i.e. instances of
+			// manipulability). Perhaps later allow these to return an exceptional
+			// value "the simulation failed to produce a result".
 
 			switch (attempt_finding_failure(true)) {
 				case TEST_DISPROVEN:
 				case TEST_TIE:
-					return 0;
-				case TEST_NO_DISPROOFS:
 					return 1;
+				case TEST_NO_DISPROOFS:
+					return 0;
 				default:
 					// Should be an assert?
 					throw std::invalid_argument(
@@ -162,14 +170,7 @@ class test_runner : public bernoulli_simulator {
 			return total_generation_attempts;
 		}
 
-		double get_minimum() const {
-			return 0;
-		}
-		double get_maximum() const {
-			return 1;
-		}
-
 		bool higher_is_better() const {
-			return true;
+			return false;
 		};
 };
