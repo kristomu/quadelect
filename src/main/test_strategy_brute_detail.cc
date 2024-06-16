@@ -65,18 +65,6 @@
 #include "../tests/strategy/strategies.h"
 #include "../tests/provider.h"
 
-// default values for number of processors and current processor
-// use -I compiler options to get multiproc support. TODO: make this an
-// input parameter.
-
-#ifndef __NUMPROCS__
-#define __NUMPROCS__ 1
-#endif
-
-#ifndef __THISPROC__
-#define __THISPROC__ 0
-#endif
-
 // Determine the the z binomial confidence interval.
 // Agresti-Coull. http://www.graphpad.com/guides/prism/6/statistics/index.htm?how_to_compute_the_95_ci_of_a_proportion.htm
 // TODO: use as241.c to calculate the Z directly. Make class for Bonferroni

@@ -70,18 +70,6 @@
 
 #include "../singlewinner/get_methods.h"
 
-// default values for number of processors and current processor
-// use -I compiler options to get multiproc support. TODO: make this an
-// input parameter.
-
-#ifndef __NUMPROCS__
-#define __NUMPROCS__ 1
-#endif
-
-#ifndef __THISPROC__
-#define __THISPROC__ 0
-#endif
-
 // Determine the the z binomial confidence interval.
 // Agresti-Coull. http://www.graphpad.com/guides/prism/6/statistics/index.htm?how_to_compute_the_95_ci_of_a_proportion.htm
 // TODO: use as241.c to calculate the Z directly. Make class for Bonferroni
@@ -223,11 +211,11 @@ void get_itemized_stats(
 	double lower_bound = c_i.first;
 	double upper_bound = c_i.second;
 
-	lower_bound = round(lower_bound*10000)/10000.0;
-	upper_bound = round(upper_bound*10000)/10000.0;
+	lower_bound = round(lower_bound, 4);
+	upper_bound = round(upper_bound, 4);
 
 	double tiefreq = 1 - (num_non_ties/(double)fmax);
-	tiefreq = round(tiefreq*10000)/1000.0;
+	tiefreq = round(tiefreq, 4);
 
 	std::cout << "Worked in " << any_strategy << " ("<< lower_bound << ", " <<
 		upper_bound

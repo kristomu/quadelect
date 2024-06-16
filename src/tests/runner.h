@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../simulator/simulator.h"
+#include "../simulator/bernoulli.h"
 #include "../tools/tools.h"
 
 #include "../tools/ballot_tools.h"
@@ -17,7 +17,7 @@
 
 enum test_result { TEST_NO_DISPROOFS, TEST_DISPROVEN, TEST_TIE };
 
-class test_runner : public simulator {
+class test_runner : public bernoulli_simulator {
 	private:
 		int numvoters;
 		size_t numcands_min, numcands_max;
@@ -95,7 +95,7 @@ class test_runner : public simulator {
 			int numvoters_in, int numcands_in_min, int numcands_in_max,
 			std::shared_ptr<coordinate_gen> randomizer_in,
 			std::shared_ptr<const election_method> method_in,
-			int attempts_per_election_in) : simulator(randomizer_in) {
+			int attempts_per_election_in) : bernoulli_simulator(randomizer_in) {
 
 			total_generation_attempts = 0;
 			last_run_tried_all_tests = false;

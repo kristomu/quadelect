@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../simulator.h"
+#include "../bernoulli.h"
 #include "../../tools/tools.h"
 #include "../../random/random.h"
 
-class bernoulli_stub : public simulator {
+class bernoulli_stub : public bernoulli_simulator {
 	private:
 		double p;
 		bool is_higher_better;
@@ -14,7 +14,7 @@ class bernoulli_stub : public simulator {
 
 	public:
 		bernoulli_stub(double p_in, bool is_higher_better_in,
-			std::shared_ptr<coordinate_gen> entropy) : simulator(entropy) {
+			std::shared_ptr<coordinate_gen> entropy) : bernoulli_simulator(entropy) {
 
 			assert(p_in >= 0 && p_in <= 1);
 			p = p_in;

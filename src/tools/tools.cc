@@ -456,3 +456,7 @@ std::vector<std::vector<bool> > power_set(
 std::vector<std::vector<bool> > power_set(int cardinality) {
 	return power_set(std::vector<bool>(cardinality, true));
 }
+
+double round(double x, double decimals) {
+	return round(x * pow(10, decimals)) / pow(10, decimals);
+}

@@ -39,6 +39,9 @@ class Lil_UCB {
 		int total_num_pulls;
 		std::priority_queue<queue_entry> arm_queue;
 
+		// Used for timed pulls.
+		double pulls_per_second;
+
 		// First define some shim functions used to pretend that a simulator always
 		// is maximizing (higher score is better).
 
@@ -94,10 +97,12 @@ class Lil_UCB {
 		}
 
 		Lil_UCB(double delta_in) {
+			pulls_per_second = 1;
 			set_accuracy(delta_in);
 		}
 
 		Lil_UCB() {
+			pulls_per_second = 1;
 			set_accuracy(0.01); // Default
 		}
 
@@ -117,7 +122,15 @@ class Lil_UCB {
 		// status number on [0,1] indicating how close we are to
 		// being confident. The output value can thus be used as a
 		// progress indicator.
-		double pull_bandit_arms(int maxiters);
+		double pull_bandit_arms(int maxiters, bool show_status);
+
+		double pull_bandit_arms(int maxiters) {
+			return pull_bandit_arms(maxiters, true);
+		}
+
+		// Pull bandit arms, but for a certain number of seconds
+		// instead of a certain number of iterations.
+		double timed_pull_bandit_arms(double seconds);
 
 		const arm_ptr_t get_best_arm_so_far() const {
 			return (arm_queue.top().arm_ref);

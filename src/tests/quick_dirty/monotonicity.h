@@ -4,7 +4,7 @@
 #include "../../ballots.h"
 #include "../../random/random.h"
 #include "../../generator/all.h"
-#include "../../simulator/simulator.h"
+#include "../../simulator/bernoulli.h"
 
 // Quick and dirty monotonicity checker. Something is up with the way I've
 // structured my strategy tests and other classes, and it makes it pretty
@@ -12,7 +12,7 @@
 // clean it up. Until then, I have to find out if my experimental methods
 // are monotone, hence this hack.
 
-class monotone_check : public simulator {
+class monotone_check : public bernoulli_simulator {
 	private:
 		std::shared_ptr<pure_ballot_generator> ballot_gen;
 		std::shared_ptr<election_method> method_tested;
@@ -60,7 +60,8 @@ class monotone_check : public simulator {
 		monotone_check(std::shared_ptr<pure_ballot_generator> ballot_gen_in,
 			std::shared_ptr<coordinate_gen> rnd_in,
 			std::shared_ptr<election_method> method_in,
-			int max_numcands_in, int max_numvoters_in) : simulator(rnd_in) {
+			int max_numcands_in,
+			int max_numvoters_in) : bernoulli_simulator(rnd_in) {
 
 			ballot_gen = ballot_gen_in;
 			method_tested = method_in;

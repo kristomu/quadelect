@@ -9,13 +9,12 @@
 // A simulator evaluates a voting method and returns a quality score.
 
 class simulator {
-	private:
+	protected:
 		size_t simulation_count;
 		double accumulated_score;
 		double scale_factor;
 		bool scale_factor_needs_setting;
 
-	protected:
 		// To actually do any Monte-Carlo fun, we need some
 		// source of randomness (pseudo- or quasi-).
 		std::shared_ptr<coordinate_gen> entropy_source;
@@ -34,7 +33,7 @@ class simulator {
 		// "score" is actually a penalty).
 		virtual bool higher_is_better() const = 0;
 
-		double simulate();
+		virtual double simulate();
 
 		double get_mean_score() const;
 		double get_total_score() const;
@@ -56,7 +55,7 @@ class simulator {
 		virtual double get_minimum() const = 0;
 		virtual double get_maximum() const = 0;
 
-		void reset() {
+		virtual void reset() {
 			simulation_count = 0;
 			accumulated_score = 0;
 			scale_factor = 1;

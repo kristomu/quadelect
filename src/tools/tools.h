@@ -174,3 +174,7 @@ std::vector<std::vector<bool> > power_set(
 	const std::vector<bool> & hopefuls);
 
 std::vector<std::vector<bool> > power_set(int cardinality);
+
+// Round to a specified number of decimals.
+
+double round(double x, double decimals);
