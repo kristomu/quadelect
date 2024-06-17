@@ -175,12 +175,16 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 	// The completion method doesn't really matter. Also, MDD* doesn't
 	// really work here, and sets that can't handle negatives shouldn't
 	// be applied to it.
+
+	// These are not neutral.
+	/*
 	for (std::shared_ptr<pairwise_method> pw_set : get_pairwise_sets()) {
 		all_methods.push_back(std::make_shared<gradual_cond_borda>(
 				pw_set, false, GF_BOTH));
 		all_methods.push_back(std::make_shared<gradual_cond_borda>(
 				pw_set, true, GF_BOTH));
 	}
+	*/
 
 	all_methods.push_back(std::make_shared<young>(true, true));
 	all_methods.push_back(std::make_shared<young>(false, true));
