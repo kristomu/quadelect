@@ -175,6 +175,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/singlewinner/stats/cardinal.cc
 	src/simulator/bernoulli.cc
 	src/simulator/simulator.cc
+	src/simulator/vse/vse.cc
 	src/simulator/stubs/bernoulli.cc
 	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/as241.cc
