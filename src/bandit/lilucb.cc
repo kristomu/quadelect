@@ -8,19 +8,15 @@
 #include <stdlib.h>
 #include <math.h>
 
-double Lil_UCB::get_sigma_sq(double minimum, double maximum) const {
-
-	// For a distribution almost surely bounded on [b..a], (a-b)^2/4
-	// suffices; see footnote 1 of the paper.
-	return (maximum-minimum)*(maximum-minimum)/4.0;
-}
-
-double Lil_UCB::C(int num_plays_this, size_t num_arms) const {
-	// These parameters are set according to the Heuristic version.
+double Lil_UCB::C(int num_plays_this, size_t num_arms,
+	double sigma_sq) const {
+	// These parameters are set according to the Heuristic version, p. 5.
+	// TODO: Find deltamod.
 	double epsilon = 0, beta = 1/2.0, deltamod = delta/5.0;
 
 	// p. 4
 
+	// TODO? Implement footnote 2?
 	double inner_log_part = log((1+epsilon) * num_plays_this/deltamod);
 	double bigstuff = 2 * sigma_sq * (1 + epsilon) * log(inner_log_part) /
 		(double)num_plays_this;
@@ -38,8 +34,6 @@ void Lil_UCB::load_arms(std::vector<arm_ptr_t> & arms) {
 	total_num_pulls = 0;
 	bool played_new_bandit = false;
 
-	double minimum = INFINITY, maximum = -INFINITY;
-
 	size_t arm_idx;
 
 	for (arm_idx = 0; arm_idx < arms.size(); ++arm_idx) {
@@ -56,12 +50,7 @@ void Lil_UCB::load_arms(std::vector<arm_ptr_t> & arms) {
 				<< round(100.0 * arm_idx/(double)arms.size(), 2)
 				<< "%" << std::endl;
 		}
-
-		minimum = std::min(minimum, get_adjusted_min(arms[arm_idx]));
-		maximum = std::max(maximum, get_adjusted_max(arms[arm_idx]));
 	}
-
-	sigma_sq = get_sigma_sq(minimum, maximum);
 
 	for (arm_idx = 0; arm_idx < arms.size(); ++arm_idx) {
 		queue_entry to_add = create_queue_entry(arms[arm_idx],
@@ -75,7 +64,7 @@ void Lil_UCB::load_arms(std::vector<arm_ptr_t> & arms) {
 
 double Lil_UCB::pull_bandit_arms(int max_pulls, bool show_status) {
 
-	// Parameter also set according to spec for Heuristic.
+	// Parameter also set according to spec for Heuristic, p. 5.
 	double lambda = 1 + 10/double(arm_queue.size());
 
 	// Values are set so that if bandit size is 0, we directly return 1.

@@ -47,13 +47,17 @@ class simulator {
 			entropy_source = entropy_src_in;
 		}
 
-		// TODO? Handle unbounded scores? But then the regret
-		// could be unbounded too, so bandit search wouldn't really work...
-
-		// NOTE: Even if lower is better, minimum and maximum should
-		// give the actual minimum and maximum of the output range.
-		virtual double get_minimum() const = 0;
-		virtual double get_maximum() const = 0;
+		// Provides an upper bound on the sub-Gaussian squared scale
+		// parameter (variance proxy) of the simulation result. The lil'UCB
+		// bandit algorithm expects the distribution of rewards to be a
+		// shifted sub-Gaussian with some unknown expectation. Since the
+		// expectation is unknown, the function must give a bound that holds
+		// regardless of the expectation. The estimate may exceed the true scale,
+		// but if it underestimates it, the multi-armed bandit may fail to find
+		// the optimal arm.
+		// Note that this is not necessarily the same thing as the variance.
+		// See e.g. https://math.stackexchange.com/a/4414653
+		virtual double variance_proxy() const = 0;
 
 		virtual void reset() {
 			simulation_count = 0;

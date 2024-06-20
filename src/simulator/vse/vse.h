@@ -8,6 +8,8 @@
 #include "../../singlewinner/method.h"
 #include "../../random/random.h"
 
+#include "../../generator/spatial/gaussian.h"
+
 // This class calculates a linearized version of VSE/SUE (vote
 // satisfaction efficiency, social utility efficiency), suitable for use in
 // bandit searches.
@@ -48,16 +50,32 @@
 // is unaffected by an inaccurate c as long as we use the same c for every M. The
 // only thing we lose is result accuracy.
 
-// TODO: MAB also needs bounded results. Fix later.
-// TODO: Implement scale factor c.
+// TODO: Implement scale factor c. Kinda done now??? Except it doesn't work
+// very well since I can only approximate it.
+
+// Now how do I determine the variance proxy based on the ballot generator?
+// Yuck! Force a Gaussian for now and let the variance proxy be the variance
+// of a chi distribution - justification later.
 
 class vse_sim : public simulator {
 	private:
+		size_t numcands, numvoters;
+
 		std::shared_ptr<election_method> method;
-		std::shared_ptr<pure_ballot_generator> ballot_gen;
+		gaussian_generator ballot_gen;
+		double E_opt_rand;
+		double sigma;
 
 	protected:
 		double do_simulation();
+
+		double find_scale_factor() {
+			if (E_opt_rand == -1) {
+				throw std::runtime_error("VSE: Trying to run simulation "
+					"without having set scale factor!");
+			}
+			return E_opt_rand;
+		}
 
 	public:
 		bool higher_is_better() const {
@@ -66,11 +84,16 @@ class vse_sim : public simulator {
 
 		vse_sim(std::shared_ptr<coordinate_gen> entropy_src_in,
 			std::shared_ptr<election_method> method_in,
-			std::shared_ptr<pure_ballot_generator>
-			generator_in) : simulator(entropy_src_in) {
+			size_t numcands_in, size_t numvoters_in,
+			size_t dimensions_in) : simulator(entropy_src_in) {
 
+			numcands = numcands_in;
+			numvoters = numvoters_in;
 			method = method_in;
-			ballot_gen = generator_in;
+			E_opt_rand = -1;
+
+			set_dispersion(ballot_gen.get_dispersion()[0]);
+			set_dimensions(dimensions_in);
 		}
 
 		// Also return generator name?
@@ -78,16 +101,18 @@ class vse_sim : public simulator {
 			return "VSE[" + method->name() + "]";
 		}
 
-		// These must also be populated somehow. While maximum
-		// would be no problem sans our linearization trick, it may
-		// become a problem with it. And minimum can still be
-		// theoretically unbounded. We need to poll the proper
-		// information from the distribution and then clamp on
-		// anything more extreme than 1 ppm quantile.
-		double get_minimum() const {
-			return -1;    // ????
+		void set_scale_factor(double E_opt_rand_in) {
+			E_opt_rand = E_opt_rand_in;
 		}
-		double get_maximum() const {
-			return 1;    // ???
+
+		bool set_dimensions(size_t num_dimensions_in) {
+			return ballot_gen.set_params(num_dimensions_in, false);
 		}
+
+		bool set_dispersion(double dispersion_in) {
+			sigma = dispersion_in;
+			return ballot_gen.set_dispersion(dispersion_in);
+		}
+
+		double variance_proxy() const;
 };

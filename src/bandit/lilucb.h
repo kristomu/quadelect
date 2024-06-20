@@ -10,6 +10,8 @@
 // JAMIESON, Kevin, et al. lil’ucb: An optimal exploration algorithm for
 // multi-armed bandits. In: Conference on Learning Theory. 2014. p. 423-439.
 
+// The paper can be found at http://proceedings.mlr.press/v35/jamieson14.pdf.
+
 typedef std::shared_ptr<simulator> arm_ptr_t;
 
 class queue_entry {
@@ -35,7 +37,7 @@ class queue_entry {
 
 class Lil_UCB {
 	private:
-		double delta, sigma_sq;
+		double delta;
 		int total_num_pulls;
 		std::priority_queue<queue_entry> arm_queue;
 
@@ -45,22 +47,6 @@ class Lil_UCB {
 		// First define some shim functions used to pretend that a simulator always
 		// is maximizing (higher score is better).
 
-		double get_adjusted_max(arm_ptr_t & arm_to_check) {
-			if (arm_to_check->higher_is_better()) {
-				return arm_to_check->get_maximum();
-			} else {
-				return -arm_to_check->get_minimum();
-			}
-		}
-
-		double get_adjusted_min(arm_ptr_t & arm_to_check) {
-			if (arm_to_check->higher_is_better()) {
-				return arm_to_check->get_minimum();
-			} else {
-				return -arm_to_check->get_maximum();
-			}
-		}
-
 		double get_adjusted_mean(arm_ptr_t & arm_to_check) {
 			if (arm_to_check->higher_is_better()) {
 				return arm_to_check->get_mean_score();
@@ -69,13 +55,12 @@ class Lil_UCB {
 			}
 		}
 
-
-		double get_sigma_sq(double minimum, double maximum) const;
-		double C(int num_plays_this, size_t num_arms) const;
+		double C(int num_plays_this, size_t num_arms,
+			double sigma_sq) const;
 
 		double get_eval(arm_ptr_t & arm, size_t num_arms) {
 			return (get_adjusted_mean(arm) + C(arm->get_simulation_count(),
-						num_arms));
+						num_arms, arm->variance_proxy()));
 		}
 
 		queue_entry create_queue_entry(arm_ptr_t arm,

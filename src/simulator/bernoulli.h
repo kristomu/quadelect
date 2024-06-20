@@ -10,9 +10,9 @@
 // and replace the incredibly messy Jeffreys prior there with the A-C
 // interval.
 
-#include "simulator.h"
+#include "bounded.h"
 
-class bernoulli_simulator : public simulator {
+class bernoulli_simulator : public bounded_simulator {
 
 	private:
 		std::pair<double, double> confidence_interval(
@@ -42,5 +42,5 @@ class bernoulli_simulator : public simulator {
 		}
 
 		bernoulli_simulator(std::shared_ptr<coordinate_gen> entropy_src_in) :
-			simulator(entropy_src_in) {}
+			bounded_simulator(entropy_src_in) {}
 };
