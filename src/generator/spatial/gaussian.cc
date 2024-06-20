@@ -11,6 +11,11 @@
 
 // Not necessarily random, so "rnd" doesn't really fit. TODO rename?
 
+// TODO: This pulls two dimensions at a time even with a higher dimension
+// count, which makes quasirandom work badly with num dimensions != 2.
+// FIX by not ending query until we're done sampling the whole vector.
+// Also find some way to deal with odd dimensions. Use the inversion method
+// for the last coordinare?
 std::vector<double> gaussian_generator::rnd_vector(size_t size,
 	coordinate_gen & coord_source) const {
 

@@ -63,7 +63,6 @@ class spatial_generator : public pure_ballot_generator {
 			coordinate_gen & coord_source) const = 0;
 		virtual std::vector<double> max_dim_vector(size_t dimensions) const;
 
-	protected:
 		election_t generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
 			coordinate_gen & coord_source) const;
@@ -110,8 +109,20 @@ class spatial_generator : public pure_ballot_generator {
 		// Iterations gives the number of iterations to test to determine
 		// the approximate value. If the subclass can determine the quantile
 		// analytically, this value is ignored.
-		double get_score_quantile(coordinate_gen & coord_source, double p,
-			int iterations) const;
+		virtual double get_score_quantile(coordinate_gen & coord_source,
+			double p, size_t iterations) const;
+
+		// These calculate E[optimal] - the expected utility of an optimal
+		// candidate, and E[random] - the expected utility of a random
+		// candidate. This is used to enforce a common denominator and
+		// linearize VSE calculations so they can be used for bandits.
+
+		virtual double get_optimal_utility(
+			coordinate_gen & coord_source, size_t num_voters,
+			size_t numcands, size_t iterations) const;
+		virtual double get_mean_utility(
+			coordinate_gen & coord_source, size_t num_voters,
+			size_t numcands, size_t iterations) const;
 
 		// For fixing candidate positions.
 		void unfix_candidate_positions() {
@@ -138,6 +149,10 @@ class spatial_generator : public pure_ballot_generator {
 		bool set_dispersion(double dispersion_in) {
 			return (set_dispersion(std::vector<double>(num_dimensions,
 							dispersion_in)));
+		}
+
+		std::vector<double> get_dispersion() const {
+			return dispersion;
 		}
 
 		// Should also return dimensions, etc.

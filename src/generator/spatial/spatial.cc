@@ -143,7 +143,7 @@ bool spatial_generator::set_params(size_t num_dimensions_in,
 }
 
 double spatial_generator::get_score_quantile(
-	coordinate_gen & coord_source, double p, int iterations) const {
+	coordinate_gen & coord_source, double p, size_t iterations) const {
 
 	// Very slow way of doing this: I ought to refactor the ballot
 	// generation instead so both it and this can call on the same
@@ -173,6 +173,72 @@ double spatial_generator::get_score_quantile(
 	std::sort(scores.begin(), scores.end());
 
 	return scores[(size_t)round((scores.size()-1) * p)];
+}
+
+double spatial_generator::get_optimal_utility(
+	coordinate_gen & coord_source, size_t num_voters,
+	size_t numcands, size_t iterations) const {
+
+	double total_opt_score = 0;
+	std::vector<double> candidate_scores(numcands);
+
+	size_t num_elections = iterations/(numcands * num_voters);
+
+	for (size_t i = 0; i < num_elections; ++i) {
+
+		election_t election = generate_ballots_int(
+				num_voters, numcands, false, coord_source);
+
+		std::fill(candidate_scores.begin(), candidate_scores.end(), 0);
+
+		for (const ballot_group & g: election) {
+			for (const candscore & cs: g.contents) {
+				assert(cs.get_candidate_num() < numcands);
+				candidate_scores[cs.get_candidate_num()] +=
+					g.get_weight() * cs.get_score() / (double)num_voters;
+			}
+		}
+
+		total_opt_score += *std::max_element(candidate_scores.begin(),
+				candidate_scores.end());
+	}
+
+	return total_opt_score/num_elections;
+}
+
+double spatial_generator::get_mean_utility(
+	coordinate_gen & coord_source, size_t num_voters,
+	size_t numcands, size_t iterations) const {
+
+	// Determine the random utility of a voter-candidate pair.
+	// Experiments with Gaussians seem to indicate that there's no
+	// distinction between candidates and voters, i.e. we converge on
+	// the same result regardless of whether we draw candidates a few
+	// times and voters lots of times, or vice versa; but I have yet to
+	// prove this.
+
+	// For now we evenly divide candidates and voters. Simplify
+	// once I have a better theoretical backing for the apparent
+	// result. TODO.
+
+	double total_score = 0, total_weight = 0;
+	size_t num_elections = iterations/(numcands * num_voters);
+
+	for (size_t i = 0; i < num_elections; ++i) {
+
+		election_t election = generate_ballots_int(
+				num_voters, numcands, false, coord_source);
+
+		for (const ballot_group & g: election) {
+			for (const candscore & cs: g.contents) {
+				total_score += g.get_weight() * cs.get_score();
+				total_weight += g.get_weight();
+			}
+		}
+	}
+
+	return total_score/total_weight;
+
 }
 
 bool spatial_generator::fix_candidate_positions(int num_cands,
