@@ -242,6 +242,10 @@ target_link_libraries(monotonator qe_singlewinner_methods quadelect_lib)
 add_executable(vse_brute src/main/test_vse_brute.cc)
 target_link_libraries(vse_brute qe_singlewinner_methods quadelect_lib)
 
+add_executable(vse_bandit src/main/test_vse_bandit.cc)
+target_link_libraries(vse_bandit qe_singlewinner_methods quadelect_lib glpk)
+
+
 add_executable(test_bandit_correctness src/main/test_bandit_correctness.cc)
 target_link_libraries(test_bandit_correctness qe_singlewinner_methods quadelect_lib)
 

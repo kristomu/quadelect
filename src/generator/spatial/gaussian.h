@@ -46,5 +46,9 @@ class gaussian_generator : public spatial_generator {
 			set_dispersion(0.2);
 		}
 
+		double get_mean_utility(
+			coordinate_gen & coord_source, size_t num_voters,
+			size_t numcands, size_t iterations) const;
+
 		std::string name() const;
 };

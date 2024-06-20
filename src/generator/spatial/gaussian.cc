@@ -42,6 +42,36 @@ std::vector<double> gaussian_generator::rnd_vector(size_t size,
 	return (toRet);
 }
 
+double gaussian_generator::get_mean_utility(
+	coordinate_gen & coord_source, size_t num_voters,
+	size_t numcands, size_t iterations) const {
+
+	// Asymptotic bound for all sigmas equal.
+	// See https://math.stackexchange.com/a/232527 - I think the result
+	// is by showing that X^2 is chi-squared if X is standard normal,
+	// sums of chi-squared variables are also chi-squared, and
+	// then ||X-Y|| is chi (or Nakagami) distributed.
+
+	double sigma = dispersion[0];
+	size_t dimensions = dispersion.size();
+
+	// Check that every sigma is equal. If not, this bound won't work.
+	for (size_t i = 1; i < dimensions; ++i) {
+		if (sigma != dispersion[i]) {
+			return spatial_generator::get_mean_utility(coord_source,
+					num_voters, numcands, iterations);
+		}
+	}
+
+	double distance = 2 * sigma *
+		tgamma((dimensions+1)/2.0)/tgamma(dimensions/2.0);
+
+	// TODO: Do the proper thing with Warren model... or remove it.
+
+	return -distance; // JGA model
+
+}
+
 std::string gaussian_generator::name() const {
 
 	std::string stub = "Gaussian, ";
