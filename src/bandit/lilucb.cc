@@ -38,7 +38,7 @@ void Lil_UCB::load_arms(std::vector<arm_ptr_t> & arms) {
 
 	for (arm_idx = 0; arm_idx < arms.size(); ++arm_idx) {
 		if (arms[arm_idx]->get_simulation_count() == 0) {
-			arms[arm_idx]->simulate();
+			arms[arm_idx]->simulate(true);
 			played_new_bandit = true;
 		}
 		total_num_pulls += arms[arm_idx]->get_simulation_count();
@@ -81,7 +81,7 @@ double Lil_UCB::pull_bandit_arms(size_t max_pulls, bool show_status) {
 		arm_queue.pop();
 
 		// Pull this bandit arm.
-		at_top.arm_ref->simulate();
+		at_top.arm_ref->simulate(true);
 		++total_num_pulls;
 
 		// Update score.

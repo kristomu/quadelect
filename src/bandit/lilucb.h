@@ -49,9 +49,9 @@ class Lil_UCB {
 
 		double get_adjusted_mean(arm_ptr_t & arm_to_check) {
 			if (arm_to_check->higher_is_better()) {
-				return arm_to_check->get_mean_score();
+				return arm_to_check->get_linearized_mean_score();
 			} else {
-				return -arm_to_check->get_mean_score();
+				return -arm_to_check->get_linearized_mean_score();
 			}
 		}
 

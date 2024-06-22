@@ -5,23 +5,28 @@
 #include <stdexcept>
 #include <iostream>
 
-double bernoulli_simulator::simulate() {
-	if (scale_factor_needs_setting) {
-		scale_factor = find_scale_factor();
-		scale_factor_needs_setting = false;
-	}
+// TODO: Bernoulli simulators don't need linearization. Remove it outright.
 
-	double current_score = do_simulation();
+double bernoulli_simulator::simulate(bool get_linearized) {
+	double result = simulator::simulate(false);
 
-	if (current_score != 0 && current_score != 1) {
+	if (result != 0 && result != 1) {
 		throw std::domain_error("Bernoulli simulator returned non-binary result "
-			+ dtos(current_score));
+			+ dtos(result));
 	}
 
-	simulation_count++;
-	accumulated_score += current_score;
+	if (!get_linearized) {
+		return result;
+	}
 
-	return scale_factor * current_score;
+	double exact_result = get_exact_value(result);
+
+	if (exact_result != 0 && exact_result != 1) {
+		throw std::domain_error("Bernoulli simulator: exact result not Bernoulli: "
+			+ dtos(exact_result));
+	}
+
+	return exact_result;
 }
 
 std::pair<double, double> bernoulli_simulator::confidence_interval(
@@ -42,7 +47,7 @@ std::pair<double, double> bernoulli_simulator::confidence_interval(
 	// Calculate an approximate binomial proportion confidence interval
 	// using the Agresti–Coull interval.
 
-	size_t n = simulation_count;
+	size_t n = get_simulation_count();
 	size_t successes = get_mean_score() * n;
 
 	double n_mark = n + z*z;

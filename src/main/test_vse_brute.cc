@@ -72,7 +72,7 @@ int main() {
 	checker.set_dispersion(1); // JGA stylee
 
 	for (size_t i = 0;; ++i) {
-		double quality = checker.simulate();
+		double quality = checker.simulate(true);
 
 		if ((i & 8191) == 0) {
 			std::cout << checker.get_mean_score() << "\t " << quality << std::endl;

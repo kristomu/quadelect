@@ -1,25 +1,23 @@
 This directory contains "simulators". A simulator is a class that in some way
-evaluates a voting method and returns a quality score. For instance, a
-simulator might test a method's manipulation resistance or its social utility
+evaluates a voting method and returns a quality score or penalty. For instance,
+a simulator might test a method's manipulation resistance or its social utility
 efficiency (VSE).
 
-Every simulator implemented so far is linear, which is a requirement for the
-multi-armed bandit search to be able to use them. Linearity means that
-evaluating the voting method over n rounds returns the same score
-as the mean score for each of the n evaluations.
+A simulator may be used directly or as part of a multi-armed bandit search to
+find the best method by that simulator's embodied objective. In the latter
+case, the simulator must implement a linearized scoring function. This
+linearized function depends nonlinearly only on constants that stay the same
+regardless of the method being tested. For instance, this can be the expected
+utility by the voters of the highest utility candidate drawn by the model. See
+the VSE class for an example.
 
-To make VSE linear, we have to perform a trick which makes sense with a large
-number of rounds - see the VSE source.
+Alternatively, the simulator can simply not implement the linearization, but
+the multi-armed bandit logic will exclude these simulators from testing because
+the search can't be guaranteed to find the optimum.
 
 Each simulator implements the following functionality:
-	- Set a scale factor: Uses the provided objects (usually a ballot
-		generator) to determine a scaling factor that is used to scale
-		the output score properly. Since this is a constant, it doesn't
-		affect linearity.
 	- Simulate: Do one round of simulation and return the resulting score,
-		multiplied by the scale factor.
+		exactly if requested.
 	- Return mean result: returns the mean result so far.
 	- Return name: returns the display name of the simulation. This usually
 		includes the election method being tested.
-	- Return minimum and maximum values: the score must be bounded. Note:
-		these values are post-scaling.

@@ -160,7 +160,7 @@ void test_strategy(std::shared_ptr<const election_method> to_test,
 		// or resistant to strategy.
 
 		// The total number of tests actually performed is retrieved later.
-		if (st.simulate() == 0) {
+		if (st.simulate(true) == 0) {
 			++strategy_worked;
 		} else {
 			++strategy_failed;

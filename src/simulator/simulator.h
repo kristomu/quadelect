@@ -9,23 +9,27 @@
 // A simulator evaluates a voting method and returns a quality score.
 
 class simulator {
-	protected:
+	private:
 		size_t simulation_count;
 		double accumulated_score;
-		double scale_factor;
-		bool scale_factor_needs_setting;
+
+	protected:
 
 		// To actually do any Monte-Carlo fun, we need some
 		// source of randomness (pseudo- or quasi-).
 		std::shared_ptr<coordinate_gen> entropy_source;
 
-		// Determines the scale factor. The default is that
-		// no scale factor is required.
-		virtual double find_scale_factor() {
-			return 1;
-		}
-
+		// Returns linearized.
 		virtual double do_simulation() = 0;
+
+		// Turns a linearized value (exact instance or mean)
+		// into an exact one by using a nonlinear transformation
+		// not depending on any property of the method itself.
+		// The default is that the simulator result already is linear,
+		// so just pass it unmodified.
+		virtual double get_exact_value(double linearized) const {
+			return linearized;
+		}
 
 	public:
 		// If true, bandit searches etc should try to maximize the
@@ -33,10 +37,15 @@ class simulator {
 		// "score" is actually a penalty).
 		virtual bool higher_is_better() const = 0;
 
-		virtual double simulate();
+		virtual double simulate(bool get_linearized);
 
+		// For ye bandits
+		double get_linearized_mean_score() const;
+
+		// All of these are exact.
 		double get_mean_score() const;
 		double get_total_score() const;
+
 		size_t get_simulation_count() const {
 			return simulation_count;
 		}
@@ -62,8 +71,6 @@ class simulator {
 		virtual void reset() {
 			simulation_count = 0;
 			accumulated_score = 0;
-			scale_factor = 1;
-			scale_factor_needs_setting = true;
 		}
 
 		simulator(std::shared_ptr<coordinate_gen> entropy_src_in) {

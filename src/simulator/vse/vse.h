@@ -69,14 +69,6 @@ class vse_sim : public simulator {
 	protected:
 		double do_simulation();
 
-		double find_scale_factor() {
-			if (E_opt_rand == -1) {
-				throw std::runtime_error("VSE: Trying to run simulation "
-					"without having set scale factor!");
-			}
-			return E_opt_rand;
-		}
-
 	public:
 		bool higher_is_better() const {
 			return true;
@@ -94,6 +86,15 @@ class vse_sim : public simulator {
 
 			set_dispersion(ballot_gen.get_dispersion()[0]);
 			set_dimensions(dimensions_in);
+		}
+
+		virtual double get_exact_value(double linearized) const {
+			if (E_opt_rand == -1) {
+				throw std::runtime_error("VSE: Trying to undo linearization "
+					"without having set scale factor!");
+			}
+
+			return linearized * E_opt_rand;
 		}
 
 		// Also return generator name?

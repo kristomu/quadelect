@@ -72,6 +72,10 @@ void test_with_bandits(
 		// the best m even when the method is finished for m>1. (We
 		// should really have it work for m>1 somehow. See "k-top"
 		// bandits.)
+
+		// NOTE: The array will be sorted in order of mean score, which
+		// might not be the same thing as the bandit priority order since
+		// the latter takes confidence into account.
 		size_t k;
 		for (k = 0; k < sims.size(); ++k) {
 			double score = sims[k]->get_mean_score();
@@ -149,7 +153,6 @@ int main() {
 	schwartz_set xf;
 	std::shared_ptr<inner_burial_set> ibs =
 		std::make_shared<inner_burial_set>();
-
 
 	for (auto & m: methods) {
 		methods_to_test.push_back(m);

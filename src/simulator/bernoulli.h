@@ -10,6 +10,8 @@
 // and replace the incredibly messy Jeffreys prior there with the A-C
 // interval.
 
+// TODO: Bernoulli simulators don't need linearization. Remove it outright.
+
 #include "bounded.h"
 
 class bernoulli_simulator : public bounded_simulator {
@@ -31,7 +33,7 @@ class bernoulli_simulator : public bounded_simulator {
 		double get_lower_confidence(double p, size_t num_methods) const;
 		double get_upper_confidence(double p, size_t num_methods) const;
 
-		double simulate();
+		double simulate(bool get_linearized);
 
 		double get_minimum() const {
 			return 0;
