@@ -38,7 +38,7 @@ class queue_entry {
 class Lil_UCB {
 	private:
 		double delta;
-		int total_num_pulls;
+		size_t total_num_pulls;
 		std::priority_queue<queue_entry> arm_queue;
 
 		// Used for timed pulls.
@@ -55,7 +55,7 @@ class Lil_UCB {
 			}
 		}
 
-		double C(int num_plays_this, size_t num_arms,
+		double C(size_t num_plays_this, size_t num_arms,
 			double sigma_sq) const;
 
 		double get_eval(arm_ptr_t & arm, size_t num_arms) {
@@ -107,9 +107,9 @@ class Lil_UCB {
 		// status number on [0,1] indicating how close we are to
 		// being confident. The output value can thus be used as a
 		// progress indicator.
-		double pull_bandit_arms(int maxiters, bool show_status);
+		double pull_bandit_arms(size_t maxiters, bool show_status);
 
-		double pull_bandit_arms(int maxiters) {
+		double pull_bandit_arms(size_t maxiters) {
 			return pull_bandit_arms(maxiters, true);
 		}
 

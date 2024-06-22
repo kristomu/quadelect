@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-double Lil_UCB::C(int num_plays_this, size_t num_arms,
+double Lil_UCB::C(size_t num_plays_this, size_t num_arms,
 	double sigma_sq) const {
 	// These parameters are set according to the Heuristic version, p. 5.
 	// TODO: Find deltamod.
@@ -62,17 +62,17 @@ void Lil_UCB::load_arms(std::vector<arm_ptr_t> & arms) {
 
 // TODO: Check (with Bernoulli simulators) that we didn't get a regression.
 
-double Lil_UCB::pull_bandit_arms(int max_pulls, bool show_status) {
+double Lil_UCB::pull_bandit_arms(size_t max_pulls, bool show_status) {
 
 	// Parameter also set according to spec for Heuristic, p. 5.
 	double lambda = 1 + 10/double(arm_queue.size());
 
 	// Values are set so that if bandit size is 0, we directly return 1.
-	int recordholder_pulled = 1, other_pulled = 0;
+	size_t recordholder_pulled = 1, other_pulled = 0;
 
 	size_t num_arms = arm_queue.size();
 
-	for (int i = 0; i < max_pulls; ++i) {
+	for (size_t i = 0; i < max_pulls; ++i) {
 		if (show_status) {
 			std::cerr << i << "   " << max_pulls << "   \r" << std::flush;
 		}
@@ -124,7 +124,7 @@ double Lil_UCB::timed_pull_bandit_arms(double seconds) {
 		auto period_start = std::chrono::system_clock::now();
 		double period = to_seconds(end-period_start)/(num_periods-period_idx);
 
-		int pulls = std::max(1.0, pulls_per_second * period);
+		size_t pulls = std::max(1.0, pulls_per_second * period);
 		confidence = pull_bandit_arms(pulls, false);
 
 		// If we're confident what the best arm is, return immediately.
