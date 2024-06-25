@@ -12,7 +12,7 @@
 #include "../singlewinner/elimination/all.h"
 #include "../singlewinner/experimental/all.h"
 #include "../singlewinner/meta/all.h"
-#include "../singlewinner/pairwise/simple_methods.h"
+#include "../singlewinner/pairwise/all.h"
 #include "../singlewinner/sets/all.h"
 #include "../random/random.h"
 
@@ -22,7 +22,7 @@
 
 int main() {
 
-	int numvoters = 30, numcands = 4; // E.g.
+	int numvoters = 99, numcands = 4; // E.g.
 	int dimensions = 4;
 
 	// TODO get seed from an entropy source, see quadelect proper
@@ -30,14 +30,10 @@ int main() {
 	std::shared_ptr<coordinate_gen> rnd = std::make_shared<rng>(0);
 
 	auto method_tested =
-		//std::make_shared</*disqelim*/inner_burial_set>();
-		//std::make_shared<instant_runoff_voting>(PT_WHOLE, true);
-		/*std::make_shared<slash>(std::make_shared<rmr1>(RMR_DEFEATING),
-			std::make_shared<ext_minmax>(CM_WV, false));*/
-		//std::make_shared<rmr1>(RMR_TWO_WAY);
-		/*std::make_shared<comma>(std::make_shared<inner_burial_set>(),
-			std::make_shared<rmr1>(RMR_TWO_WAY));*/
 		std::make_shared<ext_minmax>(CM_WV, false);
+	/*
+	std::make_shared<slash>(std::make_shared<inner_burial_set>(),
+		std::make_shared<schulze>(CM_WV));*/
 
 	// Calculate E[optimal] - E[random].
 	// This is ugly because the VSE sim is forced to use
@@ -75,7 +71,10 @@ int main() {
 		double quality = checker.simulate(true);
 
 		if ((i & 8191) == 0) {
-			std::cout << checker.get_mean_score() << "\t " << quality << std::endl;
+			std::cout << "\tResults: "
+				<< "Exact: " << checker.get_mean_score() << "\t "
+				<< "Approx: " << checker.get_adjusted_linear_value() << "\t"
+				<< "Last: " << quality << std::endl;
 		}
 	}
 

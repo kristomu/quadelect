@@ -115,7 +115,6 @@ int main() {
 	double sigma = 1;
 
 	// TODO get seed from an entropy source, see quadelect proper
-	//std::shared_ptr<rng> rnd = std::make_shared<rng>(0);
 	std::shared_ptr<coordinate_gen> rnd = std::make_shared<rng>(0);
 
 	// Calculate E[optimal] - E[random].
@@ -155,6 +154,15 @@ int main() {
 		std::make_shared<inner_burial_set>();
 
 	for (auto & m: methods) {
+		// Let's keep it down just a *little* for now; currently every
+		// method has a very high VSE and this makes bandit convergence
+		// incredibly slow. TODO: Find out why the VSEs are all so high and
+		// then deal with it.
+		if (m->name().find("//") != std::string::npos ||
+			m->name().find("],[") != std::string::npos) {
+			continue;
+		}
+
 		methods_to_test.push_back(m);
 		if (m->name().find("Smith") == std::string::npos) {
 			methods_to_test.push_back(std::make_shared<comma>(
@@ -164,9 +172,6 @@ int main() {
 		}
 		methods_to_test.push_back(std::make_shared<slash>(
 				ibs, m));
-		/*methods_to_test.push_back(std::make_shared<slash>(
-				std::make_shared<inner_burial_set>(), m));*/
-		methods_to_test.push_back(m);
 	}
 
 	std::cout << "That's " << methods_to_test.size()

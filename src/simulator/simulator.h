@@ -24,10 +24,13 @@ class simulator {
 
 		// Turns a linearized value (exact instance or mean)
 		// into an exact one by using a nonlinear transformation
-		// not depending on any property of the method itself.
+		// not depending on any property of the method being tested.
 		// The default is that the simulator result already is linear,
 		// so just pass it unmodified.
-		virtual double get_exact_value(double linearized) const {
+		// The "total" parameter determines if we're dealing with a
+		// sum of linearized values (over the number of simulations),
+		// or a mean or single simulation result.
+		virtual double get_exact_value(double linearized, bool total) const {
 			return linearized;
 		}
 

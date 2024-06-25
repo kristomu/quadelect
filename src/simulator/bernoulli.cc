@@ -19,7 +19,7 @@ double bernoulli_simulator::simulate(bool get_linearized) {
 		return result;
 	}
 
-	double exact_result = get_exact_value(result);
+	double exact_result = get_exact_value(result, false);
 
 	if (exact_result != 0 && exact_result != 1) {
 		throw std::domain_error("Bernoulli simulator: exact result not Bernoulli: "

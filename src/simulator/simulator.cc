@@ -11,7 +11,7 @@ double simulator::simulate(bool get_linearized) {
 	if (get_linearized) {
 		return current_score;
 	} else {
-		return get_exact_value(current_score);
+		return get_exact_value(current_score, false);
 	}
 }
 
@@ -26,9 +26,9 @@ double simulator::get_linearized_mean_score() const {
 
 
 double simulator::get_mean_score() const {
-	return get_exact_value(get_linearized_mean_score());
+	return get_exact_value(get_linearized_mean_score(), false);
 }
 
 double simulator::get_total_score() const {
-	return get_mean_score() * simulation_count;;
+	return get_mean_score() * simulation_count;
 }

@@ -50,8 +50,19 @@
 // is unaffected by an inaccurate c as long as we use the same c for every M. The
 // only thing we lose is result accuracy.
 
-// TODO: Implement scale factor c. Kinda done now??? Except it doesn't work
-// very well since I can only approximate it.
+// NOTE: It's not a very good idea to use c to scale the accumulated results,
+// since we can't calculate it exactly. So either I should do a refactor (remove
+// c entirely and clean up the explanation above), or find a way to calculate it
+// asymptotically.
+
+// TODO: The above should also mention that E[random(G)] is also present in the
+// numerator, and that the same reasoning applies here, too. Thus we can remove
+// rangom(G)^/n entirely from the bandit's consideration. This will reduce the
+// variance and variance proxy and possibly lead to better bandit convergence.
+
+// TODO: Figure out why I get so good VSE results with so many methods being
+// close to 0.99. Compare to JGA's results and find a method/generator pair
+// that he's provided results for -- then start debugging.
 
 // Now how do I determine the variance proxy based on the ballot generator?
 // Yuck! Force a Gaussian for now and let the variance proxy be the variance
@@ -66,6 +77,18 @@ class vse_sim : public simulator {
 		double E_opt_rand;
 		double sigma;
 
+		// These are the exact total optimum and random
+		// candidate utilities for the draws done so far.
+		// They are used for turning the linearized, approximately
+		// correct outcome into the actual finite outcome, for
+		// display and brute purposes.
+		// NOTE: The random utility value is a sum of means per
+		// simultion; they're not a total over both simulations
+		// and candidates!
+		double exact_random, exact_optimum;
+
+		double do_simulation_inner();
+
 	protected:
 		double do_simulation();
 
@@ -79,6 +102,8 @@ class vse_sim : public simulator {
 			size_t numcands_in, size_t numvoters_in,
 			size_t dimensions_in) : simulator(entropy_src_in) {
 
+			reset();
+
 			numcands = numcands_in;
 			numvoters = numvoters_in;
 			method = method_in;
@@ -88,13 +113,19 @@ class vse_sim : public simulator {
 			set_dimensions(dimensions_in);
 		}
 
-		virtual double get_exact_value(double linearized) const {
-			if (E_opt_rand == -1) {
-				throw std::runtime_error("VSE: Trying to undo linearization "
-					"without having set scale factor!");
-			}
+		void reset() {
+			exact_random = 0;
+			exact_optimum = 0;
+			simulator::reset();
+		}
 
-			return linearized * E_opt_rand;
+		double get_exact_value(
+			double linearized, bool total) const;
+
+		// For investigating the convergence between a linearly scaled
+		// linearized value and the exact value.
+		double get_adjusted_linear_value() const {
+			return get_linearized_mean_score() * E_opt_rand;
 		}
 
 		// Also return generator name?

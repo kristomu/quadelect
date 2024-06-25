@@ -39,7 +39,23 @@ double vse_sim::do_simulation() {
 	mean_utilities = std::accumulate(candidate_scores.begin(),
 			candidate_scores.end(), 0.0) / (double)candidate_scores.size();
 
+	exact_random += mean_utilities;
+	exact_optimum += *std::max_element(candidate_scores.begin(),
+			candidate_scores.end());
+
 	return chosen_utilities - mean_utilities;
+
+}
+
+double vse_sim::get_exact_value(double linearized, bool total) const {
+	double total_opt = exact_optimum;
+	double total_utility = exact_random;
+
+	if (!total) {
+		linearized *= get_simulation_count();
+	}
+
+	return linearized / (total_opt - total_utility);
 }
 
 double vse_sim::variance_proxy() const {
