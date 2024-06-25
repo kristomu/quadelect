@@ -70,7 +70,7 @@ class spatial_generator : public pure_ballot_generator {
 	public:
 		spatial_generator() : pure_ballot_generator() {
 			set_params(2, true); uses_center = false;
-			uses_dispersion = false;
+			uses_dispersion = false; fixed = false;
 		}
 
 		spatial_generator(bool compress_in) :
