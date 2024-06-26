@@ -12,7 +12,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # The unused-parameter warning suggests some refactoring, but is yet too
 # spammy, so I've disabled it. I've also disabled the implict fallthrough
 # warning as it falsely triggers on SpookyHash.
-set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native")
+set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -flto")
 
 # External library requirements
 
@@ -249,4 +249,5 @@ target_link_libraries(vse_bandit qe_singlewinner_methods quadelect_lib glpk)
 add_executable(test_bandit_correctness src/main/test_bandit_correctness.cc)
 target_link_libraries(test_bandit_correctness qe_singlewinner_methods quadelect_lib)
 
-add_executable(yee_reference_benchmark src/reference/yee_borda.cc)
+add_executable(yee_reference_benchmark src/reference/yee/yee_borda.cc)
+add_executable(vse_reference src/reference/vse/vse.cc)
