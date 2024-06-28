@@ -18,4 +18,4 @@ than further improvements on best-arm identification.
 
 Note that the bandit model I'm using is exploration only, because we're 
 interested in finding the best performer, not to create a metamethod that
-is generally resistant to strategy.
+generally performs well by a chosen metric (like strategy resistance).

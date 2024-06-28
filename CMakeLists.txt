@@ -12,7 +12,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # The unused-parameter warning suggests some refactoring, but is yet too
 # spammy, so I've disabled it. I've also disabled the implict fallthrough
 # warning as it falsely triggers on SpookyHash.
-set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -flto")
+# -flto may lead to further speedups, but it makes every make invocation
+# much slower, so it's been omitted here.
+set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native")
 
 # External library requirements
 
@@ -175,7 +177,8 @@ add_library(quadelect_lib src/ballots.cc
 	src/singlewinner/stats/cardinal.cc
 	src/simulator/bernoulli.cc
 	src/simulator/simulator.cc
-	src/simulator/vse/vse.cc
+	src/simulator/utility/opt_frequency.cc
+	src/simulator/utility/vse.cc
 	src/simulator/stubs/bernoulli.cc
 	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/as241.cc

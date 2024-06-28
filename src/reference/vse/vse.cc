@@ -15,9 +15,21 @@
 
 // Then just repeat the process as many times as you care.
 
-// James Green-Armytage reports a value close to 0.925 but quadelect gets a much
-// higher value. This independent implementation should help track down the
-// discrepancy.
+// The program both reports VSE and James Green-Armytage's chance that the optimal
+// utility candidate is elected. This solves the discrepancy that had me confused.
+
+// Callgrind benchmark results:
+// (if you significantly change the hotspots, update this! XXX)
+
+//		inclusive	self	function
+//		74.53%		15.95%	rnd_normal
+//		44.32%		10.01%	drand48
+//		34.31%		21.44%	erand48_r
+//		14.26%		 1.40%	log
+//		12.87%		12,87%	__drand48_iterate
+//		12.86%		12.86%	__ieee754_log_fma
+//		 6.11%		 0.15%	operator delete(void *, ...)
+//		 5.96%		 0.15%	operator delete(void *)
 
 #include <algorithm>
 #include <cassert>
@@ -106,7 +118,10 @@ double mean(std::vector<double> & a) {
 	return sum/a.size();
 }
 
-void sim_election(
+// Returns true if the optimal utility candidate was elected,
+// false otherwise.
+
+bool sim_election(
 	double & total_mean_utilities,
 	double & total_optimal_utilities,
 	double & total_plurality_utilities,
@@ -170,6 +185,8 @@ void sim_election(
 			plurality_counts.end()) - plurality_counts.begin();
 
 	total_plurality_utilities += mean_election_utils[plurality_winner];
+
+	return mean_election_utils[plurality_winner] == opt_election_utility;
 }
 
 int main() {
@@ -183,10 +200,17 @@ int main() {
 
 	time_t last_displayed_info = 0;
 
+	size_t optimal_utility_hits = 0;
+
 	for (size_t iter = 1;; ++iter) {
-		sim_election(total_mean_utilities, total_optimal_utilities,
-			total_plurality_utilities,
-			numvoters, numcands, dimensions, sigma);
+		bool hit = sim_election(total_mean_utilities,
+				total_optimal_utilities,
+				total_plurality_utilities,
+				numvoters, numcands, dimensions, sigma);
+
+		if (hit) {
+			++optimal_utility_hits;
+		}
 
 		// Note that the denominator of number of iters cancels out.
 		// Thus we can use "number of iters * expectation" for all the
@@ -201,7 +225,9 @@ int main() {
 			time_t now = time(NULL);
 
 			if (now - last_displayed_info > 5) {
-				std::cout << "Iter " << iter << ": VSE is " << VSE << std::endl;
+				std::cout << "Iter " << iter << ": VSE is " << VSE;
+				std::cout << "\t optimal utility freq. (OUF): " <<
+					optimal_utility_hits/(double)iter << std::endl;
 				last_displayed_info = now;
 			}
 		}
