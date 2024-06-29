@@ -187,6 +187,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/stats/distributions/gaussian.cc
 	src/stats/quasirandom/r_sequence.cc
 	src/tests/manual/dh2.cc
+	src/tests/manual/neutral_2cddt.cc
 	src/tests/provider.cc
 	src/tests/runner.cc
 	src/tests/strategy/ballots_by_support.cc

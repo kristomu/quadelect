@@ -52,7 +52,6 @@
 #include "../../ballots.h"
 #include "../../interpreter/rank_order.h"
 #include "../../singlewinner/method.h"
-#include "../../tools/ballot_tools.h"
 
 #include <map>
 #include <string>
@@ -61,6 +60,16 @@ class dh2_test {
 	private:
 		rank_order_int parser;
 		names_and_election honest, A_buries, B_buries, both_bury;
+
+		std::set<std::string> get_method_winners(
+			const election_method & method, const names_and_election &
+			name_election, size_t numcands) const;
+
+		// Determines if needle is in haystack, i.e. the candidate
+		// by the name given by needle was elected according to the
+		// get_method_winners output haystack.
+		bool elects(const std::set<std::string> & haystack,
+			std::string needle) const;
 
 	public:
 		dh2_test();
