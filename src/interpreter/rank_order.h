@@ -24,8 +24,7 @@ class rank_order_int : public interpreter {
 	public:
 		bool is_this_format(const std::vector<std::string> & inputs) const;
 
-		std::pair<std::map<size_t, std::string>, election_t>
-		interpret_ballots(
+		names_and_election interpret_ballots(
 			const std::vector<std::string> & inputs,
 			bool debug) const;
 

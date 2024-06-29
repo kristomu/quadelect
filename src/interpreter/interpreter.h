@@ -1,5 +1,4 @@
-#ifndef __VOTE_INTERPRET
-#define __VOTE_INTERPRET
+#pragma once
 
 // Abstract base class for interpreters. Interpreters are classes that take
 // text input of some form and returns a set of ballots (and possibly candidate
@@ -16,6 +15,9 @@
 #include <list>
 #include <map>
 
+// Type that holds candidate names and an election.
+typedef std::pair<std::map<size_t, std::string>, election_t>
+names_and_election;
 
 class interpreter {
 
@@ -24,9 +26,8 @@ class interpreter {
 		virtual bool is_this_format(const std::vector<std::string> &
 			inputs) const = 0;
 
-		virtual std::pair<std::map<size_t, std::string>, election_t>
-		interpret_ballots(const std::vector<std::string> & inputs,
-			bool debug) const = 0;
+		virtual names_and_election interpret_ballots(
+			const std::vector<std::string> & inputs, bool debug) const = 0;
 
 		virtual std::string name() const = 0;
 
@@ -34,5 +35,3 @@ class interpreter {
 
 		// virtual v<s> explain ?
 };
-
-#endif

@@ -63,8 +63,7 @@ bool rank_order_int::is_this_format(const std::vector<std::string> &
 	return (true);
 }
 
-std::pair<std::map<size_t, std::string>, election_t>
-rank_order_int::interpret_ballots(
+names_and_election rank_order_int::interpret_ballots(
 	const std::vector<std::string> & inputs, bool debug) const {
 
 	// For each line: If it's RANK_ORDER, ignore. Otherwise, check if
@@ -81,7 +80,7 @@ rank_order_int::interpret_ballots(
 	// done.
 
 	std::map<std::string, size_t> fwd;
-	std::pair<std::map<size_t, std::string>, election_t> to_ret;
+	names_and_election to_ret;
 	int candidates = 0;
 
 	if (debug) {
