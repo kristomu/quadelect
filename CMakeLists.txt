@@ -176,6 +176,7 @@ add_library(quadelect_lib src/ballots.cc
 	src/singlewinner/brute_force/rpn/chaotic_functions.cc
 	src/singlewinner/stats/cardinal.cc
 	src/simulator/bernoulli.cc
+	src/simulator/runtime.cc
 	src/simulator/simulator.cc
 	src/simulator/utility/opt_frequency.cc
 	src/simulator/utility/vse.cc
