@@ -15,3 +15,4 @@ while True:
 
 	print("Elapsed time for iteration %d: %f seconds" % (i, elapsed))
 	print("Median elapsed time so far: %f seconds" % median_time)
+	i += 1
