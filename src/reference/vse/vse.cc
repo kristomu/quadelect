@@ -40,32 +40,27 @@
 
 #include <time.h>
 
-// Marsaglia's polar method, without keeping a spare.
+#include "../auxiliary_libs/zmg-0.90/zmgd.c"
+
+/* Yuck, fix later -- will probably need to refactor zmgd to use the
+   standard RNG or something. */
+ZMG_STATE rng_p1, rng_p2;
+bool seeded = false;
+
+// Generate random normals by calling the modified ziggurat method.
 // Preallocate destination before using!
 void rnd_normal(std::vector<double> & destination,
 	size_t dimensions, double sigma) {
 
-	assert(dimensions % 2 == 0);
+	if (!seeded) {
+		seedzmgd(&rng_p1, &rng_p2);
+		seeded = true;
+	}
 
 	double mu = 0;
 
-	for (size_t i = 0; i < dimensions; i += 2) {
-
-		// From Wikipedia, Marsaglia's polar method
-		double u, v, s;
-		do {
-			u = drand48() * 2.0 - 1.0;
-			v = drand48() * 2.0 - 1.0;
-			s = u * u + v * v;
-		} while (s >= 1.0 || s == 0.0);
-
-		s = sqrt(-2.0 * log(s) / s);
-
-		double z_0 = mu + sigma * u * s;
-		double z_1 = mu + sigma * v * s;
-
-		destination[i] = z_0;
-		destination[i+1] = z_1;
+	for (size_t i = 0; i < dimensions; ++i) {
+		destination[i] = mu + zmgd(&rng_p1, &rng_p2) * sigma;
 	}
 }
 

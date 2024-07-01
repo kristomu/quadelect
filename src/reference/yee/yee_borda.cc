@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 
-#include "zmg-0.90/zmgd.c"
+#include "../auxiliary_libs/zmg-0.90/zmgd.c"
 
 // This is a barebones implementation of Yee diagram calculations
 // with Borda as the reference method. It works as follows:
