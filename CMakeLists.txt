@@ -14,7 +14,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # warning as it falsely triggers on SpookyHash.
 # -flto may lead to further speedups, but it makes every make invocation
 # much slower, so it's been omitted here.
-set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros")
+# I've also disabled free-nonheap-object, which seems to be buggy. See e.g.
+# https://stackoverflow.com/questions/75348400
+set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-free-nonheap-object -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros")
 
 # External library requirements
 
