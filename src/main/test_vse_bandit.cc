@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "../tests/quick_dirty/monotonicity.h"
-#include "../simulator/vse/vse.h"
+#include "../simulator/all.h"
 
 #include "../tools/ballot_tools.h"
 #include "../ballots.h"
@@ -23,6 +23,8 @@
 #include "../bandit/lilucb.h"
 #include "../singlewinner/get_methods.h"
 
+#include "../tests/manual/all.h"
+
 void test_with_bandits(
 	std::vector<std::shared_ptr<election_method> > & to_test,
 	std::shared_ptr<coordinate_gen> randomizer,
@@ -35,12 +37,19 @@ void test_with_bandits(
 
 	size_t i;
 
+	std::shared_ptr<gaussian_generator> const_gen =
+		std::make_shared<gaussian_generator>(false, false, dimensions, false);
+	const_gen->set_dispersion(1);
+
 	for (i = 0; i < to_test.size(); ++i) {
-		auto sim = std::make_shared<vse_sim>(randomizer, to_test[i],
+		/*auto sim = std::make_shared<vse_sim>(randomizer, to_test[i],
 				numcands, numvoters, dimensions);
 
 		sim->set_scale_factor(1/E_opt_random);
-		sim->set_dispersion(sigma);
+		sim->set_dispersion(sigma);*/
+
+		auto sim = std::make_shared<utility_freq_sim>(randomizer,
+				to_test[i], const_gen, numcands, numvoters);
 
 		sims.push_back(sim);
 	}
@@ -153,26 +162,56 @@ int main() {
 	std::shared_ptr<inner_burial_set> ibs =
 		std::make_shared<inner_burial_set>();
 
-	for (auto & m: methods) {
-		// Let's keep it down just a *little* for now; currently every
-		// method has a very high VSE and this makes bandit convergence
-		// incredibly slow. TODO: Find out why the VSEs are all so high and
-		// then deal with it.
-		if (m->name().find("//") != std::string::npos ||
-			m->name().find("],[") != std::string::npos) {
+	auto rmr_ref = std::make_shared<rmr1>(RMR_TWO_WAY);
+	auto rmrb_ref = std::make_shared<rmr1>(RMR_DEFEATED);
+	auto rmrc_ref = std::make_shared<rmr1>(RMR_DEFEATING);
+	auto rmrd_ref = std::make_shared<rmr1>(RMR_SCHWARTZ_EXP);
+
+	for (auto & method: methods) {
+		std::string name = method->name();
+
+		if (name.find("],[") != std::string::npos
+			|| name.find("]//[") != std::string::npos) {
 			continue;
 		}
 
-		methods_to_test.push_back(m);
-		if (m->name().find("Smith") == std::string::npos) {
-			methods_to_test.push_back(std::make_shared<comma>(
-					smith, m));
-			methods_to_test.push_back(std::make_shared<slash>(
-					smith, m));
-		}
-		methods_to_test.push_back(std::make_shared<slash>(
-				ibs, m));
+		auto de = std::make_shared<disqelim>(method);
+		methods_to_test.push_back(method);
+
+		/*methods_to_test.push_back(std::make_shared<slash>(
+				std::make_shared<smith_set>(),
+				de));
+		methods_to_test.push_back(std::make_shared<comma>(
+				std::make_shared<smith_set>(),
+				de));
+
+		methods_to_test.push_back(std::make_shared<comma>(
+				rmr_ref, method));
+		methods_to_test.push_back(std::make_shared<comma>(
+				rmrb_ref, method));
+		methods_to_test.push_back(std::make_shared<comma>(
+				rmrc_ref, method));
+		methods_to_test.push_back(std::make_shared<comma>(
+				rmrd_ref, method));
+		methods_to_test.push_back(std::make_shared<comma>(
+				std::make_shared<inner_burial_set>(), method));
+		*/
 	}
+
+	/*	std::vector<std::shared_ptr<election_method> > passing_dh2;
+
+		dh2_test dt;
+
+		for (auto & m: methods_to_test) {
+			if (dt.passes(*m)) {
+				std::cout << "PASS\t\t" << m->name() << "\n";
+				passing_dh2.push_back(m);
+			} else {
+				std::cout << "\t\t\t" << m->name() << "\n";
+			}
+		}
+
+		methods_to_test = passing_dh2;*/
 
 	std::cout << "That's " << methods_to_test.size()
 		<< " methods." << std::endl;

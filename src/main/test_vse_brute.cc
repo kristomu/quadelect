@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "../tests/quick_dirty/monotonicity.h"
-#include "../simulator/vse/vse.h"
+#include "../simulator/all.h"
 
 #include "../tools/ballot_tools.h"
 #include "../ballots.h"
