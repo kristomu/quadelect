@@ -1,0 +1,60 @@
+# Roughly based on
+# https://github.com/flameshot-org/flameshot/blob/master/.github/workflows/build_cmake.yml
+# https://github.com/cristianadam/HelloWorld/blob/master/.github/workflows/build_cmake.yml
+
+name: Test program building(CMake)
+
+on: [push, pull_request]
+
+#env:
+  #TBD
+
+jobs:
+  linux-build:
+    name: ${{ matrix.os}}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+
+    steps:
+      - name: Checkout source code
+        if: github.event_name == 'push'
+        uses: actions/checkout@v4
+
+      - name: Checkout source code
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y --no-install-recommends install \
+            cmake \
+            extra-cmake-modules \
+            build-essential \
+            libglpk-dev \
+            libconfig++-dev \
+            libeigen3-dev \
+            libboost-container-dev
+
+      # The rest is copied from flameshot
+      - name: Create build environment
+        run: cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: Configure CMake
+        # Use bash so we can use the same syntax no matter the host OS
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+
+        # Not sure what the | is for
+        run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+      - name: Build
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        run: cmake --build . #--config $BUILD_TYPE
