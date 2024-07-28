@@ -1,6 +1,4 @@
-
-#ifndef __VOTE_STATS
-#define __VOTE_STATS
+#pragma once
 
 #include "../tools/tools.h"
 #include "confidence/confidence.h"
@@ -364,5 +362,3 @@ template<typename T> std::string stats<T>::display_stats(bool show_median,
 
 	return (stats + "         " + s_padded(get_name(), 50));
 }
-
-#endif

@@ -1,4 +1,5 @@
 #include "ballots_by_support.h"
+#include <limits>
 #include <numeric>
 
 void ballots_by_support::group_by_support(

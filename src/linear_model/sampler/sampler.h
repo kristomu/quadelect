@@ -10,6 +10,7 @@
 #include <glpk.h>
 
 #include <random>
+#include <limits>
 #include <numeric>
 #include <stdexcept>
 

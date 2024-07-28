@@ -12,6 +12,7 @@
 #include <time.h>
 
 #include <stdexcept>
+#include <limits>
 #include <memory>
 
 #include "../../../../tools/ballot_tools.h"
