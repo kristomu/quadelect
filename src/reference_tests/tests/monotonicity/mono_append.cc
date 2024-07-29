@@ -4,7 +4,7 @@
 #include "mono_append.h"
 
 bool mono_append::alter_ballot(const ordering & input, ordering & output,
-	int numcands, const std::vector<size_t> & data,
+	size_t numcands, const std::vector<size_t> & data,
 	rng & randomizer) const {
 
 	// First check if our candidate is not on the ballot; if he isn't,

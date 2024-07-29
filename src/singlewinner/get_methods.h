@@ -24,7 +24,6 @@ std::vector<std::shared_ptr<election_method> > expand_meta(
 	bool elimination_works) {
 
 	std::vector<std::shared_ptr<election_method> > combined;
-	typename std::vector<std::shared_ptr<Q> >::const_iterator spos;
 
 	for (std::shared_ptr<T> method_ptr : base_methods) {
 

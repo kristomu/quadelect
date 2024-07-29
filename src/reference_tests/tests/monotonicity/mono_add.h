@@ -20,10 +20,9 @@
 class mono_add_plump : public monotonicity {
 
 	private:
-		bool add_ballots(const std::vector<int> & data,
-			rng & randomizer,
-			election_t & input,
-			double total_weight, int numcands) const;
+		bool add_ballots(const std::vector<size_t> & data,
+			rng & randomizer, election_t & input,
+			double total_weight, size_t numcands) const;
 
 		std::string basename() const {
 			return ("Mono-add-plump");
@@ -52,10 +51,9 @@ class mono_add_plump : public monotonicity {
 class mono_add_top : public monotonicity {
 
 	private:
-		bool add_ballots(const std::vector<int> & data,
-			rng & randomizer,
-			election_t & input,
-			double total_weight, int numcands) const;
+		bool add_ballots(const std::vector<size_t> & data,
+			rng & randomizer, election_t & input,
+			double total_weight, size_t numcands) const;
 
 		std::string basename() const {
 			return ("Mono-add-top");

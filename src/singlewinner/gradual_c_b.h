@@ -17,7 +17,6 @@ class gradual_cond_borda : public election_method {
 	private:
 		std::shared_ptr<const pairwise_method> base_method;
 		std::string cached_name;
-		bool is_sym_comp, is_relaxed;
 		completion_type completion;
 		bool cardinal;
 

@@ -9,10 +9,9 @@
 #include "rev_symmetry.h"
 
 
-std::pair<bool, election_t>
-test_reversal_symmetry::rearrange_ballots(
-	const election_t & input, int numcands,
-	const std::vector<int> & data) const {
+std::pair<bool, election_t> test_reversal_symmetry::rearrange_ballots(
+	const election_t & input, size_t numcands,
+	const std::vector<size_t> & data) const {
 
 	// Very simple (if perhaps slow) - just insert the candidates with
 	// negated scores.
@@ -34,7 +33,7 @@ test_reversal_symmetry::rearrange_ballots(
 }
 
 bool test_reversal_symmetry::applicable(const ordering & check,
-	const std::vector<int> & data, bool orig) const {
+	const std::vector<size_t> & data, bool orig) const {
 
 	if (permit_ties) {
 		return (true);
@@ -78,8 +77,8 @@ bool test_reversal_symmetry::applicable(const ordering & check,
 }
 
 bool test_reversal_symmetry::pass_internal(const ordering & original,
-	const ordering & modified, const std::vector<int> & data,
-	int numcands) const {
+	const ordering & modified, const std::vector<size_t> & data,
+	size_t numcands) const {
 
 	// Now, there are three ways to fail Reversal Symmetry. One may have
 	// ordinary: A > B > C
@@ -137,8 +136,8 @@ std::string test_reversal_symmetry::name() const {
 }
 
 std::string test_reversal_symmetry::explain_change_int(
-	const std::vector<int> & data,
-	const std::map<int, std::string> & cand_names) const {
+	const std::vector<size_t> & data,
+	const std::map<size_t, std::string> & cand_names) const {
 
 	return ("the ballots were reversed");
 }

@@ -11,7 +11,7 @@ class mono_append : public monotonicity {
 
 	private:
 		bool alter_ballot(const ordering & input,
-			ordering & output, int numcands,
+			ordering & output, size_t numcands,
 			const std::vector<size_t> & data,
 			rng & randomizer) const;
 

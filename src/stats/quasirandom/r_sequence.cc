@@ -67,7 +67,7 @@ uint64_t r_sequence::next_long() {
 	// Maybe not such a good idea due to roundoff problems
 	// TODO: Do something better
 	// Maybe https://stackoverflow.com/questions/65552315/ ???
-	return round(next_double() * UINT64_MAX);
+	return round(next_double() * (double)UINT64_MAX);
 }
 
 uint64_t r_sequence::next_long(uint64_t modulus) {

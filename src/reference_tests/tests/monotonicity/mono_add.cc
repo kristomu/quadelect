@@ -14,9 +14,9 @@
 ///// Mono-add-plump
 ////////////////////
 
-bool mono_add_plump::add_ballots(const std::vector<int> & data,
+bool mono_add_plump::add_ballots(const std::vector<size_t> & data,
 	rng & randomizer, election_t & input,
-	double total_weight, int numcands) const {
+	double total_weight, size_t numcands) const {
 
 	// Logarithmic hack for weight. If the random choice < 0.2, then 1.
 	// Otherwise, random r = 0..9 and val = 1 - (ln(10-r)/l(10)) fraction
@@ -44,9 +44,9 @@ bool mono_add_plump::add_ballots(const std::vector<int> & data,
 // We might want to have it add multiple random ballots.. then on the other
 // hand, the random input ballot could handle that...
 
-bool mono_add_top::add_ballots(const std::vector<int> & data,
+bool mono_add_top::add_ballots(const std::vector<size_t> & data,
 	rng & randomizer, election_t & input,
-	double total_weight, int numcands) const {
+	double total_weight, size_t numcands) const {
 
 	// See above.
 

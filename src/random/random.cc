@@ -75,7 +75,7 @@ long double rng::ldrand() {
 
 	const uint64_t maxVal = ~((uint64_t)0); // maximum value we'll get.
 
-	const long double RS_SCALE = (1.0 / (1.0 + maxVal));
+	const long double RS_SCALE = (1.0 / (1.0 + (long double)maxVal));
 
 	long double d;
 	do {

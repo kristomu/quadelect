@@ -21,19 +21,18 @@ class test_reversal_symmetry : public twotest {
 		// No data needed, hence we don't need to redef
 		// generate_aux_data.
 		std::pair<bool, election_t> rearrange_ballots(
-			const election_t & input,
-			int numcands,
-			const std::vector<int> & data) const;
+			const election_t & input, size_t numcands,
+			const std::vector<size_t> & data) const;
 
 		bool applicable(const ordering & check,
-			const std::vector<int> & data, bool orig) const;
+			const std::vector<size_t> & data, bool orig) const;
 
 		bool pass_internal(const ordering & original, const ordering &
-			modified, const std::vector<int> & data,
-			int numcands) const;
+			modified, const std::vector<size_t> & data,
+			size_t numcands) const;
 
-		std::string explain_change_int(const std::vector<int> & data,
-			const std::map<int, std::string> & cand_names) const;
+		std::string explain_change_int(const std::vector<size_t> & data,
+			const std::map<size_t, std::string> & cand_names) const;
 
 	public:
 
