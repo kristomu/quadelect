@@ -12,7 +12,6 @@ on: [push, pull_request]
 
 jobs:
   linux-build:
-    name: ${{ matrix.os}}
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -21,6 +20,8 @@ jobs:
       matrix:
         os: [ubuntu-22.04]
         cpp_compiler: [g++, clang++]
+
+    name: ${{ matrix.os }}, ${{ matrix.cpp_compiler }}
 
     steps:
       - name: Checkout source code
@@ -54,9 +55,10 @@ jobs:
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
       - name: Configure CMake
-        run: cmake -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -S ${{ github.workspace }}
+        run: |
+          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -S ${{ github.workspace }}
 
       - name: Build
-        shell: bash
-        working-directory: ${{runner.workspace}}/build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
