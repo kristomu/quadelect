@@ -15,8 +15,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
+
       matrix:
         os: [ubuntu-22.04]
+        cpp_compiler: [g++, clang++]
 
     steps:
       - name: Checkout source code
@@ -43,7 +46,8 @@ jobs:
 
       # The rest is copied from flameshot
       - name: Create build environment
-        run: cmake -E make_directory ${{runner.workspace}}/build
+        run: cmake -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -E make_directory ${{runner.workspace}}/build
 
       - name: Configure CMake
         # Use bash so we can use the same syntax no matter the host OS

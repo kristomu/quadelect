@@ -7,16 +7,26 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # Parameters
 # Consider splitting into debug and release (but by how slow things are
-# without optimization, even debug would need the -O switches)
+# without optimization, even debug would need the -O switches, or we'd wait
+# forever for the bug to trigger).
 
 # The unused-parameter warning suggests some refactoring, but is yet too
 # spammy, so I've disabled it. I've also disabled the implict fallthrough
 # warning as it falsely triggers on SpookyHash.
-# -flto may lead to further speedups, but it makes every make invocation
-# much slower, so it's been omitted here.
-# I've also disabled free-nonheap-object, which seems to be buggy. See e.g.
-# https://stackoverflow.com/questions/75348400
-set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-free-nonheap-object -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros")
+# -flto may lead to further speedups, but linking with it enabled is way
+# too slow, so it's been omitted here.
+set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros")
+
+# g++: Disable the free-nonheap-object warning as it seems to be buggy.
+# See e.g. https://stackoverflow.com/questions/75348400
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	add_compile_options("-Wno-free-nonheap-object")
+endif()
+
+# clang++: Silence warnings originating in STL headers.
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "[Cc]lang")
+	add_compile_options("-Wno-delete-non-abstract-non-virtual-dtor")
+endif()
 
 # External library requirements
 
