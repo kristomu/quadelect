@@ -1,6 +1,7 @@
 # Roughly based on
 # https://github.com/flameshot-org/flameshot/blob/master/.github/workflows/build_cmake.yml
 # https://github.com/cristianadam/HelloWorld/blob/master/.github/workflows/build_cmake.yml
+# https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 
 name: Test program building(CMake)
 
@@ -44,21 +45,18 @@ jobs:
             libeigen3-dev \
             libboost-container-dev
 
-      # The rest is copied from flameshot
-      - name: Create build environment
-        run: cmake -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -E make_directory ${{runner.workspace}}/build
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        # Not sure why this is needed?? 
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
       - name: Configure CMake
-        # Use bash so we can use the same syntax no matter the host OS
-        shell: bash
-        working-directory: ${{runner.workspace}}/build
-
-        # Not sure what the | is for
-        run: |
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+        run: cmake -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -S ${{ github.workspace }}
 
       - name: Build
         shell: bash
         working-directory: ${{runner.workspace}}/build
-        run: cmake --build . #--config $BUILD_TYPE
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
