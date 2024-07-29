@@ -26,6 +26,13 @@ endif()
 # clang++: Silence warnings originating in STL headers.
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "[Cc]lang")
 	add_compile_options("-Wno-delete-non-abstract-non-virtual-dtor")
+
+	# Silence warning that std::random_shuffle is deprecated. These
+	# point to a real problem - that we're sometimes using the built-in
+	# random number generator, but it's too much work to fix now, much
+	# less to do so without changing Yee random seed values.
+	# TODO: FIX.
+	add_compile_options("-Wno-deprecated-declarations")
 endif()
 
 # External library requirements

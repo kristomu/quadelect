@@ -252,13 +252,16 @@ void cond_borda_matrix::count_ballots(const election_t &
 						dist = pri_count - sec_count+1;
 					}
 
-					bool x;
-
-					x = add_internal(pri_cand, counter,
+					bool x = add_internal(pri_cand, counter,
 							pos->get_weight(), dist);
 
 					x &= add_internal(counter, pri_cand,
 							pos->get_weight(), -dist);
+
+					if (!x) {
+						throw std::logic_error("cond_borda::count_ballots: "
+							"Could not add ranking above truncated candidate!");
+					}
 				}
 		}
 	}

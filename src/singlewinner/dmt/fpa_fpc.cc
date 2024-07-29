@@ -11,12 +11,6 @@ std::pair<ordering, bool> fpa_fpc::elect_inner(
 	plurality plurality_eval(PT_FRACTIONAL);
 	condmat pairwise_matrix(papers, num_candidates, CM_PAIRWISE_OPP);
 
-	double numvoters = 0;
-	election_t::const_iterator pos;
-	for (pos = papers.begin(); pos != papers.end(); ++pos) {
-		numvoters += pos->get_weight();
-	}
-
 	ordering plurality_outcome = plurality_eval.elect(papers, hopefuls,
 			num_candidates, cache, false);
 

@@ -22,26 +22,9 @@ std::pair<ordering, bool> fpa_experiment::elect_inner(
 	ordering plurality_result = ((election_method *)&plur)->elect(papers,
 			hopefuls, num_candidates, NULL, false);
 
-	/*ordering elect(const election_t & papers,
-	            const std::vector<bool> & hopefuls,
-	            int num_candidates, cache_map * cache,
-	            bool winner_only) const;*/
-
-
 	std::vector<double> plur_result_table(num_candidates, 0);
 
 	size_t i, j;
-	double numvoters = 0;
-
-	for (ordering::const_iterator pos = plurality_result.begin();
-		pos != plurality_result.end(); ++pos) {
-
-		plur_result_table[pos->get_candidate_num()] = pos->get_score();
-		numvoters += pos->get_score();
-	}
-
-	// For each candidate X, the score is for each other candidate Y
-	// numvoters if X beats Y, otherwise fpX - fpY.
 
 	std::vector<std::pair<std::list<double>, size_t> > score_lists;
 

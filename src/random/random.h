@@ -69,24 +69,4 @@ class rng : public coordinate_gen {
 		uint32_t next_int(uint32_t modulus);
 
 		std::vector<double> get_coordinate(size_t dimension);
-
-		/*
-
-		// Used for random_shuffle etc. Assumes pointers are no longer
-		// than 64 bit. Perhaps using () is a bit of a hack, but the
-		// alternatives are worse. (Is there an off-by-one here?)
-		uint64_t operator()(uint64_t end) {
-			return next_long(end);
-		}
-
-		uint64_t operator()() {
-			return next_long();
-		}
-
-		uint64_t max() const {
-			return UINT64_MAX;
-		}
-		uint64_t min() const {
-			return 0;
-		}*/
 };

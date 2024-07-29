@@ -20,14 +20,6 @@ std::pair<ordering, bool> auto_runoff::elect_inner(
 
 	condmat pairwise_matrix(papers, num_candidates, CM_PAIRWISE_OPP);
 
-	double numvoters = 0;
-	election_t::const_iterator ballot_pos;
-
-	for (ballot_pos = papers.begin(); ballot_pos != papers.end();
-		++ballot_pos) {
-		numvoters += ballot_pos->get_weight();
-	}
-
 	ordering base_outcome = base->elect(papers, hopefuls,
 			num_candidates, cache, false);
 
