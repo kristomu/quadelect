@@ -200,8 +200,8 @@ double custom_function::evaluate(std::vector<double> & stack,
 		case BINARY_FUNC_LT: return (make_bool(middle_arg < right_arg));
 		case BINARY_FUNC_LEQ: return (make_bool(middle_arg <= right_arg));
 		case BINARY_FUNC_EQ: return (make_bool(middle_arg == right_arg));
-		case BINARY_FUNC_AND: return (is_true(middle_arg) & is_true(right_arg));
-		case BINARY_FUNC_OR: return (is_true(middle_arg) | is_true(right_arg));
+		case BINARY_FUNC_AND: return (is_true(middle_arg) && is_true(right_arg));
+		case BINARY_FUNC_OR: return (is_true(middle_arg) || is_true(right_arg));
 		default: break;
 	}
 
