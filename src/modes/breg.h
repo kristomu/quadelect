@@ -1,8 +1,5 @@
-// Possible BLUESKY: Support different utility aggregation functions. Mean,
-// median, interquartile range, minimum, maximum, mean with Gini penalty, etc...
-
-// Hm, have some kind of logic where if you add a method, it resets? Some way
-// of signaling this?
+// This mode is deprecated and should be replaced now that I have proper VSE
+// working. TODO do that. XXX
 
 #pragma once
 
@@ -14,8 +11,6 @@
 #include <memory>
 #include <vector>
 #include <list>
-
-#include <values.h>
 
 class bayesian_regret : public mode {
 

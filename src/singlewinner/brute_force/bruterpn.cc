@@ -27,6 +27,8 @@
 
 // Some serious refactoring is in order here.
 
+// TODO: Need to use an actual RNG instead of drand48/srand48.
+
 #include "bruterpn.h"
 #include "../method.h"
 

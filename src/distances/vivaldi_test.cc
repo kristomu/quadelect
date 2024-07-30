@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include <ext/numeric>
+#include <numeric>
 
 #include <stdlib.h>
 #include <assert.h>

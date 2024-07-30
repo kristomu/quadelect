@@ -89,4 +89,7 @@ std::pair<ordering, bool> quick_runoff::elect_inner(
 	// The loop above should always exit the function, so
 	// if we get here, something's wrong.
 	assert(false);
+
+	// Placate MSVC warning that not all paths return a value.
+	return std::pair<ordering, bool>();
 }

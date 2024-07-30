@@ -4,8 +4,7 @@
 // "covers" the entire space well. To do that, we use squared correlation as
 // range data.
 
-#ifndef _VIVALDI
-#define _VIVALDI
+#pragma once
 
 #include <algorithm>
 #include <iostream>
@@ -59,5 +58,3 @@ class synth_coordinates {
 			double Lp_generation, double Lp_recovery,
 			bool verbose) const;
 };
-
-#endif

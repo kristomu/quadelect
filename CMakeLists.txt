@@ -10,12 +10,23 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 # without optimization, even debug would need the -O switches, or we'd wait
 # forever for the bug to trigger).
 
-# The unused-parameter warning suggests some refactoring, but is yet too
-# spammy, so I've disabled it. I've also disabled the implict fallthrough
-# warning as it falsely triggers on SpookyHash.
-# -flto may lead to further speedups, but linking with it enabled is way
-# too slow, so it's been omitted here.
-set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros")
+if (MSVC)
+	# I'm not too sure about fp:fast? The docs seem to say that it doesn't
+	# invalidate non-finite floating point values, so it appears to be OK?
+	#
+	# Warning C4464: relative paths in include - fix later.
+	# Let's try to get it working before we enable a bunch of warnings.
+	# The Wall-analogous options would be: /WX /W4 /wd4464 /w34265
+	# TODO: Add them once stuff's actually compiling.
+	set(CMAKE_CXX_FLAGS "/O2 /fp:fast /EHsc")
+else()
+	# The unused-parameter warning suggests some refactoring, but is yet too
+	# spammy, so I've disabled it. I've also disabled the implict fallthrough
+	# warning as it falsely triggers on SpookyHash.
+	# -flto may lead to further speedups, but linking with it enabled is way
+	# too slow, so it's been omitted here.
+	set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros")
+endif()
 
 # g++: Disable the free-nonheap-object warning as it seems to be buggy.
 # See e.g. https://stackoverflow.com/questions/75348400
@@ -37,13 +48,19 @@ endif()
 
 # External library requirements
 
+# Config++ uses another package on Windows.
+if (MSVC)
+	find_package(libconfig REQUIRED)
+else()
+	find_package(Config++ REQUIRED)
+endif()
+
 find_package(GLPK REQUIRED)
-find_package(Config++ REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Boost REQUIRED)
 
-include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
 
 if (NOT EXISTS "${CONFIG++_INCLUDE_DIR}/libconfig.h++")
 	message(FATAL_ERROR "Could not find libconfig++ header file!")
@@ -140,6 +157,9 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/tools/first_seen.cc
 	src/singlewinner/young.cc)
 
+# Includes Young and Kemeny, which need GLPK.
+target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
+
 add_library(quadelect_lib src/ballots.cc
 	src/bandit/lilucb.cc
 	src/cache.cc
@@ -225,10 +245,11 @@ add_library(quadelect_lib src/ballots.cc
 # They might not all need all the files above, but I'll fix that later.
 
 add_executable(qe_verifier src/singlewinner/brute_force/general_rpn/verifier/verifier.cc)
-target_link_libraries(qe_verifier qe_rpn_search quadelect_lib glpk config++)
+target_link_libraries(qe_verifier qe_rpn_search quadelect_lib config++)
+target_link_libraries(qe_verifier ${GLPK_LIBRARIES})
 
 add_executable(qe_compositor src/singlewinner/brute_force/general_rpn/composition/polytope_compositor.cc)
-target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadelect_lib glpk config++)
+target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadelect_lib config++)
 
 add_executable(qe_sifter src/singlewinner/brute_force/general_rpn/sifter.cc)
 target_link_libraries(qe_sifter qe_rpn_search quadelect_lib)
@@ -237,26 +258,26 @@ add_executable(qe_invariance_sifter src/singlewinner/brute_force/general_rpn/inv
 target_link_libraries(qe_invariance_sifter qe_rpn_search quadelect_lib)
 
 add_executable(qe_find_distinguisher src/main/find_distinguisher.cc)
-target_link_libraries(qe_find_distinguisher qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(qe_find_distinguisher qe_singlewinner_methods quadelect_lib)
 
 # TODO: Better name and description.
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
-target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib)
 
 add_executable(bandit_search src/main/test_strategy_linbrute_bandit.cc)
-target_link_libraries(bandit_search qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(bandit_search qe_singlewinner_methods quadelect_lib)
 
 add_executable(bandit_monotonicity src/main/test_monotonicity_bandit.cc)
-target_link_libraries(bandit_monotonicity qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(bandit_monotonicity qe_singlewinner_methods quadelect_lib)
 
 add_executable(fixed_strategy src/main/test_strategy_fixed.cc)
-target_link_libraries(fixed_strategy qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(fixed_strategy qe_singlewinner_methods quadelect_lib)
 
 add_executable(criterion_test src/main/ttetest_cache.cc)
-target_link_libraries(criterion_test qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(criterion_test qe_singlewinner_methods quadelect_lib)
 
 add_executable(quadelect src/main/combined.cc)
-target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib glpk png)
+target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib png)
 
 add_executable(qe_dim src/main/dimensionality.cc)
 target_link_libraries(qe_dim qe_singlewinner_methods quadelect_lib)
@@ -269,7 +290,6 @@ target_link_libraries(vse_brute qe_singlewinner_methods quadelect_lib)
 
 add_executable(vse_bandit src/main/test_vse_bandit.cc)
 target_link_libraries(vse_bandit qe_singlewinner_methods quadelect_lib glpk)
-
 
 add_executable(test_bandit_correctness src/main/test_bandit_correctness.cc)
 target_link_libraries(test_bandit_correctness qe_singlewinner_methods quadelect_lib)

@@ -7,10 +7,11 @@
 // beta function and AS 103 for the inverse.
 
 #include "confidence.h"
+#include <cmath>
 
 // Logarithm of the complete beta function.
 double confidence_int::lnbeta(double p, double q) const {
-	return (gamma(p) + gamma(q) - gamma(p+q));
+	return (lgamma(p) + lgamma(q) - lgamma(p+q));
 }
 
 double confidence_int::incbeta(double x, double p, double q,

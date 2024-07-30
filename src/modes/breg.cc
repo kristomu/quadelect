@@ -8,6 +8,7 @@
 
 #include "breg.h"
 #include <stdexcept>
+#include <climits>
 
 #include "../singlewinner/stats/cardinal.h"
 
@@ -209,7 +210,7 @@ std::string bayesian_regret::do_round(bool give_brief_status,
 	// Get the utility scores, maximum and minimum. (TODO?? If we're
 	// checking medians, shouldn't this be median ratings instead? etc. for
 	// other modes).
-	cardinal_ratings utility(MININT, MAXINT, false);
+	cardinal_ratings utility(INT_MIN, INT_MAX, false);
 	ordering out = utility.elect(ballots, numcands, cache, false);
 
 	double maxval = out.begin()->get_score(),

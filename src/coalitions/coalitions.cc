@@ -1,5 +1,7 @@
 #include "coalitions.h"
 
+#include <iterator>
+
 // TODO: Update comments and combine DAC and DSC functions to make HDSC.
 // The DAC function really needs some OPTIMIZATION!
 

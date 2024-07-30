@@ -5,8 +5,8 @@
 #include "../method.h"
 
 #include <assert.h>
-#include <values.h>
 #include <iostream>
+#include <cfloat>
 
 #include "sinkhorn.h"
 
