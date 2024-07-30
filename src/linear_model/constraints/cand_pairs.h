@@ -39,6 +39,8 @@
 
 ///////////////////////////////////////////////////////////
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 const ssize_t CP_NONEXISTENT = -1;
 
 class cand_pairs {

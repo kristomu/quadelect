@@ -22,7 +22,7 @@ void candscore::set_score(double score_in) {
 	if (isnan(score_in)) {
 		throw std::invalid_argument("candscore: NaN is not a valid score.");
 	}
-	if (!finite(score_in)) {
+	if (!isfinite(score_in)) {
 		throw std::invalid_argument("candscore: Scores must be finite.");
 	}
 	score = score_in;

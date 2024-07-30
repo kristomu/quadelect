@@ -37,6 +37,8 @@
 
 #include "../../../../config/general_rpn.h"
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 // Beware of ugly hacks. The triple nested loop is the way it is so as to
 // minimize the amount of seeking that needs to be done in the memory-
 // mapped file. It's pretty hideous.

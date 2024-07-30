@@ -3,6 +3,8 @@
 #include "scenario.h"
 #include "test_generator.h"
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 // Test tuple generator. Each such corresponds to a single
 // (A,A',B,B', candidate number for B, candidate number for B',
 //  relative criterion) tuple, with candidate number for B' constrained

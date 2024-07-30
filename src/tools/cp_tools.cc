@@ -5,6 +5,8 @@
 #include <iterator>
 #include <set>
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 // Compose two candidate pairs. This works as follows: if (x, y) is a
 // valid pair according to first, and (y, z) is a valid pair according
 // to second, then the composition makes (x, z) into a valid pair. It's

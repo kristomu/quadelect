@@ -7,6 +7,8 @@
 
 #include "scenario.h"
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 // After permuting according to cand_permutation, we end up in
 // to_scenario.
 

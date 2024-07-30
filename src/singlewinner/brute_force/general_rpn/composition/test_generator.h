@@ -11,6 +11,8 @@
 #include <list>
 #include <vector>
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 struct relative_test_instance {
 	election_scenario_pair before_A, before_B, after_A, after_B;
 };

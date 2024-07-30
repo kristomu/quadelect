@@ -187,7 +187,7 @@ bool grad_fracile::add_rating(size_t candidate, double weight,
 
 	// We can't permit inf/nan weights because they'll mess with the
 	// sentinels.
-	assert(finite(weight));
+	assert(isfinite(weight));
 
 	// If it has a non-positive weight, do the same.
 	if (weight <= 0) {
@@ -495,7 +495,7 @@ bool grad_fracile::update(bool debug) {
 	// If neither is finite, that means that we have a sentinel value; in
 	// other words, that we've run out of data. In that case, there's
 	// nothing left to do, so return false.
-	if (!finite(minimum_distance)) {
+	if (!isfinite(minimum_distance)) {
 		return (false);
 	}
 
