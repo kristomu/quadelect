@@ -880,7 +880,7 @@ std::pair<ordering, bool> cond_brute_rpn::elect_inner(
 
 			// Extract the score.
 			score = cfunct.evaluate(funcinputs, false);
-			if (!finite(score)) {
+			if (!isfinite(score)) {
 				if (score < 0) {
 					score = -1000;
 				} else {

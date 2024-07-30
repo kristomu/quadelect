@@ -63,9 +63,9 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 				// We check for that here; if it's the case, we
 				// abort before the resulting nan destroys the
 				// scores.
-				if (finite(factor.row[counter]) && finite(
+				if (isfinite(factor.row[counter]) && isfinite(
 						factor.col[counter]) &&
-					!finite(sink_matrix[counter]
+					!isfinite(sink_matrix[counter]
 						[sec])) {
 					return (factor);    // Outta here.
 				}
@@ -95,7 +95,7 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 
 				// The same overflow can happen here, so detect
 				// it.
-				if (!finite(factor.row[counter])) {
+				if (!isfinite(factor.row[counter])) {
 					return (old_factor);
 				}
 			}
@@ -110,7 +110,7 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 		for (counter = 0; counter < numcands; ++counter) {
 			sum = 0;
 			for (sec = 0; sec < numcands; ++sec)
-				if (finite(sink_matrix[sec][counter])) {
+				if (isfinite(sink_matrix[sec][counter])) {
 					sum += sink_matrix[sec][counter];
 				}
 
@@ -123,7 +123,7 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 
 			if (sum != 0) {
 				factor.col[counter] /= sum;
-				if (!finite(factor.col[counter])) {
+				if (!isfinite(factor.col[counter])) {
 					return (old_factor);
 				}
 			}
@@ -132,7 +132,7 @@ sinkhorn_factor sinkhorn::get_sinkhorn_factor(int max_iterations, const
 		// If this if statement passes, all sums are zero, so we get a
 		// tolerance of 0/0 - undefined. Just make it 0 instead by
 		// setting minsum to a finite value.
-		if (!finite(minsum)) {
+		if (!isfinite(minsum)) {
 			minsum = std::min(maxsum, 1.0);
 		}
 
@@ -194,18 +194,18 @@ std::pair<ordering, bool> sinkhorn::pair_elect(const abstract_condmat &
 	// over/underflow, handle that by normalizing. NOTE! Not compatible
 	// with MSVC whose long double is just a double.
 	std::vector<double> scores(permitted_candidates.size());
-	bool isfinite = true;
+	bool finite_score = true;
 	for (counter = 0; counter < permitted_candidates.size() &&
-		isfinite; ++counter) {
+		finite_score; ++counter) {
 		scores[counter] = factor.col[counter] / factor.row[counter];
-		isfinite = finite(scores[counter]);
+		finite_score = isfinite(scores[counter]);
 
 		if (debug)
 			std::cout << "Candidate " << permitted_candidates[counter] <<
 				": score is " << scores[counter] << std::endl;
 	}
 
-	if (!isfinite) {
+	if (!finite_score) {
 		std::vector<long double> ldscores(permitted_candidates.size());
 		long double ldmin = INFINITY, ldmax = -INFINITY;
 

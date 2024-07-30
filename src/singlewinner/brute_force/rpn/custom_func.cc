@@ -173,17 +173,17 @@ double custom_function::evaluate(std::vector<double> & stack,
 		case BINARY_FUNC_MINUS: return (middle_arg - right_arg);
 		case BINARY_FUNC_MUL: return (middle_arg * right_arg);
 		case BINARY_FUNC_DIVIDE:
-			if (!finite(middle_arg) && finite(right_arg) && right_arg != 0) {
+			if (!isfinite(middle_arg) && isfinite(right_arg) && right_arg != 0) {
 				return (middle_arg);
 			}
 			// lim x->inf 3/x = 0
-			if (finite(middle_arg) && !finite(right_arg)) {
+			if (isfinite(middle_arg) && !isfinite(right_arg)) {
 				return (0);
 			}
 			// Perhaps we should let x/inf = 0? And inf/x = inf,
 			// except when x = 0, in which case it's undefined.
 			// inf/inf is also similarly undefined.
-			if (!finite(middle_arg) && !finite(right_arg)) {
+			if (!isfinite(middle_arg) && !isfinite(right_arg)) {
 				return (std::numeric_limits<double>::quiet_NaN());
 			}
 			if (right_arg == 0) {

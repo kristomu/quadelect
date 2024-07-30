@@ -2,7 +2,6 @@
 
 #include <math.h>
 #include <ctype.h>
-#include <sys/time.h>
 #include <assert.h>
 #include <sstream>
 #include <fstream>

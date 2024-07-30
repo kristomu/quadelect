@@ -53,7 +53,7 @@ std::pair<ordering, bool> cumulative_voting::elect_inner(
 					cs.get_score(), top_score);
 
 			p_val += pow(norm_score, p);
-			assert(finite(p_val));
+			assert(isfinite(p_val));
 		}
 
 		p_val = pow(p_val, 1.0/p);
@@ -75,7 +75,7 @@ std::pair<ordering, bool> cumulative_voting::elect_inner(
 			scores[cs.get_candidate_num()] += b.get_weight() *
 				round(10 * norm_score / p_val);
 
-			assert(finite(scores[cs.get_candidate_num()]));
+			assert(isfinite(scores[cs.get_candidate_num()]));
 		}
 	}
 

@@ -37,7 +37,7 @@ std::pair<ordering, bool> mean_utility_trunc::elect_inner(
 		}
 
 		double mean_utility = utilities/entries;
-		if (!finite(mean_utility)) {
+		if (!isfinite(mean_utility)) {
 			throw std::invalid_argument("Mean utility truncation:"
 				" mean utility is not finite!");
 		}

@@ -37,7 +37,7 @@ std::pair<ordering, bool> mean_utility::elect_inner(
 		}
 
 		double mean_utility = utilities/entries;
-		if (!finite(mean_utility)) {
+		if (!isfinite(mean_utility)) {
 			throw std::invalid_argument("Mean utility thresholding:"
 				" mean utility is not finite!");
 		}

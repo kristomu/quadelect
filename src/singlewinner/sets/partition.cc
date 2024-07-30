@@ -1,8 +1,8 @@
 #include "partition.h"
 
 
-std::pair<ordering, bool> partition_set::pair_elect(const abstract_condmat &
-	input,
+std::pair<ordering, bool> partition_set::pair_elect(
+	const abstract_condmat & input,
 	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 

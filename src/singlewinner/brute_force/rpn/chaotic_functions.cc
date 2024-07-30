@@ -21,7 +21,7 @@ double blancmange(double w, double x) {
 	// Quick and dirty stuff to avoid cascading infinities.
 	// This is actually undefined in the limit of +/- infinity because
 	// the function doesn't converge.
-	if (!finite(x)) {
+	if (!isfinite(x)) {
 		return (1);
 	}
 
@@ -44,7 +44,7 @@ double blancmange(double w, double x) {
 // https://en.wikipedia.org/w/index.php?title=Minkowski%27s_question-mark_function&oldid=824984747
 double minkowski_q(double x) {
 	// Quick and dirty stuff to handle infinities.
-	if (!finite(x)) {
+	if (!isfinite(x)) {
 		return (x);
 	}
 

@@ -158,7 +158,7 @@ std::pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat &
 		// If it's not converging, do the most of it and get outta
 		// here.
 		std::cout << "Convergence " << convergence << std::endl;
-		if (!finite(convergence)) {
+		if (!isfinite(convergence)) {
 			if (debug) // error
 				std::cout << "ERROR: Failed to converge, bailing."
 					<< std::endl;
@@ -190,14 +190,14 @@ std::pair<ordering, bool> odm_gen::pair_elect(const abstract_condmat &
 	// be finite.
 	double sum = 0;
 	for (counter = 0; counter < score.size(); ++counter) {
-		if (!finite(score[counter])) {
+		if (!isfinite(score[counter])) {
 			continue;
 		}
 		sum += score[counter];
 	}
 
 	for (counter = 0; counter < score.size(); ++counter) {
-		if (finite(score[counter])) {
+		if (isfinite(score[counter])) {
 			score[counter] /= sum;
 		} else {
 			score[counter] = copysign(10, score[counter]);
