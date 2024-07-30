@@ -13,3 +13,6 @@ time_pt get_now();
 
 double secs_elapsed(const time_delta & duration);
 double secs_elapsed(const time_pt & then, const time_pt & now);
+
+// This is a HACK for MSVC compat and should not be used. Fix later.
+double FIX_secs_since_epoch();

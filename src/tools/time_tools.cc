@@ -57,3 +57,7 @@ double secs_elapsed(const time_delta & duration) {
 double secs_elapsed(const time_pt & then, const time_pt & now) {
 	return secs_elapsed(now-then);
 }
+
+double FIX_secs_since_epoch() {
+	return secs_elapsed(get_now().time_since_epoch());
+}

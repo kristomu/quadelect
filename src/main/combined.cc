@@ -19,8 +19,9 @@
 
 // General includes - tools and ballot structures.
 
-#include "../tools/ballot_tools.h"
 #include "../ballots.h"
+#include "../tools/ballot_tools.h"
+#include "../tools/time_tools.h"
 #include "../tools/tools.h"
 
 // Generators go here.
@@ -510,7 +511,7 @@ int main(int argc, char * * argv) {
 
 	std::string int_source_file = "interpret.txt";
 
-	rng randomizer(get_abs_time());
+	rng randomizer(RNG_ENTROPY);
 	uint64_t seed = randomizer.next_long();
 
 	bool success = true;
@@ -919,22 +920,22 @@ int main(int argc, char * * argv) {
 	}
 
 	std::string progress;
-	double start_time = get_abs_time(), cur_checkpoint = start_time;
+	double start_time = FIX_secs_since_epoch(), cur_checkpoint = start_time;
 
 	std::vector<double> time_elapsed_per_round;
 
 	while ((progress = mode_running->do_round(true)) != "") {
 		std::cout << progress << std::endl;
 
-		double this_instance = (get_abs_time() - cur_checkpoint);
+		double this_instance = (FIX_secs_since_epoch() - cur_checkpoint);
 		time_elapsed_per_round.push_back(this_instance);
 
 		print_time_estimate(time_elapsed_per_round,
 			mode_running->get_current_round(),
 			mode_running->get_max_rounds(), start_time,
-			get_abs_time());
+			FIX_secs_since_epoch());
 
-		cur_checkpoint = get_abs_time();
+		cur_checkpoint = FIX_secs_since_epoch();
 
 		bool should_display_stats = false;
 		// If we're at the last round or if at the breg_report_freq and

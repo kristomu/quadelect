@@ -1,6 +1,5 @@
 #include <math.h>
 #include <ctype.h>
-#include <sys/time.h>
 #include <assert.h>
 #include <fstream>
 #include <sstream>
@@ -27,15 +26,6 @@ int sign(double in) {
 	return 1;
 }
 
-double get_abs_time() {
-	timeval tv;
-	if (gettimeofday(&tv, NULL) == 0) {
-		return (tv.tv_sec + tv.tv_usec/1e6);
-	} else {
-		return (0);
-	}
-}
-
 int factorial(int x) {
 	if (x <= 0) {
 		return (1);
@@ -45,7 +35,7 @@ int factorial(int x) {
 
 
 // Distance on the Lp norm (generalized Euclidean).
-double euc_distance(double Lp, const std::vector<double> & a,
+double lp_distance(double Lp, const std::vector<double> & a,
 	const std::vector<double> & b) {
 
 	double sum = 0;

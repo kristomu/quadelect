@@ -201,7 +201,7 @@ void yee::draw_pictures(std::string prefix,
 
 			for (int cand = 0; cand < num_candidates
 				&& !is_home; ++cand) {
-				double dist = euc_distance(2.0, adj_coords,
+				double dist = lp_distance(2.0, adj_coords,
 						cand_locations[cand]);
 
 				if (dist < adj_outer_radius) {

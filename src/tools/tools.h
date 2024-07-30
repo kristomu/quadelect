@@ -47,9 +47,8 @@ template<typename T, typename Q> std::map<Q, T> invert(
 	return (inverse_mapping);
 }
 
-double get_abs_time();
 // Distance on the Lp norm (generalized Euclidean).
-double euc_distance(double Lp, const std::vector<double> & a,
+double lp_distance(double Lp, const std::vector<double> & a,
 	const std::vector<double> & b);
 
 // Integer to string
