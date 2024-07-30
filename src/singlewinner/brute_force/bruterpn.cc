@@ -31,6 +31,7 @@
 
 #include "bruterpn.h"
 #include "../method.h"
+#include "../../hack/msvc_random.h"
 
 #include <iterator>
 

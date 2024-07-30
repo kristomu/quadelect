@@ -15,6 +15,7 @@
 #ifndef _TWOTEST_MONO
 #define _TWOTEST_MONO
 
+#include "../../../hack/msvc_random.h"
 #include "../../../tools/ballot_tools.h"
 #include "../../../random/random.h"
 #include "../../two_tests.h"

@@ -2,6 +2,7 @@
 // the winner of the two. If they're tied, the method simply flips a coin.
 
 #include "randpair.h"
+#include "../../../hack/msvc_random.h"
 
 #include <assert.h>
 #include <iostream>

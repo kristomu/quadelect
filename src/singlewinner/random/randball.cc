@@ -3,6 +3,7 @@
 #include "../method.h"
 #include "../../tools/tools.h"
 #include "../../ballots.h"
+#include "../../hack/msvc_random.h"
 
 #include "randball.h"
 

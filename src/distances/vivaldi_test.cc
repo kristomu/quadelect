@@ -14,7 +14,7 @@
 #include <math.h>
 
 #include "vivaldi_test.h"
-
+#include "../hack/msvc_random.h"
 
 std::vector<coord> synth_coordinates::generate_random_coords(int how_many,
 	int dimensions) const {
