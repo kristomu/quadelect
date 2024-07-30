@@ -21,7 +21,7 @@
 #include <stdio.h> /* needed for fprintf() */
 #include <math.h>  /* needed for exp() and log() */
 #include <stdlib.h> /* needed for exit() */
-#include <unistd.h> /* needed for getentropy() */
+//#include <unistd.h> /* needed for getentropy() */
 #include "zmg.h"
 
 /********************************************************************
@@ -145,7 +145,7 @@ void seedzmgd(ZMG_STATE *rng_p1,ZMG_STATE *rng_p2) {
 	   exit(1);
 	}*/
 
-	// Hard-coded for hash repeatability.
+	// Hard-coded for hash repeatability. -KM
 	seed1 = 1234;
 	seed2 = 2345;
 	ZMG_SEED(rng_p1,seed1);

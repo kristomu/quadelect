@@ -17,6 +17,7 @@
 #include <fstream>
 
 #include "../../../spookyhash/SpookyV2.h"
+#include "../../../hack/msvc_random.h"
 
 // Will clean up and put into class later.
 
@@ -124,7 +125,7 @@ struct hash<std::pair<uint64_t, uint64_t> > {
 hash_result get_ordinal_hash_test_result(const std::vector<double> &
 	cardinal_results, SpookyHash & hasher) {
 
-	char ordinal_output[square(cardinal_results.size())];
+	std::vector<char> ordinal_output(square(cardinal_results.size()));
 
 	// If two values are within an epsilon of threshold, consider them
 	// to be equal.
@@ -142,8 +143,9 @@ hash_result get_ordinal_hash_test_result(const std::vector<double> &
 		}
 	}
 
+	// TODO: Make hasher support taking vectors directly.
 	hash_result output;
-	hasher.Hash128(ordinal_output, square(cardinal_results.size()),
+	hasher.Hash128(ordinal_output.data(), square(cardinal_results.size()),
 		&output.first, &output.second);
 
 	return output;

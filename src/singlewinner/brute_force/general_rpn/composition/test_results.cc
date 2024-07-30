@@ -1,9 +1,20 @@
 #include "test_results.h"
 #include "../../../../tools/tools.h"
 
+// HACK: MSVC doesn't support mmap. There's an alternate implementation
+// at https://github.com/alitrack/mman-win32, which should be investigated
+// later, but for now just throw an exception.
+
+// The reason I throw an exception instead of just removing this tool
+// from the MSVC CMakeLists is that I want to check that the rest
+// compiles.
+
+#if !defined(_MSC_VER)
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#endif
+
 #include <assert.h>
 
 #include <stdexcept>
@@ -57,6 +68,9 @@ size_t test_results::get_linear_idx(size_t method_idx,
 // https://stackoverflow.com/questions/29210851
 
 void test_results::allocate_space_disk(std::string filename) {
+#if defined(_MSC_VER)
+	throw std::runtime_error("Saving to disk not implemented on Windows yet");
+#else
 	fd = open(filename.c_str(), O_RDWR | O_CREAT, S_IREAD | S_IWRITE);
 
 	if (fd < 0) {
@@ -77,12 +91,17 @@ void test_results::allocate_space_disk(std::string filename) {
 	}
 
 	results = (test_t *)mem_map;
+#endif
 }
 
 void test_results::finish_space_disk() {
+#if defined(_MSC_VER)
+	throw std::runtime_error("Saving to disk not implemented on Windows yet");
+#else
 	if (munmap((void *)results, get_bytes_required()) < 0) {
 		throw std::runtime_error("test_results: Could not unmap file");
 	}
+#endif
 }
 
 bool test_results::passes_tests(

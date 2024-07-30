@@ -11,6 +11,6 @@
 #if defined(_MSC_VER)
 #define srand48(x) (srand((unsigned int(x))))
 #define drand48() ((double)rand()/(RAND_MAX+1.0))
-#define srandom() (srand())
+#define srandom(x) (srand((unsigned int)(x)))
 #define random() (rand())
 #endif

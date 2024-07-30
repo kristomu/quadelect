@@ -1,4 +1,3 @@
-#include <values.h>
 #include <errno.h>
 
 #include <stdexcept>

@@ -6,7 +6,6 @@
 // beforehand. (BLUESKY do that, which would thus permit things like LE/LE/LE/
 // (Smith,Plurality).)
 
-#include <values.h>
 #include <errno.h>
 #include <ctype.h>
 
@@ -57,6 +56,8 @@
 
 // Interpreter itself.
 #include "../modes/interpret.h"
+
+#include "../hack/msvc_random.h"
 
 // This should really be put into a file associated with all.h
 std::vector<std::shared_ptr<pure_ballot_generator> > get_all_generators(

@@ -192,7 +192,7 @@ bool ordering_tools::is_winner(const ordering & in,
 }
 
 bool ordering_tools::has_some_equal_rank(const ordering & in) {
-	bool first;
+	bool first = true;
 	double last_score = 0;
 
 	// We need to do some pump priming: the first candidate

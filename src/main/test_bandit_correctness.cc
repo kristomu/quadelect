@@ -2,6 +2,9 @@
 #include "../bandit/lilucb.h"
 #include "../simulator/stubs/bernoulli.h"
 
+// one of the few times using native random might be OK
+#include "../hack/msvc_random.h"
+
 #include <iostream>
 
 int main(int argc, const char ** argv) {

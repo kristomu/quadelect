@@ -51,6 +51,7 @@ endif()
 # Config++ uses another package on Windows.
 if (MSVC)
 	find_package(libconfig REQUIRED)
+	add_library(config++ ALIAS libconfig::libconfig++)
 else()
 	find_package(Config++ REQUIRED)
 endif()
@@ -59,6 +60,8 @@ find_package(GLPK REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Boost REQUIRED)
+
+find_library(GETOPT_LIB getopt)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -241,6 +244,9 @@ add_library(quadelect_lib src/ballots.cc
 	src/singlewinner/sets/inner_burial.cc
 	src/tools/tools.cc)
 
+# Required by the Yee mode.
+target_link_libraries(quadelect_lib ${PNG_LIBRARIES})
+
 # Set the different executables.
 # They might not all need all the files above, but I'll fix that later.
 
@@ -277,7 +283,12 @@ add_executable(criterion_test src/main/ttetest_cache.cc)
 target_link_libraries(criterion_test qe_singlewinner_methods quadelect_lib)
 
 add_executable(quadelect src/main/combined.cc)
-target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib png)
+target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib)
+
+# Getopt needs to be declared separately on Windows.
+if (MSVC)
+	target_link_libraries(quadelect ${GETOPT_LIB})
+endif()
 
 add_executable(qe_dim src/main/dimensionality.cc)
 target_link_libraries(qe_dim qe_singlewinner_methods quadelect_lib)
@@ -289,7 +300,7 @@ add_executable(vse_brute src/main/test_vse_brute.cc)
 target_link_libraries(vse_brute qe_singlewinner_methods quadelect_lib)
 
 add_executable(vse_bandit src/main/test_vse_bandit.cc)
-target_link_libraries(vse_bandit qe_singlewinner_methods quadelect_lib glpk)
+target_link_libraries(vse_bandit qe_singlewinner_methods quadelect_lib)
 
 add_executable(test_bandit_correctness src/main/test_bandit_correctness.cc)
 target_link_libraries(test_bandit_correctness qe_singlewinner_methods quadelect_lib)
