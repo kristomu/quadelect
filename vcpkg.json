@@ -1,0 +1,10 @@
+{
+	"dependencies": [
+		"glpk",
+		"libconfig",
+		"libpng",
+		"eigen3",
+		"getopt",
+		"boost-container"
+	]
+}
