@@ -53,12 +53,16 @@ endif()
 
 # External library requirements
 
-# Config++ uses another package on Windows.
+# vcpkg uses another package for Config++.
 if (MSVC)
 	find_package(libconfig REQUIRED)
 	add_library(config++ ALIAS libconfig::libconfig++)
 else()
 	find_package(Config++ REQUIRED)
+
+	if (NOT EXISTS "${CONFIG++_INCLUDE_DIR}/libconfig.h++")
+		message(FATAL_ERROR "Could not find libconfig++ header file!")
+	endif()
 endif()
 
 find_package(GLPK REQUIRED)
@@ -69,10 +73,6 @@ find_package(Boost REQUIRED)
 find_library(GETOPT_LIB getopt)
 
 include_directories(${Boost_INCLUDE_DIRS})
-
-if (NOT EXISTS "${CONFIG++_INCLUDE_DIR}/libconfig.h++")
-	message(FATAL_ERROR "Could not find libconfig++ header file!")
-endif()
 
 # Internal functionality groupings. Not all programs need all the
 # functionality: in particular, the yee/BR program doesn't need the

@@ -9,7 +9,7 @@
 // from the MSVC CMakeLists is that I want to check that the rest
 // compiles.
 
-#if !defined(_MSC_VER)
+#if !_WIN32
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -68,7 +68,7 @@ size_t test_results::get_linear_idx(size_t method_idx,
 // https://stackoverflow.com/questions/29210851
 
 void test_results::allocate_space_disk(std::string filename) {
-#if defined(_MSC_VER)
+#if _WIN32
 	throw std::runtime_error("Saving to disk not implemented on Windows yet");
 #else
 	fd = open(filename.c_str(), O_RDWR | O_CREAT, S_IREAD | S_IWRITE);
@@ -95,7 +95,7 @@ void test_results::allocate_space_disk(std::string filename) {
 }
 
 void test_results::finish_space_disk() {
-#if defined(_MSC_VER)
+#if _WIN32
 	throw std::runtime_error("Saving to disk not implemented on Windows yet");
 #else
 	if (munmap((void *)results, get_bytes_required()) < 0) {
