@@ -53,8 +53,8 @@ jobs:
             # CMakeLists.
             # Currently disabled because it can't find libconfig++.
             cpp_compiler: g++
-            c_compiler: gcc
-            vckpgCommitId: '7f9f0e44db287e8e67c0e888141bfa200ab45121'
+            #c_compiler: gcc
+            #vckpgCommitId: '7f9f0e44db287e8e67c0e888141bfa200ab45121'
 
     name: ${{ matrix.os }}, ${{ matrix.cpp_compiler }}
 

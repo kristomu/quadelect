@@ -90,7 +90,7 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 	std::set<int>::const_iterator pos;
 
 	while (!unknown_candidates.empty()) {
-		revealed_candidates.empty();
+		revealed_candidates.clear();
 		for (pos = unknown_candidates.begin(); pos !=
 			unknown_candidates.end(); ++pos) {
 

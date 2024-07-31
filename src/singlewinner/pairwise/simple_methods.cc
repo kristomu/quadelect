@@ -101,7 +101,7 @@ std::pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat &
 		if (debug) {
 			std::cout << "Before sorting: " << counter << "\t";
 			copy(beat_data.first.begin(), beat_data.first.end(),
-				std::ostream_iterator<int>(std::cout, "   "));
+				std::ostream_iterator<double>(std::cout, "   "));
 			std::cout << std::endl;
 		}
 

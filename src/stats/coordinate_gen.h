@@ -88,6 +88,8 @@ class coordinate_gen {
 		// Used for random_shuffle etc. Assumes pointers are no longer
 		// than 64 bit. Perhaps using () is a bit of a hack, but the
 		// alternatives are worse.
+		// This ought to be ptrdiff_t, but we can't guarantee that it's
+		// 64 bits on every platform. TODO.
 		uint64_t operator()(uint64_t end) {
 			return next_long(end);
 		}

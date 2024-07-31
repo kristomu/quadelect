@@ -172,7 +172,7 @@ std::pair<double, double> young::get_young_score(const
 			std::cout << "Our candidate is number " << candidate << std::endl;
 			std::cout << "The versus array is: ";
 			copy(vs_others.begin(), vs_others.end(),
-				std::ostream_iterator<int>(std::cout, " "));
+				std::ostream_iterator<double>(std::cout, " "));
 			std::cout << std::endl;
 		}
 
