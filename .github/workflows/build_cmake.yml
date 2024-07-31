@@ -32,7 +32,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04, windows-latest]
         build_type: [Release]
-        # TODO? mingw32 on Windows?
+        # c++ is MinGW.
         cpp_compiler: [g++, clang++, cl]
         include:
           - os: ubuntu-22.04
@@ -40,15 +40,21 @@ jobs:
           - os: ubuntu-22.04
             cpp_compiler: clang++
           - os: windows-latest
+            c_compiler: cl
             cpp_compiler: cl
             vckpgCommitId: '7f9f0e44db287e8e67c0e888141bfa200ab45121'
         exclude:
           - os: ubuntu-22.04
             cpp_compiler: cl
           - os: windows-latest
-            cpp_compiler: g++
-          - os: windows-latest
             cpp_compiler: clang++
+          - os: windows-latest
+            # c_compiler keeps us from tripping if (MSVC) in
+            # CMakeLists.
+            # Currently disabled because it can't find libconfig++.
+            cpp_compiler: g++
+            c_compiler: gcc
+            vckpgCommitId: '7f9f0e44db287e8e67c0e888141bfa200ab45121'
 
     name: ${{ matrix.os }}, ${{ matrix.cpp_compiler }}
 
@@ -140,6 +146,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -S ${{ github.workspace }} --preset default

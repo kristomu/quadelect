@@ -8,8 +8,8 @@
 // need in a way that MSVC understands.
 
 // MSVC RANDOM HACK
-#if defined(_MSC_VER)
-#define srand48(x) (srand((unsigned int(x))))
+#if _WIN32
+#define srand48(x) (srand((unsigned int)(x)))
 #define drand48() ((double)rand()/(RAND_MAX+1.0))
 #define srandom(x) (srand((unsigned int)(x)))
 #define random() (rand())
