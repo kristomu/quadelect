@@ -3,7 +3,7 @@
 # https://github.com/cristianadam/HelloWorld/blob/master/.github/workflows/build_cmake.yml
 # https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 
-name: Test program building(CMake)
+name: CMake build of Quadelect
 
 on: [push, pull_request]
 
@@ -18,8 +18,23 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ubuntu-22.04]
-        cpp_compiler: [g++, clang++]
+        os: [ubuntu-22.04, windows-latest]
+        build_type: [Release]
+        cpp_compiler: [g++, clang++, cl]
+        include:
+          - os: ubuntu-22.04
+            cpp_compiler: g++
+          - os: ubuntu-22.04
+            cpp_compiler: clang++
+          - os: windows-latest
+            cpp_compiler: cl
+        exclude:
+          - os: ubuntu-22.04
+            cpp_compiler: cl
+          - os: windows-latest
+            cpp_compiler: g++
+          - os: windows-latest
+            cpp_compiler: clang++
 
     name: ${{ matrix.os }}, ${{ matrix.cpp_compiler }}
 
@@ -34,7 +49,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Install dependencies
+      - name: Install dependencies (Linux)
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get -y -qq update
           sudo apt-get -y --no-install-recommends install \
@@ -55,10 +71,11 @@ jobs:
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
       - name: Configure CMake
-        run: |
-          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-            -S ${{ github.workspace }}
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -S ${{ github.workspace }}
 
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }}

@@ -3,6 +3,8 @@ cmake_minimum_required (VERSION 3.1)
 project(quadelect)
 
 set (CMAKE_CXX_STANDARD 14)
+# Disable MSVC's /Od. This is kind of a HACK, fix later.
+set (CMAKE_BUILD_TYPE Release)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # Parameters
@@ -18,6 +20,9 @@ if (MSVC)
 	# Let's try to get it working before we enable a bunch of warnings.
 	# The Wall-analogous options would be: /WX /W4 /wd4464 /w34265
 	# TODO: Add them once stuff's actually compiling.
+
+	# And even with these parameters set, Linux quadelect is about
+	# twice as fast as Windows. Find out why later.
 	set(CMAKE_CXX_FLAGS "/O2 /fp:fast /EHsc")
 else()
 	# The unused-parameter warning suggests some refactoring, but is yet too
