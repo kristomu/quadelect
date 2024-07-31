@@ -6,6 +6,8 @@
 
 #include "../auxiliary_libs/zmg-0.90/zmgd.c"
 
+#include "../../hack/msvc_random.h"
+
 // This is a barebones implementation of Yee diagram calculations
 // with Borda as the reference method. It works as follows:
 
