@@ -120,7 +120,7 @@ fixed_cand_equivalences::get_noncanonical_scenario_reductions(
 
 	// For every possible scenario
 	do {
-		bool canonical = true, has_populated_isomorphism = false;
+		bool canonical = true;
 
 		cur_reduction.cand_permutations.clear();
 
@@ -143,13 +143,11 @@ fixed_cand_equivalences::get_noncanonical_scenario_reductions(
 
 			// Ensure my transitivity hunch is correct. (Also works as a
 			// bug check.)
-			assert(!has_populated_isomorphism ||
-				reductions.find(permuted)->second.to_scenario ==
+			assert(reductions.find(permuted)->second.to_scenario ==
 				cur_reduction.to_scenario);
 
 			// Add the current permutation to the list of such.
 			canonical = false;
-			has_populated_isomorphism = true;
 			cur_reduction.to_scenario = permuted;
 			cur_reduction.cand_permutations.push_back(permutation);
 			cur_reduction.canonical = false;
@@ -218,8 +216,6 @@ fixed_cand_equivalences::get_one_candidate_remapping(
 	do {
 		cur_reduction.cand_permutations.clear();
 
-		bool has_populated_isomorphism = false;
-
 		for (const std::vector<int> & permutation:
 			all_permutations_centered_on(current_candidate, numcands)) {
 
@@ -235,12 +231,10 @@ fixed_cand_equivalences::get_one_candidate_remapping(
 				continue;
 			}
 
-			assert(!has_populated_isomorphism ||
-				noncanonical_reductions.find(permuted)->second.to_scenario ==
+			assert(noncanonical_reductions.find(permuted)->second.to_scenario ==
 				cur_reduction.to_scenario);
 
 			// Add the current permutation to the list of such.
-			has_populated_isomorphism = true;
 			cur_reduction.to_scenario = permuted;
 			cur_reduction.cand_permutations.push_back(permutation);
 			cur_reduction.canonical = false; // Not relevant
@@ -251,8 +245,6 @@ fixed_cand_equivalences::get_one_candidate_remapping(
 				std::ostream_iterator<int>(std::cout, " "));
 			std::cout << "\t" << permuted.to_string() << std::endl;*/
 		}
-
-		assert(has_populated_isomorphism);
 
 		cand_remapping[cur] = cur_reduction;
 	} while (++cur != base_scenario);
