@@ -33,7 +33,7 @@ std::pair<ordering, bool> mode_ratings::elect_inner(const
 
 	// Dump into lists.
 
-	std::vector<std::pair<std::list<double>, int> > candidate_scores;
+	std::vector<std::pair<std::list<double>, size_t> > candidate_scores;
 
 	for (size_t counter = 0; counter < mode_maps.size(); ++counter) {
 
@@ -84,7 +84,7 @@ std::pair<ordering, bool> mode_ratings::elect_inner(const
 		// To sort, we have to mark the list by what candidate it
 		// belongs to, so moving the lists around won't make it unclear
 		// who is actually at top.
-		candidate_scores.push_back(std::pair<std::list<double>, int>(
+		candidate_scores.push_back(std::pair<std::list<double>, size_t>(
 				this_cand_score, counter));
 	}
 
@@ -97,7 +97,8 @@ std::pair<ordering, bool> mode_ratings::elect_inner(const
 
 	int lincount = 0, last_shown = 0;
 
-	std::vector<std::pair<std::list<double>, int> >::const_iterator vpos, prev;
+	std::vector<std::pair<std::list<double>, size_t> >::const_iterator vpos,
+		prev;
 	ordering out;
 
 	for (vpos = candidate_scores.begin(); vpos != candidate_scores.end();

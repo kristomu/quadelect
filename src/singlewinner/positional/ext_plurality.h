@@ -32,12 +32,12 @@ class ext_plurality : public positional {
 			// on second place, ties in first and second based on third,
 			// and so on.
 
-			std::vector<std::pair<std::vector<double>, int> >
+			std::vector<std::pair<std::vector<double>, size_t> >
 			scores_per_candidate;
 
 			for (size_t i = 0; i < positional_matrix.size(); ++i) {
 				scores_per_candidate.push_back(
-					std::pair<std::vector<double>, int>(positional_matrix[i],
+					std::pair<std::vector<double>, size_t>(positional_matrix[i],
 						i));
 			}
 

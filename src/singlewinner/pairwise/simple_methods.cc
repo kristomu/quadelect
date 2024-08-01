@@ -127,7 +127,7 @@ std::pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat &
 				<< "\t";
 			copy(scores[counter].first.begin(),
 				scores[counter].first.end(),
-				std::ostream_iterator<int>(std::cout, "   "));
+				std::ostream_iterator<double>(std::cout, "   "));
 			std::cout << std::endl;
 		}
 	}

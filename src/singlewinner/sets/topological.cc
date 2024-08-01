@@ -27,20 +27,20 @@ ordering topological_set::topo_sort(const abstract_condmat & input,
 	// as the second. This count is incremented for each new element we add,
 	// and thus is analogous to the "depth" of the breadth-first search.
 
-	std::list<std::pair<int, int> > running_list;
+	std::list<std::pair<size_t, int> > running_list;
 
 	size_t counter;
 	ordering toRet;
 
 	for (counter = 0; counter < indegree.size(); ++counter)
 		if (indegree[counter] == 0) {
-			running_list.push_back(std::pair<int, int>(counter, 0));
+			running_list.push_back(std::pair<size_t, int>(counter, 0));
 		}
 
 	// While there are candidates left...
 	while (!running_list.empty()) {
 		// Get one from the left.
-		std::pair<int, int> cur = *running_list.begin();
+		std::pair<size_t, int> cur = *running_list.begin();
 
 		// Remove it.
 		running_list.erase(running_list.begin());

@@ -77,7 +77,7 @@ std::pair<ordering, bool> vi_median_ratings::get_ranks(
 	double fracile, bool tiebreak, bool winner_only,
 	bool debug) const {
 
-	std::list<std::pair<double, int> > l_ordering;
+	std::list<std::pair<double, size_t> > l_ordering;
 
 	gf_comparand comparison(&source);
 	bool broke_early = false, updated = true;
@@ -86,14 +86,14 @@ std::pair<ordering, bool> vi_median_ratings::get_ranks(
 	// being, though it may not be optimal.
 	assert(source.init(fracile, GF_NONE));
 
-	std::list<std::pair<double, int> >::iterator opos, obpos;
+	std::list<std::pair<double, size_t> >::iterator opos, obpos;
 	size_t iter = 0, counter;
 
 	// Create our ordering struct with the initial state of every candidate
 	// being tied with each other.
 	for (counter = 0; counter < source.get_num_candidates(); ++counter)
 		if (source.is_hopeful(counter)) {
-			l_ordering.push_back(std::pair<double, int>(0, counter));
+			l_ordering.push_back(std::pair<double, size_t>(0, counter));
 		}
 
 	// While some boxes are finite, there are ties left, and we haven't
@@ -146,7 +146,7 @@ std::pair<ordering, bool> vi_median_ratings::get_ranks(
 		// For #1, compare against #2. We can't do this by reference,
 		// otherwise, #2 could think it was different from #1 simply
 		// because #1 was changed first. BLUESKY: Do better?
-		std::pair<double, int> o_last = *(++l_ordering.begin());
+		std::pair<double, size_t> o_last = *(++l_ordering.begin());
 
 		for (opos = l_ordering.begin(); source.ordinal_changed() &&
 			opos != l_ordering.end(); ++opos) {

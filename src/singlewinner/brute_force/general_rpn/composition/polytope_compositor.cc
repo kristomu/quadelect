@@ -316,7 +316,7 @@ int main(int argc, char ** argv) {
 		grp.print_scenarios(out_meta);
 		out_meta << " " << results.num_tests << " ";
 		std::copy(results.num_methods.begin(), results.num_methods.end(),
-			std::ostream_iterator<int>(out_meta, " "));
+			std::ostream_iterator<size_t>(out_meta, " "));
 		out_meta << "\n";
 
 		out_meta.close();
