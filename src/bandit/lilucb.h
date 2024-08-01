@@ -30,7 +30,7 @@ class queue_entry {
 			if (MAB_eval != other.MAB_eval) {
 				return (MAB_eval < other.MAB_eval);
 			}
-			return (arm_ref->get_simulation_count() >=
+			return (arm_ref->get_simulation_count() >
 					other.arm_ref->get_simulation_count());
 		}
 };
