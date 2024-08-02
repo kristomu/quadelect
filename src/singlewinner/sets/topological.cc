@@ -52,9 +52,8 @@ ordering topological_set::topo_sort(const abstract_condmat & input,
 			if (relation(input, hopefuls, cur.first, counter)) {
 				--indegree[counter];
 				if (indegree[counter] == 0)
-					running_list.push_back(std::pair<int, int>(
-							counter,
-							cur.second+1));
+					running_list.push_back(std::pair<size_t, int>(
+							counter, cur.second+1));
 			}
 
 		// Finally, add the current vertex to the output ordering.

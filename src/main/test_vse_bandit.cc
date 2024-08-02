@@ -74,7 +74,7 @@ void test_with_bandits(
 			confident = true;
 		}
 
-		std::vector<std::pair<double, int> > so_far;
+		std::vector<std::pair<double, size_t> > so_far;
 
 		// Warning: No guarantee that this will contain the best until
 		// the method is finished; and no guarantee that it will contain
@@ -95,7 +95,7 @@ void test_with_bandits(
 			if (sims[k]->higher_is_better()) {
 				score = -score;
 			}
-			so_far.push_back(std::pair<double, int>(score, k));
+			so_far.push_back(std::pair<double, size_t>(score, k));
 		}
 		sort(so_far.begin(), so_far.end());
 

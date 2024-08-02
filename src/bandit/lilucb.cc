@@ -74,6 +74,7 @@ double Lil_UCB::pull_bandit_arms(size_t max_pulls, bool show_status) {
 
 	for (size_t i = 0; i < max_pulls; ++i) {
 		if (show_status) {
+			// WARNING: This is very slow on Windows!
 			std::cerr << i << "   " << max_pulls << "   \r" << std::flush;
 		}
 

@@ -25,14 +25,15 @@ int main(int argc, const char ** argv) {
 
 	random_shuffle(bernoullis.begin(), bernoullis.end());
 
-	int pulls_per_round = 40000;
+	double seconds_per_round = 0.5;
 
 	Lil_UCB bandit_tester;
 	bandit_tester.load_arms(bernoullis);
 
 	double progress;
 
-	while ((progress = bandit_tester.pull_bandit_arms(pulls_per_round)) != 1) {
+	while ((progress = bandit_tester.timed_pull_bandit_arms(
+					seconds_per_round)) != 1) {
 		std::cout << "Not done yet (progress is " << progress << ")" << std::endl;
 		std::shared_ptr<simulator> best = bandit_tester.get_best_arm_so_far();
 		std::cout << "Best so far is " << best->name() << std::endl;
@@ -42,6 +43,9 @@ int main(int argc, const char ** argv) {
 			std::cout << "Actual minimum is " << minmean << std::endl;
 		}
 	}
+
+	std::shared_ptr<simulator> best = bandit_tester.get_best_arm_so_far();
+	std::cout << "Bandit says the best is " << best->name() << std::endl;
 
 	std::cout << "It took " << bandit_tester.get_total_num_pulls()
 		<< " pulls to find that out." << std::endl;
