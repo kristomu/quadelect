@@ -19,7 +19,8 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 		cfg.readFile(config_filename.c_str());
 	} catch (libconfig::FileIOException & fioex) {
 		std::cerr << "Error reading config file " << config_filename << "\n";
-		throw std::runtime_error("Config file read error");
+		throw std::runtime_error("Config file read error: " +
+			std::string(fioex.what()));
 	} catch (libconfig::ParseException & pex) {
 		std::cerr << "Error parsing config file " << config_filename << "\n";
 		std::cerr << pex.getFile() << ": " << pex.getLine() << " - "
@@ -44,7 +45,7 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 		for (i = 0; i < algosearch["desired_criteria"].getLength(); ++i) {
 			desired_criteria.push_back(algosearch["desired_criteria"][i]);
 		}
-	} catch (libconfig::SettingNotFoundException & snfex) {
+	} catch (libconfig::SettingNotFoundException & /*snfex*/) {
 		// ignore
 	}
 
@@ -56,7 +57,7 @@ void g_rpn_config::load_from_file(std::string config_filename) {
 
 			group_order.push_back(group_num);
 		}
-	} catch (libconfig::SettingNotFoundException & snfex) {
+	} catch (libconfig::SettingNotFoundException & /*snfex*/) {
 		// ignore
 	}
 

@@ -13,6 +13,8 @@
 #include <set>
 #include <map>
 
+const size_t SIZE_T_NA = (size_t)-1;
+
 
 // Ballot components. An ordering is just that, but it also includes ratings
 // (if so declared), so that loser-elimination/average-elimination can work,
@@ -159,7 +161,7 @@ class ballot_group {
 		}
 
 		void replace_score(size_t candidate_number, double new_score) {
-			candscore this_cddt(-1, -1);
+			candscore this_cddt(SIZE_T_NA, SIZE_T_NA);
 			bool found_candidate = false;
 			for (candscore cs: contents) {
 				if (cs.get_candidate_num() == candidate_number) {

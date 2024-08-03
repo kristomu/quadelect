@@ -36,7 +36,7 @@ template<typename T, typename R> uint64_t factoradic::permutation_number(
 	for (const char x: permutation) {
 		int fac_radix = factorial(count--);
 		int element_to_find = x - first_cand;
-		size_t element_location;
+		size_t element_location = 0;
 		bool found_element = false;
 
 		for (size_t j = 0; j < identity_perm.size() && !found_element;

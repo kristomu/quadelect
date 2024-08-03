@@ -6,8 +6,7 @@
 // (ABC, ACB, ..., CBA) dot (w[0], w..., w[5]). To get B, we just relabel the
 // candidates again. Greatest score wins.
 
-#ifndef _VOTE_CW_BRUTE
-#define _VOTE_CW_BRUTE
+#pragma once
 
 #include "../../pairwise/matrix.h"
 #include "../pairwise/method.h"
@@ -61,5 +60,3 @@ class cond_brute : public election_method {
 		bool reversal_symmetric() const;
 		std::string get_compliances() const;
 };
-
-#endif

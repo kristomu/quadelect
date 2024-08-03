@@ -13,13 +13,13 @@ std::vector<int> cond_brute::decode_weight_code(int wcode,
 	// Now we use an arbitrary (odd) base. More tangibly, we could consider
 	// wcode to be a number in balanced (base+1)/2-ary, and each digit gives
 	// a weight to use for the linear combination that makes the brute method.
-	std::vector<int> weights(6, 0);
+	std::vector<int> adjusted_weights(6, 0);
 
 	for (int counter = 0; counter < 6 && wcode > 0; ++counter) {
 		//std::cout << wcode << "\t" << counter << "\t" << wcode%base<<std::endl;
 		int this_weight = wcode % base;    // 0 .. (base-1)
 		this_weight -= (base-1)/2;	   // centered on 0
-		weights[counter] = this_weight;
+		adjusted_weights[counter] = this_weight;
 		wcode /= base;
 	}
 
@@ -29,7 +29,7 @@ std::vector<int> cond_brute::decode_weight_code(int wcode,
 	// 4 + 4*5 + 3*5^2 + 3*5^3
 	// = 474
 
-	return (weights);
+	return (adjusted_weights);
 }
 
 bool cond_brute::is_monotone() const {

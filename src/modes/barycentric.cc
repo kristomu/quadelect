@@ -242,8 +242,8 @@ std::string barycentric::do_round(bool give_brief_status) {
 
 			if (barycentric_ballot.empty()) {
 				// Draw white
-				color_pic << (char)255 << (char)255
-					<< (char)255;
+				color_pic << (u_char)255 << (u_char)255
+					<< (u_char)255;
 			} else {
 				// Get the winner/s and determine its color.
 

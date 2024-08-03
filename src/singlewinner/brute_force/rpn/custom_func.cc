@@ -311,8 +311,8 @@ double custom_function::evaluate(const std::vector<double> & input_values,
 bool custom_function::update_suitability(const custom_function &
 	funct_to_test,
 	const std::vector<std::vector<double> > & test_in_vectors,
-	std::map<std::vector<double>, unsigned long long> & results_already_seen)
-const {
+	std::map<std::vector<double>, unsigned long long> &
+	results_already_seen) const {
 
 	test_results.resize(test_in_vectors.size());
 	size_t i;
@@ -363,11 +363,11 @@ bool custom_function::update_ordinal_suitability(const custom_function &
 	std::map<std::vector<bool>, unsigned long long> & results_already_seen)
 const {
 
-	std::vector<double> test_results;
+	std::vector<double> ordinal_test_results;
 	std::vector<bool> results_ordinal;
 
 	size_t num_vectors = test_in_vectors.size();
-	test_results.resize(num_vectors);
+	ordinal_test_results.resize(num_vectors);
 	results_ordinal.reserve(num_vectors*num_vectors);
 
 	// The point of using tolerance is to disqualify functions that rely
@@ -382,17 +382,18 @@ const {
 	size_t i, j;
 
 	for (i = 0; i < num_vectors; ++i) {
-		test_results[i] = funct_to_test.evaluate(test_in_vectors[i],
-				true);
+		ordinal_test_results[i] = funct_to_test.evaluate(
+				test_in_vectors[i], true);
 
-		if (isnan(test_results[i])) {
-			return (false);
+		if (isnan(ordinal_test_results[i])) {
+			return false;
 		}
 	}
 
 	for (i = 0; i < num_vectors; ++i) {
 		for (j = 0; j < num_vectors; ++j) {
-			double difference = test_results[i]-test_results[j];
+			double difference =
+				ordinal_test_results[i] - ordinal_test_results[j];
 
 			results_ordinal.push_back(
 				fabs(difference) > tolerance && difference < 0);
@@ -404,12 +405,12 @@ const {
 	if (results_already_seen.find(results_ordinal) !=
 		results_already_seen.end()) {
 		//std::cout << our_value << ": ordinally shadowed by " << results_already_seen.find(results_ordinal)->second << std::endl;
-		return (false);
+		return false;
 	} else {
 		results_already_seen[results_ordinal] = funct_to_test.get_value();
 	}
 
-	return (true);
+	return true;
 }
 
 std::vector<std::string> custom_function::get_atom_printout() const {

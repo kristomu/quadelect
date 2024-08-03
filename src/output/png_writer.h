@@ -1,3 +1,11 @@
+// silence C4996 on Windows.
+// https://stackoverflow.com/a/42412470
+#define _CRT_SECURE_NO_DEPRECATE
+
+// Known bugs: Doesn't report out of space errors to user.
+// (The error callback doesn't seem to get called at all as nothing
+//  happens.)
+
 #include <png.h>
 #include <string>
 #include <vector>
@@ -9,6 +17,8 @@ class png_writer {
 
 		png_structp png_ptr;
 		png_infop png_infoptr;
+
+		std::string png_filename;
 
 		// png.h expects C-style arrays, hence this
 		// ugly way of doing things. This is a pointer
@@ -22,15 +32,19 @@ class png_writer {
 		std::vector<std::string> text_keys,
 			text_values;
 
-		// TODO: Flag that file is open etc, so that the
+		// Flag that file is open etc, so that the
 		// destructor closes the file automatically.
 		bool inited = false;
 
 		png_byte clamp_color(double intensity_in) const;
 
 	public:
-		void init_png_file(std::string filename,
+		void init_png_file(std::string filename_in,
 			size_t width_in, size_t height_in);
+
+		std::string get_filename() const {
+			return png_filename;
+		}
 
 		// Place a pixel with the given RGB value to the
 		// output picture canvas. The colors should be in the

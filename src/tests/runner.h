@@ -53,7 +53,7 @@ class test_runner : public bernoulli_simulator {
 		// Side effect: also populates the failed_criteria array.
 		// (TODO: Something less ugly.)
 		size_t get_num_failed_criteria(
-			const election_t & ballots,
+			const election_t & in_ballots,
 			ordering honest_outcome, size_t numcands,
 			bool only_one, bool verbose);
 

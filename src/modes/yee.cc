@@ -645,25 +645,18 @@ std::string yee::do_round(bool give_brief_status) {
 		// Don't give up immediately if it's impossible to write a
 		// certain file.
 
-		try {
-			uint64_t initial_seed =
-				coordinate_sources[PURPOSE_CANDIDATE_DATA]->
-				get_initial_seed();
+		uint64_t initial_seed =
+			coordinate_sources[PURPOSE_CANDIDATE_DATA]->
+			get_initial_seed();
 
-			draw_pictures(run_prefix + "_" + code,
-				method_name, initial_seed,
-				winners_all_m_all_cand[method_no],
-				candidate_colors, candidate_posns,
-				inner_radius, outer_radius,
-				color_attenuation_factor);
+		draw_pictures(run_prefix + "_" + code,
+			method_name, initial_seed,
+			winners_all_m_all_cand[method_no],
+			candidate_colors, candidate_posns,
+			inner_radius, outer_radius,
+			color_attenuation_factor);
 
-			output += "OK.";
-		} catch (std::runtime_error & re) {
-			// Error. We should really be returning error status *and*
-			// explanatory text as just "error if it's empty, otherwise
-			// OK" is really uninformative.
-			return "";
-		}
+		output += "OK.";
 	}
 
 	return output;

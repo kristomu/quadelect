@@ -22,8 +22,7 @@
 // If p >= 1, can be prefixed as above.
 // ... and then we can recursively build very large functions.
 
-#ifndef _RPN_CUSTOM_FUNC
-#define _RPN_CUSTOM_FUNC
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -144,16 +143,16 @@ class custom_function {
 			bool reject_large_stack) const;
 
 		// Determine if the function works on the test vectors.
-		bool update_suitability(const std::vector<std::vector<double> > &
-			test_in_vectors,
+		bool update_suitability(
+			const std::vector<std::vector<double> > & test_in_vectors,
 			std::map<std::vector<double>, unsigned long long > & results_already_seen)
 		const {
 			return (update_suitability(*this, test_in_vectors,
 						results_already_seen));
 		}
 
-		bool update_ordinal_suitability(const std::vector<std::vector<double> > &
-			test_in_vectors,
+		bool update_ordinal_suitability(
+			const std::vector<std::vector<double> > & test_in_vectors,
 			std::map<std::vector<bool>, unsigned long long > & results_already_seen)
 		const {
 			return (update_ordinal_suitability(*this, test_in_vectors,
@@ -165,5 +164,3 @@ class custom_function {
 			return (our_value);
 		}
 };
-
-#endif

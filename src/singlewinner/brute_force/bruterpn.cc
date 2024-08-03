@@ -102,7 +102,7 @@ bool cond_brute_rpn::get_scores(const std::vector<double> & vote_array,
 		output[0] = ascore;
 		output[1] = bscore;
 		output[2] = cscore;
-	} catch (std::runtime_error & rerr) {
+	} catch (std::runtime_error & /*rerr*/) {
 		output[0] = 0;
 		output[1] = 0;
 		output[2] = 0;

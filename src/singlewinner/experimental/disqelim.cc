@@ -1,5 +1,7 @@
 #include "disqelim.h"
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 // Helper function, put elsewhere in due order
 int count_trues(const std::vector<bool> & x) {
 	int count = 0;
@@ -157,6 +159,10 @@ std::pair<ordering, bool> disqelim::elect_inner(
 
 	int cand;
 
+	// NOTE: Some serious type confusion here. With very large
+	// numbers of candidates, this could be a problem... there are
+	// lots of bugs of this type lurking around in general.
+
 	if (remaining_order.size() != remaining_candidates) {
 		remaining_order.clear();
 		for (cand = 0; cand < num_candidates; ++cand) {
@@ -180,7 +186,7 @@ std::pair<ordering, bool> disqelim::elect_inner(
 		//std::cout << "Yeeting " << to_eliminate << std::endl;
 
 		continuing[to_eliminate] = false;
-		scores[to_eliminate] = -remaining_candidates;
+		scores[to_eliminate] = -(ssize_t)(remaining_candidates);
 		--remaining_candidates;
 		remaining_order.erase(*next_to_eliminate);
 	}

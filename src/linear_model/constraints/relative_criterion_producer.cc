@@ -115,14 +115,14 @@ relative_criterion_producer::get_all(int min_num_cands,
 				relative_constraints.push_back(
 					std::make_shared<isda_relative_const>(false, c,
 						elim_sched));
-			} catch (std::runtime_error & e) {
+			} catch (std::runtime_error & /*e*/) {
 
 			}
 			try {
 				relative_constraints.push_back(
 					std::make_shared<isda_relative_const>(true, c,
 						elim_sched));
-			} catch (std::runtime_error & e) {
+			} catch (std::runtime_error & /*e*/) {
 
 			}
 		}

@@ -120,6 +120,9 @@ void update_results(
 						from_perspective_of =
 							elections[test_number].ti.after_B.from_perspective_of;
 						break;
+					default:
+						throw std::logic_error(
+							"polytope_compositor: Unknown candidate perspective!");
 				}
 
 				double result;

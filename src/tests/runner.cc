@@ -1,7 +1,7 @@
 #include "runner.h"
 
 size_t test_runner::get_num_failed_criteria(
-	const election_t & ballots, ordering honest_outcome,
+	const election_t & in_ballots, ordering honest_outcome,
 	size_t numcands, bool only_one, bool verbose) {
 
 	// Ties are a problem. We could consider the test to be disproven
@@ -18,7 +18,7 @@ size_t test_runner::get_num_failed_criteria(
 
 	if (verbose) {
 		std::cout << "Trying to strategize for this election: " << std::endl;
-		ballot_tools().print_ranked_ballots(ballots);
+		ballot_tools().print_ranked_ballots(in_ballots);
 		std::cout << "Honest outcome is " << ordering_tools().ordering_to_text(
 				honest_outcome, true) << std::endl;
 	}
@@ -28,7 +28,7 @@ size_t test_runner::get_num_failed_criteria(
 	// Create the disproof (evidence) that we'll be building on.
 	disproof failure_instance;
 	failure_instance.before_outcome = honest_outcome;
-	failure_instance.before_election = ballots;
+	failure_instance.before_election = in_ballots;
 
 	// Create an array per tester so that we can determine when
 	// we've exhausted all the options. For testers with extremely

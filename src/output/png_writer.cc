@@ -1,10 +1,40 @@
 #include "png_writer.h"
 
+#include <iostream>
+
 #include <cmath>
 #include <fstream>
 #include <stdexcept>
 
 #include <zlib.h>
+
+// Callback functions.
+// Credit goes to ImageMagick because this way of handling libpng errors
+// is woefully undocumented, but the ImageMagick source shows how it's
+// done.
+
+// As I understand it, png_info is a pointer to (any kind of) struct
+// defined at init time, which can be used to pass information about
+// what picture we're dealing with. We'll just use the object itself
+// so that we can clean up properly.
+
+static void png_error_handler(png_struct * caller_ptr,
+	png_const_charp message) {
+
+	png_writer * caller = (png_writer *)caller_ptr;
+
+	caller->cleanup();
+
+	throw std::runtime_error(
+		"png_writer: Error writing file " + caller->get_filename() + ": "
+		+ std::string(message));
+}
+
+static void png_warning_handler(png_struct * caller_ptr,
+	png_const_charp message) {
+
+	std::cerr << "png_writer: Warning: " << message << std::endl;
+}
 
 png_byte png_writer::clamp_color(double intensity_in) const {
 	int color = round(256 * intensity_in);
@@ -14,8 +44,10 @@ png_byte png_writer::clamp_color(double intensity_in) const {
 	return std::min(255, std::max(0, color));
 }
 
-void png_writer::init_png_file(std::string filename,
+void png_writer::init_png_file(std::string filename_in,
 	size_t width_in, size_t height_in) {
+
+	png_filename = filename_in;
 
 	if (inited) {
 		finalize(); // Finish anything that's been left dangling.
@@ -25,8 +57,13 @@ void png_writer::init_png_file(std::string filename,
 	height = height_in;
 
 	// Create the PNG structures required.
-	png_ptr = png_create_write_struct(
-			PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
+			this, png_error_handler, png_warning_handler);
+
+	if (!png_ptr) {
+		throw std::runtime_error("png_writer: "
+			"Could not create PNG struct!");
+	}
 
 	// Set parameters that work well for Yee.
 	// (High compression and memory level)
@@ -34,22 +71,17 @@ void png_writer::init_png_file(std::string filename,
 	png_set_compression_mem_level(png_ptr, 9);
 	png_set_compression_strategy(png_ptr, Z_FILTERED);
 
-	if (!png_ptr) {
-		throw std::runtime_error("png_writer: "
-			"Could not create PNG struct!");
-	}
-
 	png_infoptr = png_create_info_struct(png_ptr);
 	if (!png_infoptr) {
 		throw std::runtime_error("png_writer: "
 			"Could not create PNG info struct!");
 	}
 
-	fp = fopen(filename.c_str(), "wb");
+	fp = fopen(png_filename.c_str(), "wb");
 	if (!fp) {
 		png_destroy_write_struct(&png_ptr, &png_infoptr);
 		throw std::runtime_error("png_writer: "
-			"Could not open file " + filename + " for writing!");
+			"Could not open file " + png_filename + " for writing!");
 	}
 
 	// Not sure what this does; I'm going by example code.
@@ -131,6 +163,7 @@ void png_writer::cleanup() {
 	text_keys.clear();
 	text_values.clear();
 
+	png_filename = "";
 	inited = false;
 }
 

@@ -104,7 +104,7 @@ bool test_generator::set_scenarios(copeland_scenario before,
 		election_polytope = constraint_polytope(constraints.first);
 		sampler = billiard_sampler<constraint_polytope>(election_polytope,
 				true, true, rng_seed);
-	} catch (const std::runtime_error & e) {
+	} catch (const std::runtime_error & /*e*/) {
 		return false;
 	}
 

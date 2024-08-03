@@ -88,7 +88,7 @@ std::pair<ordering, bool> cte::elect_inner(const
 
 	// Check for a Condorcet loser; eliminate if found.
 	bool is_CL = false;
-	size_t condorcet_loser;
+	size_t condorcet_loser = 0;
 
 	for (i = 0; i < numcands && !is_CL; ++i) {
 		if (!hopefuls[i]) {

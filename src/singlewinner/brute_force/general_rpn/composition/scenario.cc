@@ -7,7 +7,7 @@ std::vector<bool> copeland_scenario::integer_to_short_form(const
 
 	std::vector<bool> short_form;
 
-	uint64_t max_mask = 1 << (num_short_form_elements(numcands) - 1);
+	uint64_t max_mask = 1ULL << (num_short_form_elements(numcands) - 1);
 
 	for (uint64_t mask = max_mask; mask > 0; mask >>= 1) {
 		short_form.push_back(int_form & mask);
