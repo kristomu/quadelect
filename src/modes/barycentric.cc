@@ -7,6 +7,8 @@
 
 #include "../spookyhash/SpookyV2.h"
 
+typedef unsigned char u_char; // not supported by MSVC
+
 // Turns a string of the type "ABC" into a ranked ballot corresponding
 // to A>B>C.
 ordering strict_ballot(std::string input) {

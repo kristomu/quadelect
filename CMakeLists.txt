@@ -15,23 +15,23 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 if (MSVC)
 	# I'm not too sure about fp:fast? The docs seem to say that it doesn't
 	# invalidate non-finite floating point values, so it appears to be OK?
-	
+
 	# The following warnings have been disabled:
-	
+
 	# Warning C4464: relative paths in include
 	#		I should fix these, but I don't want them spamming up
 	#		the console before I do.
-	
+
 	# Warning C4100: unused function parameter
 	#		Fixing these would clutter up function definitions that
 	#		have a common template, e.g. int foo(int bar) would have
 	#		to be turned into int foo(int /*bar*/) whenever we don't
 	#		use the bar paramete. That's too ugly, so I'm removing this.
-	
+
 	# Warning C4127: conditional expression is constant
 	#		Triggered by external libraries and thus not something we
 	#		can do anything about.
-	
+
 	# Warning C4244: implicit conversion may lead to loss of data
 	#		Mostly size_t/int problems. Fixing them is going to take a
 	#		lot of time and I don't want them spamming up the console
