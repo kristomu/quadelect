@@ -84,15 +84,6 @@ void png_writer::init_png_file(std::string filename_in,
 			"Could not open file " + png_filename + " for writing!");
 	}
 
-	// Not sure what this does; I'm going by example code.
-	// Something about errors jumping to the inside of this
-	// if clause?
-	if (setjmp(png_jmpbuf(png_ptr))) {
-		fclose(fp);
-		png_destroy_write_struct(&png_ptr, &png_infoptr);
-		throw std::runtime_error("png_writer: Other PNG error occurred.");
-	}
-
 	// Link the png_ptr structure to the file we opened.
 	png_init_io(png_ptr, fp);
 

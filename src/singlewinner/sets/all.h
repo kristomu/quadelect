@@ -2,6 +2,9 @@
 // All sets (with possible exception of Copeland, if you consider that a set).
 // Use this if you want to include the whole batch.
 
+// The unsuccessful sets are not included here; use unsuccessful/all.h if you
+// want them.
+
 #pragma once
 
 #include "condorcet.h"
