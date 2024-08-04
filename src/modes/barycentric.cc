@@ -2,10 +2,10 @@
 #include <fstream>
 #include <list>
 
-#include "../ballots.h"
-#include "../singlewinner/method.h"
+#include "common/ballots.h"
+#include "singlewinner/method.h"
 
-#include "../spookyhash/SpookyV2.h"
+#include "spookyhash/SpookyV2.h"
 
 typedef unsigned char u_char; // not supported by MSVC
 

@@ -1,8 +1,8 @@
 #ifndef _COMP_SCENARIO
 #define _COMP_SCENARIO
 
-#include "../../../../tools/tools.h"
-#include "../../../../pairwise/abstract_matrix.h"
+#include "tools/tools.h"
+#include "pairwise/abstract_matrix.h"
 
 #include <set>
 #include <string>

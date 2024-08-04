@@ -92,6 +92,7 @@ find_package(Boost REQUIRED)
 find_library(GETOPT_LIB getopt)
 
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${PROJECT_SOURCE_DIR}/src/)
 
 # Internal functionality groupings. Not all programs need all the
 # functionality: in particular, the yee/BR program doesn't need the
@@ -187,9 +188,9 @@ add_library(qe_singlewinner_methods
 # Includes Young and Kemeny, which need GLPK.
 target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
 
-add_library(quadelect_lib src/ballots.cc
+add_library(quadelect_lib src/common/ballots.cc
 	src/bandit/lilucb.cc
-	src/cache.cc
+	src/common/cache.cc
 	src/choose_inc.cc
 	src/distances/vivaldi_test.cc
 	src/generator/ballotgen.cc

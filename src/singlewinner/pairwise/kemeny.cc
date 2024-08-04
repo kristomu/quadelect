@@ -15,7 +15,7 @@
 
 // TODO: Also don't be so bloody verbose!
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 #include "kemeny.h"
 

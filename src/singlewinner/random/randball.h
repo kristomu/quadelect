@@ -4,8 +4,8 @@
 #define _VOTE_SW_RANDBALL
 
 #include "../method.h"
-#include "../../tools/tools.h"
-#include "../../ballots.h"
+#include "tools/tools.h"
+#include "common/ballots.h"
 
 
 class random_ballot : public election_method {

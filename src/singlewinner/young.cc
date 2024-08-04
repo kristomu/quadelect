@@ -3,7 +3,7 @@
 // Possible later thing to do: use the virtual equation stuff in
 // linear_model/ to simplify the construction of the GLPK model.
 
-#include "../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 
 #include <iterator>

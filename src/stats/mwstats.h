@@ -5,7 +5,7 @@
 #define __VOTE_STATS_MW
 
 #include "stats.h"
-#include "../multiwinner/methods.h"
+#include "multiwinner/methods.h"
 
 
 class multiwinner_stats : public stats {

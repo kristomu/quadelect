@@ -1,7 +1,7 @@
 #ifndef _VOTE_EXT_PLUR
 #define _VOTE_EXT_PLUR
 
-#include "../../ballots.h"
+#include "common/ballots.h"
 #include "../method.h"
 #include <list>
 #include <vector>

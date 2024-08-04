@@ -13,7 +13,7 @@
 #ifndef _VOTE_P_KEMENY
 #define _VOTE_P_KEMENY
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 
 #include <iostream>

@@ -6,7 +6,7 @@
 #ifndef _VOTE_POS_MATRIX
 #define _VOTE_POS_MATRIX
 
-#include "../../ballots.h"
+#include "common/ballots.h"
 #include "../method.h"
 #include <list>
 #include <vector>

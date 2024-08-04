@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "../../method.h"
-#include "../../pairwise/method.h"
+#include "singlewinner/method.h"
+#include "singlewinner/pairwise/method.h"
 
 class venzke_landau_set : public pairwise_method {
 	public:

@@ -1,6 +1,6 @@
 #include "fpa_fpc.h"
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
 std::pair<ordering, bool> fpa_fpc::elect_inner(

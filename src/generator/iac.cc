@@ -1,5 +1,5 @@
 #include "iac.h"
-#include "../tools/tools.h"
+#include "tools/tools.h"
 
 // To generate an election according to IAC, we use the sorted random uniform
 // algorithm: create (n-1) random points on 0..|V|, sort them in ascending order,

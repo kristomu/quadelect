@@ -1,6 +1,6 @@
 #include "dh2.h"
 
-#include "../../tools/ballot_tools.h"
+#include "tools/ballot_tools.h"
 
 dh2_test::dh2_test() {
 

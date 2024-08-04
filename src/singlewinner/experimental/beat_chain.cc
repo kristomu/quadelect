@@ -1,5 +1,5 @@
 #include "beat_chain.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 std::pair<ordering, bool> beat_chain::elect_inner(const
 	election_t & papers, const std::vector<bool> & hopefuls,

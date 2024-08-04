@@ -8,7 +8,7 @@
 #ifndef _BALLOT_GEN_GAUSSIAN
 #define _VOTE_BG_GAUSSIAN
 
-#include "ballots.h"
+#include "common/ballots.h"
 #include "uncomp/errors.cc"
 #include <vector>
 #include <list>

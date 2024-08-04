@@ -1,8 +1,8 @@
 #ifndef _VOTE_C_MATRIX
 #define _VOTE_C_MATRIX
 
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include "types.h"
 #include "abstract_matrix.h"

@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../pairwise/method.h"
 #include "../method.h"
 

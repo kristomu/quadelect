@@ -16,8 +16,8 @@
 #define _VOTE_SW_RANDCAND
 
 #include "../method.h"
-#include "../../tools/tools.h"
-#include "../../ballots.h"
+#include "tools/tools.h"
+#include "common/ballots.h"
 
 
 class random_candidate : public election_method {

@@ -9,10 +9,10 @@
 #pragma once
 
 #include "mode.h"
-#include "../ballots.h"
-#include "../random/random.h"
-#include "../images/color/color.h"
-#include "../singlewinner/method.h"
+#include "common/ballots.h"
+#include "random/random.h"
+#include "images/color/color.h"
+#include "singlewinner/method.h"
 
 #include <memory>
 #include <vector>

@@ -7,21 +7,21 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../generator/impartial.h"
+#include "generator/impartial.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/elimination.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity/mono_raise.h"
+#include "tests/tests/monotonicity/mono_raise.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
-#include "../singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/pairwise/simple_methods.h"
 
 int main() {
 

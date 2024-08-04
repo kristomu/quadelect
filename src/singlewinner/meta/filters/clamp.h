@@ -6,9 +6,9 @@
 // This is a cut and paste of normalize. Maybe I can reduce the duplicate code
 // later, but I don't think there's much to save.
 
-#include "../../method.h"
-#include "../../../ballots.h"
-#include "../../../tools/tools.h"
+#include "singlewinner/method.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include <memory>
 

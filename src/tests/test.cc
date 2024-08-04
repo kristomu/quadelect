@@ -1,7 +1,7 @@
 #include "test.h"
 
-#include "../tools/tools.h"
-#include "../tools/ballot_tools.h"
+#include "tools/tools.h"
+#include "tools/ballot_tools.h"
 
 #include <iostream>
 

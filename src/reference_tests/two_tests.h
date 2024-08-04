@@ -41,8 +41,8 @@
 #ifndef _VOTE_TWOTEST
 #define _VOTE_TWOTEST
 
-#include "../tools/ballot_tools.h"
-#include "../singlewinner/method.h"
+#include "tools/ballot_tools.h"
+#include "singlewinner/method.h"
 #include <iterator>
 #include <vector>
 

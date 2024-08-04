@@ -7,22 +7,22 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../stats/confidence/as241.h"
+#include "stats/confidence/as241.h"
 
-#include "../generator/all.h"
-#include "../bandit/lilucb.h"
+#include "generator/all.h"
+#include "bandit/lilucb.h"
 
-#include "../tests/strategy/strategies.h"
-#include "../tests/provider.h"
+#include "tests/strategy/strategies.h"
+#include "tests/provider.h"
 
-#include "../tests/quick_dirty/monotonicity.h"
+#include "tests/quick_dirty/monotonicity.h"
 
-#include "../singlewinner/get_methods.h"
-#include "../stats/stats.h"
+#include "singlewinner/get_methods.h"
+#include "stats/stats.h"
 
 // Test for monotonicity failures by using multi-armed bandit.
 // This is ripped from the *other* bandit tester and really needs

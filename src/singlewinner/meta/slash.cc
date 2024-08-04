@@ -6,8 +6,8 @@
 // the first.
 
 #include "../method.h"
-#include "../../ballots.h"
-#include "../../tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/ballot_tools.h"
 
 #include "slash.h"
 

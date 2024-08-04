@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../bernoulli.h"
-#include "../../tools/tools.h"
-#include "../../random/random.h"
+#include "tools/tools.h"
+#include "random/random.h"
 
 class bernoulli_stub : public bernoulli_simulator {
 	private:

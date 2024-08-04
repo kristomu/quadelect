@@ -1,6 +1,6 @@
 #include "scenario.h"
-#include "../../../../pairwise/matrix.h"
-#include "../../../../pairwise/types.h"
+#include "pairwise/matrix.h"
+#include "pairwise/types.h"
 
 std::vector<bool> copeland_scenario::integer_to_short_form(const
 	uint64_t int_form, size_t numcands) const {

@@ -1,6 +1,6 @@
 
-#include "../../../ballots.h"
-#include "../../../grad_median/grad_median.h"
+#include "common/ballots.h"
+#include "grad_median/grad_median.h"
 
 #ifndef _VOTE_AUX_COMPARAND
 #define _VOTE_AUX_COMPARAND

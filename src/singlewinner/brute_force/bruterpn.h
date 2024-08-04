@@ -1,7 +1,7 @@
 #ifndef _VOTE_CW_BRUTE_RPN
 #define _VOTE_CW_BRUTE_RPN
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "rpn/custom_func.h"
 #include "../pairwise/method.h"
 #include "../method.h"

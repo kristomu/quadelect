@@ -7,60 +7,60 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../generator/ballotgen.h"
-#include "../generator/impartial.h"
-#include "../generator/dirichlet.h"
-#include "../generator/spatial/all.h"
+#include "generator/ballotgen.h"
+#include "generator/impartial.h"
+#include "generator/dirichlet.h"
+#include "generator/spatial/all.h"
 
-#include "../singlewinner/gradual_c_b.h"
+#include "singlewinner/gradual_c_b.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
-#include "../singlewinner/positional/positional.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/elimination.h"
+#include "singlewinner/positional/positional.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../singlewinner/random/randball.h"
-#include "../singlewinner/random/randcand.h"
+#include "singlewinner/random/randball.h"
+#include "singlewinner/random/randcand.h"
 
 //#include "../tests/tests/monotonicity.h"
 
-#include "../stats/stats.h"
+#include "stats/stats.h"
 
-#include "../distances/vivaldi_test.h"
+#include "distances/vivaldi_test.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
-#include "../singlewinner/pairwise/method.h"
-#include "../singlewinner/pairwise/simple_methods.h"
-#include "../singlewinner/pairwise/keener.h"
-#include "../singlewinner/pairwise/rpairs.h"
-#include "../singlewinner/pairwise/kemeny.h"
-#include "../singlewinner/pairwise/odm/odm.h"
-#include "../singlewinner/pairwise/odm/hits.h"
-#include "../singlewinner/pairwise/odm/odm_atan.h"
-#include "../singlewinner/pairwise/sinkhorn.h"
+#include "singlewinner/pairwise/method.h"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/pairwise/keener.h"
+#include "singlewinner/pairwise/rpairs.h"
+#include "singlewinner/pairwise/kemeny.h"
+#include "singlewinner/pairwise/odm/odm.h"
+#include "singlewinner/pairwise/odm/hits.h"
+#include "singlewinner/pairwise/odm/odm_atan.h"
+#include "singlewinner/pairwise/sinkhorn.h"
 //#include "../singlewinner/pairwise/tournament.cc"
-#include "../singlewinner/pairwise/least_rev.h"
-#include "../singlewinner/pairwise/random/randpair.h"
-#include "../singlewinner/pairwise/dodgson_approxs.h"
+#include "singlewinner/pairwise/least_rev.h"
+#include "singlewinner/pairwise/random/randpair.h"
+#include "singlewinner/pairwise/dodgson_approxs.h"
 
-#include "../singlewinner/sets/mdd.h"
-#include "../singlewinner/sets/condorcet.h"
-#include "../singlewinner/sets/max_elements/smith.h"
-#include "../singlewinner/sets/max_elements/schwartz.h"
-#include "../singlewinner/sets/max_elements/landau.h"
-#include "../singlewinner/sets/max_elements/c_tt.h"
-#include "../singlewinner/sets/max_elements/sdom.h"
-#include "../singlewinner/meta/comma.h"
+#include "singlewinner/sets/mdd.h"
+#include "singlewinner/sets/condorcet.h"
+#include "singlewinner/sets/max_elements/smith.h"
+#include "singlewinner/sets/max_elements/schwartz.h"
+#include "singlewinner/sets/max_elements/landau.h"
+#include "singlewinner/sets/max_elements/c_tt.h"
+#include "singlewinner/sets/max_elements/sdom.h"
+#include "singlewinner/meta/comma.h"
 
-#include "../singlewinner/stats/var_median/vmedian.h"
-#include "../singlewinner/stats/mode.h"
+#include "singlewinner/stats/var_median/vmedian.h"
+#include "singlewinner/stats/mode.h"
 
-#include "../singlewinner/young.h"
+#include "singlewinner/young.h"
 
 std::vector<std::vector<bool> > get_impromptu_cm(const ordering & a,
 	int numcands) {

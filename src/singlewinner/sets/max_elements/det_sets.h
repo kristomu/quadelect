@@ -10,8 +10,8 @@
 #ifndef _SET_MAX_ELEMS
 #define _SET_MAX_ELEMS
 
-#include "../../method.h"
-#include "../../pairwise/method.h"
+#include "singlewinner/method.h"
+#include "singlewinner/pairwise/method.h"
 
 class det_sets_relation {
 

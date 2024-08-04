@@ -3,7 +3,7 @@
 #ifndef _VOTE_P_KEENER
 #define _VOTE_P_KEENER
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 #include "../method.h"
 

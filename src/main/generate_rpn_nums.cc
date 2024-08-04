@@ -7,8 +7,8 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "../singlewinner/brute_force/rpn/custom_func.h"
-#include "../singlewinner/brute_force/bruterpn.h"
+#include "singlewinner/brute_force/rpn/custom_func.h"
+#include "singlewinner/brute_force/bruterpn.h"
 
 
 std::vector<std::vector<double> > create_test_vectors(int how_many) {

@@ -2,7 +2,7 @@
 #define _VOTE_P_METHOD
 
 #include "../method.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 #include <complex>
 

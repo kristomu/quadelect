@@ -7,52 +7,52 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../generator/spatial/gaussian.h"
-#include "../generator/spatial/uniform.h"
-#include "../generator/impartial.h"
-#include "../generator/dirichlet.h"
+#include "generator/spatial/gaussian.h"
+#include "generator/spatial/uniform.h"
+#include "generator/impartial.h"
+#include "generator/dirichlet.h"
 
-#include "../singlewinner/gradual_c_b.h"
+#include "singlewinner/gradual_c_b.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/elimination.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity/mono_raise.h"
+#include "tests/tests/monotonicity/mono_raise.h"
 
-#include "../stats/stats.h"
+#include "stats/stats.h"
 
-#include "../singlewinner/pairwise/simple_methods.h"
-#include "../singlewinner/pairwise/keener.h"
-#include "../singlewinner/pairwise/rpairs.h"
-#include "../singlewinner/pairwise/kemeny.h"
-#include "../singlewinner/pairwise/odm/odm.h"
-#include "../singlewinner/pairwise/odm/hits.h"
-#include "../singlewinner/pairwise/odm/odm_atan.h"
-#include "../singlewinner/pairwise/sinkhorn.h"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/pairwise/keener.h"
+#include "singlewinner/pairwise/rpairs.h"
+#include "singlewinner/pairwise/kemeny.h"
+#include "singlewinner/pairwise/odm/odm.h"
+#include "singlewinner/pairwise/odm/hits.h"
+#include "singlewinner/pairwise/odm/odm_atan.h"
+#include "singlewinner/pairwise/sinkhorn.h"
 //#include "../singlewinner/pairwise/tournament.cc"
-#include "../singlewinner/pairwise/least_rev.h"
-#include "../singlewinner/pairwise/random/randpair.h"
-#include "../singlewinner/pairwise/dodgson_approxs.h"
+#include "singlewinner/pairwise/least_rev.h"
+#include "singlewinner/pairwise/random/randpair.h"
+#include "singlewinner/pairwise/dodgson_approxs.h"
 
-#include "../singlewinner/sets/mdd.h"
-#include "../singlewinner/sets/condorcet.h"
-#include "../singlewinner/sets/max_elements/all.h"
-#include "../singlewinner/sets/partition.h"
-#include "../singlewinner/meta/comma.h"
-#include "../singlewinner/meta/slash.h"
+#include "singlewinner/sets/mdd.h"
+#include "singlewinner/sets/condorcet.h"
+#include "singlewinner/sets/max_elements/all.h"
+#include "singlewinner/sets/partition.h"
+#include "singlewinner/meta/comma.h"
+#include "singlewinner/meta/slash.h"
 
-#include "../singlewinner/stats/var_median/vmedian.h"
-#include "../singlewinner/stats/median.h"
-#include "../singlewinner/stats/mode.h"
+#include "singlewinner/stats/var_median/vmedian.h"
+#include "singlewinner/stats/median.h"
+#include "singlewinner/stats/mode.h"
 
-#include "../singlewinner/young.h"
+#include "singlewinner/young.h"
 
-#include "../random/random.h"
+#include "random/random.h"
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X

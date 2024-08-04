@@ -17,7 +17,7 @@
 // mergesort, etc. Init according to seeding, then sort based on the method in
 // question, then return.
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../method.h"
 #include "method.h"
 #include "tournament.h"

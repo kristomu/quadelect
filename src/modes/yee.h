@@ -6,11 +6,11 @@
 #pragma once
 
 #include "mode.h"
-#include "../ballots.h"
-#include "../singlewinner/method.h"
-#include "../generator/spatial/gaussian.h"
+#include "common/ballots.h"
+#include "singlewinner/method.h"
+#include "generator/spatial/gaussian.h"
 
-#include "../spookyhash/SpookyV2.h"
+#include "spookyhash/SpookyV2.h"
 
 #include <memory>
 

@@ -1,6 +1,6 @@
 #include "quick_runoff.h"
 
-#include "../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "positional/simple_methods.h"
 
 ordering quick_runoff::winner_to_ordering(size_t winner,

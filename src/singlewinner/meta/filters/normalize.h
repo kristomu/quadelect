@@ -3,9 +3,9 @@
 // Linear normalization: each voter rates his least favorite a zero and greatest
 // favorite n, so that the ballots maximally use the integers [0, ..., n].
 
-#include "../../method.h"
-#include "../../../ballots.h"
-#include "../../../tools/tools.h"
+#include "singlewinner/method.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include <memory>
 

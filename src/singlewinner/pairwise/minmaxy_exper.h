@@ -2,7 +2,7 @@
 #ifndef _VOTE_P_EXPERIMENTAL
 #define _VOTE_P_EXPERIMENTAL
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 #include "../method.h"
 

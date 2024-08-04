@@ -13,7 +13,7 @@
 // capture the logic that makes fpA-fpC resistant and monotone.
 
 #include "../method.h"
-#include "../../pairwise/matrix.h"
+#include "singlewinner/pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
 

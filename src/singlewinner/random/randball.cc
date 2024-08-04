@@ -1,9 +1,9 @@
 // Random ballot (or "random dictator"). The method is strategy-proof.
 
 #include "../method.h"
-#include "../../tools/tools.h"
-#include "../../ballots.h"
-#include "../../hack/msvc_random.h"
+#include "tools/tools.h"
+#include "common/ballots.h"
+#include "hack/msvc_random.h"
 
 #include "randball.h"
 

@@ -5,7 +5,7 @@
 #include <map>
 
 #include "../lin_relation/constraint_set.h"
-#include "../../tools/tools.h"
+#include "tools/tools.h"
 #include "cand_pairs.h"
 
 // Constraints that involve relative criteria.

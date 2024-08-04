@@ -1,9 +1,9 @@
 #include "test_generator.h"
 #include "vector_ballot.h"
 
-#include "../../../../linear_model/constraints/numvoters.h"
-#include "../../../../linear_model/constraints/pairwise.h"
-#include "../../../../linear_model/constraints/general.h"
+#include "linear_model/constraints/numvoters.h"
+#include "linear_model/constraints/pairwise.h"
+#include "linear_model/constraints/general.h"
 
 election_t test_generator::vector_election_to_ordering_format(
 	const std::vector<double> & election, int numcands) const {

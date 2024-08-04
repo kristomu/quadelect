@@ -1,6 +1,6 @@
 #include "bernoulli.h"
-#include "../stats/confidence/as241.h"
-#include "../tools/tools.h"
+#include "stats/confidence/as241.h"
+#include "tools/tools.h"
 
 #include <stdexcept>
 #include <iostream>

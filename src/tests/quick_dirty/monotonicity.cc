@@ -5,11 +5,11 @@
 
 #include "monotonicity.h"
 
-#include "../../tools/ballot_tools.h"
-#include "../../ballots.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
 
-#include "../../random/random.h"
-#include "../../generator/all.h"
+#include "random/random.h"
+#include "generator/all.h"
 
 // https://stackoverflow.com/questions/12940522
 

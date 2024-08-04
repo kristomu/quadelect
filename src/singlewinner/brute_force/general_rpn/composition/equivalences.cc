@@ -10,12 +10,12 @@
 // TODO: Rewrite these comments. Also clean up the headers.
 // The comments are even more in need of a rewrite now...
 
-#include "../../../../tools/tools.h"
-#include "../../../../tools/factoradic.h"
-#include "../../../../ballots.h"
+#include "tools/tools.h"
+#include "tools/factoradic.h"
+#include "common/ballots.h"
 
-#include "../../../../generator/impartial.h"
-#include "../../../../pairwise/matrix.h"
+#include "generator/impartial.h"
+#include "pairwise/matrix.h"
 #include "../gen_custom_function.h"
 
 #include <numeric>

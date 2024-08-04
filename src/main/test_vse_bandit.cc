@@ -3,27 +3,27 @@
 #include <memory>
 #include <vector>
 
-#include "../tests/quick_dirty/monotonicity.h"
-#include "../simulator/all.h"
+#include "tests/quick_dirty/monotonicity.h"
+#include "simulator/all.h"
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
 
-#include "../singlewinner/elimination/all.h"
-#include "../singlewinner/experimental/all.h"
-#include "../singlewinner/meta/all.h"
-#include "../singlewinner/pairwise/simple_methods.h"
-#include "../singlewinner/sets/all.h"
-#include "../random/random.h"
+#include "singlewinner/elimination/all.h"
+#include "singlewinner/experimental/all.h"
+#include "singlewinner/meta/all.h"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/sets/all.h"
+#include "random/random.h"
 
-#include "../generator/all.h"
+#include "generator/all.h"
 
-#include "../stats/quasirandom/r_sequence.h"
+#include "stats/quasirandom/r_sequence.h"
 
-#include "../bandit/lilucb.h"
-#include "../singlewinner/get_methods.h"
+#include "bandit/lilucb.h"
+#include "singlewinner/get_methods.h"
 
-#include "../tests/manual/all.h"
+#include "tests/manual/all.h"
 
 void test_with_bandits(
 	std::vector<std::shared_ptr<election_method> > & to_test,

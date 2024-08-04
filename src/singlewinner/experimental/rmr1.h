@@ -62,7 +62,7 @@
 // some reason???
 
 #include "../method.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
 enum rmr_type { RMR_DEFEATED, RMR_DEFEATING, RMR_TWO_WAY, RMR_SCHWARTZ_EXP };

@@ -10,8 +10,8 @@
 #define _VOTE_SW_MEDIAN
 
 #include "../method.h"
-#include "../../tools/tools.h"
-#include "../../ballots.h"
+#include "tools/tools.h"
+#include "common/ballots.h"
 
 
 class median_ratings : public election_method {

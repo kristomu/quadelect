@@ -9,7 +9,7 @@
 // River:	http://lists.electorama.com/pipermail/
 //				election-methods-electorama.com/2004-October/014018.html
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 #include "../method.h"
 

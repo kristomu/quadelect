@@ -6,7 +6,7 @@
 // algorithm itself has been coded.
 
 #include "../method.h"
-#include "../../coalitions/coalitions.h"
+#include "coalitions/coalitions.h"
 
 class desc_coalition_method : public election_method {
 

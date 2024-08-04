@@ -14,9 +14,9 @@
 #ifndef _VOTE_P_RANDPAIR
 #define _VOTE_P_RANDPAIR
 
-#include "../../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../method.h"
-#include "../../method.h"
+#include "singlewinner/method.h"
 
 #include <assert.h>
 #include <iostream>

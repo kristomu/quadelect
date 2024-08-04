@@ -1,6 +1,6 @@
 #include "general_acp.h"
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 std::pair<ordering, bool> generalized_acp::elect_inner(
 	const election_t & papers,

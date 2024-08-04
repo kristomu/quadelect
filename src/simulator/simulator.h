@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "../stats/coordinate_gen.h"
+#include "stats/coordinate_gen.h"
 
 // A simulator evaluates a voting method and returns a quality score.
 

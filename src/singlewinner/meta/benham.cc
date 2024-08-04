@@ -1,6 +1,6 @@
 #include "benham.h"
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 // For each way to remove a loser:
 //	Remove that loser

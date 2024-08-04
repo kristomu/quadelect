@@ -10,7 +10,6 @@
 
 #include "ballots.h"
 
-
 // Ballot components. An ordering is just that, but it also includes ratings
 // (if so declared), so that loser-elimination/average-elimination can work,
 // and so that we may experiment with cardinal ratings later.

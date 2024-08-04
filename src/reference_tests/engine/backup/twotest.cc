@@ -26,7 +26,7 @@
 // then we find failures for A > ..., B > ..., C > ..., and so no matter how
 // the method would break the tie, it can't escape.
 
-#include "../../generator/ballotgen.cc"
+#include "reference_tests/generator/ballotgen.cc"
 #include "../two_tests.cc"
 
 #include <iostream>

@@ -18,46 +18,46 @@
 
 // General includes - tools and ballot structures.
 
-#include "../ballots.h"
-#include "../tools/ballot_tools.h"
-#include "../tools/time_tools.h"
-#include "../tools/tools.h"
+#include "common/ballots.h"
+#include "tools/ballot_tools.h"
+#include "tools/time_tools.h"
+#include "tools/tools.h"
 
 // Generators go here.
 
-#include "../generator/all.h"
+#include "generator/all.h"
 
 // Single-winner methods, including metamethods.
-#include "../singlewinner/all.h"
-#include "../singlewinner/get_methods.h"
+#include "singlewinner/all.h"
+#include "singlewinner/get_methods.h"
 
 // Interpreters for the interpreter mode
-#include "../interpreter/all.h"
+#include "interpreter/all.h"
 
 // Stats
-#include "../stats/coordinate_gen.h"
-#include "../stats/quasirandom/r_sequence.h"
+#include "stats/coordinate_gen.h"
+#include "stats/quasirandom/r_sequence.h"
 
 // More later. POC for now. Perhaps also do something with the fact that C++
 // doesn't have garbage collection -- i.e. clean up after ourselves.
 
 // Headers for the Bayesian regret mode:
-#include "../random/random.h"
-#include "../stats/stats.h"
+#include "random/random.h"
+#include "stats/stats.h"
 
-#include "../modes/breg.h"
-#include "../modes/yee.h"
+#include "modes/breg.h"
+#include "modes/yee.h"
 
 // Headers for the Yee mode:
-#include "../images/color/color.h"
+#include "images/color/color.h"
 
 // Barycentric characterization mode
-#include "../modes/barycentric.h"
+#include "modes/barycentric.h"
 
 // Interpreter itself.
-#include "../modes/interpret.h"
+#include "modes/interpret.h"
 
-#include "../hack/msvc_random.h"
+#include "hack/msvc_random.h"
 
 // This should really be put into a file associated with all.h
 std::vector<std::shared_ptr<pure_ballot_generator> > get_all_generators(

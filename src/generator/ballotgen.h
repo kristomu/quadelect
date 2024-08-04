@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "../singlewinner/method.h"
-#include "../tools/ballot_tools.h"
-#include "../random/random.h"
+#include "singlewinner/method.h"
+#include "tools/ballot_tools.h"
+#include "random/random.h"
 
 #include <numeric>
 #include <list>

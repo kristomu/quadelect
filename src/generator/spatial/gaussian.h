@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../../stats/distributions/gaussian.h"
+#include "stats/distributions/gaussian.h"
 
 #include "spatial.h"
 #include <vector>

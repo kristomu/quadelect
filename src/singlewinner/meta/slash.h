@@ -12,8 +12,8 @@
 //	outcome for {A,B,C,D,E,F} and so on.
 
 #include "../method.h"
-#include "../../ballots.h"
-#include "../../tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/ballot_tools.h"
 
 #include <memory>
 

@@ -1,6 +1,6 @@
 // Warren D. Smith's Sinkhorn method.
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 #include "../method.h"
 

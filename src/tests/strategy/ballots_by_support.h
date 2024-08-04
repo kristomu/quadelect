@@ -1,6 +1,6 @@
 #pragma once
 #include <list>
-#include "../../ballots.h"
+#include "common/ballots.h"
 
 // This is the relevant cache data structure for tests that relate to
 // strategic manipulation, where voters who prefer some candidate X to the

@@ -3,9 +3,9 @@
 // Mean-utility Approval guideline: approve (rate 1) every candidate above mean
 // utility, disapprove (rate 0) everybody else.
 
-#include "../../method.h"
-#include "../../../ballots.h"
-#include "../../../tools/tools.h"
+#include "singlewinner/method.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include <memory>
 

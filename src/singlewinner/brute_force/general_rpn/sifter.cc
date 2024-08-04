@@ -16,8 +16,8 @@
 #include <stdlib.h>
 #include <fstream>
 
-#include "../../../spookyhash/SpookyV2.h"
-#include "../../../hack/msvc_random.h"
+#include "spookyhash/SpookyV2.h"
+#include "hack/msvc_random.h"
 
 // Will clean up and put into class later.
 

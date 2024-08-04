@@ -5,7 +5,7 @@
 #include "../test_instance_gen.h"
 #include "../logistics/vector_test_instance.h"
 
-#include "../test_results.h" // FIX LATER
+#include "../test_results.h"
 
 // A test generator group is a group of test instance generators that
 // output elections that make use of the same scenarios, and that are

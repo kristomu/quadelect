@@ -1,6 +1,6 @@
 #include "dmt.h"
-#include "../../coalitions/coalitions.h"
-#include "../../pairwise/matrix.h"
+#include "coalitions/coalitions.h"
+#include "pairwise/matrix.h"
 
 std::pair<ordering, bool> dmt_set::elect_inner(
 	const election_t & papers,

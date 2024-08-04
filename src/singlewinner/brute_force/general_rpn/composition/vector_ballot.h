@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../../../../ballots.h"
+#include "common/ballots.h"
 #include "scenario.h"
 #include "equivalences.h"
 

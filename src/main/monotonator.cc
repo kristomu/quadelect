@@ -3,19 +3,19 @@
 #include <memory>
 #include <vector>
 
-#include "../tests/quick_dirty/monotonicity.h"
+#include "tests/quick_dirty/monotonicity.h"
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
 
-#include "../singlewinner/elimination/all.h"
-#include "../singlewinner/experimental/all.h"
-#include "../singlewinner/meta/all.h"
-#include "../singlewinner/pairwise/simple_methods.h"
-#include "../singlewinner/sets/all.h"
-#include "../random/random.h"
+#include "singlewinner/elimination/all.h"
+#include "singlewinner/experimental/all.h"
+#include "singlewinner/meta/all.h"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/sets/all.h"
+#include "random/random.h"
 
-#include "../generator/all.h"
+#include "generator/all.h"
 
 int main() {
 

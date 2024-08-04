@@ -1,5 +1,5 @@
 #include "vse.h"
-#include "../../tools/ballot_tools.h"
+#include "tools/ballot_tools.h"
 
 #include <math.h>
 #include <numeric>

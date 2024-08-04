@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../ballots.h"
-#include "../tools/tools.h"
-#include "../cache.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
+#include "common/cache.h"
 #include <iostream>
 #include <vector>
 #include <list>

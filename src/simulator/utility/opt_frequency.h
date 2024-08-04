@@ -2,11 +2,11 @@
 
 #include "../bounded.h"
 
-#include "../../ballots.h"
+#include "common/ballots.h"
 
-#include "../../generator/ballotgen.h"
-#include "../../singlewinner/method.h"
-#include "../../random/random.h"
+#include "generator/ballotgen.h"
+#include "singlewinner/method.h"
+#include "random/random.h"
 
 // This class calculates the frequency that a method elects the optimal
 // candidate. If the method produces a tie, then the simulation score for

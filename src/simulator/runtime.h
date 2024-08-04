@@ -2,11 +2,11 @@
 
 #include "bounded.h"
 
-#include "../ballots.h"
+#include "common/ballots.h"
 
-#include "../generator/ballotgen.h"
-#include "../singlewinner/method.h"
-#include "../random/random.h"
+#include "generator/ballotgen.h"
+#include "singlewinner/method.h"
+#include "random/random.h"
 
 // This is a simulator that returns the runtime of a particular
 // method, so we can (e.g.) find the fastest methods on average by

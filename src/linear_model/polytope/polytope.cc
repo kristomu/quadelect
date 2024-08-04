@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "../../tools/tools.h"
+#include "tools/tools.h"
 
 std::pair<glp_prob *, bool> polytope::create_mixed_program(
 	const std::vector<bool> & is_binary) const {

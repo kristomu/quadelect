@@ -7,67 +7,67 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
 
-#include "../stats/confidence/as241.h"
+#include "stats/confidence/as241.h"
 
-#include "../generator/all.h"
+#include "generator/all.h"
 
-#include "../singlewinner/gradual_c_b.h"
+#include "singlewinner/gradual_c_b.h"
 
-#include "../singlewinner/meta/filters/all.h"
+#include "singlewinner/meta/filters/all.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination/all.h"
-#include "../singlewinner/positional/positional.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/elimination/all.h"
+#include "singlewinner/positional/positional.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../stats/stats.h"
+#include "stats/stats.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
-#include "../singlewinner/pairwise/method.h"
-#include "../singlewinner/pairwise/simple_methods.h"
-#include "../singlewinner/pairwise/all.h"
-#include "../singlewinner/pairwise/rpairs.h"
-#include "../singlewinner/pairwise/kemeny.h"
-#include "../singlewinner/pairwise/odm/odm.h"
-#include "../singlewinner/pairwise/odm/hits.h"
-#include "../singlewinner/pairwise/odm/odm_atan.h"
-#include "../singlewinner/pairwise/sinkhorn.h"
+#include "singlewinner/pairwise/method.h"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/pairwise/all.h"
+#include "singlewinner/pairwise/rpairs.h"
+#include "singlewinner/pairwise/kemeny.h"
+#include "singlewinner/pairwise/odm/odm.h"
+#include "singlewinner/pairwise/odm/hits.h"
+#include "singlewinner/pairwise/odm/odm_atan.h"
+#include "singlewinner/pairwise/sinkhorn.h"
 //#include "../singlewinner/pairwise/tournament.cc"
-#include "../singlewinner/pairwise/least_rev.h"
-#include "../singlewinner/pairwise/random/randpair.h"
-#include "../singlewinner/pairwise/dodgson_approxs.h"
+#include "singlewinner/pairwise/least_rev.h"
+#include "singlewinner/pairwise/random/randpair.h"
+#include "singlewinner/pairwise/dodgson_approxs.h"
 
-#include "../singlewinner/experimental/3exp.h"
-#include "../singlewinner/experimental/rmr1.h"
-#include "../singlewinner/brute_force/brute.h"
-#include "../singlewinner/brute_force/bruterpn.h"
+#include "singlewinner/experimental/3exp.h"
+#include "singlewinner/experimental/rmr1.h"
+#include "singlewinner/brute_force/brute.h"
+#include "singlewinner/brute_force/bruterpn.h"
 
-#include "../singlewinner/cardinal/all.h"
+#include "singlewinner/cardinal/all.h"
 
-#include "../singlewinner/sets/mdd.h"
-#include "../singlewinner/sets/condorcet.h"
-#include "../singlewinner/sets/max_elements/all.h"
-#include "../singlewinner/sets/partition.h"
-#include "../singlewinner/meta/comma.h"
-#include "../singlewinner/meta/slash.h"
+#include "singlewinner/sets/mdd.h"
+#include "singlewinner/sets/condorcet.h"
+#include "singlewinner/sets/max_elements/all.h"
+#include "singlewinner/sets/partition.h"
+#include "singlewinner/meta/comma.h"
+#include "singlewinner/meta/slash.h"
 
-#include "../singlewinner/stats/var_median/vmedian.h"
+#include "singlewinner/stats/var_median/vmedian.h"
 //#include "../singlewinner/stats/median.cc"
-#include "../singlewinner/stats/mode.h"
+#include "singlewinner/stats/mode.h"
 
-#include "../singlewinner/young.h"
+#include "singlewinner/young.h"
 
-#include "../bandit/lilucb.h"
+#include "bandit/lilucb.h"
 
-#include "../tests/strategy/strategies.h"
-#include "../tests/runner.h"
-#include "../tests/provider.h"
+#include "tests/strategy/strategies.h"
+#include "tests/runner.h"
+#include "tests/provider.h"
 
-#include "../singlewinner/get_methods.h"
+#include "singlewinner/get_methods.h"
 
 // Determine the the z binomial confidence interval.
 // Agresti-Coull. http://www.graphpad.com/guides/prism/6/statistics/index.htm?how_to_compute_the_95_ci_of_a_proportion.htm

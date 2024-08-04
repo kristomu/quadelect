@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 #include "../method.h"
 

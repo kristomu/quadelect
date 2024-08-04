@@ -6,9 +6,9 @@
 
 // TODO??? Unify this with mean_utility? How?
 
-#include "../../method.h"
-#include "../../../ballots.h"
-#include "../../../tools/tools.h"
+#include "singlewinner/method.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include <memory>
 

@@ -49,9 +49,9 @@
 	safer options that will secure their candidate's victory, yet won't
 	blow up when both do it at once. */
 
-#include "../../ballots.h"
-#include "../../interpreter/rank_order.h"
-#include "../../singlewinner/method.h"
+#include "common/ballots.h"
+#include "interpreter/rank_order.h"
+#include "singlewinner/method.h"
 
 #include <map>
 #include <string>

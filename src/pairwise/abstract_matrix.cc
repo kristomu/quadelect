@@ -1,5 +1,5 @@
 
-#include "../ballots.h"
+#include "common/ballots.h"
 
 #include "types.h"
 #include "abstract_matrix.h"

@@ -8,7 +8,7 @@
 #ifndef _VOTE_P_TUP
 #define _VOTE_P_TUP
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../pairwise/method.h"
 #include "../method.h"
 

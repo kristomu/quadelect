@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <list>
-#include "../ballots.h"
+#include "common/ballots.h"
 #include "tools.h"
 
 // Tools for managing ballots and orderings

@@ -2,7 +2,7 @@
 #include "asm.h"
 
 // We need a Condorcet matrix for the pairwise information.
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 #include <iostream>
 

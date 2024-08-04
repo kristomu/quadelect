@@ -6,8 +6,8 @@
 // membership - according to the second method.
 
 #include "../method.h"
-#include "../../ballots.h"
-#include "../../tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/ballot_tools.h"
 
 #include <memory>
 

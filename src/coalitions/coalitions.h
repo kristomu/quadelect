@@ -14,7 +14,7 @@
 #include <set>
 #include <vector>
 
-#include "../ballots.h"
+#include "common/ballots.h"
 
 class coalition_data {
 	public:

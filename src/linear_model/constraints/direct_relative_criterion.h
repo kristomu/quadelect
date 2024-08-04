@@ -4,7 +4,7 @@
 #include <map>
 
 #include "relative_criterion.h"
-#include "../../tools/tools.h"
+#include "tools/tools.h"
 
 // Constraints that involve relative criteria.
 

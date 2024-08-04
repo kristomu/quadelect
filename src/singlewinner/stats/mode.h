@@ -15,8 +15,8 @@
 #define _VOTE_SW_MODER
 
 #include "../method.h"
-#include "../../tools/tools.h"
-#include "../../ballots.h"
+#include "tools/tools.h"
+#include "common/ballots.h"
 
 
 class mode_ratings : public election_method {

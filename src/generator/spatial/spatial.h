@@ -20,7 +20,7 @@
 #pragma once
 
 #include "../ballotgen.h"
-#include "../../stats/coordinate_gen.h"
+#include "stats/coordinate_gen.h"
 
 
 // TODO: Provide "get_minimum_value" and "get_maximum_value" functions.

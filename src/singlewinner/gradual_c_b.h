@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../pairwise/grad_matrix.h"
-#include "../grad_median/grad_median.h"
+#include "pairwise/grad_matrix.h"
+#include "grad_median/grad_median.h"
 #include "pairwise/method.h"
 #include "method.h"
 

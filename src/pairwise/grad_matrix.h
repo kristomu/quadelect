@@ -13,7 +13,7 @@
 #define _VOTE_GCB_MATRIX
 
 #include "matrix.h"
-#include "../grad_median/grad_median.h"
+#include "grad_median/grad_median.h"
 
 class cond_borda_matrix : public abstract_condmat {
 

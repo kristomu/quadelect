@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "../stats/coordinate_gen.h"
+#include "stats/coordinate_gen.h"
 
 #include <stdexcept>
 #include <vector>

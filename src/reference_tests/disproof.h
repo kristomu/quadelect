@@ -7,8 +7,8 @@
 #define _TWOTEST_DISP
 
 //#include "../multiwinner/methods.cc"
-#include "../tools/ballot_tools.h"
-#include "../singlewinner/method.h"
+#include "tools/ballot_tools.h"
+#include "singlewinner/method.h"
 #include <vector>
 
 

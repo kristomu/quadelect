@@ -1,5 +1,5 @@
 #include "isda.h"
-#include "../../../tools/cp_tools.h"
+#include "tools/cp_tools.h"
 
 size_t isda_relative_const::calc_num_before_cands(bool elimination_first,
 	std::shared_ptr<relative_criterion_const> & inner_criterion_in,

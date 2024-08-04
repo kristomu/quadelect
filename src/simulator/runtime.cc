@@ -1,5 +1,5 @@
 #include "runtime.h"
-#include "../tools/time_tools.h"
+#include "tools/time_tools.h"
 
 double runtime_sim::do_simulation() {
 

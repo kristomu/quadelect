@@ -14,7 +14,7 @@
 #include <numeric>
 #include <stdexcept>
 
-#include "../../random/random.h"
+#include "random/random.h"
 
 #include "../polytope/polytope.h"
 #include "../polytope/properties/distance.h"

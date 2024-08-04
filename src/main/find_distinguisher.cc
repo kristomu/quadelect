@@ -1,11 +1,11 @@
-#include "../generator/all.h"
-#include "../singlewinner/all.h"
+#include "generator/all.h"
+#include "singlewinner/all.h"
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../random/random.h"
+#include "random/random.h"
 
 #include <iostream>
 #include <chrono>

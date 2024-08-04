@@ -8,8 +8,8 @@
 // TODO: Somehow support limited interpreters, e.g. CONDMAT_ROW, CONDMAT_COL,
 // positional matrices...
 
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include <vector>
 #include <list>

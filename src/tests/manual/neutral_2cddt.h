@@ -9,9 +9,9 @@
 	simple measure of neutrality. For most deterministic methods, that's a bug,
 	although some (like Ranked Pairs) do this on purpose. */
 
-#include "../../ballots.h"
-#include "../../interpreter/rank_order.h"
-#include "../../singlewinner/method.h"
+#include "common/ballots.h"
+#include "interpreter/rank_order.h"
+#include "singlewinner/method.h"
 
 #include <map>
 #include <string>

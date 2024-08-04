@@ -12,7 +12,7 @@
 // criterion.
 
 #include "../method.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
 

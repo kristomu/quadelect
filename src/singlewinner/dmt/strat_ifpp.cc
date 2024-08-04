@@ -1,6 +1,6 @@
 #include "strat_ifpp.h"
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 
 // Recursive function for getting the first preferences of every

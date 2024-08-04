@@ -4,9 +4,9 @@
 #pragma once
 
 #include "mode.h"
-#include "../stats/stats.h"
-#include "../generator/ballotgen.h"
-#include "../singlewinner/method.h"
+#include "stats/stats.h"
+#include "generator/ballotgen.h"
+#include "singlewinner/method.h"
 
 #include <memory>
 #include <vector>

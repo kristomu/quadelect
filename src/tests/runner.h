@@ -1,14 +1,14 @@
 #pragma once
 
-#include "../simulator/bernoulli.h"
-#include "../tools/tools.h"
+#include "simulator/bernoulli.h"
+#include "tools/tools.h"
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
 
-#include "../generator/ballotgen.h"
-#include "../singlewinner/method.h"
-#include "../random/random.h"
+#include "generator/ballotgen.h"
+#include "singlewinner/method.h"
+#include "random/random.h"
 
 #include "test.h"
 

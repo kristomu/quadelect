@@ -5,8 +5,8 @@
 // it lets us derive both direct classes (condmat) and not-so-direct (cache ones
 // for instance), and it might be useful in multiwinner when we get to that.
 
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include "types.h"
 

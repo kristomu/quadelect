@@ -4,9 +4,9 @@
 // voter prefers a candidate nearby to a candidate further away.
 
 #include "yee.h"
-#include "../images/color/color.h"
-#include "../output/png_writer.h"
-#include "../singlewinner/pairwise/simple_methods.h"
+#include "images/color/color.h"
+#include "output/png_writer.h"
+#include "singlewinner/pairwise/simple_methods.h"
 
 #include <fstream>
 

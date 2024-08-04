@@ -1,7 +1,7 @@
 #ifndef _VOTE_3C_EXP
 #define _VOTE_3C_EXP
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../pairwise/method.h"
 #include "../method.h"
 

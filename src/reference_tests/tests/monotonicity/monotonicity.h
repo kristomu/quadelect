@@ -15,10 +15,10 @@
 #ifndef _TWOTEST_MONO
 #define _TWOTEST_MONO
 
-#include "../../../hack/msvc_random.h"
-#include "../../../tools/ballot_tools.h"
-#include "../../../random/random.h"
-#include "../../two_tests.h"
+#include "hack/msvc_random.h"
+#include "tools/ballot_tools.h"
+#include "random/random.h"
+#include "reference_tests/two_tests.h"
 
 #include <numeric>
 #include <iterator>

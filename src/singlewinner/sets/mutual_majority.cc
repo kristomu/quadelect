@@ -1,5 +1,5 @@
 #include "mutual_majority.h"
-#include "../../coalitions/coalitions.h"
+#include "coalitions/coalitions.h"
 
 std::pair<ordering, bool> mutual_majority_set::elect_inner(
 	const election_t & papers,

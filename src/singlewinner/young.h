@@ -32,7 +32,7 @@
 #ifndef _VOTE_YOUNG
 #define _VOTE_YOUNG
 
-#include "../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "method.h"
 
 #include <iterator>

@@ -3,7 +3,7 @@
 #ifndef _VOTE_POSITIONAL
 #define _VOTE_POSITIONAL
 
-#include "../../ballots.h"
+#include "common/ballots.h"
 #include "../method.h"
 #include <list>
 #include <vector>

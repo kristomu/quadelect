@@ -1,8 +1,8 @@
 #include "equivalences.h"
 #include "vector_ballot.h"
 
-#include "../../../../tools/factoradic.h"
-#include "../../../../tools/ballot_tools.h"
+#include "tools/factoradic.h"
+#include "tools/ballot_tools.h"
 
 void inc_ballot_vector(const ballot_group & ballot_to_add,
 	std::vector<double> & permutation_count_vector, size_t numcands) {

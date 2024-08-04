@@ -12,24 +12,24 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include "../../../../tools/ballot_tools.h"
+#include "tools/ballot_tools.h"
 
-#include "../../../../linear_model/polytope/equality_polytope.h"
-#include "../../../../linear_model/polytope/simplex.h"
-#include "../../../../linear_model/sampler/sampler.h"
+#include "linear_model/polytope/equality_polytope.h"
+#include "linear_model/polytope/simplex.h"
+#include "linear_model/sampler/sampler.h"
 
-#include "../../../../linear_model/lin_relation/lin_relation.h"
-#include "../../../../linear_model/lin_relation/constraint.h"
-#include "../../../../linear_model/lin_relation/constraint_set.h"
+#include "linear_model/lin_relation/lin_relation.h"
+#include "linear_model/lin_relation/constraint.h"
+#include "linear_model/lin_relation/constraint_set.h"
 
-#include "../../../../linear_model/constraints/constraint_polytope.h"
-#include "../../../../linear_model/constraints/constraint_tools.h"
-#include "../../../../linear_model/constraints/numvoters.h"
-#include "../../../../linear_model/constraints/pairwise.h"
-#include "../../../../linear_model/constraints/general.h"
+#include "linear_model/constraints/constraint_polytope.h"
+#include "linear_model/constraints/constraint_tools.h"
+#include "linear_model/constraints/numvoters.h"
+#include "linear_model/constraints/pairwise.h"
+#include "linear_model/constraints/general.h"
 
-#include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
-#include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
+#include "linear_model/constraints/relative_criteria/mono-raise.h"
+#include "linear_model/constraints/relative_criteria/mono-add-top.h"
 
 std::vector<test_instance_generator> get_all_permitted_test_generators(
 	double max_numvoters,

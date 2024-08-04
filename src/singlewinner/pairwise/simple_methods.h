@@ -2,8 +2,8 @@
 #define _VOTE_P_SMETHODS
 
 #include "../method.h"
-#include "../../pairwise/matrix.h"
-#include "../../pairwise/beatpath.h"
+#include "pairwise/matrix.h"
+#include "pairwise/beatpath.h"
 #include "method.h"
 
 #include <complex>

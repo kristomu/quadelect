@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "../../ballots.h"
+#include "common/ballots.h"
 #include "../method.h"
-#include "../../stats/confidence/as241.h"
+#include "stats/confidence/as241.h"
 #include <list>
 #include <vector>
 

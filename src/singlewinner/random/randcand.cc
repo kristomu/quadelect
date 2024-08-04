@@ -2,8 +2,8 @@
 // and output in order. It's obviously not cloneproof.
 
 #include "../method.h"
-#include "../../tools/tools.h"
-#include "../../ballots.h"
+#include "tools/tools.h"
+#include "common/ballots.h"
 
 #include "randcand.h"
 

@@ -12,7 +12,7 @@
 
 #include "method.h"
 #include "../method.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 #include <complex>
 

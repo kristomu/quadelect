@@ -1,5 +1,5 @@
 #include "takedown.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include <limits>
 
 // Avert your eyes, all who enter here :-P

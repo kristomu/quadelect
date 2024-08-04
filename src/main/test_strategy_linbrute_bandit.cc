@@ -7,60 +7,60 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../stats/confidence/as241.h"
+#include "stats/confidence/as241.h"
 
-#include "../generator/all.h"
+#include "generator/all.h"
 
-#include "../singlewinner/gradual_c_b.h"
+#include "singlewinner/gradual_c_b.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/positional/positional.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/positional/positional.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../stats/stats.h"
+#include "stats/stats.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
-#include "../singlewinner/pairwise/method.h"
-#include "../singlewinner/pairwise/simple_methods.h"
-#include "../singlewinner/pairwise/all.h"
-#include "../singlewinner/pairwise/rpairs.h"
-#include "../singlewinner/pairwise/kemeny.h"
-#include "../singlewinner/pairwise/odm/odm.h"
-#include "../singlewinner/pairwise/odm/hits.h"
-#include "../singlewinner/pairwise/odm/odm_atan.h"
-#include "../singlewinner/pairwise/sinkhorn.h"
+#include "singlewinner/pairwise/method.h"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/pairwise/all.h"
+#include "singlewinner/pairwise/rpairs.h"
+#include "singlewinner/pairwise/kemeny.h"
+#include "singlewinner/pairwise/odm/odm.h"
+#include "singlewinner/pairwise/odm/hits.h"
+#include "singlewinner/pairwise/odm/odm_atan.h"
+#include "singlewinner/pairwise/sinkhorn.h"
 //#include "../singlewinner/pairwise/tournament.cc"
-#include "../singlewinner/pairwise/least_rev.h"
-#include "../singlewinner/pairwise/random/randpair.h"
-#include "../singlewinner/pairwise/dodgson_approxs.h"
+#include "singlewinner/pairwise/least_rev.h"
+#include "singlewinner/pairwise/random/randpair.h"
+#include "singlewinner/pairwise/dodgson_approxs.h"
 
-#include "../singlewinner/experimental/3exp.h"
-#include "../singlewinner/brute_force/brute.h"
-#include "../singlewinner/brute_force/bruterpn.h"
+#include "singlewinner/experimental/3exp.h"
+#include "singlewinner/brute_force/brute.h"
+#include "singlewinner/brute_force/bruterpn.h"
 
-#include "../singlewinner/sets/mdd.h"
-#include "../singlewinner/sets/condorcet.h"
-#include "../singlewinner/sets/max_elements/all.h"
-#include "../singlewinner/sets/partition.h"
-#include "../singlewinner/meta/comma.h"
-#include "../singlewinner/meta/slash.h"
+#include "singlewinner/sets/mdd.h"
+#include "singlewinner/sets/condorcet.h"
+#include "singlewinner/sets/max_elements/all.h"
+#include "singlewinner/sets/partition.h"
+#include "singlewinner/meta/comma.h"
+#include "singlewinner/meta/slash.h"
 
-#include "../singlewinner/stats/var_median/vmedian.h"
+#include "singlewinner/stats/var_median/vmedian.h"
 //#include "../singlewinner/stats/median.cc"
-#include "../singlewinner/stats/mode.h"
+#include "singlewinner/stats/mode.h"
 
-#include "../singlewinner/young.h"
-#include "../bandit/lilucb.h"
+#include "singlewinner/young.h"
+#include "bandit/lilucb.h"
 
-#include "../tests/strategy/strategies.h"
-#include "../tests/provider.h"
+#include "tests/strategy/strategies.h"
+#include "tests/provider.h"
 
-#include "../singlewinner/get_methods.h"
+#include "singlewinner/get_methods.h"
 
 // Testing JGA's "strategic manipulation possible" concept. Perhaps it should
 // be put into ttetest instead. "A method is vulnerable to burial if, when X

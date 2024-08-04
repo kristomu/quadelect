@@ -15,27 +15,27 @@
 #include <limits>
 #include <memory>
 
-#include "../../../../tools/ballot_tools.h"
+#include "tools/ballot_tools.h"
 
-#include "../../../../linear_model/polytope/equality_polytope.h"
-#include "../../../../linear_model/polytope/simplex.h"
-#include "../../../../linear_model/sampler/sampler.h"
+#include "linear_model/polytope/equality_polytope.h"
+#include "linear_model/polytope/simplex.h"
+#include "linear_model/sampler/sampler.h"
 
-#include "../../../../linear_model/lin_relation/lin_relation.h"
-#include "../../../../linear_model/lin_relation/constraint.h"
-#include "../../../../linear_model/lin_relation/constraint_set.h"
+#include "linear_model/lin_relation/lin_relation.h"
+#include "linear_model/lin_relation/constraint.h"
+#include "linear_model/lin_relation/constraint_set.h"
 
-#include "../../../../linear_model/constraints/constraint_polytope.h"
-#include "../../../../linear_model/constraints/constraint_tools.h"
-#include "../../../../linear_model/constraints/numvoters.h"
-#include "../../../../linear_model/constraints/pairwise.h"
-#include "../../../../linear_model/constraints/general.h"
+#include "linear_model/constraints/constraint_polytope.h"
+#include "linear_model/constraints/constraint_tools.h"
+#include "linear_model/constraints/numvoters.h"
+#include "linear_model/constraints/pairwise.h"
+#include "linear_model/constraints/general.h"
 
-#include "../../../../linear_model/constraints/relative_criterion_producer.h"
-#include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
-#include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
+#include "linear_model/constraints/relative_criterion_producer.h"
+#include "linear_model/constraints/relative_criteria/mono-raise.h"
+#include "linear_model/constraints/relative_criteria/mono-add-top.h"
 
-#include "../../../../config/general_rpn.h"
+#include "config/general_rpn.h"
 
 typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
 

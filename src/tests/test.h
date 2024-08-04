@@ -6,11 +6,11 @@
 #include "cache.h"
 #include "disproof.h"
 
-#include "../ballots.h"
+#include "common/ballots.h"
 
-#include "../generator/ballotgen.h"
-#include "../singlewinner/method.h"
-#include "../stats/coordinate_gen.h"
+#include "generator/ballotgen.h"
+#include "singlewinner/method.h"
+#include "stats/coordinate_gen.h"
 
 // The strategy (test) classes are ultimately meant to be designed like
 // this:

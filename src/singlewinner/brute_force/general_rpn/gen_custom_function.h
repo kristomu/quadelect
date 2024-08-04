@@ -42,8 +42,8 @@
 #include <stdexcept>
 
 #include "../rpn/chaotic_functions.h"
-#include "../../../tools/tools.h"
-#include "../../../tools/factoradic.h"
+#include "tools/tools.h"
+#include "tools/factoradic.h"
 
 #include <iostream>
 

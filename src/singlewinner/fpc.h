@@ -35,7 +35,7 @@
 #define _VOTE_FPC
 
 #include "method.h"
-#include "../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "positional/simple_methods.h"
 
 class first_pref_copeland : public election_method {

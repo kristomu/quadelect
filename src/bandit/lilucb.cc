@@ -1,5 +1,5 @@
 #include "lilucb.h"
-#include "../tools/tools.h"
+#include "tools/tools.h"
 
 #include <iostream>
 #include <chrono>

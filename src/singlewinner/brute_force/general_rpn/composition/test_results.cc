@@ -1,5 +1,5 @@
 #include "test_results.h"
-#include "../../../../tools/tools.h"
+#include "tools/tools.h"
 
 // HACK: MSVC doesn't support mmap. There's an alternate implementation
 // at https://github.com/alitrack/mman-win32, which should be investigated

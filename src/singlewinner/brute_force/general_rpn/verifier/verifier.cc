@@ -3,13 +3,13 @@
 
 #include "../composition/test_results.h"
 
-#include "../../../../linear_model/constraints/relative_criterion_producer.h"
-#include "../../../../linear_model/constraints/relative_criteria/mono-raise.h"
-#include "../../../../linear_model/constraints/relative_criteria/mono-add-top.h"
+#include "linear_model/constraints/relative_criterion_producer.h"
+#include "linear_model/constraints/relative_criteria/mono-raise.h"
+#include "linear_model/constraints/relative_criteria/mono-add-top.h"
 
-#include "../../../../config/general_rpn.h"
+#include "config/general_rpn.h"
 
-#include "../../../../tools/time_tools.h"
+#include "tools/time_tools.h"
 
 #include <iostream>
 #include <iterator>

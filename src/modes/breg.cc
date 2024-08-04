@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <climits>
 
-#include "../singlewinner/stats/cardinal.h"
+#include "singlewinner/stats/cardinal.h"
 
 bayesian_regret::bayesian_regret() {
 

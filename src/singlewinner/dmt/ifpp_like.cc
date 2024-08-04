@@ -1,6 +1,6 @@
 #include "ifpp_like.h"
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
 std::pair<ordering, bool> ifpp_like_fpa_fpc::elect_inner(

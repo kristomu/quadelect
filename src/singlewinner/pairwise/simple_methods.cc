@@ -1,6 +1,6 @@
 
 #include "../method.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 #include "simple_methods.h"
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../simulator.h"
-#include "../../tools/tools.h"
-#include "../../random/random.h"
+#include "tools/tools.h"
+#include "random/random.h"
 
 class uniform_stub : public simulator {
 	private:

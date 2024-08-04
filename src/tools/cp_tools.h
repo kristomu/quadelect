@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../linear_model/constraints/cand_pairs.h"
+#include "linear_model/constraints/cand_pairs.h"
 
 // Tools for candidate pairs (see cand_pairs.h for more info about those).
 

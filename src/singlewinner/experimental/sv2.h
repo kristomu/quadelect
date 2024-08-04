@@ -1,7 +1,7 @@
 #ifndef _VOTE_SV_SEC
 #define _VOTE_SV_SEC
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../pairwise/method.h"
 #include "../method.h"
 

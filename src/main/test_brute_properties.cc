@@ -7,30 +7,30 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../generator/spatial/gaussian.h"
-#include "../generator/spatial/uniform.h"
-#include "../generator/impartial.h"
-#include "../generator/dirichlet.h"
+#include "generator/spatial/gaussian.h"
+#include "generator/spatial/uniform.h"
+#include "generator/impartial.h"
+#include "generator/dirichlet.h"
 
-#include "../singlewinner/gradual_c_b.h"
+#include "singlewinner/gradual_c_b.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/elimination.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity/mono_raise.h"
+#include "tests/tests/monotonicity/mono_raise.h"
 
-#include "../stats/stats.h"
+#include "stats/stats.h"
 
-#include "../singlewinner/brute_force/all.h"
+#include "singlewinner/brute_force/all.h"
 
-#include "../random/random.h"
+#include "random/random.h"
 
-#include "../tests/strategies.h"
+#include "tests/strategies.h"
 
 int main(int argc, const char ** argv) {
 	if (argc < 2) {

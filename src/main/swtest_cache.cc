@@ -7,20 +7,20 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../generator/all.h"
+#include "generator/all.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/elimination.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../tests/tests/monotonicity/mono_raise.h"
-#include "../singlewinner/pairwise/simple_methods.h"
+#include "tests/tests/monotonicity/mono_raise.h"
+#include "singlewinner/pairwise/simple_methods.h"
 
-#include "../random/random.h"
+#include "random/random.h"
 
 int main() {
 

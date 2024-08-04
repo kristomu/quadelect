@@ -7,16 +7,16 @@
 // This is used for dimensionality reduction in Python, to compare with Kevin Venzke's
 // results.
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../tools/tools.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
-#include "../generator/all.h"
-#include "../singlewinner/all.h"
+#include "generator/all.h"
+#include "singlewinner/all.h"
 
-#include "../random/random.h"
+#include "random/random.h"
 
-#include "../tools/ballot_tools.h"
+#include "tools/ballot_tools.h"
 
 #include <iostream>
 #include <memory>

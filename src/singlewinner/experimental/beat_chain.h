@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../method.h"
-#include "../../ballots.h"
-#include "../../tools/tools.h"
+#include "common/ballots.h"
+#include "tools/tools.h"
 
 #include <list>
 #include <memory>

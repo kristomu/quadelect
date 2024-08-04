@@ -7,29 +7,29 @@
 #include <list>
 #include <set>
 
-#include "../tools/ballot_tools.h"
-#include "../ballots.h"
-#include "../cache.h"
+#include "tools/ballot_tools.h"
+#include "common/ballots.h"
+#include "common/cache.h"
 
-#include "../generator/impartial.h"
+#include "generator/impartial.h"
 
-#include "../singlewinner/stats/cardinal.h"
-#include "../singlewinner/elimination/all.h" // Should this be in meta?
-#include "../singlewinner/meta/comma.h"
-#include "../singlewinner/sets/all.h"
-#include "../singlewinner/positional/simple_methods.h"
+#include "singlewinner/stats/cardinal.h"
+#include "singlewinner/elimination/all.h"
+#include "singlewinner/meta/comma.h"
+#include "singlewinner/sets/all.h"
+#include "singlewinner/positional/simple_methods.h"
 
-#include "../reference_tests/tests/monotonicity/mono_raise.h"
-#include "../reference_tests/tests/monotonicity/mono_add.h"
+#include "reference_tests/tests/monotonicity/mono_raise.h"
+#include "reference_tests/tests/monotonicity/mono_add.h"
 
-#include "../reference_tests/engine/twotest.h"
+#include "reference_tests/engine/twotest.h"
 
 // TODO, split these. Do that after improving pairwise and implementing tte,
 // though.
-#include "../singlewinner/pairwise/simple_methods.h"
-#include "../singlewinner/pairwise/least_rev.h"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "singlewinner/pairwise/least_rev.h"
 
-#include "../random/random.h"
+#include "random/random.h"
 
 // TODO: Check if caching works. If not, find out why not. Should be relatively
 // simple to just change mod_cache to NULL and compare times. In such a

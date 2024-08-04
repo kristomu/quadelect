@@ -18,8 +18,8 @@
 #include <stdlib.h>
 #include <fstream>
 
-#include "../../../random/random.h"
-#include "../../../spookyhash/SpookyV2.h"
+#include "random/random.h"
+#include "spookyhash/SpookyV2.h"
 
 std::vector<double> get_test_vector(int numcands, rng & randomizer) {
 

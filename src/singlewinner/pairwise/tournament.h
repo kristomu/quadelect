@@ -22,7 +22,7 @@
 #ifndef _VOTE_P_TOURNAMENT
 #define _VOTE_P_TOURNAMENT
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../method.h"
 
 #include <assert.h>

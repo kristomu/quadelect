@@ -25,7 +25,7 @@
 // It's most likely not pushover-proof either. But is it cloneproof?
 
 #include "../method.h"
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
 #include <vector>

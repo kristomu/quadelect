@@ -1,6 +1,6 @@
 #include "auto_runoff.h"
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
 double auto_runoff::get_possible_finalist_score(

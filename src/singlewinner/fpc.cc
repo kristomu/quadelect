@@ -1,6 +1,6 @@
 #include "fpc.h"
 
-#include "../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 
 std::pair<ordering, bool> first_pref_copeland::elect_inner(
 	const election_t & papers,

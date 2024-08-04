@@ -13,9 +13,9 @@
 #include <memory>
 #include <vector>
 
-#include "../ballots.h"
-#include "../singlewinner/method.h"
-#include "../interpreter/interpreter.h"
+#include "common/ballots.h"
+#include "singlewinner/method.h"
+#include "interpreter/interpreter.h"
 
 // TODO: Deal with const/non-const shared pointers. Yuck.
 

@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <string>
-#include "../ballots.h"
+#include "common/ballots.h"
 
 // The disproof class contains all information required to prove a failure of
 // some criterion.

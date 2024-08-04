@@ -2,13 +2,13 @@
 
 #include "../bernoulli.h"
 
-#include "../../ballots.h"
+#include "common/ballots.h"
 
-#include "../../generator/ballotgen.h"
-#include "../../singlewinner/method.h"
-#include "../../random/random.h"
+#include "generator/ballotgen.h"
+#include "singlewinner/method.h"
+#include "random/random.h"
 
-#include "../../generator/spatial/gaussian.h"
+#include "generator/spatial/gaussian.h"
 
 // This class calculates a linearized version of VSE/SUE (vote
 // satisfaction efficiency, social utility efficiency), suitable for use in

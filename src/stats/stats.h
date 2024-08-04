@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../tools/tools.h"
+#include "tools/tools.h"
 #include "confidence/confidence.h"
 #include <iostream>
 #include <numeric>

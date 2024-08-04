@@ -13,7 +13,7 @@
 #include <iostream>
 #include <cstddef>
 
-#include "../stats/coordinate_gen.h"
+#include "stats/coordinate_gen.h"
 
 #define rseed_t uint64_t
 // Set seed to this to draw seed from entropy source.

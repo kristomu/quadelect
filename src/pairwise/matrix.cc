@@ -1,4 +1,4 @@
-#include "../ballots.h"
+#include "common/ballots.h"
 
 #include "types.h"
 

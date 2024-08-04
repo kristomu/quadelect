@@ -1,8 +1,8 @@
 
-#include "../bandit/bandit.h"
-#include "../bandit/lilucb.h"
+#include "bandit/bandit.h"
+#include "bandit/lilucb.h"
 
-#include "../bandit/tests/bernoulli.h"
+#include "bandit/tests/bernoulli.h"
 
 int main(int argc, const char ** argv) {
 

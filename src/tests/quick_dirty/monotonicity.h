@@ -1,10 +1,10 @@
 #include <memory>
 #include <vector>
 
-#include "../../ballots.h"
-#include "../../random/random.h"
-#include "../../generator/all.h"
-#include "../../simulator/bernoulli.h"
+#include "common/ballots.h"
+#include "random/random.h"
+#include "generator/all.h"
+#include "simulator/bernoulli.h"
 
 // Quick and dirty monotonicity checker. Something is up with the way I've
 // structured my strategy tests and other classes, and it makes it pretty

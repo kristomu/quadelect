@@ -1,7 +1,7 @@
 #ifndef _VOTE_EXP_FPA
 #define _VOTE_EXP_FPA
 
-#include "../../pairwise/matrix.h"
+#include "pairwise/matrix.h"
 #include "../pairwise/method.h"
 #include "../method.h"
 

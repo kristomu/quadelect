@@ -2,11 +2,11 @@
 
 #include "equivalences.h"
 
-#include "../../../../linear_model/sampler/sampler.h"
-#include "../../../../linear_model/constraints/constraint_polytope.h"
-#include "../../../../linear_model/constraints/relative_criterion.h"
+#include "linear_model/sampler/sampler.h"
+#include "linear_model/constraints/constraint_polytope.h"
+#include "linear_model/constraints/relative_criterion.h"
 
-#include "../../../../ballots.h"
+#include "common/ballots.h"
 
 #include <list>
 #include <vector>

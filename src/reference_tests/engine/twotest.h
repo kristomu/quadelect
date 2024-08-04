@@ -15,7 +15,7 @@
 #ifndef _VOTE_TWOTEST_TTE
 #define _VOTE_TWOTEST_TTE
 
-#include "../../generator/ballotgen.h"
+#include "generator/ballotgen.h"
 #include "../two_tests.h"
 
 #include <iostream>
