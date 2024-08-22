@@ -32,17 +32,10 @@
 // to n^2.
 class positional_aggregator {
 
-	private:
-		// Used for moving back and forth on equal rank.
-		template<typename T> T first(T cur, T end, const std::vector<bool> *
-			hopefuls) const;
-		template<typename T> T next(T cur, T end, const std::vector<bool> *
-			hopefuls) const;
-
 	public:
 		void aggregate(const ballot_group & input,
 			int num_candidates, int num_hopefuls,
-			const std::vector<bool> * hopefuls,
+			const std::vector<bool> & hopefuls,
 			std::vector<std::vector<double> > & positional_array,
 			positional_type kind,
 			int zero_run_advice) const;
@@ -51,14 +44,14 @@ class positional_aggregator {
 		std::vector<std::vector<double> > get_positional_matrix(const
 			election_t & ballots,
 			int num_candidates, int num_hopefuls,
-			const std::vector<bool> * hopefuls,
+			const std::vector<bool> & hopefuls,
 			positional_type kind,
 			int zero_run_advice) const;
 
 		std::vector<std::vector<double> > get_positional_matrix(const
 			election_t & ballots,
 			int num_candidates, int num_hopefuls,
-			const std::vector<bool> * hopefuls,
+			const std::vector<bool> & hopefuls,
 			positional_type kind) const;
 };
 

@@ -84,6 +84,7 @@ class condmat : public abstract_condmat {
 		}
 
 		void zeroize();
+		void zeroize(size_t num_candidates);
 
 		void set_type(pairwise_type type_in) {
 			type = type_in;

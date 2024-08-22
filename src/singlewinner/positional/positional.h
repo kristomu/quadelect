@@ -19,23 +19,9 @@ class positional : public election_method {
 
 		ordering elect_to_ordering(const election_t & input,
 			size_t num_candidates, size_t num_hopefuls,
-			const std::vector<bool> * hopefuls) const;
+			const std::vector<bool> & hopefuls) const;
 
 		std::string show_type(const positional_type & kind_in) const;
-
-		// Perhaps this should be in positional_aggregator.
-		// It should be. Fix later.
-		double get_pos_score(const ballot_group & input,
-			size_t candidate_number,
-			const std::vector<bool> * hopefuls,
-			size_t num_hopefuls) const;
-		double get_pos_score(const ballot_group & input,
-			size_t candidate_number, size_t num_candidates) const;
-
-		double get_pos_maximum(size_t num_candidates) const {
-			assert(num_candidates > 0);
-			return (pos_weight(0, num_candidates-1));
-		}
 
 	protected:
 		positional_type kind;
@@ -52,12 +38,19 @@ class positional : public election_method {
 			size_t last_position) const = 0;
 
 	public:
+		// Perhaps this should be in positional_aggregator.
+		// It should be. TODO.
+		double get_pos_score(const ballot_group & input,
+			size_t candidate_number,
+			const std::vector<bool> & hopefuls,
+			size_t num_hopefuls) const;
+
+		double get_pos_maximum(size_t num_candidates) const {
+			return (pos_weight(0, num_candidates-1));
+		}
+
 		// Interfaces
 		// Beware: still uses int for numcands.
-		std::pair<ordering, bool> elect_inner(
-			const election_t & input,
-			int num_candidates, cache_map * cache,
-			bool winner_only) const;
 
 		std::pair<ordering, bool> elect_inner(
 			const election_t & input,
@@ -66,10 +59,10 @@ class positional : public election_method {
 			bool winner_only) const;
 
 		// Particular interface to all positional methods.
-		virtual ordering pos_elect(const std::vector<std::vector<double> > &
+		virtual ordering pos_elect(
+			const std::vector<std::vector<double> > &
 			positional_matrix, int num_hopefuls,
-			//double weight_sum,
-			const std::vector<bool> * hopefuls) const;
+			const std::vector<bool> & hopefuls) const;
 
 		positional(positional_type kind_in) {
 			kind = kind_in;

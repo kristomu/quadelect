@@ -19,7 +19,7 @@ class bucklin : public positional {
 	public:
 		ordering pos_elect(const std::vector<std::vector<double> > &
 			positional_matrix, int num_hopefuls,
-			const std::vector<bool> * hopefuls) const {
+			const std::vector<bool> & hopefuls) const {
 
 			size_t i;
 

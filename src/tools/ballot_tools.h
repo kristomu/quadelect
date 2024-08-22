@@ -1,5 +1,4 @@
-#ifndef _VOTE_BTOOLS
-#define _VOTE_BTOOLS
+#pragma once
 
 #include <iostream>
 #include <list>
@@ -131,4 +130,26 @@ class ballot_tools {
 
 };
 
-#endif
+// These templated functions find the first iterator that refers to
+// a hopeful candidate. The templating lets us deal with iterators,
+// reverse iterators, const iterators, etc., but comes with the cost
+// that the functions must be defined outside of a class.
+
+template<typename T> T first_hopeful(T cur, T end,
+	const std::vector<bool> & hopefuls) {
+
+	while (cur != end && !hopefuls[cur->get_candidate_num()]) {
+		if (++cur == end) {
+			return (cur);
+		}
+	}
+
+	return cur;
+}
+
+template<typename T> T next_hopeful(T cur, T end,
+	const std::vector<bool> & hopefuls) {
+	++cur;
+
+	return first_hopeful(cur, end, hopefuls);
+}

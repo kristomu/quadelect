@@ -43,8 +43,7 @@ bool condmat::set_internal(size_t candidate, size_t against,
 
 condmat::condmat(pairwise_type type_in) : abstract_condmat(type_in) {}
 
-condmat::condmat(const election_t & scores,
-	size_t num_candidates,
+condmat::condmat(const election_t & scores, size_t num_candidates,
 	pairwise_type kind) : abstract_condmat(kind) {
 
 	if (num_candidates == 0) {
@@ -233,10 +232,15 @@ void condmat::count_ballots(const election_t & scores,
 }
 
 void condmat::zeroize() {
-
 	for (std::vector<std::vector<double> > ::iterator outer = contents.begin();
 		outer != contents.end(); ++outer) {
 		fill(outer->begin(), outer->end(), 0);
 	}
+}
 
+void condmat::zeroize(size_t num_candidates) {
+	if (contents.size() != num_candidates) {
+		contents = std::vector<std::vector<double> >(num_candidates,
+				std::vector<double>(num_candidates, 0));
+	}
 }

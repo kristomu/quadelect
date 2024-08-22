@@ -109,10 +109,23 @@ class election_method {
 		}
 
 		ordering elect(const election_t & papers,
+			int num_candidates) const {
+			return (elect(papers, num_candidates, NULL,
+						false));
+		}
+
+		ordering elect(const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates, bool winner_only) const {
 			return (elect(papers, hopefuls, num_candidates,
 						NULL, winner_only));
+		}
+
+		ordering elect(const election_t & papers,
+			const std::vector<bool> & hopefuls,
+			int num_candidates) const {
+			return (elect(papers, hopefuls, num_candidates,
+						NULL, false));
 		}
 
 		// Here goes stats stuff like "returns rated vote" (score not

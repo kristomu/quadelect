@@ -34,6 +34,8 @@ class ord_minmax : public pairwise_method {
 		bool reverse_perspective;
 
 	public:
+		using pairwise_method::pair_elect;
+
 		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
 			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
@@ -69,6 +71,8 @@ class ext_minmax : public pairwise_method {
 	private:
 		bool minmin;
 	public:
+		using pairwise_method::pair_elect;
+
 		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
 			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;
@@ -116,6 +120,8 @@ class copeland : public pairwise_method {
 		unsigned int order;
 
 	public:
+		using pairwise_method::pair_elect;
+
 		// Used for n-th order Copeland
 		std::vector<double> get_copeland(const abstract_condmat & input,
 			const std::vector<bool> & hopefuls,
@@ -148,6 +154,8 @@ class copeland : public pairwise_method {
 
 class schulze : public pairwise_method {
 	public:
+		using pairwise_method::pair_elect;
+
 		std::pair<ordering, bool> pair_elect(const abstract_condmat & input,
 			const std::vector<bool> & hopefuls,
 			cache_map * cache, bool winner_only) const;

@@ -40,20 +40,18 @@ std::string positional::show_type(const positional_type & kind_in) const {
 
 // TODO: Bail if it's of the wrong type, because the same ballots will give
 // different positional matrices depending on whether we're ER or FR.
-ordering positional::pos_elect(const std::vector<std::vector<double> > &
-	matrix,
-	int num_hopefuls, //double weight_sum,
-	const std::vector<bool> * hopefuls) const {
+ordering positional::pos_elect(
+	const std::vector<std::vector<double> > & matrix,
+	int num_hopefuls, const std::vector<bool> & hopefuls) const {
 
 	// Turn it into a social ordering.
 
 	ordering social_order;
 
 	for (size_t cand_num = 0; cand_num < matrix.size(); ++cand_num) {
-		if (hopefuls != NULL)
-			if (!(*hopefuls)[cand_num]) {
-				continue;
-			}
+		if (!hopefuls[cand_num]) {
+			continue;
+		}
 
 		double cand_score = 0;
 
@@ -67,33 +65,19 @@ ordering positional::pos_elect(const std::vector<std::vector<double> > &
 	return (social_order);
 }
 
-ordering positional::elect_to_ordering(const election_t &
-	input,
+ordering positional::elect_to_ordering(const election_t & input,
 	size_t num_candidates, size_t num_hopefuls,
-	const std::vector<bool> * hopefuls) const {
+	const std::vector<bool> & hopefuls) const {
 
-	return (pos_elect(positional_aggregator().get_positional_matrix(input,
-					num_candidates, num_hopefuls, hopefuls,
-					kind, zero_run_beginning()),
-				num_hopefuls, hopefuls));
+	return pos_elect(positional_aggregator().get_positional_matrix(input,
+				num_candidates, num_hopefuls, hopefuls,
+				kind, zero_run_beginning()),
+			num_hopefuls, hopefuls);
 }
 
 std::pair<ordering, bool> positional::elect_inner(const
-	election_t &
-	input,
+	election_t & input, const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
-
-	return (std::pair<ordering, bool>(
-				elect_to_ordering(input, num_candidates, num_candidates,
-					NULL),
-				false));
-}
-
-std::pair<ordering, bool> positional::elect_inner(const
-	election_t &
-	input,
-	const std::vector<bool> & hopefuls, int num_candidates,
-	cache_map * cache, bool winner_only) const {
 
 	// Same as above, only pos_weight must be adjusted by however many
 	// are excluded. We may have to alter the function to make that quick.
@@ -113,12 +97,11 @@ std::pair<ordering, bool> positional::elect_inner(const
 
 	return (std::pair<ordering, bool>(
 				elect_to_ordering(input, num_candidates, num_hopefuls,
-					&hopefuls),
-				false));
+					hopefuls), false));
 };
 
 double positional::get_pos_score(const ballot_group & input,
-	size_t candidate_number, const std::vector<bool> * hopefuls,
+	size_t candidate_number, const std::vector<bool> & hopefuls,
 	size_t num_hopefuls) const {
 
 	// Going down the ordering, increment a counter for each new rank.
@@ -130,13 +113,12 @@ double positional::get_pos_score(const ballot_group & input,
 
 	for (ordering::const_iterator pos = input.contents.begin();
 		pos != input.contents.end(); ++pos) {
-		if (hopefuls != NULL)
-			if (!(*hopefuls)[pos->get_candidate_num()]) {
-				continue;
-			}
+		if (!hopefuls[pos->get_candidate_num()]) {
+			continue;
+		}
 
 		if (pos->get_candidate_num() == candidate_number) {
-			return (pos_weight(counter, num_hopefuls - 1));
+			return pos_weight(counter, num_hopefuls - 1);
 		}
 
 		++span;
@@ -146,14 +128,9 @@ double positional::get_pos_score(const ballot_group & input,
 		}
 	}
 
-	return (-1);
-}
-
-double positional::get_pos_score(const ballot_group & input,
-	size_t candidate_number, size_t num_candidates) const {
-	return (get_pos_score(input, candidate_number, NULL, num_candidates));
+	return -1;
 }
 
 std::string positional::name() const {
-	return (show_type(kind) + pos_name());
+	return show_type(kind) + pos_name();
 }
