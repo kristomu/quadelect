@@ -1,0 +1,420 @@
+#ifndef _VOTE_MEEK_STV
+#define _VOTE_MEEK_STV
+
+#include "methods.cc"
+#include <vector>
+#include <list>
+
+// TODO: Rational numbers. Nobody's done it before, so WTH not?
+// Also TODO, test, because I'm getting really bad performance here.
+// Maybe add BTR-STV and STV-ME to this?
+
+// Perhaps change its name from Meek STV to "Computerized STV" or similar, since
+// we also have Warren in here at this point.
+
+// This is sufficiently different from ordinary STV that it merits its own
+// class.
+
+using namespace std;
+
+class MeekSTV : public multiwinner_method {
+	private:
+		void absorb_ballot_meek(const ballot_group & ballot,
+			const vector<double> & weighting,
+			vector<double> & candidate_tally, double &
+			excess) const;
+		void absorb_ballot_warren(const ballot_group & ballot,
+			const vector<double> & weighting,
+			vector<double> & candidate_tally, double &
+			excess) const;
+		double absolute_quota_error(const vector<double> & cand_tally,
+			const list<int> & elected,
+			double quota) const;
+
+		bool warren;
+
+	public:
+		list<int> get_council(int council_size, int num_candidates,
+			const list<ballot_group> & ballots) const;
+		MeekSTV(bool use_warren) {
+			warren = use_warren;
+		}
+
+		string name() const {
+			if (warren) {
+				return ("Warren STV");
+			} else {
+				return ("Meek STV");
+			}
+		}
+};
+
+// This does the Meek "progressive reweighting" on a single ballot, adding the
+// proportion of the ballot that goes to each candidate. It breaks when a
+// weight is 1, because then subsequent weights are zero and there's no point.
+void MeekSTV::absorb_ballot_meek(const ballot_group & ballot,
+	const vector<double> & weighting,
+	vector<double> & candidate_tally, double & excess) const {
+
+	// At any step, a candidate receives weight q * (candidate weight).
+	// Then the new q is 1 - this. Q starts at 1.
+	// TODO: Handle equal ranks. I think only fractional rank makes any
+	// sense. Perhaps if A > B = C > D, then B gets q/2 * w_B and C
+	// gets q/2 * w_C and the next Q is 1 - (sum of these)?
+
+	double q = 1;
+
+	for (ordering::const_iterator pos = ballot.contents.begin(); pos !=
+		ballot.contents.end() && q != 0; ++pos) {
+		double this_wt = q * weighting[pos->get_candidate_num()];
+
+		candidate_tally[pos->get_candidate_num()] += this_wt *
+			ballot.weight;
+
+		//q *= (1 - weighting[pos->get_candidate_num()]);
+
+		q -= this_wt;
+		assert(q >= 0 && q <= 1);
+	}
+
+	excess += q;
+}
+
+void MeekSTV::absorb_ballot_warren(const ballot_group & ballot,
+	const vector<double> & weighting,
+	vector<double> & candidate_tally, double & excess) const {
+
+	// The proportion of the vote apportioned to first preference is
+	// equal to the keep value of that first preference.
+	// If adding the second preference's keep value would exceed 1,
+	// then the second preference gets 1 - (cumulative), and nothing
+	// more is apportioned, else
+	// the second preference's keep value is apportioned to the second
+	// preference.
+	// 	If adding the third preference (...) as above.
+
+	double cumulative = 0;
+
+	for (ordering::const_iterator pos = ballot.contents.begin(); pos !=
+		ballot.contents.end(); ++pos) {
+
+		double cur_wt = weighting[pos->get_candidate_num()];
+
+		if (cumulative + cur_wt > 1) {
+			candidate_tally[pos->get_candidate_num()] += (1 -
+					cumulative);
+			// Excess is always zero?
+			return;
+		}
+
+		candidate_tally[pos->get_candidate_num()] += cur_wt;
+
+		cumulative += cur_wt;
+	}
+
+	if (cumulative < 1) {
+		excess += (1 - cumulative);
+	}
+}
+
+// This can be turned into a boolean limiter that breaks early, but later.
+double MeekSTV::absolute_quota_error(const vector<double> & cand_tally,
+	const list<int> & elected, double quota) const {
+
+	// Return the worst discrepancy from quota for those candidates that
+	// have already been elected.
+	// A later trick could move the worst one to the beginning so that
+	// it aborts earlier, but I don't think it's worth the complexity.
+
+	double record = 0;
+
+	for (list<int>::const_iterator cand_pos = elected.begin(); cand_pos !=
+		elected.end(); ++cand_pos)
+		if (fabs(cand_tally[*cand_pos] - quota) > record) {
+			//		cout << "New record: " << *cand_pos << " with tally " <<
+			//			cand_tally[*cand_pos] << endl;
+			record = fabs(cand_tally[*cand_pos] - quota);
+		}
+
+	return (record);
+}
+
+
+list<int> MeekSTV::get_council(int council_size, int num_candidates,
+	const list<ballot_group> & ballots) const {
+
+	// Algorithm: At each stage, a candidate is either elected, hopeful, or
+	// eliminated. Also, all candidates have an internal weighting.
+	// Hopeful candidates have internal weight 1, eliminated ones internal
+	// weight 0, and elected ones a varying weight determined by the
+	// convergence system.
+
+	// We start off by counting the votes, all candidates are hopeful.
+	// Any and all candidates whose total votes >= quota become elected,
+	// except in the tie situation where all the rest have zero votes,
+	// in which case one of the remaining >= quota candidates are removed
+	// and the rest is the council.
+
+	// The quota is (#votes - excess) / (seats + 1) - Droop.
+
+	// If nobody meets the quota, eliminate the one with the lowest score.
+
+	// For each iteration, check the votes array and clamp weight values to
+	// [0..1]. If there's an elected candidate and he hasn't got within
+	// epsilon of a quota, then converge to a new quota. Convergence goes
+	// like this:
+	// 	For any candidate that's not either eliminated or hopeful,
+	// 	the new weight is (old weight) * q / (votes for this candidate)
+	// 	where q is the new quota.
+	// 	Then count the number of votes with this new weight, and
+	// 	calculate a new quota based on the excess returned.
+	// That can be done easily with a while loop.
+
+
+	vector<bool> eliminated(num_candidates, false), elected(num_candidates,
+		false);
+
+	int num_elected = 0, counter;
+	list<int> council;
+
+	vector<double> cand_tally(num_candidates);
+	vector<double> candidate_weight(num_candidates, 1);
+
+	double excess;
+
+	double epsilon = 1e-3; // Accept convergence when we get within this
+	// range of a quota.
+
+	double unweighted_sum = 0; // Sum of initial (non-STV) weights.
+
+	list<ballot_group>::const_iterator pos;
+
+	for (pos = ballots.begin(); pos != ballots.end(); ++pos) {
+		unweighted_sum += pos->weight;
+	}
+
+	double quota;
+
+	// "First difference" approximation. TODO: Fix later, and make changeable
+	plurality plur_count(PT_WHOLE);
+	ordering tiebreaker = plur_count.elect(ballots, num_candidates);
+	ordering::const_iterator opos, vpos;
+
+	while (num_elected < council_size) {
+
+		// Reset the vote count and excess
+		fill(cand_tally.begin(), cand_tally.end(), 0);
+		excess = 0;
+
+		// Count the votes.
+		for (pos = ballots.begin(); pos != ballots.end(); ++pos) {
+			if (warren)
+				absorb_ballot_warren(*pos, candidate_weight,
+					cand_tally, excess);
+			else
+				absorb_ballot_meek(*pos, candidate_weight,
+					cand_tally, excess);
+		}
+
+		// Get quota.
+		double quota = (unweighted_sum - excess) / (double)
+			(council_size + 1);
+
+		// Readjust the quota if required. When nobody's elected,
+		// the absolute quota error return 0 since it has no worse
+		// record, and thus the entire convergence loop is skipped.
+		double error = absolute_quota_error(cand_tally, council, quota);
+		//cout << "Initial error: " << error << endl;
+
+		while (error > epsilon) {
+			for (list<int>::const_iterator cpos = council.begin();
+				cpos != council.end(); ++cpos) {
+				//cout << "Adjusting weights: Old weight: " << candidate_weight[*cpos] << ", quota: " << quota << ", votes for this guy: " << cand_tally[*cpos] << endl;
+				candidate_weight[*cpos] = (candidate_weight[*cpos] * quota) /
+					cand_tally[*cpos];
+
+				// Take care of certain pathological data.
+				candidate_weight[*cpos] = min(1.0, max(
+							0.0, candidate_weight[
+				 *cpos]));
+			}
+
+			// Recount
+			excess = 0;
+			fill(cand_tally.begin(), cand_tally.end(), 0);
+
+			for (pos = ballots.begin(); pos != ballots.end();
+				++pos) {
+				if (warren)
+					absorb_ballot_warren(*pos,
+						candidate_weight,
+						cand_tally, excess);
+				else
+					absorb_ballot_meek(*pos,
+						candidate_weight,
+						cand_tally, excess);
+			}
+
+			//cout << "Excess: " << excess << endl;
+
+			// Recalc quota and error.
+			quota = (unweighted_sum - excess) / (double)
+				(council_size +1);
+
+			//cout << "Quota: " << quota << endl;
+
+			error = absolute_quota_error(cand_tally, council,
+					quota);
+			//cout << num_elected << "\t" << error << endl;
+		}
+
+		/*cout << "Keep values: " << endl;
+		copy(candidate_weight.begin(), candidate_weight.end(),
+				ostream_iterator<double>(cout, " "));
+		cout << endl;*/
+
+		// Now check for candidates to elect.
+		// TODO: First gather all who are above quota into an array,
+		// then shuffle and draw up to and including council_size -
+		// num_elected more.
+		int elected_this_round = 0;
+		//cout << "Checking for election." << endl;
+
+		set<int> potential_elected; // This is required to handle the
+		// edge case where all + 1 meet the quota exactly. In that
+		// case, we'll eliminate the one that fails the tiebreaker.
+		// If it's still a tie, the first one (NON-NEUTRAL) goes.
+
+		for (counter = 0;
+			counter < cand_tally.size() /*&& elected_this_round == 0*/; ++counter) {
+			if (eliminated[counter]) {
+				continue;
+			}
+			//cout << "Candidate " << counter << " has support value " << cand_tally[counter] << " against quota " << quota << " with surplus " << cand_tally[counter] - quota;
+			//if (elected[counter]) cout << ", already elected.";
+			//cout << endl;
+
+			if (cand_tally[counter] >= quota && !elected[counter]) {
+				potential_elected.insert(counter);
+			}
+		}
+		// If it's too large, narrow it down
+		if (num_elected + potential_elected.size() > council_size) {
+			int desired_size = council_size - num_elected;
+
+			cout << "Too large, narrowing down to " << desired_size << endl;
+
+			// CUT AND PASTE TODO
+
+			ordering intersect;
+			vector<bool> contained(num_candidates, false);
+			for (set<int>::const_iterator lp = potential_elected.
+					begin(); lp != potential_elected.end();
+				++lp) {
+				contained[*lp] = true;
+			}
+
+			for (opos = tiebreaker.begin(); opos != tiebreaker.end();
+				++opos)
+				if (contained[opos->get_candidate_num()]) {
+					intersect.insert(*opos);
+				}
+
+			// Now pick off the first desired_size
+			set<int> desired;
+			ordering::const_iterator op = intersect.begin();
+			for (counter = 0; counter < desired_size && op !=
+				intersect.end(); ++counter) {
+				desired.insert((op++)->get_candidate_num());
+			}
+
+			potential_elected = desired;
+		}
+
+		for (set<int>::const_iterator qcpos = potential_elected.begin();
+			qcpos != potential_elected.end(); ++qcpos) {
+			//	cout << "Elected " << counter << " with value " << cand_tally[counter] << " > quota " << quota << endl;
+			elected[*qcpos] = true;
+			++num_elected;
+			++elected_this_round;
+			council.push_back(*qcpos);
+		}
+
+		cout << council.size() << "\t" << council_size << endl;
+
+		//cout << "Check done." << endl;
+
+		// If nobody were elected, someone must be eliminated.
+		if (elected_this_round == 0) {
+			// Check for whoever had the lowest score, then he's
+			// out. TODO: Handle ties. Note that only one candidate
+			// can be eliminated in each round, unlike the elected
+			// step where multiple may be elected in one round.
+			// Also TODO: BTR/STV-ME variants. Instead of eliminating
+			// the loser, eliminate the one that pairwise loses to
+			// the other; when we have multiple candidates, do either
+			// a Condorcet or Plurality check among all and eliminate
+			// the loser.
+			int recordholder = -1;
+
+			for (counter = 0; counter < cand_tally.size();
+				++counter) {
+				if (elected[counter] || eliminated[counter]) {
+					continue;
+				}
+				if (recordholder == -1) {
+					recordholder = counter;
+				}
+				if (cand_tally[counter] <=
+					cand_tally[recordholder]) {
+					recordholder = counter;
+				}
+			}
+
+			// Fix cut and paste code later!
+			list<int> tied_for_last;
+
+			for (counter = 0; counter < cand_tally.size();
+				++counter) {
+				if (elected[counter] || eliminated[counter]) {
+					continue;
+				}
+				if (cand_tally[counter] ==
+					cand_tally[recordholder]) {
+					tied_for_last.push_back(counter);
+				}
+			}
+
+			if ((++tied_for_last.begin()) != tied_for_last.end()) {
+				cout << "Meek: Handling elimination tie."
+					<< endl;
+				list<int> recordholders;
+				vector<bool> contained(num_candidates, false);
+				for (list<int>::const_iterator lp =
+						tied_for_last.begin(); lp !=
+					tied_for_last.end(); ++lp) {
+					contained[*lp] = true;
+				}
+
+				for (opos = tiebreaker.begin(); opos !=
+					tiebreaker.end(); ++opos) {
+					if (contained[opos->get_candidate_num()])
+						recordholders.push_back(
+							opos->get_candidate_num());
+				}
+
+				recordholder = *(recordholders.rbegin());
+			}
+
+			//cout << "Eliminated " << recordholder << endl;
+			eliminated[recordholder] = true;
+			candidate_weight[recordholder] = 0;
+		}
+		cout << "Computerized STV: Council size is " << num_elected << " out of "
+			<< council_size << endl;
+	}
+
+	return (council);
+}
+
+#endif
