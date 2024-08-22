@@ -191,7 +191,6 @@ target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
 add_library(quadelect_lib src/common/ballots.cc
 	src/bandit/lilucb.cc
 	src/common/cache.cc
-	src/choose_inc.cc
 	src/distances/vivaldi_test.cc
 	src/generator/ballotgen.cc
 	src/generator/iac.cc
