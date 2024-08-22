@@ -1,9 +1,9 @@
 #ifndef _VOTE_PSC
 #define _VOTE_PSC
 
-#include "../condorcet/methods.cc"
-#include "../ballots.cc"
-#include "../dsc.cc"
+#include "singlewinner/pairwise/simple_methods.h"
+#include "common/ballots.h"
+#include "helper/dsc.cc"
 #include "methods.cc"
 #include <list>
 
@@ -18,16 +18,16 @@
 class PSC : public multiwinner_method {
 
 	private:
-		list<int> get_council(double C, double divisor, int council_size,
-			int num_candidates, const list<ballot_group> &
-			ballots) const;
+		std::list<int> get_council(double C, double divisor,
+			int council_size, int num_candidates,
+			const election_t & ballots) const;
 
 	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
-		string name() const {
-			return ("PSC-CLE");
+		std::string name() const {
+			return "PSC-CLE";
 		}
 
 };
@@ -36,10 +36,10 @@ class PSC : public multiwinner_method {
 // Divisor may be nonmonotonic - check later. Not excluding that which was
 // elected makes it monotonic, check that too later.
 
-list<int> PSC::get_council(double C, double divisor, int council_size,
-	int num_candidates, const list<ballot_group> & ballots) const {
+std::list<int> PSC::get_council(double C, double divisor, int council_size,
+	int num_candidates, const election_t & ballots) const {
 
-	list<int> too_few, too_many;
+	std::list<int> too_few, too_many;
 	too_few.push_back(-2);
 	too_many.push_back(-1);
 
@@ -63,32 +63,20 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 	// As it is, the method isn't competitive, but it might be salvagable
 	// with some divisor-type tweaks.
 
-	cout << "One" << endl;
-	multimap<double, set<unsigned short> > init_coalitions =
-		get_dsc(ballots), coalitions;
-
-	cout << "Two" << endl;
-
-	/*list<ballot_group>::const_iterator lpos;
-	double num_voters = 0;
-	for (lpos = ballots.begin(); lpos != ballots.end(); ++lpos)
-		num_voters += lpos->weight;*/
-
-	// Droop quota. See stv.cc
-	//double quota = num_voters / (double)(council_size + 1);
+	std::multimap<double, std::set<unsigned short> > coalitions;
+	std::multimap<double, std::set<unsigned short> > init_coalitions =
+		get_dsc(ballots);
 
 	// Check Schulze later. Now uses Schulze, gives a slight improvement.
-	ordering fallback = schulze(CM_WV).cond_elect(condmat(ballots,
-				num_candidates, CM_WV, false));
+	ordering fallback = schulze(CM_WV).pair_elect(condmat(ballots,
+				num_candidates, CM_WV), false).first;
 
 	int num_elected = 0;
-	vector<bool> hopeful(num_candidates, true);
-	set<int> council;
+	std::vector<bool> hopeful(num_candidates, true);
+	std::set<int> council;
 
-	multimap<double, set<unsigned short> >::iterator apos =
+	std::multimap<double, std::set<unsigned short> >::iterator apos =
 		init_coalitions.begin(), old_apos;
-
-	cout << "Three" << endl;
 
 	// Normalize to quota. The PSC-CLE spec says to round down, but we
 	// might try rounding off, later.
@@ -97,9 +85,10 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 		double adj_quota = floor((apos->first / divisor) + C);
 
 		// No point in adding coalitions that can never get elected.
-		if (adj_quota > 0)
-			coalitions.insert(pair<double, set<unsigned short> >(
-					adj_quota, apos->second));
+		if (adj_quota > 0) {
+			coalitions.insert(std::pair<double,
+				std::set<unsigned short> >(adj_quota, apos->second));
+		}
 
 		// Yuck, but keeps the memory down.
 		old_apos = apos;
@@ -107,12 +96,10 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 		init_coalitions.erase(old_apos);
 	}
 
-	cout << "Four" << endl;
-
 	while (council.size() < council_size) {
 
-		multimap<double, set<unsigned short> >::const_iterator pos;
-		set<unsigned short> excludable, electable;
+		std::multimap<double, std::set<unsigned short> >::const_iterator pos;
+		std::set<unsigned short> excludable, electable;
 
 		bool once_through = false;
 
@@ -121,27 +108,18 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 		for (pos = coalitions.begin(); pos != coalitions.end() &&
 			council.size() < council_size;
 			++pos) {
-			//cout << "Checking coalition of size " << pos->second.size() << " with " << pos->first << " quotas permitted." << endl;
 			// If this coalition is admissible, admit it.
 			if (pos->second.size() == pos->first &&
 				!pos->second.empty()) {
 				// halting here after one pass through is BAD.
-				//cout << "Coalition picked." << endl;
-				copy(pos->second.begin(), pos->second.end(),
+				std::copy(pos->second.begin(), pos->second.end(),
 					inserter(council,
 						council.begin()));
-				copy(pos->second.begin(), pos->second.end(),
+				std::copy(pos->second.begin(), pos->second.end(),
 					inserter(electable,
 						electable.begin()));
-				/*copy(pos->second.begin(), pos->second.end(),
-						inserter(excludable,
-							excludable.begin()));*/
-
 			}
 		}
-
-		cout << "Council size is now " << council.size() << " where we want " <<
-			council_size << endl;
 
 		// If we have them all, no need to exclude any more; it'll hop
 		// off the loop at the next go.
@@ -168,7 +146,6 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 			if (elim_next == -1) {
 				return (too_few);
 			}
-			//assert(elim_next != -1);
 
 			excludable.insert(elim_next);
 		}
@@ -178,12 +155,12 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 		apos = coalitions.begin();
 		while (apos != coalitions.end()) {
 
-			set<unsigned short> dest;
+			std::set<unsigned short> dest;
 
 			// First, remove the excluded members.
-			set_difference(apos->second.begin(), apos->second.end(),
+			std::set_difference(apos->second.begin(), apos->second.end(),
 				excludable.begin(), excludable.end(),
-				inserter(dest, dest.begin()));
+				std::inserter(dest, dest.begin()));
 
 			// Then copy the new set over the old one.
 			if (!dest.empty()) {
@@ -197,13 +174,11 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 		}
 
 		// Then mark all of these as excluded.
-		set<unsigned short>::const_iterator xpos;
+		std::set<unsigned short>::const_iterator xpos;
 
 		for (xpos = excludable.begin(); xpos != excludable.end(); ++xpos) {
 			hopeful[*xpos] = false;
 		}
-		/*	for (xpos = electable.begin(); xpos != electable.end(); ++xpos)
-				hopeful[*xpos] = false;*/
 	}
 
 	// At this point, council is a set. We want a list, so just copy it in
@@ -216,27 +191,24 @@ list<int> PSC::get_council(double C, double divisor, int council_size,
 		return (too_few);
 	}
 
-	list<int> elected_council;
-	copy(council.begin(), council.end(), inserter(elected_council,
+	std::list<int> elected_council;
+	std::copy(council.begin(), council.end(), inserter(elected_council,
 			elected_council.begin()));
 
-	/* UGLY HACK
-	elected_council.resize(min(elected_council.size(), (size_t)council_size));*/
-
-	return (elected_council);
+	return elected_council;
 }
 
-list<int> PSC::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> PSC::get_council(int council_size, int num_candidates,
+	const election_t & ballots) const {
 
 	// Start off by divisor = num_voters / council_size (Hare).
 	// Then, by binary search, adjust upwards if too many, downwards if
 	// too few.
 
-	list<ballot_group>::const_iterator lpos;
+	election_t::const_iterator lpos;
 	double num_voters = 0;
 	for (lpos = ballots.begin(); lpos != ballots.end(); ++lpos) {
-		num_voters += lpos->weight;
+		num_voters += lpos->get_weight();
 	}
 
 	// Range: Minimum: 1. Maximum: num_voters.
@@ -251,9 +223,7 @@ list<int> PSC::get_council(int council_size, int num_candidates,
 			mid = (low + high) * 0.5;
 		}
 
-		cout << "Trying divisor " << mid << endl;
-
-		list<int> tentative = get_council(0.5, mid, council_size,
+		std::list<int> tentative = get_council(0.5, mid, council_size,
 				num_candidates, ballots);
 
 		// Too many, thus divisor is too low.
@@ -268,7 +238,7 @@ list<int> PSC::get_council(int council_size, int num_candidates,
 		}
 	}
 
-	assert(1 != 1);  // NOT FOUND!
+	throw std::runtime_error("PSC-CLE: Couldn't find a council!");
 }
 
 #endif

@@ -11,11 +11,9 @@
 #include <list>
 #include <vector>
 
-using namespace std;
-
 // Auxiliary functions. TESTS thus KLUDGY. Fix later
 
-double gini_one(const vector<double> & a) {
+double gini_one(const std::vector<double> & a) {
 
 	double total = 0;
 	double r_gini_count = 0;
@@ -31,11 +29,11 @@ double gini_one(const vector<double> & a) {
 
 	double gini = r_gini_count / (2 * a.size() * a.size() * mean);
 
-	return (gini);
+	return gini;
 }
 
 // Sen's welfare function
-double welfare(const vector<double> & a) {
+double welfare(const std::vector<double> & a) {
 
 	double total = 0;
 
@@ -43,51 +41,20 @@ double welfare(const vector<double> & a) {
 		total += a[counter];
 	}
 
-	return ((1-gini_one(a)) * (total / (double)(a.size())));
+	return (1-gini_one(a)) * (total / (double)(a.size()));
 }
-
-/*typedef enum hardcard_type { HC_BIRATIONAL, HC_LPV };
-
-typedef struct cardinal_ballot {
-	        double weight; // #voters
-		        vector<double> scores; // #voters by #cands
-};
-
-typedef struct hardcard_extrema {
-	        vector<bool> W_minimum_set, W_maximum_set;
-		        double W_minimum, W_maximum;
-};
-
-
-double wfa(const vector<bool> & W, const vector<cardinal_ballot> &
-		ballots) {
-
-	vector<double> scores;
-
-	for (int counter = 0; counter < ballots.size(); ++counter) {
-		for (int sec = 0; sec < W.size(); ++sec) {
-			if (!W[sec]) continue;
-
-			scores.push_back(ballots[counter].weight *
-					ballots[counter].scores[sec]);
-		}
-	}
-
-	return(welfare(scores));
-}*/
-
 
 /////////////////////////////////////
 
-typedef enum hardcard_type { HC_BIRATIONAL, HC_LPV };
+enum hardcard_type { HC_BIRATIONAL, HC_LPV };
 
-typedef struct cardinal_ballot {
+struct scored_ballot {
 	double weight; // #voters
-	vector<double> scores; // #voters by #cands
+	std::vector<double> scores; // #voters by #cands
 };
 
-typedef struct hardcard_extrema {
-	vector<bool> W_minimum_set, W_maximum_set;
+struct hardcard_extrema {
+	std::vector<bool> W_minimum_set, W_maximum_set;
 	double W_minimum, W_maximum;
 };
 
@@ -96,48 +63,47 @@ class hardcard : public multiwinner_method {
 	private:
 		hardcard_type type;
 
-		vector<cardinal_ballot> make_cardinal_array(
-			const list<ballot_group> & ballots, int
-			numcand) const;
+		std::vector<scored_ballot> make_cardinal_array(
+			const election_t & ballots, int numcand) const;
 
-		double birational(const vector<bool> & W, const
-			cardinal_ballot & this_ballot) const;
+		double birational(const std::vector<bool> & W, const
+			scored_ballot & this_ballot) const;
 
-		double birational(const vector<bool> & W, const vector<
-			cardinal_ballot> & ballots) const;
+		double birational(const std::vector<bool> & W, const std::vector<
+			scored_ballot> & ballots) const;
 
 		hardcard_extrema merge_extrema(const hardcard_extrema a,
 			const hardcard_extrema b) const;
 
-		hardcard_extrema all_birational(const vector<cardinal_ballot> &
-			ballots, const vector<bool> & cur_W,
-			vector<bool>::iterator begin,
-			vector<bool>::iterator end,
+		hardcard_extrema all_birational(const std::vector<scored_ballot> &
+			ballots, const std::vector<bool> & cur_W,
+			std::vector<bool>::iterator begin,
+			std::vector<bool>::iterator end,
 			int marks_left) const;
 
-		double LPV(const vector<bool> & W, int council_size,
-			const cardinal_ballot &
+		double LPV(const std::vector<bool> & W, int council_size,
+			const scored_ballot &
 			this_ballot, double k) const;
 
-		double LPV(const vector<bool> & W, int council_size,
-			const vector<cardinal_ballot>
+		double LPV(const std::vector<bool> & W, int council_size,
+			const std::vector<scored_ballot>
 			& ballots, double k) const;
 
-		hardcard_extrema all_LPV(const vector<cardinal_ballot> &
-			ballots, const vector<bool> & cur_W, double k,
-			int council_size, vector<bool>::iterator begin,
-			vector<bool>::iterator end,
+		hardcard_extrema all_LPV(const std::vector<scored_ballot> &
+			ballots, const std::vector<bool> & cur_W, double k,
+			int council_size, std::vector<bool>::iterator begin,
+			std::vector<bool>::iterator end,
 			int marks_left) const;
 
 	public:
 		bool polytime() const {
-			return (false);    // something like this
+			return false;    // something like this
 		}
 
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
-		string name() const;
+		std::string name() const;
 
 		hardcard(hardcard_type type_in) {
 			type = type_in;
@@ -145,8 +111,8 @@ class hardcard : public multiwinner_method {
 
 };
 
-vector<cardinal_ballot> hardcard::make_cardinal_array(const
-	list<ballot_group> & ballots, int numcand) const {
+std::vector<scored_ballot> hardcard::make_cardinal_array(const
+	election_t & ballots, int numcand) const {
 
 	// This is used to calculate birational and LPV results quickly, as
 	// those methods have terms like "voter X's rating of candidate Y".
@@ -155,27 +121,27 @@ vector<cardinal_ballot> hardcard::make_cardinal_array(const
 
 	// We use NAN for "no opinion" Range-style values.
 
-	vector<cardinal_ballot> results(ballots.size());
+	std::vector<scored_ballot> results(ballots.size());
 
 	int counter = 0;
-	for (list<ballot_group>::const_iterator pos = ballots.begin();
+	for (election_t::const_iterator pos = ballots.begin();
 		pos != ballots.end(); ++pos) {
 
-		results[counter].weight = pos->weight;
+		results[counter].weight = pos->get_weight();
 		results[counter].scores.resize(numcand, NAN);
 
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos) {
 			results[counter].scores[opos->get_candidate_num()] =
 				opos->get_score();
-			cout << opos->get_score() << endl;
 		}
 	}
 
-	return (results);
+	return results;
 }
 
-double hardcard::birational(const vector<bool> & W, const cardinal_ballot &
+double hardcard::birational(const std::vector<bool> & W,
+	const scored_ballot &
 	this_ballot) const {
 
 	//                                     x_w
@@ -216,28 +182,20 @@ double hardcard::birational(const vector<bool> & W, const cardinal_ballot &
 		}
 	}
 
-	return (total * this_ballot.weight);
+	return total * this_ballot.weight;
 }
 
-double hardcard::birational(const vector<bool> & W,
-	const vector<cardinal_ballot> & ballots) const {
-
-	/*double toRet = wfa(W, ballots);
-
-	cout << "Return val: " << toRet << endl;
-
-	return(toRet);
-
-	assert (1 != 1);*/
+double hardcard::birational(const std::vector<bool> & W,
+	const std::vector<scored_ballot> & ballots) const {
 
 	double total = 0;
 
-	for (vector<cardinal_ballot>::const_iterator pos = ballots.begin();
+	for (std::vector<scored_ballot>::const_iterator pos = ballots.begin();
 		pos != ballots.end(); ++pos) {
 		total += birational(W, *pos);
 	}
 
-	return (total);
+	return total;
 }
 
 
@@ -247,7 +205,7 @@ hardcard_extrema hardcard::merge_extrema(const hardcard_extrema a,
 
 	hardcard_extrema toRet = a;
 
-	/*vector<bool> W_minimum_set, W_maximum_set;
+	/*std::vector<bool> W_minimum_set, W_maximum_set;
 	double W_minimum, W_maximum;*/
 
 	if (b.W_minimum < toRet.W_minimum || isnan(toRet.W_minimum)) {
@@ -260,14 +218,14 @@ hardcard_extrema hardcard::merge_extrema(const hardcard_extrema a,
 		toRet.W_maximum_set = b.W_maximum_set;
 	}
 
-	return (toRet);
+	return toRet;
 }
 
 // Ain't recursion nifty? Here we recurse to find the best of all possible
 // council sets.
-hardcard_extrema hardcard::all_birational(const vector<cardinal_ballot> &
-	ballots, const vector<bool> & cur_W, vector<bool>::iterator
-	begin, vector<bool>::iterator end, int marks_left) const {
+hardcard_extrema hardcard::all_birational(const std::vector<scored_ballot> &
+	ballots, const std::vector<bool> & cur_W, std::vector<bool>::iterator
+	begin, std::vector<bool>::iterator end, int marks_left) const {
 
 	// All marked!
 	if (marks_left == 0) {
@@ -278,7 +236,7 @@ hardcard_extrema hardcard::all_birational(const vector<cardinal_ballot> &
 		result.W_maximum_set = result.W_minimum_set;
 		result.W_maximum = result.W_minimum;
 
-		return (result);
+		return result;
 	}
 
 	// Not an admissible council since marks_left != 0
@@ -286,7 +244,7 @@ hardcard_extrema hardcard::all_birational(const vector<cardinal_ballot> &
 		hardcard_extrema result;
 		result.W_minimum = NAN;
 		result.W_maximum = NAN;
-		return (result);
+		return result;
 	}
 
 	// Not at the end, but marks_left isn't 0 either! So recurse twice,
@@ -302,11 +260,11 @@ hardcard_extrema hardcard::all_birational(const vector<cardinal_ballot> &
 	hardcard_extrema b = all_birational(ballots, cur_W, begin+1, end,
 			marks_left);
 
-	return (merge_extrema(a, b));
+	return merge_extrema(a, b);
 }
 
-double hardcard::LPV(const vector<bool> & W, int council_size,
-	const cardinal_ballot & this_ballot, double k) const {
+double hardcard::LPV(const std::vector<bool> & W, int council_size,
+	const scored_ballot & this_ballot, double k) const {
 
 	//                                      /     K + |W|    \
 	// L_k(W) = SUM     SUM       x_j *   ln| -------------- |
@@ -326,12 +284,10 @@ double hardcard::LPV(const vector<bool> & W, int council_size,
 			log_denom += this_ballot.scores[counter];
 		}
 
-	cout << "LPV: Log denom is " << log_denom << endl;
-
 	double logarithm = log((k + council_size)/(log_denom));
 
 	if (!finite(logarithm)) {
-		return (logarithm);
+		return logarithm;
 	}
 
 	double total = 0;
@@ -340,14 +296,12 @@ double hardcard::LPV(const vector<bool> & W, int council_size,
 		total += (this_ballot.scores[counter] * logarithm);
 	}
 
-	return (this_ballot.weight * total);
+	return this_ballot.weight * total;
 }
 
 
-double hardcard::LPV(const vector<bool> & W, int council_size,
-	const vector<cardinal_ballot> & ballots, double k) const {
-
-	cout << "Entering LPV" << endl;
+double hardcard::LPV(const std::vector<bool> & W, int council_size,
+	const std::vector<scored_ballot> & ballots, double k) const {
 
 	double total = 0;
 
@@ -356,37 +310,31 @@ double hardcard::LPV(const vector<bool> & W, int council_size,
 		total += LPV(W, council_size, ballots[counter], k);
 	}
 
-	return (total);
+	return total;
 }
 
-hardcard_extrema hardcard::all_LPV(const vector<cardinal_ballot> & ballots,
-	const vector<bool> & cur_W, double k, int council_size,
-	vector<bool>::iterator begin,
-	vector<bool>::iterator end, int marks_left) const {
+hardcard_extrema hardcard::all_LPV(const std::vector<scored_ballot> &
+	ballots,
+	const std::vector<bool> & cur_W, double k, int council_size,
+	std::vector<bool>::iterator begin,
+	std::vector<bool>::iterator end, int marks_left) const {
 
 	// See birational.
 	hardcard_extrema result;
 
 	if (marks_left == 0) {
-		/*int count = 0;
-		for (int y = 0; y < cur_W.size(); ++y) {
-			if (cur_W[y]) ++count;
-		}
-
-		cout << "marksleft 0: count: " << count << " vs " << council_size << "\t";*/
 		result.W_minimum_set = cur_W;
 		result.W_minimum = LPV(cur_W, council_size, ballots, k);
-		cout << "result val:" << result.W_minimum << endl;
 
 		result.W_maximum_set = result.W_minimum_set;
 		result.W_maximum = result.W_minimum;
-		return (result);
+		return result;
 	}
 
 	if (begin == end) {
 		result.W_minimum = NAN;
 		result.W_maximum = NAN;
-		return (result);
+		return result;
 	}
 
 	*begin = true;
@@ -396,17 +344,17 @@ hardcard_extrema hardcard::all_LPV(const vector<cardinal_ballot> & ballots,
 	hardcard_extrema b = all_LPV(ballots, cur_W, k, council_size, begin+1,
 			end, marks_left);
 
-	return (merge_extrema(a, b));
+	return merge_extrema(a, b);
 }
 
-list<int> hardcard::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> hardcard::get_council(int council_size, int num_candidates,
+	const election_t & ballots) const {
 
-	vector<cardinal_ballot> cballots = make_cardinal_array(ballots,
+	std::vector<scored_ballot> cballots = make_cardinal_array(ballots,
 			num_candidates);
-	vector<bool> W(num_candidates, false);
+	std::vector<bool> W(num_candidates, false);
 
-	list<int> council;
+	std::list<int> council;
 	int counter;
 
 	if (type == HC_BIRATIONAL) {
@@ -414,7 +362,7 @@ list<int> hardcard::get_council(int council_size, int num_candidates,
 				W.end(), council_size);
 
 		// Turn into council
-		vector<bool> winner_b = birat.W_maximum_set;
+		std::vector<bool> winner_b = birat.W_maximum_set;
 
 		for (counter = 0; counter < winner_b.size(); ++counter)
 			if (winner_b[counter]) {
@@ -433,15 +381,12 @@ list<int> hardcard::get_council(int council_size, int num_candidates,
 			if (result.W_minimum_set[counter]) {
 				council.push_back(counter);
 			}
-
-		cout << "LPV: Council size: " << council.size() << "and score " <<
-			result.W_minimum << endl;
 	}
 
-	return (council);
+	return council;
 }
 
-string hardcard::name() const {
+std::string hardcard::name() const {
 	switch (type) {
 		case HC_LPV: return ("Cardinal: LPV");
 		case HC_BIRATIONAL: return ("Cardinal: Birational");

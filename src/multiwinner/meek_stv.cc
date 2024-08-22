@@ -1,6 +1,8 @@
 #ifndef _VOTE_MEEK_STV
 #define _VOTE_MEEK_STV
 
+#include "singlewinner/positional/simple_methods.h"
+
 #include "methods.cc"
 #include <vector>
 #include <list>
@@ -69,7 +71,7 @@ void MeekSTV::absorb_ballot_meek(const ballot_group & ballot,
 		double this_wt = q * weighting[pos->get_candidate_num()];
 
 		candidate_tally[pos->get_candidate_num()] += this_wt *
-			ballot.weight;
+			ballot.get_weight();
 
 		//q *= (1 - weighting[pos->get_candidate_num()]);
 
@@ -190,14 +192,15 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 	list<ballot_group>::const_iterator pos;
 
 	for (pos = ballots.begin(); pos != ballots.end(); ++pos) {
-		unweighted_sum += pos->weight;
+		unweighted_sum += pos->get_weight();
 	}
 
 	double quota;
 
 	// "First difference" approximation. TODO: Fix later, and make changeable
 	plurality plur_count(PT_WHOLE);
-	ordering tiebreaker = plur_count.elect(ballots, num_candidates);
+	ordering tiebreaker = plur_count.elect(ballots,
+			num_candidates, NULL, false);
 	ordering::const_iterator opos, vpos;
 
 	while (num_elected < council_size) {

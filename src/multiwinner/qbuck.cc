@@ -8,15 +8,15 @@
 // method, at least), verify it gives the correct results, and then see if it
 // does better than STV.
 
-#include "../tools.cc"
-#include "../ballots.cc"
-#include "../positional.cc"
+#include "tools/tools.h"
+#include "common/ballots.h"
+#include "singlewinner/positional/aggregator.h"
+#include "singlewinner/positional/positional.h"
+#include "singlewinner/positional/simple_methods.h"
 #include "methods.cc"
 
 #include <vector>
 #include <list>
-
-using namespace std;
 
 class qltd_pr : public multiwinner_method {
 	private:
@@ -24,20 +24,20 @@ class qltd_pr : public multiwinner_method {
 		bool restart_at_zero;
 		bool bucklin;
 
-		candscore get_first_above_quota(const vector<vector<double> > &
-			positional_matrix, const vector<bool> &
-			hopefuls, const double quota, double start_at,
-			double & surplus) const;
+		candscore get_first_above_quota(
+			const std::vector<std::vector<double> > & positional_matrix,
+			const std::vector<bool> & hopefuls, const double quota,
+			double start_at, double & surplus) const;
 		bool is_contributing(const ballot_group & ballot,
-			const vector<bool> & hopefuls,
+			const std::vector<bool> & hopefuls,
 			int to_this_candidate,
 			double num_preferences) const;
 
 	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
-		string name() const;
+		std::string name() const;
 
 		qltd_pr(bool use_hare_quota, bool use_bucklin,
 			bool restart_after_elect) {
@@ -46,8 +46,9 @@ class qltd_pr : public multiwinner_method {
 		}
 };
 
-candscore qltd_pr::get_first_above_quota(const vector<vector<double> > &
-	positional_matrix, const vector<bool> & hopefuls,
+candscore qltd_pr::get_first_above_quota(const
+	std::vector<std::vector<double> > &
+	positional_matrix, const std::vector<bool> & hopefuls,
 	const double quota, double start_at, double & surplus) const {
 
 	// This is a reimplementation of QLTD, where we abort after reaching
@@ -63,7 +64,7 @@ candscore qltd_pr::get_first_above_quota(const vector<vector<double> > &
 	double recordholder = -1;
 	int num_candidates = positional_matrix.size();
 
-	vector<double> tally(num_candidates, 0), old_tally = tally;
+	std::vector<double> tally(num_candidates, 0), old_tally = tally;
 
 	double adj_start_at = start_at;
 
@@ -127,8 +128,6 @@ candscore qltd_pr::get_first_above_quota(const vector<vector<double> > &
 		reached_quota = start_at;
 	}
 
-	cout << "Reached quota: " << reached_quota << endl;
-
 	// Calculate surplus.
 	tally[recordholder] = 0;
 	for (counter = 0; counter < ceil(reached_quota); ++counter) {
@@ -136,27 +135,25 @@ candscore qltd_pr::get_first_above_quota(const vector<vector<double> > &
 			tally[recordholder] += positional_matrix[recordholder]
 				[counter];
 		else
-			tally[recordholder] += min(1.0, reached_quota -
+			tally[recordholder] += std::min(1.0, reached_quota -
 					counter) * positional_matrix
 				[recordholder][counter];
 	}
 
 	surplus = tally[recordholder] - quota;
 
-	cout << "Surplus: " << surplus << endl;
-
 	assert(bucklin || start_at != 0 || fabs(surplus) < 1e-10);
 
 	// Set the candscore return value.
 	if (bucklin) {
-		return (candscore(recordholder, -ceil(reached_quota)));
+		return candscore(recordholder, -ceil(reached_quota));
 	} else	{
-		return (candscore(recordholder, -reached_quota));
+		return candscore(recordholder, -reached_quota);
 	}
 }
 
 bool qltd_pr::is_contributing(const ballot_group & ballot,
-	const vector<bool> & hopefuls, int to_this_candidate,
+	const std::vector<bool> & hopefuls, int to_this_candidate,
 	double num_preferences) const {
 
 	// Simply check whether the candidate referenced is within the
@@ -188,13 +185,13 @@ bool qltd_pr::is_contributing(const ballot_group & ballot,
 			}
 	}
 
-	return (false);
+	return false;
 }
 
 
 
-list<int> qltd_pr::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
+	const election_t & ballots) const {
 
 	// All start off as hopeful. As in usual Bucklin, count until some
 	// candidate is above the quota. Then determine the fractional vote
@@ -216,18 +213,18 @@ list<int> qltd_pr::get_council(int council_size, int num_candidates,
 	// positional class.
 
 	double num_voters = 0;
-	list<ballot_group> reweighted_ballots = ballots;
-	list<ballot_group>::iterator lpos; // For debugging, since
+	election_t reweighted_ballots = ballots;
+	election_t::iterator lpos; // For debugging, since
 	// this'll break on compile if we reference ballots by accident.
 
 	for (lpos = reweighted_ballots.begin(); lpos != reweighted_ballots.
 		end(); ++lpos) {
-		num_voters += lpos->weight;
+		num_voters += lpos->get_weight();
 	}
 
-	vector<bool> hopefuls(num_candidates, true), all_hopefuls = hopefuls;
+	std::vector<bool> hopefuls(num_candidates, true), all_hopefuls = hopefuls;
 
-	list<int> council;
+	std::list<int> council;
 	int num_elected = 0;
 
 	// First construct positional array. Then, find the round at which
@@ -260,10 +257,10 @@ list<int> qltd_pr::get_council(int council_size, int num_candidates,
 
 		// Using all_hopefuls here gives a very bad result and
 		// exhausts the method, so elimination is important.
-		vector<vector<double> > positional_matrix = aggregator.
+		std::vector<std::vector<double> > positional_matrix = aggregator.
 			get_positional_matrix(reweighted_ballots,
 				num_candidates, num_candidates -
-				num_elected, &hopefuls, PT_WHOLE,
+				num_elected, hopefuls, PT_WHOLE,
 				-1);
 
 		double surplus = 0;
@@ -273,11 +270,9 @@ list<int> qltd_pr::get_council(int council_size, int num_candidates,
 		// TODO: Complete later.
 		//assert (winner.get_candidate_num() != -1);
 		if (winner.get_candidate_num() == -1) {
-			cout << "Hit exhaustion problem. Breaking with Borda."
-				<< endl;
 			ordering borda_result = borda_count.pos_elect(
 					positional_matrix, num_candidates -
-					num_elected, &hopefuls);
+					num_elected, hopefuls);
 			// This majority gets a superproportional say because
 			// it's not obvious how one would handle "winners"
 			// with less than a quota. It might be that QLTD-PR is
@@ -311,26 +306,23 @@ list<int> qltd_pr::get_council(int council_size, int num_candidates,
 			if (is_contributing(*lpos, hopefuls, winner.
 					get_candidate_num(),
 					-winner.get_score())) {
-				verify += lpos->weight;
-				lpos->weight *= surplus/(quota + surplus);
+				verify += lpos->get_weight();
+				lpos->set_weight(lpos->get_weight() *
+					surplus/(quota + surplus));
 			}
 
 		hopefuls[winner.get_candidate_num()] = false;
-
-		// This should be zero when we're using Bucklin! Why isn't it?
-		// FIX! Fixed.
-		cout << "Verificand: " << (quota + surplus) - verify << endl;
 
 		if (!restart_at_zero) {
 			start_at = -winner.get_score();
 		}
 	}
 
-	return (council);
+	return council;
 }
 
-string qltd_pr::name() const {
-	string init;
+std::string qltd_pr::name() const {
+	std::string init;
 
 	if (bucklin) {
 		init = "Quota Bucklin";
@@ -350,7 +342,7 @@ string qltd_pr::name() const {
 		init += "Droop)";
 	}
 
-	return (init);
+	return init;
 }
 
 

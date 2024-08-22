@@ -1,8 +1,13 @@
 #ifndef _VOTE_STV
 #define _VOTE_STV
 
-#include "../positional.cc"
-#include "../condorcet/methods.cc"
+#include "singlewinner/positional/positional.h"
+#include "singlewinner/positional/simple_methods.h"
+#include "singlewinner/pairwise/method.h"
+#include "singlewinner/pairwise/simple_methods.h"
+
+#include "tools/ballot_tools.h"
+
 #include "methods.cc"
 #include <list>
 
@@ -16,7 +21,11 @@ using namespace std;
 
 // DONE: BTR-STV that uses Plurality instead of Condorcet.
 
-typedef enum btr_type { BTR_NONE = 0, BTR_COND = 1, BTR_PLUR = 2 };
+// Really ought to make this more general: the loser elimination method
+// doesn't matter as far as Droop proportionality is concerned. Later,
+// after I've got this working.
+
+enum btr_type { BTR_NONE = 0, BTR_COND = 1, BTR_PLUR = 2 };
 
 class STV : public multiwinner_method {
 	private:
@@ -32,6 +41,10 @@ class STV : public multiwinner_method {
 			const list<ballot_group> & ballots) const;
 
 		STV(btr_type btr_stv_in) {
+			if (btr_stv_in > BTR_PLUR) {
+				throw std::invalid_argument("STV: Invalid BTR type specified");
+			}
+
 			btr_stv = btr_stv_in;
 		}
 
@@ -40,6 +53,7 @@ class STV : public multiwinner_method {
 				case BTR_NONE: return ("STV");
 				case BTR_COND: return ("STV-ME (Schulze)");
 				case BTR_PLUR: return ("STV-ME (Plurality)");
+				default: assert(false); // bug
 			}
 		};
 };
@@ -140,7 +154,7 @@ list<int> STV::get_council(int council_size, int num_candidates,
 	list<ballot_group>::const_iterator lpos;
 	list<ballot_group>::iterator bpos;
 	for (lpos = ballots.begin(); lpos != ballots.end(); ++lpos) {
-		num_voters += lpos->weight;
+		num_voters += lpos->get_weight();
 	}
 
 	// Droop quota. Hare is better but more vulnerable to vote mgmt.
@@ -179,7 +193,7 @@ list<int> STV::get_council(int council_size, int num_candidates,
 			tiebreaker_working = true;
 		}
 
-		// Check if anyone's above quota. In the case that multiple are,
+		// Check if anyone's above quota. In the case that more are,
 		// we should only concern ourselves with the one who got the
 		// most votes. Therefore, we handle this by making two lists:
 		// one of all that's tied first, and one of all those that are
@@ -188,17 +202,17 @@ list<int> STV::get_council(int council_size, int num_candidates,
 		// tiebreaker ordering, and if that still fails, just pick the
 		// first one.
 
-		candscore last_cs = *first(social_order.rbegin(),
-				social_order.rend(), &hopefuls),
-			first_cs = *first(social_order.begin(),
-					social_order.end(), &hopefuls);
+		candscore last_cs = *first_hopeful(social_order.rbegin(),
+				social_order.rend(), hopefuls),
+			first_cs = *first_hopeful(social_order.begin(),
+					social_order.end(), hopefuls);
 
 		list<candscore> tied_for_last, tied_for_first;
 
 		ordering::iterator opos = social_order.begin(), vpos;
 		for (opos = social_order.begin(); opos != social_order.end();
 			++opos) {
-			//		cout << opos->get_candidate_num() << " has score " << opos->get_score() << " which is an excess of " << opos->get_score() - quota << endl;
+
 			if (opos->get_score() == last_cs.get_score()) {
 				tied_for_last.push_back(*opos);
 			}
@@ -268,12 +282,7 @@ list<int> STV::get_council(int council_size, int num_candidates,
 		// total vote gathered. Otherwise, eliminate the bottom-ranked
 		// candidate.
 
-		//	cout << "Top score: " << top.get_score() << endl;
-
 		if (top.get_score() >= quota) {
-
-			//cout << "Electing " << top.get_candidate_num() << endl;
-
 			int electable = top.get_candidate_num();
 			double score = top.get_score();
 			double surplus = score - quota;
@@ -284,14 +293,15 @@ list<int> STV::get_council(int council_size, int num_candidates,
 			for (bpos = reweighted_ballots.begin(); bpos !=
 				reweighted_ballots.end(); ++bpos)
 				if (plur_count.get_pos_score(*bpos,
-						electable, &hopefuls,
+						electable, hopefuls,
 						num_hopefuls) > 0) {
-					double before = bpos->weight;
-					bpos->weight *= surplus / score;
-					assert(finite(bpos->weight));
+					double before = bpos->get_weight();
+					if (!isfinite(before)) {
+						throw std::invalid_argument(
+							"STV: can't handle ballot with infinite weight");
+					}
+					bpos->set_weight(before * surplus / score);
 				}
-
-			//cout << "Electing " << electable << " with score " << score << " which is a surplus of " << surplus << endl;
 
 			elected[electable] = true;
 			hopefuls[electable] = false;
@@ -317,21 +327,18 @@ list<int> STV::get_council(int council_size, int num_candidates,
 				// Plurality.
 				ordering elim_check;
 				vector<bool> purgatory = get_btr_stv_hopefuls(
-						social_order, hopefuls,
-						num_candidates, council_count,
-						council_size);
+						social_order, hopefuls, num_candidates,
+						council_count, council_size);
 
 				if (btr_stv == BTR_COND) {
 					condmat condorcet(ballots,
-						num_candidates,
-						purgatory, CM_WV,
-						false);
+						num_candidates, CM_WV);
 
 					cout << "(NH)" << endl;
 
 					// was minmax
-					elim_check = schulze(CM_WV).cond_elect(
-							condorcet);
+					elim_check = schulze(CM_WV).pair_elect(
+							condorcet, purgatory, false).first;
 				} else {
 					elim_check = plur_count.elect(ballots,
 							purgatory, num_candidates);

@@ -9,10 +9,8 @@
 #include <list>
 #include <set>
 
-#include "../ballots.cc"
-#include "../positional.cc"
-
-using namespace std;
+#include "common/ballots.h"
+#include "singlewinner/positional/positional.h"
 
 // Maybe implement: IS_DETERMINISTIC, returns either -1 (random), 0 (determ. except
 // with ties) or 1 (fully determ - presumably non-neutral).
@@ -30,15 +28,14 @@ using namespace std;
 class multiwinner_method {
 
 	public:
-		virtual list<int> get_council(int council_size,
-			int num_candidates,
-			const list<ballot_group> & ballots) const = 0;
+		virtual std::list<int> get_council(int council_size,
+			int num_candidates, const election_t & ballots) const = 0;
 
-		virtual string name() const = 0;
+		virtual std::string name() const = 0;
 
 		// Hack?
 		virtual bool polytime() const {
-			return (true);
+			return true;
 		}
 
 };
@@ -48,10 +45,10 @@ class majoritarian_council : public multiwinner_method {
 		election_method * base;
 
 	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
-		string name() const {
+		std::string name() const {
 			return ("Maj[" + base->name() + "]");
 		}
 
@@ -61,12 +58,13 @@ class majoritarian_council : public multiwinner_method {
 
 };
 
-list<int> majoritarian_council::get_council(int council_size,
-	int num_candidates, const list<ballot_group> & ballots) const {
+std::list<int> majoritarian_council::get_council(int council_size,
+	int num_candidates, const election_t & ballots) const {
 
 	// First get the ordering
 
-	ordering social_order = base->elect(ballots, num_candidates);
+	ordering social_order = base->elect(ballots,
+			num_candidates, NULL, false);
 
 	// Then pick the first n (note that this, strictly speaking, fails
 	// neutrality. Fix later) and return it.
@@ -75,7 +73,7 @@ list<int> majoritarian_council::get_council(int council_size,
 	// acquire those that are ranked at that level, shuffle the result,
 	// and read off until the council has been filled.
 
-	list<int> council;
+	std::list<int> council;
 
 	int count = 0;
 
@@ -90,33 +88,35 @@ list<int> majoritarian_council::get_council(int council_size,
 
 class random_council : public multiwinner_method {
 	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
-		string name() const {
+		std::string name() const {
 			return ("Random council");
 		}
 
 };
 
-list<int> random_council::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> random_council::get_council(int council_size,
+	int num_candidates,
+	const election_t & ballots) const {
 
 	// First generate a candidate list 0..num_candidates. Then shuffle
 	// them randomly and pick the first council_size number.
 
 	// This could be cached.
-	vector<int> numbered_candidates(num_candidates);
-	iota(numbered_candidates.begin(), numbered_candidates.end(), 0);
+	std::vector<int> numbered_candidates(num_candidates);
+	std::iota(numbered_candidates.begin(), numbered_candidates.end(), 0);
 
-	random_shuffle(numbered_candidates.begin(), numbered_candidates.end());
+	std::random_shuffle(numbered_candidates.begin(),
+		numbered_candidates.end());
 
-	list<int> toRet;
+	std::list<int> toRet;
 
-	copy(numbered_candidates.begin(), numbered_candidates.begin() +
+	std::copy(numbered_candidates.begin(), numbered_candidates.begin() +
 		council_size, inserter(toRet, toRet.begin()));
 
-	return (toRet);
+	return toRet;
 }
 
 // --- //
@@ -131,10 +131,10 @@ class mult_ballot_reweighting : public multiwinner_method {
 		double A, B;
 
 	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
-		string name() const {
+		std::string name() const {
 			return ("ReweightM[" +base->name() + "]");
 		}
 
@@ -149,8 +149,8 @@ class mult_ballot_reweighting : public multiwinner_method {
 
 };
 
-list<int> mult_ballot_reweighting::get_council(int council_size,
-	int num_candidates, const list<ballot_group> & ballots) const {
+std::list<int> mult_ballot_reweighting::get_council(int council_size,
+	int num_candidates, const election_t & ballots) const {
 
 	// first get the social ordering for the entire ballot set. Once that's
 	// done, pick the unelected candidate that's closest to the winner (and
@@ -165,17 +165,22 @@ list<int> mult_ballot_reweighting::get_council(int council_size,
 	// directly in that case. (We do the former, should do the latter,
 	// though.)
 
-	list<int> council;
+	// TODO: Somehow unify this with cardinal ratings, where the voter's
+	// relative power is just his score relative tot he maximum. And
+	// cumulative vote as well.
+
+	std::list<int> council;
 	int count = 0;
 
-	list<ballot_group> reweighted_ballots = ballots;
+	election_t reweighted_ballots = ballots;
 
-	vector<bool> elected(num_candidates, false);
+	std::vector<bool> elected(num_candidates, false);
+	std::vector<bool> hopefuls(num_candidates, true);
 
 	while (count < council_size) {
 
 		ordering social_order = base->elect(reweighted_ballots,
-				num_candidates);
+				num_candidates, NULL, false);
 
 		// Get the winner.
 		int next = -1;
@@ -214,11 +219,11 @@ list<int> mult_ballot_reweighting::get_council(int council_size,
 		// TODO: Handle fractional votes, since they only count
 		// (value / number of equally ranked votes) and so gps should
 		// be divided by (number of equally ranked votes) in that case.
-		for (list<ballot_group>::iterator ballot_pos =
+		for (election_t::iterator ballot_pos =
 				reweighted_ballots.begin(); ballot_pos !=
 			reweighted_ballots.end(); ++ballot_pos) {
 			double current_state = base->get_pos_score(
-					*ballot_pos, next, num_candidates);
+					*ballot_pos, next, hopefuls, num_candidates);
 			double inner_denom = B + (current_state / maxscore);
 
 			if (inner_denom == 0) {
@@ -226,14 +231,15 @@ list<int> mult_ballot_reweighting::get_council(int council_size,
 			}
 			assert(inner_denom > 0);
 
-			//cout << "Debug " << name() << ": " << current_state << "\t" << inner_denom << "\t" << C / inner_denom << "\t" << ballot_pos->weight << " -> ";
+			//cout << "Debug " << name() << ": " << current_state << "\t" << inner_denom << "\t" << C / inner_denom << "\t" << ballot_pos->get_weight() << " -> ";
 
-			ballot_pos->weight *= A / (/*C +*/ inner_denom);
-			//cout << ballot_pos->weight << endl;
+			ballot_pos->set_weight(ballot_pos->get_weight() * A / (/*C +*/
+					inner_denom));
+			//cout << ballot_pos->get_weight() << endl;
 		}
 	}
 
-	return (council);
+	return council;
 }
 
 // Additive voter-base reweighting.
@@ -253,48 +259,49 @@ class addt_ballot_reweighting : public multiwinner_method {
 		positional * base; // But not QLTD or Bucklin. But Range.
 
 	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
 		addt_ballot_reweighting(positional * base_in) {
 			base = base_in;
 		}
-		string name() const {
+		std::string name() const {
 			return ("ReweightA[" +base->name() + "]");
 		}
 };
 
-list<int> addt_ballot_reweighting::get_council(int council_size,
-	int num_candidates, const list<ballot_group> & ballots) const {
+std::list<int> addt_ballot_reweighting::get_council(int council_size,
+	int num_candidates, const election_t & ballots) const {
 
 	// First get the original weightings and count the number of ballots.
 
-	vector<double> orig_weightings;
+	std::vector<double> orig_weightings;
 
-	list<ballot_group>::const_iterator qpos;
-	list<ballot_group>::iterator wpos;
+	election_t::const_iterator qpos;
+	election_t::iterator wpos;
 
 	for (qpos = ballots.begin(); qpos != ballots.end(); ++qpos) {
-		orig_weightings.push_back(qpos->weight);
+		orig_weightings.push_back(qpos->get_weight());
 	}
 
 	int num_ballots = orig_weightings.size();
 
-	vector<double> points_attributed(num_ballots, 0),
-		   point_maximum(num_ballots, 0);
+	std::vector<double> points_attributed(num_ballots, 0),
+		point_maximum(num_ballots, 0);
 
-	list<int> council;
+	std::list<int> council;
 	int council_count = 0;
 
-	vector<bool> elected(num_candidates, 0);
+	std::vector<bool> elected(num_candidates, 0);
+	std::vector<bool> hopefuls(num_candidates, true);
 
-	list<ballot_group> reweighted_ballots = ballots;
+	election_t reweighted_ballots = ballots;
 
 	while (council_count < council_size) {
 		// Calculate who wins this round.
 
 		ordering social_order = base->elect(reweighted_ballots,
-				num_candidates);
+				num_candidates, NULL, false);
 
 		int next = -1;
 		for (ordering::const_iterator opos = social_order.begin();
@@ -321,7 +328,7 @@ list<int> addt_ballot_reweighting::get_council(int council_size,
 		for (wpos = reweighted_ballots.begin(); wpos !=
 			reweighted_ballots.end(); ++wpos) {
 			points_attributed[counter] += base->get_pos_score(
-					*wpos, next, num_candidates);
+					*wpos, next, hopefuls, num_candidates);
 			point_maximum[counter] += maxscore;
 
 			double C = point_maximum[counter] * 0.5;
@@ -332,8 +339,8 @@ list<int> addt_ballot_reweighting::get_council(int council_size,
 				continue;
 			}
 
-			wpos->weight = orig_weightings[counter] * C / (C +
-					points_attributed[counter]);
+			wpos->set_weight(orig_weightings[counter] * C / (C +
+					points_attributed[counter]));
 
 			++counter;
 		}

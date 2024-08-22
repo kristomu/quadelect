@@ -32,8 +32,6 @@
 #include <list>
 #include <set>
 
-using namespace std;
-
 const long double eps1=0.00000000000001;
 const long double eps2=0.0000000001;
 const long double eps3=0.0000000005;
@@ -76,7 +74,7 @@ struct DefeatElement {
 int M;      /* number of seats      */
 int C;      /* number of candidates */
 int N;      /* number of voters     */
-vector<int>
+std::vector<int>
 Vote;  /* Vote[C*i+j] is the preference of voter i for candidate j */
 
 int Comb1;
@@ -345,16 +343,17 @@ void Print2() {
 
 // -KM
 
-void print3(const list<int> & input) {
+void print3(const std::list<int> & input) {
 
-	for (list<int>::const_iterator pos = input.begin(); pos != input.end();
+	for (std::list<int>::const_iterator pos = input.begin();
+		pos != input.end();
 		++pos) {
 		if (0 <= *pos && *pos < 26) {
-			cout << (char)(*pos + 'A');
+			std::cout << (char)(*pos + 'A');
 		} else {
-			cout << (*pos) + 1;
+			std::cout << (*pos) + 1;
 		}
-		cout << " ";
+		std::cout << " ";
 	}
 }
 
@@ -363,7 +362,7 @@ void print3(const list<int> & input) {
 
 // KM
 // Note that all weights must be unitary.
-void read_ballot_input(const list<ballot_group> & input, int council_size,
+void read_ballot_input(const election_t & input, int council_size,
 	int num_candidates) {
 
 	// Set the parameters
@@ -371,14 +370,18 @@ void read_ballot_input(const list<ballot_group> & input, int council_size,
 	C = num_candidates;	// number of candidates
 	N = input.size();	// number of voters
 
-	Vote = vector<int>(N*C + 1, INT_MAX);
+	Vote = std::vector<int>(N*C + 1, INT_MAX);
 	// Vote[C*i + j] is the pref. of voter i for cand j.
 
 	// Now fill the vote array.
 	int voter = 0;
-	for (list<ballot_group>::const_iterator pos = input.begin(); pos !=
+	for (election_t::const_iterator pos = input.begin(); pos !=
 		input.end(); ++pos) {
-		assert(pos->weight - 1 < 1e-10); // Can only handle wt. 1
+
+		if (pos->get_weight() != 1) {
+			throw std::invalid_argument(
+				"Schulze STV: weighted votes are not supported");
+		}
 
 		// TODO: Handle equal rank.
 		int rank_count = 0;
@@ -387,7 +390,7 @@ void read_ballot_input(const list<ballot_group> & input, int council_size,
 			Vote[C*voter + opos->get_candidate_num()] =
 				rank_count++;
 
-		++voter; // DOH!
+		++voter;
 	}
 }
 
@@ -3614,7 +3617,7 @@ void Kombinationen2() {
 
 /*******************************************************************************/
 
-list<int> Dijkstra() {
+std::list<int> Dijkstra() {
 	int i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,erster,letzter;
 	int *ON,*UN,*pairwise,*p1,*p2,*rank;
 	long double d1,d2;
@@ -3622,7 +3625,7 @@ list<int> Dijkstra() {
 	bool j1,j2,j3;
 	bool *Richtig,*marked;
 
-	list<int> winner; // -KM
+	std::list<int> winner; // -KM
 
 	Von     =(long double*)calloc(Comb1+1,sizeof(long double));
 	Nach    =(long double*)calloc(Comb1+1,sizeof(long double));
@@ -4086,7 +4089,7 @@ list<int> Dijkstra() {
  Calculation_of_the_Strengths_of_the_Vote_Managements();
  Kombinationen();
  Kombinationen2();
- list<int> winners = Dijkstra();
+ std::list<int> winners = Dijkstra();
 
  cout << "And the winners are: ";
  print3(winners);
@@ -4104,10 +4107,10 @@ list<int> Dijkstra() {
 class SchulzeSTV : public multiwinner_method {
 
 	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
+		std::list<int> get_council(int council_size, int num_candidates,
+			const election_t & ballots) const;
 
-		string name() const {
+		std::string name() const {
 			return ("Schulze STV");
 		}
 
@@ -4126,8 +4129,9 @@ class SchulzeSTV : public multiwinner_method {
 
 };
 
-list<int> SchulzeSTV::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> SchulzeSTV::get_council(int council_size,
+	int num_candidates,
+	const election_t & ballots) const {
 
 	read_ballot_input(ballots, council_size, num_candidates);
 	Analyzing_the_Input();
@@ -4137,8 +4141,8 @@ list<int> SchulzeSTV::get_council(int council_size, int num_candidates,
 	Calculation_of_the_Strengths_of_the_Vote_Managements();
 	Kombinationen();
 	Kombinationen2();
-	list<int> council = Dijkstra();
+	std::list<int> council = Dijkstra();
 	//cout << "DEBUG: Winners are ";
 	//print3(council);
-	return (council);
+	return council;
 }

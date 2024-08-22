@@ -3,52 +3,59 @@
 #ifndef _VOTE_DHWL_MAT
 #define _VOTE_DHWL_MAT
 
-#include "../condorcet/matrix.cc"
+#include "pairwise/matrix.h"
 #include <vector>
-
-using namespace std;
 
 class DHwLmatrix : public condmat {
 	private:
-		vector<bool> elected;
+		std::vector<bool> elected;
 		double C;
 
-		double downweight(int num_higher_elected_prefs) const;
+		double deweight(int num_higher_elected_prefs) const;
 
-		void count_ballots(const list<ballot_group> & scores,
+		void count_ballots(const election_t & scores,
 			int num_candidates);
 
+		void add(size_t candidate, size_t against,
+			double value);
+
 	public:
-		void set_elected(const vector<bool> & source);
+		void set_elected(const std::vector<bool> & source);
 		void set_elected(int elected_idx);
 
-		DHwLmatrix(const list<ballot_group> & scores,
-			const vector<bool> & already_elected,
-			int num_candidates, condorcet_type kind,
+		DHwLmatrix(const election_t & scores,
+			const std::vector<bool> & already_elected,
+			int num_candidates, pairwise_type type_in,
 			bool tie_at_top, double C_in);
 };
 
-double DHwLmatrix::downweight(int num_higher_elected_prefs) const {
+double DHwLmatrix::deweight(int num_higher_elected_prefs) const {
 	return (C/(double)(C + num_higher_elected_prefs));
 }
 
-void DHwLmatrix::count_ballots(const list<ballot_group> & scores,
+void DHwLmatrix::add(size_t candidate, size_t against,
+	double value) {
+
+	set_internal(candidate, against,
+		get_internal(candidate, against, true) + value);
+}
+
+void DHwLmatrix::count_ballots(const election_t & scores,
 	int num_candidates) {
 
-	// See condorcet/matrix.cc
+	// See pairwise/matrix.cc
 
-	list<ballot_group>::const_iterator pri;
-	list<candscore>::const_iterator checker, against;
-
+	election_t::const_iterator pri;
+	std::list<candscore>::const_iterator checker, against;
 
 	for (pri = scores.begin(); pri != scores.end(); ++pri) {
 		// Reduce n^2 to n as set iterations are extremely slow.
 		// KLUDGE.
-		list<candscore> first_ch;
-		copy(pri->contents.begin(), pri->contents.end(), inserter(
+		std::list<candscore> first_ch;
+		std::copy(pri->contents.begin(), pri->contents.end(), inserter(
 				first_ch, first_ch.begin()));
 
-		list<candscore>::const_iterator first = first_ch.begin();
+		std::list<candscore>::const_iterator first = first_ch.begin();
 
 		int dimin = 0, level_dimin = 0;
 		double last_level_score = -1;
@@ -58,7 +65,7 @@ void DHwLmatrix::count_ballots(const list<ballot_group> & scores,
 
 			// Credit victories, with a twist. Any pairwise
 			// preference stated below someone that's already been
-			// elected gets downweighted by a function of the number
+			// elected gets deweighted by a function of the number
 			// of candidates already elected also ranked higher.
 			// Ties don't count.
 
@@ -72,7 +79,7 @@ void DHwLmatrix::count_ballots(const list<ballot_group> & scores,
 				dimin = level_dimin;
 			}
 
-			double new_wt = downweight(dimin) * pri->weight;
+			double new_wt = deweight(dimin) * pri->get_weight();
 
 			// If we happen upon an elected candidate, increment
 			// the reweight number for the lower ranks (will get
@@ -83,42 +90,37 @@ void DHwLmatrix::count_ballots(const list<ballot_group> & scores,
 			}
 
 			for (against = inc(checker); against != first_ch.
-				end(); ++against)
-				if (checker->get_score() > against->get_score())
-					matrix[checker->get_candidate_num()][
-						against->get_candidate_num()] +=
-							new_wt;
-
-			// Tied at the top. See condorcet/matrix.cc
-			// It's not possible for there to be a reweighting at
-			// this stage (first preference), so copy directly.
-
-			if (checker != first_ch.begin()) {
-				continue;
+				end(); ++against) {
+				if (checker->get_score() > against->get_score()) {
+					add(checker->get_candidate_num(),
+						against->get_candidate_num(),
+						new_wt);
+				}
 			}
 
-			for (against = inc(checker); against != first_ch.
-				end() && against->get_score() !=
-				checker->get_score(); ++against) {
-				tied_at_top[checker->get_candidate_num()][
-					against->get_candidate_num()] +=
-						pri->weight;
-				tied_at_top[against->get_candidate_num()][
-					checker->get_candidate_num()] +=
-						pri->weight;
-			}
+			// There used to be a tied at the top thing here.
+			// Is that something that I should port over to condmat?
+			// XXX???
+
+			// Would some sort of inversion of control help with the
+			// duplicate code here? Yes, but at what cost?
 		}
 	}
 }
 
-void DHwLmatrix::set_elected(const vector<bool> & source) {
-	assert(source.size() == elected.size());
+void DHwLmatrix::set_elected(const std::vector<bool> & source) {
+	if (source.size() != elected.size()) {
+		throw std::invalid_argument("Proposed elected set is of the wrong size!");
+	}
 
 	elected = source;
 }
 
 void DHwLmatrix::set_elected(int elected_idx) {
-	assert(elected_idx < elected.size());
+	if (elected_idx >= elected.size()) {
+		throw std::invalid_argument(
+			"Can't set a candidate as elected who's not in the election.");
+	}
 
 	// Perhaps some stuff here about recounting being necessary? That's
 	// probably the right thing to do with the CM in general..
@@ -126,22 +128,26 @@ void DHwLmatrix::set_elected(int elected_idx) {
 	elected[elected_idx] = true;
 }
 
-DHwLmatrix::DHwLmatrix(const list<ballot_group> & scores, const
-	vector<bool> & already_elected,	int num_candidates,
-	condorcet_type kind, bool tie_at_top, double C_in) : condmat() {
+DHwLmatrix::DHwLmatrix(const election_t & scores, const
+	std::vector<bool> & already_elected, int num_candidates,
+	pairwise_type type_in, bool tie_at_top, double C_in) : condmat(
+			type_in) {
 
-	assert(0 <= C_in && C_in <= 1);
-	C = C_in;
-
-	init(num_candidates, kind, tie_at_top);
-	elected = already_elected;
-
-	// Count the sum weight (which we'll need for LV).
-	for (list<ballot_group>::const_iterator pri = scores.begin(); pri !=
-		scores.end(); ++pri) {
-		num_voters += pri->weight;
+	if (num_candidates == 0) {
+		throw std::invalid_argument("DHwLmatrix: Must have at least "
+			"one candidate");
 	}
 
+	if (C_in <= 0 || C_in > 1) {
+		throw std::invalid_argument(
+			"DHwLmatrix: reweighting factor out of range");
+	}
+
+	C = C_in;
+
+	elected = already_elected;
+
+	zeroize(num_candidates);
 	count_ballots(scores, num_candidates);
 }
 

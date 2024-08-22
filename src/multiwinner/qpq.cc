@@ -2,9 +2,11 @@
 #define _VOTE_QPQ
 
 #include "methods.cc"
-#include "../tiebreaker.cc"
+//#include "../tiebreaker.cc"
 #include <vector>
 #include <list>
+
+// NOT YET PORTED.
 
 using namespace std;
 
@@ -152,13 +154,13 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 			sum_weights += elect_fraction[counter];
 
 			if (contribute == pos->contents.end()) {
-				inactive_ballots += pos->weight;
+				inactive_ballots += pos->get_weight();
 				inactive_ballot_fraction +=
 					elect_fraction[counter];
 			} else {
-				active_ballots += pos->weight;
+				active_ballots += pos->get_weight();
 				contributing_ballots[contribute->
-					get_candidate_num()] += pos->weight;
+					get_candidate_num()] += pos->get_weight();
 				contributing_weights[contribute->
 					get_candidate_num()] +=
 						elect_fraction[counter];
