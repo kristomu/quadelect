@@ -188,6 +188,22 @@ add_library(qe_singlewinner_methods
 # Includes Young and Kemeny, which need GLPK.
 target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
 
+add_library(qe_multiwinner_methods
+	src/multiwinner/helper/dsc.cc
+	src/multiwinner/helper/errors.cc
+	src/multiwinner/compat_qbuck.cc
+	src/multiwinner/dhwl.cc
+	src/multiwinner/dhwl_mat.cc
+	src/multiwinner/hard_card.cc
+	src/multiwinner/meek_stv.cc
+	src/multiwinner/methods.cc
+	src/multiwinner/psc.cc
+	src/multiwinner/qbuck.cc
+	# src/multiwinner/qpq.cc
+	src/multiwinner/shuntsstv.cc
+	src/multiwinner/stv.cc
+	src/stats/multiwinner/mwstats.cc)
+
 add_library(quadelect_lib src/common/ballots.cc
 	src/bandit/lilucb.cc
 	src/common/cache.cc
@@ -328,6 +344,9 @@ target_link_libraries(vse_bandit qe_singlewinner_methods quadelect_lib)
 
 add_executable(test_bandit_correctness src/main/test_bandit_correctness.cc)
 target_link_libraries(test_bandit_correctness qe_singlewinner_methods quadelect_lib)
+
+add_executable(multiwinner src/main/multiwinner.cc)
+target_link_libraries(multiwinner qe_multiwinner_methods qe_singlewinner_methods quadelect_lib)
 
 add_executable(yee_reference_benchmark src/reference/yee/yee_borda.cc)
 add_executable(vse_reference src/reference/vse/vse.cc)

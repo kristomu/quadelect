@@ -29,7 +29,7 @@ class qltd_pr : public multiwinner_method {
 			double start_at, double & surplus) const;
 		bool is_contributing(const ballot_group & ballot,
 			const std::vector<bool> & hopefuls,
-			int to_this_candidate,
+			size_t to_this_candidate,
 			double num_preferences) const;
 
 	public:

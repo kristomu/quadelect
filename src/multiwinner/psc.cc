@@ -40,7 +40,6 @@ std::list<int> PSC::get_council(double C, double divisor, int council_size,
 	ordering fallback = schulze(CM_WV).pair_elect(condmat(ballots,
 				num_candidates, CM_WV), false).first;
 
-	int num_elected = 0;
 	std::vector<bool> hopeful(num_candidates, true);
 	std::set<int> council;
 
@@ -65,18 +64,15 @@ std::list<int> PSC::get_council(double C, double divisor, int council_size,
 		init_coalitions.erase(old_apos);
 	}
 
-	while (council.size() < council_size) {
+	while (council.size() < (size_t)council_size) {
 
 		std::multimap<double, std::set<unsigned short> >::const_iterator pos;
 		std::set<unsigned short> excludable, electable;
 
-		bool once_through = false;
-
-		int oldsize = council.size();
+		size_t oldsize = council.size();
 
 		for (pos = coalitions.begin(); pos != coalitions.end() &&
-			council.size() < council_size;
-			++pos) {
+			council.size() < (size_t)council_size; ++pos) {
 			// If this coalition is admissible, admit it.
 			if (pos->second.size() == pos->first &&
 				!pos->second.empty()) {
@@ -92,7 +88,7 @@ std::list<int> PSC::get_council(double C, double divisor, int council_size,
 
 		// If we have them all, no need to exclude any more; it'll hop
 		// off the loop at the next go.
-		if (council.size() == council_size) {
+		if (council.size() == (size_t)council_size) {
 			continue;
 		}
 
@@ -153,10 +149,12 @@ std::list<int> PSC::get_council(double C, double divisor, int council_size,
 	// At this point, council is a set. We want a list, so just copy it in
 	// and return.
 
-	if (council.size() > council_size) {
+	// TODO: Throw stuff instead.
+
+	if (council.size() > (size_t)council_size) {
 		return (too_many);
 	}
-	if (council.size() < council_size) {
+	if (council.size() < (size_t)council_size) {
 		return (too_few);
 	}
 

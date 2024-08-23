@@ -2,7 +2,7 @@
 
 #include "singlewinner/pairwise/simple_methods.h"
 #include "common/ballots.h"
-#include "helper/dsc.cc"
+#include "helper/dsc.h"
 #include "methods.h"
 #include <list>
 

@@ -5,10 +5,10 @@
 // This will fail on assert if the ballots are weighted, since the old-style
 // format doesn't have a parameter for that. Besides, this is only intended to
 // be scaffolding. Needs CLEANUP.
-std::vector<vector<int> > old_qltd_pr::construct_old_ballots(
+std::vector<std::vector<int> > old_qltd_pr::construct_old_ballots(
 	const election_t & ballots, int num_candidates) const {
 
-	std::vector<vector<int> > out_ballots;
+	std::vector<std::vector<int> > out_ballots;
 
 	for (election_t::const_iterator ballot = ballots.begin();
 		ballot != ballots.end(); ++ballot) {
@@ -36,9 +36,9 @@ std::vector<vector<int> > old_qltd_pr::construct_old_ballots(
 
 
 std::vector<int> old_qltd_pr::QuotaBucklin(
-	const std::vector<vector<int> > & rankings,
+	const std::vector<std::vector<int> > & rankings,
 	int num_candidates, int council_size, bool hare, bool use_card,
-	const std::vector<vector<double> > * rated_ballots) const {
+	const std::vector<std::vector<double> > * rated_ballots) const {
 
 	// Of those that aren't elected, count the p first candidates into a
 	// tally.
@@ -60,7 +60,8 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 	std::vector<int> allocated;
 	std::vector<double> tally(num_candidates);
 	std::vector<double> weighting(rankings.size(), 1);
-	int counter, sec, last_elected = -1;
+	size_t counter, sec;
+	int last_elected = -1;
 	double round = 0;
 	double surplus;
 	bool failsafe = false;
@@ -90,8 +91,8 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 	double card_divisor = 0;
 
 	if (use_card) {
-		for (int a = 0; a < rated_ballots->size(); ++a) {
-			for (int b = 0; b< (*rated_ballots)[a].size(); ++b)
+		for (size_t a = 0; a < rated_ballots->size(); ++a) {
+			for (size_t b = 0; b< (*rated_ballots)[a].size(); ++b)
 				if ((*rated_ballots)[a][b] > card_divisor) {
 					card_divisor = (*rated_ballots)[a][b];
 				}
@@ -102,30 +103,28 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 		card_divisor = 1;
 	}
 
-	while (allocated.size() < council_size) {
-		//cout << "Iter: " << round << ", " << fraction << endl;
-		//cout << round << "\t" << allocated.size() << "\t" << council_size << endl;
+	while (allocated.size() < (size_t)council_size) {
 		// Wasn't there something about that Hare some times fail to
 		// fill the council?
 		if ((round > (council_size + 1))) {
 			if (hare) {
-				cout << "Damn, a timeout. Allocated size: " << allocated.size() <<
-					". Switching to Droop "<<
-					"quota." << endl;
+				std::cout << "Damn, a timeout. Allocated size: "
+					<< allocated.size() << ". Switching to Droop "<<
+					"quota." << std::endl;
 				return (QuotaBucklin(rankings, num_candidates,
 							council_size, !hare,
 							use_card, rated_ballots));
 			} else {
-				cout << "This shouldn't happen. Allocated size: " << allocated.size() <<
-					", now using "<<
-					"previous tally." << endl;
+				std::cout << "This shouldn't happen. Allocated size: "
+					<< allocated.size() << ", now using "<<
+					"previous tally." << std::endl;
 				failsafe = true;
 			}
 		}
 
 		int step = 256;
 		int low = (round - floor(round)) * step, high = step, mid;
-		double behind_score = -1, behind_fract = -1;
+		double behind_fract = -1;
 		while (low <= high) {
 			mid = (low + high) / 2;
 			fraction = mid / (double)step;
@@ -149,10 +148,8 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 					}
 
 					if (!elected[cand]) {
-						tally[cand] +=
-							weighting[counter] *
-							addtlwt *
-							max(0.0, this_round);
+						tally[cand] += weighting[counter] *
+							addtlwt * std::max(0.0, this_round);
 						--this_round;
 					}
 				}
@@ -168,24 +165,13 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 				}
 			}
 
-			//		cout << floor(round) + fraction << "\t" << record_i << "\t " << quota << endl;
-
-			/*	if (record_i == (quota + 1e-3)) {
-					cout << "Found with " << record_i << endl;
-					break;
-				}*/
 			if (record_i < quota) {
 				low = mid + 1;
 			} else {
-				behind_score = record_i;
 				behind_fract = fraction;
 				high = mid - 1;
 			}
 		}
-
-		//cout << "Mid is " << mid << endl;
-		//cout << "Best: " << behind_score << endl;
-		//assert (1 != 1);
 
 		// Perhaps elect all of them at once? Check that later.
 		// No, that's bad.
@@ -214,7 +200,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 						tally[cand] +=
 							weighting[counter] *
 							addtlwt *
-							max(0.0, this_round);
+							std::max(0.0, this_round);
 						--this_round;
 					}
 				}
@@ -243,7 +229,6 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 			}
 		}
 
-		//cout << "How many above quota: " << found_count << endl;
 		// If there are more than one, break by Borda.
 		// Should probably be a better system, but for now, Borda'll
 		// work.
@@ -275,14 +260,16 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 					recordholder = *lpos;
 				}
 			found = recordholder;*/
-			//		cout << "Borda winner was " << found << endl;
+			//		cout << "Borda winner was " << found << std::endl;
+
+			throw std::logic_error("Not yet implemented");
 		}
 
 		//	assert (found_count < 2);
 
 		if (found != -1) {
-			//		cout << "Found" << endl;
-			surplus = max(0.0, tally[found] - quota);
+			//		cout << "Found" << std::endl;
+			surplus = std::max(0.0, tally[found] - quota);
 
 			allocated.push_back(found);
 			last_elected = found;
@@ -321,7 +308,7 @@ std::list<int> old_qltd_pr::get_council(int council_size,
 	int num_candidates,
 	const election_t & ballots) const {
 
-	std::vector<vector<int> > translated = construct_old_ballots(ballots,
+	std::vector<std::vector<int> > translated = construct_old_ballots(ballots,
 			num_candidates);
 
 	std::vector<int> retval = QuotaBucklin(translated, num_candidates,
@@ -333,5 +320,3 @@ std::list<int> old_qltd_pr::get_council(int council_size,
 
 	return (council);
 }
-
-#endif

@@ -129,8 +129,6 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 			maxscore = 1e-6;
 		}
 
-		double C = 0.5;
-
 		// TODO: Handle fractional votes, since they only count
 		// (value / number of equally ranked votes) and so gps should
 		// be divided by (number of equally ranked votes) in that case.

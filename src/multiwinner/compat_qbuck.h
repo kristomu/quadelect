@@ -1,7 +1,7 @@
 #pragma once
 
 #include <list>
-#include "methods.cc"
+#include "methods.h"
 
 // QLTD-PR as copied from secprelect (where it gets extremely good scores).
 
@@ -10,6 +10,7 @@ class old_qltd_pr : public multiwinner_method {
 		std::vector<std::vector<int> > construct_old_ballots(
 			const election_t & ballots, int num_candidates) const;
 
+		// BEWARE: Pointers!
 		std::vector<int> QuotaBucklin(
 			const std::vector<std::vector<int> > & rankings,
 			int num_candidates, int council_size, bool hare,

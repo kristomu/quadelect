@@ -28,7 +28,7 @@ class DHwLmatrix : public condmat {
 
 	public:
 		void set_elected(const std::vector<bool> & source);
-		void set_elected(int elected_idx);
+		void set_elected(size_t elected_idx);
 
 		DHwLmatrix(const election_t & scores,
 			const std::vector<bool> & already_elected,

@@ -25,7 +25,9 @@ double multiwinner_stats::get_median(std::vector<double> & in) const {
 	return (*pos);
 }
 
-multiwinner_stats::multiwinner_stats(multiwinner_method * method_in) {
+multiwinner_stats::multiwinner_stats(
+	std::shared_ptr<multiwinner_method> method_in) {
+
 	mw_method = method_in;
 	name = method_in->name();
 	scores_sum = 0;

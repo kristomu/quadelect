@@ -8,7 +8,6 @@ std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 	// BTR-STV. See the main procedure for information on BTR-STV.
 
 	int N = (council_size - num_elected) + 1;
-	int current_count = 0;
 
 	//cout << "N is " << N << endl;
 

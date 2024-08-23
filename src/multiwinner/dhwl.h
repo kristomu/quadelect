@@ -3,11 +3,13 @@
 #include "dhwl_mat.h"
 #include "methods.h"
 #include "singlewinner/pairwise/method.h"
+
 #include <list>
+#include <memory>
 
 class reweighted_condorcet : public multiwinner_method {
 	private:
-		pairwise_method * base;
+		std::shared_ptr<pairwise_method> base;
 
 	public:
 		std::list<int> get_council(int council_size,
@@ -18,7 +20,7 @@ class reweighted_condorcet : public multiwinner_method {
 			return ("DHwL(" + base->name() + ")");
 		}
 
-		reweighted_condorcet(pairwise_method * base_in) {
+		reweighted_condorcet(std::shared_ptr<pairwise_method> base_in) {
 			base = base_in;
 		}
 

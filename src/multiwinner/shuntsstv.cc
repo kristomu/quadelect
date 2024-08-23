@@ -31,6 +31,15 @@
 #include <list>
 #include <set>
 
+
+// This isn't my code, I'm not going to prioritize fixing the warnings here.
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
+
 const long double eps1=0.00000000000001;
 const long double eps2=0.0000000001;
 const long double eps3=0.0000000005;
@@ -565,7 +574,7 @@ void Analyzing_the_Input() {
 
 void PropCompletionSimple() {
 	int i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11;
-	bool j1,j2,j3,j4,Newcool;
+	bool j1,j2,j3,j4;
 	long double NewValue;
 	int totValue;
 
@@ -587,7 +596,7 @@ void PropCompletionSimple() {
 
 		if (j1==false) {
 			NewValue=Value4[i2];
-			Newcool =cool4 [i2];
+			//Newcool =cool4 [i2];
 
 			i10=M*i2;
 			for (i3=0; i3<M; i3++) {
@@ -4102,6 +4111,8 @@ std::list<int> Dijkstra() {
  printf("runtime=%d seconds (%d processor timer ticks)\n",elapsed_time,time2-time1);
 
 }*/
+
+#pragma GCC diagnostic pop
 
 std::list<int> SchulzeSTV::get_council(int council_size,
 	int num_candidates,

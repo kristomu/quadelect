@@ -3,6 +3,8 @@
 #include "common/ballots.h"
 #include "singlewinner/positional/positional.h"
 
+#include <memory>
+
 // Maybe implement: IS_DETERMINISTIC, returns either -1 (random), 0 (determ. except
 // with ties) or 1 (fully determ - presumably non-neutral).
 
@@ -33,7 +35,7 @@ class multiwinner_method {
 
 class majoritarian_council : public multiwinner_method {
 	private:
-		election_method * base;
+		std::shared_ptr<election_method> base;
 
 	public:
 		std::list<int> get_council(int council_size, int num_candidates,
@@ -43,7 +45,7 @@ class majoritarian_council : public multiwinner_method {
 			return ("Maj[" + base->name() + "]");
 		}
 
-		majoritarian_council(election_method * base_in) {
+		majoritarian_council(std::shared_ptr<election_method> base_in) {
 			base = base_in;
 		}
 
@@ -68,7 +70,7 @@ class random_council : public multiwinner_method {
 class mult_ballot_reweighting : public multiwinner_method {
 
 	private:
-		positional * base; // But not Bucklin or QLTD
+		std::shared_ptr<positional> base; // But not Bucklin or QLTD
 		double A, B;
 
 	public:
@@ -76,14 +78,14 @@ class mult_ballot_reweighting : public multiwinner_method {
 			const election_t & ballots) const;
 
 		std::string name() const {
-			return ("ReweightM[" +base->name() + "]");
+			return ("ReweightM[" + base->name() + "]");
 		}
 
-		mult_ballot_reweighting(positional * base_in) {
+		mult_ballot_reweighting(std::shared_ptr<positional> base_in) {
 			base = base_in; A = 0.5; B = 1;
 		}
-		mult_ballot_reweighting(positional * base_in, double A_in,
-			double B_in) {
+		mult_ballot_reweighting(std::shared_ptr<positional> base_in,
+			double A_in, double B_in) {
 			base = base_in; A = A_in;
 			B = B_in;
 		}
@@ -104,13 +106,13 @@ class mult_ballot_reweighting : public multiwinner_method {
 class addt_ballot_reweighting : public multiwinner_method {
 
 	private:
-		positional * base; // But not QLTD or Bucklin. But Range.
+		std::shared_ptr<positional> base; // But not QLTD or Bucklin. But Range.
 
 	public:
 		std::list<int> get_council(int council_size, int num_candidates,
 			const election_t & ballots) const;
 
-		addt_ballot_reweighting(positional * base_in) {
+		addt_ballot_reweighting(std::shared_ptr<positional> base_in) {
 			base = base_in;
 		}
 		std::string name() const {

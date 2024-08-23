@@ -25,10 +25,8 @@ void DHwLmatrix::count_ballots(const election_t & scores,
 		// Reduce n^2 to n as set iterations are extremely slow.
 		// KLUDGE.
 		std::list<candscore> first_ch;
-		std::copy(pri->contents.begin(), pri->contents.end(), inserter(
-				first_ch, first_ch.begin()));
-
-		std::list<candscore>::const_iterator first = first_ch.begin();
+		std::copy(pri->contents.begin(), pri->contents.end(),
+			std::inserter(first_ch, first_ch.begin()));
 
 		int dimin = 0, level_dimin = 0;
 		double last_level_score = -1;
@@ -89,7 +87,7 @@ void DHwLmatrix::set_elected(const std::vector<bool> & source) {
 	elected = source;
 }
 
-void DHwLmatrix::set_elected(int elected_idx) {
+void DHwLmatrix::set_elected(size_t elected_idx) {
 	if (elected_idx >= elected.size()) {
 		throw std::invalid_argument(
 			"Can't set a candidate as elected who's not in the election.");

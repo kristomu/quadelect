@@ -1,5 +1,6 @@
 
 #include "qbuck.h"
+#include <limits>
 
 candscore qltd_pr::get_first_above_quota(const
 	std::vector<std::vector<double> > &
@@ -14,7 +15,7 @@ candscore qltd_pr::get_first_above_quota(const
 	// higher score is better).
 	//
 	// If nobody's above quota, even with all votes counted, we
-	// return (-1, -1).
+	// return (0, NaN).
 
 	double recordholder = -1;
 	int num_candidates = positional_matrix.size();
@@ -23,7 +24,7 @@ candscore qltd_pr::get_first_above_quota(const
 
 	double adj_start_at = start_at;
 
-	int counter = 0;
+	size_t counter = 0;
 	for (counter = 0; counter < positional_matrix[0].size() &&
 		recordholder == -1; ++counter) {
 		// Sum up this row
@@ -58,7 +59,7 @@ candscore qltd_pr::get_first_above_quota(const
 	// Okay, at this point we've either exhausted all the ballots, or
 	// someone's above quota. Deal with the first case first.
 	if (recordholder == -1) {
-		return (candscore(-1, -1));
+		return (candscore(0, std::numeric_limits<double>::quiet_NaN()));
 	}
 
 	// So the recordholder's above quota. There are two situations here;
@@ -108,7 +109,7 @@ candscore qltd_pr::get_first_above_quota(const
 }
 
 bool qltd_pr::is_contributing(const ballot_group & ballot,
-	const std::vector<bool> & hopefuls, int to_this_candidate,
+	const std::vector<bool> & hopefuls, size_t to_this_candidate,
 	double num_preferences) const {
 
 	// Simply check whether the candidate referenced is within the
@@ -224,7 +225,9 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 
 		// TODO: Complete later.
 		//assert (winner.get_candidate_num() != -1);
-		if (winner.get_candidate_num() == -1) {
+
+		// If we didn't find anybody above the quota...
+		if (isnan(winner.get_score())) {
 			ordering borda_result = borda_count.pos_elect(
 					positional_matrix, num_candidates -
 					num_elected, hopefuls);

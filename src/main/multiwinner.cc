@@ -13,24 +13,30 @@
 // Wishlist: Candidate ordering by opinions. FindBest/FindWorst instead of
 // best/worst-of-10000. Ballot aggregation/ballot trees. Clues.
 
-#include "ballots.cc"
-#include "positional.cc"
-#include "halfpos.cc"
-#include "method.cc"
-#include "errors.cc"
-#include "tools.cc"
+#include "common/ballots.h"
+#include "singlewinner/positional/all.h"
+#include "singlewinner/pairwise/all.h"
+#include "singlewinner/elimination/elimination.h"
+#include "singlewinner/stats/cardinal.h"
+
+/*#include "tools.cc"
 #include "mwstats.cc"
-#include "condorcet/methods.cc"
-#include "multiwinner/psc.cc"
-#include "multiwinner/qbuck.cc"
-#include "multiwinner/meek_stv.cc"
-#include "multiwinner/shuntsstv.cc"
-#include "multiwinner/compat_qbuck.cc"
-#include "multiwinner/hard_card.cc"
-#include "multiwinner/methods.cc"
-#include "multiwinner/dhwl.cc"
-#include "multiwinner/stv.cc"
-#include "multiwinner/qpq.cc"
+#include "condorcet/methods.cc"*/
+
+#include "stats/multiwinner/mwstats.h"
+#include "multiwinner/helper/errors.cc"
+
+#include "multiwinner/methods.h"
+
+#include "multiwinner/psc.h"
+#include "multiwinner/qbuck.h"
+#include "multiwinner/meek_stv.h"
+#include "multiwinner/shuntsstv.h"
+#include "multiwinner/compat_qbuck.h"
+#include "multiwinner/hard_card.h"
+#include "multiwinner/dhwl.h"
+#include "multiwinner/stv.h"
+//#include "multiwinner/qpq.cc"
 
 #include <vector>
 #include <iostream>
@@ -51,7 +57,7 @@ vector<bool> generate_opinion_profile(const vector<double> & bias) {
 
 	vector<bool> toRet(bias.size());
 
-	for (int counter = 0; counter < bias.size(); ++counter) {
+	for (size_t counter = 0; counter < bias.size(); ++counter) {
 		toRet[counter] = (drand48() < bias[counter]);
 	}
 
@@ -62,7 +68,7 @@ string get_printable_profile(const vector<bool> & profile) {
 
 	string output;
 
-	for (int counter = 0; counter < profile.size(); ++counter)
+	for (size_t counter = 0; counter < profile.size(); ++counter)
 		if (profile[counter]) {
 			output += "#";
 		} else	{
@@ -72,10 +78,10 @@ string get_printable_profile(const vector<bool> & profile) {
 	return (output);
 }
 
-void print_profiles(const vector<vector<bool> > & profiles, int begin,
-	int end) {
+void print_profiles(const vector<vector<bool> > & profiles, size_t begin,
+	size_t end) {
 
-	for (int counter = begin; counter < end; ++counter) {
+	for (size_t counter = begin; counter < end; ++counter) {
 		cout << counter << "\t" << get_printable_profile(profiles[counter]) <<
 			endl;
 	}
@@ -84,11 +90,11 @@ void print_profiles(const vector<vector<bool> > & profiles, int begin,
 vector<double> sum_opinion_profile(const vector<vector<bool> > &
 	population_profiles) {
 
-	int population_size = population_profiles.size();
+	size_t population_size = population_profiles.size();
 
 	vector<double> opinion_count(population_profiles[0].size(), 0);
 
-	int counter, sec;
+	size_t counter, sec;
 
 	for (counter = 0; counter < population_size; ++counter)
 		for (sec = 0; sec < opinion_count.size(); ++sec)
@@ -110,7 +116,7 @@ vector<double> get_quantized_opinion_profile(const list<int> & candidates,
 
 	vector<double> opinion_count(population_profiles[0].size(), 0);
 
-	int counter, sec;
+	size_t counter, sec;
 
 	for (list<int>::const_iterator pos = candidates.begin(); pos !=
 		candidates.end(); ++pos)
@@ -132,11 +138,13 @@ vector<double> get_quantized_opinion_profile(const list<int> & candidates,
 
 int hamming_distance(const vector<bool> & a, const vector<bool> & b) {
 
-	assert(a.size() == b.size());
+	if (a.size() != b.size()) {
+		throw std::invalid_argument("Hamming distance: vectors must be equal length");
+	}
 
-	int hd = 0;
+	size_t hd = 0;
 
-	for (int counter = 0; counter < a.size(); ++counter)
+	for (size_t counter = 0; counter < a.size(); ++counter)
 		if (a[counter] ^ b[counter]) {
 			++hd;
 		}
@@ -179,18 +187,19 @@ ballot_group construct_ballot(const vector<vector<bool> > &
 	population_profiles,
 	int num_candidates, int current_index, double noise_magnitude) {
 
-	return (ballot_group(1, construct_ballot_order(population_profiles,
+	return (ballot_group(1,
+				construct_ballot_order(population_profiles,
 					num_candidates, current_index,
 					noise_magnitude), true, true));
 }
 
-list<ballot_group> construct_ballots(const vector<vector<bool> > &
+election_t construct_ballots(const vector<vector<bool> > &
 	population_profiles, int num_candidates,
 	double noise_magnitude) {
 
-	list<ballot_group> ballots;
+	election_t ballots;
 
-	for (int counter = 0; counter < population_profiles.size(); ++counter)
+	for (size_t counter = 0; counter < population_profiles.size(); ++counter)
 		ballots.push_back(construct_ballot(population_profiles,
 				num_candidates, counter,
 				noise_magnitude));
@@ -221,8 +230,8 @@ list<int> random_council(int num_candidates, int council_size) {
 // only 1/1000 chance of picking B > C, not 1/2.
 // Beware: this method is not cloneproof.
 list<int> random_ballot(int num_ballots,
-	const list<ballot_group> & ballots,
-	int num_candidates, int council_size, int accept_number) {
+	const election_t & ballots,
+	int num_candidates, size_t council_size, size_t accept_number) {
 
 	// Read off the first min(ordering size, accept_number) candidates.
 	// Then permute randomly and pick the first council_size of these.
@@ -230,9 +239,9 @@ list<int> random_ballot(int num_ballots,
 
 
 	// Pick the random ballot
-	int counter = 0, rand_ballot = floor(drand48() * num_ballots);
+	size_t counter = 0, rand_ballot = floor(drand48() * num_ballots);
 
-	list<ballot_group>::const_iterator pos;
+	election_t::const_iterator pos;
 
 	for (pos = ballots.begin(); pos != ballots.end() && counter <
 		rand_ballot; ++pos) {
@@ -240,7 +249,7 @@ list<int> random_ballot(int num_ballots,
 	}
 
 	// Now pos is a random ballot.
-	int requested = min((size_t)accept_number, pos->contents.size());
+	size_t requested = min(accept_number, pos->contents.size());
 	vector<int> accepted(requested, 0);
 	vector<bool> taken(num_candidates, false); // incomplete ballots
 
@@ -346,7 +355,7 @@ void get_limits(int num_candidates, int council_size,
 
 // n * tries instead of plain n(as we would have with a vector of ballots.
 // TODO: Fix somehow.
-double random_ballot(const list<ballot_group> & ballots,
+double random_ballot(const election_t & ballots,
 	int num_candidates, int council_size, int accept_number,
 	const vector<vector<bool> > & population_profiles,
 	const vector<double> & whole_pop_profile, int tries) {
@@ -406,11 +415,11 @@ string display_stats(double stat_sum, double rounds_so_far,
 }*/
 
 // QnD
-void print_std_pref(const list<ballot_group> & f) {
+void print_std_pref(const election_t & f) {
 
 	cout << "STANDARD PREFS:" << endl;
 
-	for (list<ballot_group>::const_iterator pos = f.begin(); pos != f.end();
+	for (election_t::const_iterator pos = f.begin(); pos != f.end();
 		++pos) {
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos) {
@@ -420,7 +429,7 @@ void print_std_pref(const list<ballot_group> & f) {
 	}
 }
 
-void print_sstv_pref(const list<ballot_group> & f, int council_size, int
+void print_sstv_pref(const election_t & f, int council_size, int
 	num_candidates) {
 
 	cerr << "M " << council_size << endl;
@@ -432,7 +441,7 @@ void print_sstv_pref(const list<ballot_group> & f, int council_size, int
 
 	int voter = 1;
 
-	for (list<ballot_group>::const_iterator pos = f.begin(); pos != f.end();
+	for (election_t::const_iterator pos = f.begin(); pos != f.end();
 		++pos) {
 		cerr << voter++ << " ";
 		for (ordering::const_iterator opos = pos->contents.begin();
@@ -443,22 +452,23 @@ void print_sstv_pref(const list<ballot_group> & f, int council_size, int
 	}
 	cerr << "END" << endl;
 }
+
 void set_best(multiwinner_stats & meta, double minimum, double maximum,
 	const vector<multiwinner_stats> & source, string search_for_a,
 	string search_for_b) {
 
 	vector<double> gathered_scores;
 
-	for (int counter = 0; counter < source.size(); ++counter) {
+	for (size_t counter = 0; counter < source.size(); ++counter) {
 		if (&(source[counter]) == &meta) {
 			continue;
 		}
 		string curname = source[counter].get_name();
 
-		if (curname.find(search_for_a, 0) == -1) {
+		if (curname.find(search_for_a, 0) == std::string::npos) {
 			continue;
 		}
-		if (curname.find(search_for_b, 0) == -1) {
+		if (curname.find(search_for_b, 0) == std::string::npos) {
 			continue;
 		}
 		//	cout << "VV: " << curname << "\t" << curname.find(search_for, 0) << endl;
@@ -487,30 +497,30 @@ int main(int argc, char * * argv) {
 	// Set up some majoritarian election methods and their stats.
 	// Condorcet methods should probably have their own arrays.
 	vector<multiwinner_stats> e_methods; // WARNING: Leak. TODO, fix.
-	vector<positional *> positional_methods;
-	vector<condorcet_method *> condorcet;
-	vector<election_method *> other_methods;
+	vector<std::shared_ptr<positional> > positional_methods;
+	vector<std::shared_ptr<pairwise_method> > condorcet;
+	vector<std::shared_ptr<election_method> > other_methods;
 
 	// All are PT_WHOLE for now.
-	positional_methods.push_back(new plurality(PT_WHOLE));
-	positional_methods.push_back(new borda(PT_WHOLE));
-	positional_methods.push_back(new antiplurality(PT_WHOLE));
-	positional_methods.push_back(new for_and_against(PT_WHOLE));
-	positional_methods.push_back(new nauru(PT_WHOLE));
-	positional_methods.push_back(new heismantrophy(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<plurality>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<borda>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<antiplurality>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<for_and_against>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<nauru>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<heismantrophy>(PT_WHOLE));
 	/*positional_methods.push_back(new baseballmvp(PT_WHOLE));
 	positional_methods.push_back(new worstpos(PT_WHOLE));*/
 
-	int counter, sec;
+	size_t counter;
 
 	// Then up it by loser elimination..
 	for (counter = 0; counter < positional_methods.size(); ++counter)
-		other_methods.push_back(new loser_elimination(
+		other_methods.push_back(std::make_shared<loser_elimination>(
 				positional_methods[counter], false,
 				true));
 
 	for (counter = 0; counter < positional_methods.size(); ++counter)
-		other_methods.push_back(new loser_elimination(
+		other_methods.push_back(std::make_shared<loser_elimination>(
 				positional_methods[counter],
 				true, true));
 
@@ -522,63 +532,73 @@ int main(int argc, char * * argv) {
 	other_methods.push_back(new qltd(PT_WHOLE));
 	other_methods.push_back(new qltd(PT_WHOLE, 0.25));*/
 
-	other_methods.push_back(new cardinal_ratings(-10, 10, false));
-	other_methods.push_back(new cardinal_ratings(-10, 10, true));
+	other_methods.push_back(std::make_shared<cardinal_ratings>(-10, 10,
+			false));
+	other_methods.push_back(std::make_shared<cardinal_ratings>(-10, 10, true));
 
-	condorcet.push_back(new minmax(CM_WV));
-	condorcet.push_back(new minmax(CM_MARGINS));
-	condorcet.push_back(new schulze(CM_WV));
+	// TODO: FIX
+	/*condorcet.push_back(std::make_shared<minmax>(CM_WV));
+	condorcet.push_back(std::make_shared<minmax>(CM_MARGINS));*/
+	condorcet.push_back(std::make_shared<schulze>(CM_WV));
 
 	for (counter = 0; counter < condorcet.size(); ++counter) {
 		other_methods.push_back(condorcet[counter]);
 	}
 
 	// Now derive multiwinner methods off these
-	for (counter = 0; counter < positional_methods.size(); ++counter)
-		e_methods.push_back(multiwinner_stats(new majoritarian_council(
+	for (counter = 0; counter < positional_methods.size(); ++counter) {
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<majoritarian_council>(
 					positional_methods[counter])));
+	}
 
-	for (counter = 0; counter < other_methods.size(); ++counter)
-		e_methods.push_back(multiwinner_stats(new majoritarian_council(
+	for (counter = 0; counter < other_methods.size(); ++counter) {
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<majoritarian_council>(
 					other_methods[counter])));
+	}
 
-	for (counter = 0; counter < positional_methods.size(); ++counter)
-		e_methods.push_back(multiwinner_stats(new
-				addt_ballot_reweighting(
-					(positional *)(
-						positional_methods
-						[counter]))));
+	for (counter = 0; counter < positional_methods.size(); ++counter) {
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<addt_ballot_reweighting>(
+					positional_methods[counter])));
+	}
 
 	// Maybe: IRV-SNTV
 
-	for (counter = 1; counter < condorcet.size(); ++counter)
-		e_methods.push_back(multiwinner_stats(new
-				reweighted_condorcet(condorcet[counter]
-				)));
+	for (counter = 1; counter < condorcet.size(); ++counter) {
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<reweighted_condorcet>(
+					condorcet[counter])));
+	}
 
 	// TODO: Add Meek STV shortcuts.
-	//e_methods.push_back(multiwinner_stats(new qltd_pr(false, false, false)));
-	//e_methods.push_back(multiwinner_stats(new qltd_pr(false, false, true)));
-	e_methods.push_back(multiwinner_stats(new qltd_pr(false, true, false)));
-	e_methods.push_back(multiwinner_stats(new qltd_pr(false, true, true)));
-	//e_methods.push_back(multiwinner_stats(new qltd_pr(true, false, false)));
-	//e_methods.push_back(multiwinner_stats(new qltd_pr(true, false, true)));
-	e_methods.push_back(multiwinner_stats(new qltd_pr(true, true, false)));
-	e_methods.push_back(multiwinner_stats(new qltd_pr(true, true, true)));
+	//e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(false, false, false)));
+	//e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(false, false, true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(false,
+				true, false)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(false,
+				true, true)));
+	//e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(true, false, false)));
+	//e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(true, false, true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(true, true,
+				false)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<qltd_pr>(true, true,
+				true)));
 
-	e_methods.push_back(multiwinner_stats(new old_qltd_pr()));
+	e_methods.push_back(multiwinner_stats(std::make_shared<old_qltd_pr>()));
 
 	// Only enable this if we can handle the extremely large structure
 	// it requires.
-	//e_methods.push_back(multiwinner_stats(new PSC()));
+	//e_methods.push_back(multiwinner_stats(std::make_shared<PSC>()));
 
-	e_methods.push_back(multiwinner_stats(new STV(BTR_NONE)));
-	e_methods.push_back(multiwinner_stats(new STV(BTR_PLUR)));
-	e_methods.push_back(multiwinner_stats(new STV(BTR_COND)));
-	e_methods.push_back(multiwinner_stats(new MeekSTV(true)));
-	e_methods.push_back(multiwinner_stats(new MeekSTV(false)));
-	e_methods.push_back(multiwinner_stats(new QPQ(-1, false)));
-	e_methods.push_back(multiwinner_stats(new QPQ(-1, true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_NONE)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_PLUR)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_COND)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<MeekSTV>(true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<MeekSTV>(false)));
+	/*e_methods.push_back(multiwinner_stats(new QPQ(-1, false)));
+	e_methods.push_back(multiwinner_stats(new QPQ(-1, true)));*/
 
 	// Put on hold until we can do something about the huge memory
 	// demands.
@@ -592,6 +612,8 @@ int main(int argc, char * * argv) {
 	e_methods.push_back(multiwinner_stats(new hardcard(HC_LPV)));*/
 
 	// QPQ mass test
+	// Disabled for now because QPQ needs a more extensive rework.
+	/*
 	double coeff;
 
 	for (coeff = 0; coeff < 1.0; coeff += 0.1) {
@@ -618,7 +640,7 @@ int main(int argc, char * * argv) {
 
 	// QPQ hack
 	multiwinner_stats qpqmetam("Best of QPQ(Meta, multiround)"), qpqmetas(
-		"Best of QPQ(Meta, sequential)");
+		"Best of QPQ(Meta, sequential)");*/
 
 	int number = 0;
 
@@ -626,9 +648,9 @@ int main(int argc, char * * argv) {
 	// "worst of n" and "best of n" for that matter.
 	double sum_random = 0;
 
-	list<ballot_group> ballots;
+	election_t ballots;
 
-	double sum_rbal = 0, sum_rvp = 0;
+	double sum_rbal = 0;
 
 	// DONE: Reproduce in secpr to see where we get different result.
 	// IRV sounds way too low. It's not a glitch! It may be an effect of
@@ -654,10 +676,10 @@ int main(int argc, char * * argv) {
 		int council_size = 3 * round((drand48() + 1) * 5);
 		int opinions = 1 + round(drand48() * 10);*/
 
-		int num_voters =  5 + pow(5, 1 + drand48() * 4.72);
-		int num_candidates = min(max(10.0, num_voters/10.0), pow(5,
+		size_t num_voters =  5 + pow(5, 1 + drand48() * 4.72);
+		size_t num_candidates = min(max(10.0, num_voters/10.0), pow(5,
 					1 + drand48() * 3.29));
-		int council_size = max(1.0, min(max(1.0, num_candidates/2.0),
+		size_t council_size = max(1.0, min(max(1.0, num_candidates/2.0),
 					400-((double)(1 + random() % 20)*(1+random()%20))));
 		// KLUDGE to test PSC-CLE. I need to find a way of doing this in
 		// polyspace.
@@ -755,9 +777,10 @@ int main(int argc, char * * argv) {
 		cout << display_stats(sum_rvp, number, rvp_value, norm_rvp,
 				"(Reweighted Borda)") << endl;*/
 
-		double error, norm_error;
+		double error;
+		//double norm_error;
 
-		for (int counter = 0; counter < e_methods.size(); ++counter) {
+		for (size_t counter = 0; counter < e_methods.size(); ++counter) {
 			if (e_methods[counter].method() == NULL) {
 				continue;
 			}
@@ -776,7 +799,7 @@ int main(int argc, char * * argv) {
 					num_candidates, council_size,
 					population_profiles,
 					pop_opinion_profile);
-			norm_error = renorm(best, worst, error, 0.0, 1.0);
+			//norm_error = renorm(best, worst, error, 0.0, 1.0);
 
 //			cout << "\t" << e_methods[counter].name << ": " << error << ", norm: " << norm_error << "\t";
 			e_methods[counter].add_result(best, error, worst);
@@ -790,10 +813,10 @@ int main(int argc, char * * argv) {
 		}
 
 		// Meta
-		set_best(qpqmetas, best, worst, e_methods, "QPQ", "sequential");
+		/*set_best(qpqmetas, best, worst, e_methods, "QPQ", "sequential");
 		cout << qpqmetas.display_stats() << endl;
 		set_best(qpqmetam, best, worst, e_methods, "QPQ", "multiround");
-		cout << qpqmetam.display_stats() << endl;
+		cout << qpqmetam.display_stats() << endl;*/
 	}
 
 	/*cout << "Borda: " << error << ", norm: " << renorm(best, worst, error,

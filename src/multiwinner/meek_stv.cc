@@ -126,7 +126,7 @@ std::list<int> MeekSTV::get_council(int council_size, int num_candidates,
 		elected(num_candidates,
 			false);
 
-	int num_elected = 0, counter;
+	size_t num_elected = 0, counter;
 	std::list<int> council;
 
 	std::vector<double> cand_tally(num_candidates);
@@ -145,15 +145,13 @@ std::list<int> MeekSTV::get_council(int council_size, int num_candidates,
 		unweighted_sum += pos->get_weight();
 	}
 
-	double quota;
-
 	// "First difference" approximation. TODO: Fix later, and make changeable
 	plurality plur_count(PT_WHOLE);
 	ordering tiebreaker = plur_count.elect(ballots,
 			num_candidates, NULL, false);
 	ordering::const_iterator opos, vpos;
 
-	while (num_elected < council_size) {
+	while (num_elected < (size_t)council_size) {
 
 		// Reset the vote count and excess
 		fill(cand_tally.begin(), cand_tally.end(), 0);
@@ -225,8 +223,7 @@ std::list<int> MeekSTV::get_council(int council_size, int num_candidates,
 		// case, we'll eliminate the one that fails the tiebreaker.
 		// If it's still a tie, the first one (NON-NEUTRAL) goes.
 
-		for (counter = 0;
-			counter < cand_tally.size() /*&& elected_this_round == 0*/; ++counter) {
+		for (counter = 0; counter < cand_tally.size() ; ++counter) {
 			if (eliminated[counter]) {
 				continue;
 			}
@@ -236,8 +233,8 @@ std::list<int> MeekSTV::get_council(int council_size, int num_candidates,
 			}
 		}
 		// If it's too large, narrow it down
-		if (num_elected + potential_elected.size() > council_size) {
-			int desired_size = council_size - num_elected;
+		if (num_elected + potential_elected.size() > (size_t)council_size) {
+			size_t desired_size = council_size - num_elected;
 
 			// CUT AND PASTE TODO
 

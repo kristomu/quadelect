@@ -49,7 +49,10 @@ class STV : public multiwinner_method {
 				case BTR_NONE: return ("STV");
 				case BTR_COND: return ("STV-ME (Schulze)");
 				case BTR_PLUR: return ("STV-ME (Plurality)");
-				default: assert(false); // bug
+				default: // going here would be a bug
+					// but we can't use assert because g++ will complain
+					// about non-void with no result.
+					throw std::logic_error("Hardcard: Unsupported type!");
 			}
 		};
 };

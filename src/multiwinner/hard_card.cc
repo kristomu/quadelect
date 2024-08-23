@@ -13,8 +13,8 @@ double gini_one(const std::vector<double> & a) {
 	double total = 0;
 	double r_gini_count = 0;
 
-	for (int counter = 0; counter < a.size(); ++counter) {
-		for (int sec = 0; sec < a.size(); ++sec) {
+	for (size_t counter = 0; counter < a.size(); ++counter) {
+		for (size_t sec = 0; sec < a.size(); ++sec) {
 			r_gini_count += fabs(a[counter] - a[sec]);
 		}
 		total += a[counter];
@@ -32,7 +32,7 @@ double welfare(const std::vector<double> & a) {
 
 	double total = 0;
 
-	for (int counter = 0; counter < a.size(); ++counter) {
+	for (size_t counter = 0; counter < a.size(); ++counter) {
 		total += a[counter];
 	}
 
@@ -84,17 +84,16 @@ double hardcard::birational(const std::vector<bool> & W,
 	// Possible later TODO, change 1 + x_s so that the D'Hondt
 	// generalization of PAV turns into Sainte-Laguë instead.
 
-	double outer_count = 0, inner_count = 0;
 	double total = 0;
 
 	// Minimax doesn't do much better either.
 
-	for (int w = 0; w < W.size(); ++w) {
+	for (size_t w = 0; w < W.size(); ++w) {
 		if (!W[w]) {
 			continue;
 		}
 
-		for (int s = 0; s < W.size(); ++s) {
+		for (size_t s = 0; s < W.size(); ++s) {
 			if (!W[s]) {
 				continue;
 			}
@@ -196,10 +195,12 @@ hardcard_extrema hardcard::all_birational(const std::vector<scored_ballot> &
 double hardcard::LPV(const std::vector<bool> & W, int council_size,
 	const scored_ballot & this_ballot, double k) const {
 
-	//                                      /     K + |W|    \
-	// L_k(W) = SUM     SUM       x_j *   ln| -------------- |
-	//          vote    j in C              | K + SUM    x_s |
-	//          vector                      \     s in W     /
+	/*
+	                                        /     K + |W|    \
+	   L_k(W) = SUM     SUM       x_j *   ln| -------------- |
+	            vote    j in C              | K + SUM    x_s |
+	            vector                      \     s in W     /
+	*/
 
 	// That can be optimized by calculating the logarithm just once,
 	// which we do.
@@ -207,7 +208,7 @@ double hardcard::LPV(const std::vector<bool> & W, int council_size,
 	// Get denominator
 	double log_denom = k;
 
-	int counter = 0;
+	size_t counter = 0;
 
 	for (counter = 0; counter < W.size(); ++counter)
 		if (W[counter]) {
@@ -235,7 +236,7 @@ double hardcard::LPV(const std::vector<bool> & W, int council_size,
 
 	double total = 0;
 
-	for (int counter = 0; counter < ballots.size() && finite(total);
+	for (size_t counter = 0; counter < ballots.size() && isfinite(total);
 		++counter) {
 		total += LPV(W, council_size, ballots[counter], k);
 	}
@@ -285,7 +286,7 @@ std::list<int> hardcard::get_council(int council_size, int num_candidates,
 	std::vector<bool> W(num_candidates, false);
 
 	std::list<int> council;
-	int counter;
+	size_t counter;
 
 	if (type == HC_BIRATIONAL) {
 		hardcard_extrema birat = all_birational(cballots, W, W.begin(),
@@ -320,7 +321,7 @@ std::string hardcard::name() const {
 	switch (type) {
 		case HC_LPV: return ("Cardinal: LPV");
 		case HC_BIRATIONAL: return ("Cardinal: Birational");
+		default:
+			throw std::logic_error("Hardcard: Unsupported type!");
 	}
-
-	assert(1 != 1);
 }
