@@ -23,7 +23,7 @@ class ext_plurality : public positional {
 	public:
 		ordering pos_elect(const std::vector<std::vector<double> > &
 			positional_matrix, int num_hopefuls,
-			const std::vector<bool> * hopefuls) const {
+			const std::vector<bool> & hopefuls) const {
 
 			// We want to find the permutation x_1..x_n so that
 			// the x_ith row of the positional matrix is always >=
@@ -60,7 +60,7 @@ class ext_plurality : public positional {
 					--rank_counter;
 				}
 
-				if (hopefuls == NULL || (*hopefuls)[scores_per_candidate[i].second]) {
+				if (hopefuls[scores_per_candidate[i].second]) {
 					social_order.insert(candscore(scores_per_candidate[i].second,
 							rank_counter));
 				}

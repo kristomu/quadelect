@@ -20,7 +20,7 @@ class ext_antiplurality : public positional {
 	public:
 		ordering pos_elect(const std::vector<std::vector<double> > &
 			positional_matrix, int num_hopefuls,
-			const std::vector<bool> * hopefuls) const {
+			const std::vector<bool> & hopefuls) const {
 
 			// We can get Antiplurality from Plurality by reversing all the
 			// ballots, running Plurality, and reversing the result. In this
@@ -43,11 +43,11 @@ class ext_antiplurality : public positional {
 				pos != rev_plurality_ordering.end(); ++pos) {
 
 				int curcand = pos->get_candidate_num();
-				if (hopefuls != NULL && !(*hopefuls)[curcand]) {
-					social_order.insert(candscore(curcand, -numcands-1));
-				} else {
+				if (hopefuls[curcand]) {
 					social_order.insert(candscore(curcand,
 							-pos->get_score()));
+				} else {
+					social_order.insert(candscore(curcand, -numcands-1));
 				}
 			}
 
