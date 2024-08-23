@@ -1,29 +1,4 @@
-#ifndef _VOTE_DHWL
-#define _VOTE_DHWL
-
-#include "dhwl_mat.cc"
-#include "methods.cc"
-#include "singlewinner/pairwise/method.h"
-#include <list>
-
-class reweighted_condorcet : public multiwinner_method {
-	private:
-		pairwise_method * base;
-
-	public:
-		std::list<int> get_council(int council_size,
-			int num_candidates,
-			const election_t & ballots) const;
-
-		std::string name() const {
-			return ("DHwL(" + base->name() + ")");
-		}
-
-		reweighted_condorcet(pairwise_method * base_in) {
-			base = base_in;
-		}
-
-};
+#include "dhwl.h"
 
 std::list<int> reweighted_condorcet::get_council(int council_size,
 	int num_candidates, const election_t & ballots) const {
@@ -72,6 +47,3 @@ std::list<int> reweighted_condorcet::get_council(int council_size,
 
 	return (council);
 }
-
-
-#endif

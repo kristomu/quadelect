@@ -1,62 +1,12 @@
-#ifndef _VOTE_MEEK_STV
-#define _VOTE_MEEK_STV
 
-#include "singlewinner/positional/simple_methods.h"
-
-#include "methods.cc"
-#include <vector>
-#include <list>
-
-// TODO: Rational numbers. Nobody's done it before, so WTH not?
-// Also TODO, test, because I'm getting really bad performance here.
-// Maybe add BTR-STV and STV-ME to this?
-
-// Perhaps change its name from Meek STV to "Computerized STV" or similar, since
-// we also have Warren in here at this point.
-
-// This is sufficiently different from ordinary STV that it merits its own
-// class.
-
-using namespace std;
-
-class MeekSTV : public multiwinner_method {
-	private:
-		void absorb_ballot_meek(const ballot_group & ballot,
-			const vector<double> & weighting,
-			vector<double> & candidate_tally, double &
-			excess) const;
-		void absorb_ballot_warren(const ballot_group & ballot,
-			const vector<double> & weighting,
-			vector<double> & candidate_tally, double &
-			excess) const;
-		double absolute_quota_error(const vector<double> & cand_tally,
-			const list<int> & elected,
-			double quota) const;
-
-		bool warren;
-
-	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
-		MeekSTV(bool use_warren) {
-			warren = use_warren;
-		}
-
-		string name() const {
-			if (warren) {
-				return ("Warren STV");
-			} else {
-				return ("Meek STV");
-			}
-		}
-};
+#include "meek_stv.h"
 
 // This does the Meek "progressive reweighting" on a single ballot, adding the
 // proportion of the ballot that goes to each candidate. It breaks when a
 // weight is 1, because then subsequent weights are zero and there's no point.
 void MeekSTV::absorb_ballot_meek(const ballot_group & ballot,
-	const vector<double> & weighting,
-	vector<double> & candidate_tally, double & excess) const {
+	const std::vector<double> & weighting,
+	std::vector<double> & candidate_tally, double & excess) const {
 
 	// At any step, a candidate receives weight q * (candidate weight).
 	// Then the new q is 1 - this. Q starts at 1.
@@ -83,8 +33,8 @@ void MeekSTV::absorb_ballot_meek(const ballot_group & ballot,
 }
 
 void MeekSTV::absorb_ballot_warren(const ballot_group & ballot,
-	const vector<double> & weighting,
-	vector<double> & candidate_tally, double & excess) const {
+	const std::vector<double> & weighting,
+	std::vector<double> & candidate_tally, double & excess) const {
 
 	// The proportion of the vote apportioned to first preference is
 	// equal to the keep value of that first preference.
@@ -120,8 +70,9 @@ void MeekSTV::absorb_ballot_warren(const ballot_group & ballot,
 }
 
 // This can be turned into a boolean limiter that breaks early, but later.
-double MeekSTV::absolute_quota_error(const vector<double> & cand_tally,
-	const list<int> & elected, double quota) const {
+double MeekSTV::absolute_quota_error(const std::vector<double> &
+	cand_tally,
+	const std::list<int> & elected, double quota) const {
 
 	// Return the worst discrepancy from quota for those candidates that
 	// have already been elected.
@@ -130,11 +81,9 @@ double MeekSTV::absolute_quota_error(const vector<double> & cand_tally,
 
 	double record = 0;
 
-	for (list<int>::const_iterator cand_pos = elected.begin(); cand_pos !=
+	for (std::list<int>::const_iterator cand_pos = elected.begin(); cand_pos !=
 		elected.end(); ++cand_pos)
 		if (fabs(cand_tally[*cand_pos] - quota) > record) {
-			//		cout << "New record: " << *cand_pos << " with tally " <<
-			//			cand_tally[*cand_pos] << endl;
 			record = fabs(cand_tally[*cand_pos] - quota);
 		}
 
@@ -142,8 +91,8 @@ double MeekSTV::absolute_quota_error(const vector<double> & cand_tally,
 }
 
 
-list<int> MeekSTV::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> MeekSTV::get_council(int council_size, int num_candidates,
+	const election_t & ballots) const {
 
 	// Algorithm: At each stage, a candidate is either elected, hopeful, or
 	// eliminated. Also, all candidates have an internal weighting.
@@ -173,14 +122,15 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 	// That can be done easily with a while loop.
 
 
-	vector<bool> eliminated(num_candidates, false), elected(num_candidates,
-		false);
+	std::vector<bool> eliminated(num_candidates, false),
+		elected(num_candidates,
+			false);
 
 	int num_elected = 0, counter;
-	list<int> council;
+	std::list<int> council;
 
-	vector<double> cand_tally(num_candidates);
-	vector<double> candidate_weight(num_candidates, 1);
+	std::vector<double> cand_tally(num_candidates);
+	std::vector<double> candidate_weight(num_candidates, 1);
 
 	double excess;
 
@@ -189,7 +139,7 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 
 	double unweighted_sum = 0; // Sum of initial (non-STV) weights.
 
-	list<ballot_group>::const_iterator pos;
+	election_t::const_iterator pos;
 
 	for (pos = ballots.begin(); pos != ballots.end(); ++pos) {
 		unweighted_sum += pos->get_weight();
@@ -227,19 +177,17 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 		// the absolute quota error return 0 since it has no worse
 		// record, and thus the entire convergence loop is skipped.
 		double error = absolute_quota_error(cand_tally, council, quota);
-		//cout << "Initial error: " << error << endl;
 
 		while (error > epsilon) {
-			for (list<int>::const_iterator cpos = council.begin();
+			for (std::list<int>::const_iterator cpos = council.begin();
 				cpos != council.end(); ++cpos) {
-				//cout << "Adjusting weights: Old weight: " << candidate_weight[*cpos] << ", quota: " << quota << ", votes for this guy: " << cand_tally[*cpos] << endl;
+
 				candidate_weight[*cpos] = (candidate_weight[*cpos] * quota) /
 					cand_tally[*cpos];
 
 				// Take care of certain pathological data.
-				candidate_weight[*cpos] = min(1.0, max(
-							0.0, candidate_weight[
-				 *cpos]));
+				candidate_weight[*cpos] = std::min(1.0,
+						std::max(0.0, candidate_weight[*cpos]));
 			}
 
 			// Recount
@@ -258,32 +206,21 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 						cand_tally, excess);
 			}
 
-			//cout << "Excess: " << excess << endl;
-
 			// Recalc quota and error.
 			quota = (unweighted_sum - excess) / (double)
 				(council_size +1);
 
-			//cout << "Quota: " << quota << endl;
-
 			error = absolute_quota_error(cand_tally, council,
 					quota);
-			//cout << num_elected << "\t" << error << endl;
 		}
-
-		/*cout << "Keep values: " << endl;
-		copy(candidate_weight.begin(), candidate_weight.end(),
-				ostream_iterator<double>(cout, " "));
-		cout << endl;*/
 
 		// Now check for candidates to elect.
 		// TODO: First gather all who are above quota into an array,
 		// then shuffle and draw up to and including council_size -
 		// num_elected more.
 		int elected_this_round = 0;
-		//cout << "Checking for election." << endl;
 
-		set<int> potential_elected; // This is required to handle the
+		std::set<int> potential_elected; // This is required to handle the
 		// edge case where all + 1 meet the quota exactly. In that
 		// case, we'll eliminate the one that fails the tiebreaker.
 		// If it's still a tie, the first one (NON-NEUTRAL) goes.
@@ -293,9 +230,6 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 			if (eliminated[counter]) {
 				continue;
 			}
-			//cout << "Candidate " << counter << " has support value " << cand_tally[counter] << " against quota " << quota << " with surplus " << cand_tally[counter] - quota;
-			//if (elected[counter]) cout << ", already elected.";
-			//cout << endl;
 
 			if (cand_tally[counter] >= quota && !elected[counter]) {
 				potential_elected.insert(counter);
@@ -305,13 +239,11 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 		if (num_elected + potential_elected.size() > council_size) {
 			int desired_size = council_size - num_elected;
 
-			cout << "Too large, narrowing down to " << desired_size << endl;
-
 			// CUT AND PASTE TODO
 
 			ordering intersect;
-			vector<bool> contained(num_candidates, false);
-			for (set<int>::const_iterator lp = potential_elected.
+			std::vector<bool> contained(num_candidates, false);
+			for (std::set<int>::const_iterator lp = potential_elected.
 					begin(); lp != potential_elected.end();
 				++lp) {
 				contained[*lp] = true;
@@ -324,7 +256,7 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 				}
 
 			// Now pick off the first desired_size
-			set<int> desired;
+			std::set<int> desired;
 			ordering::const_iterator op = intersect.begin();
 			for (counter = 0; counter < desired_size && op !=
 				intersect.end(); ++counter) {
@@ -334,18 +266,14 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 			potential_elected = desired;
 		}
 
-		for (set<int>::const_iterator qcpos = potential_elected.begin();
+		for (std::set<int>::const_iterator qcpos = potential_elected.begin();
 			qcpos != potential_elected.end(); ++qcpos) {
-			//	cout << "Elected " << counter << " with value " << cand_tally[counter] << " > quota " << quota << endl;
+
 			elected[*qcpos] = true;
 			++num_elected;
 			++elected_this_round;
 			council.push_back(*qcpos);
 		}
-
-		cout << council.size() << "\t" << council_size << endl;
-
-		//cout << "Check done." << endl;
 
 		// If nobody were elected, someone must be eliminated.
 		if (elected_this_round == 0) {
@@ -375,7 +303,7 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 			}
 
 			// Fix cut and paste code later!
-			list<int> tied_for_last;
+			std::list<int> tied_for_last;
 
 			for (counter = 0; counter < cand_tally.size();
 				++counter) {
@@ -389,11 +317,10 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 			}
 
 			if ((++tied_for_last.begin()) != tied_for_last.end()) {
-				cout << "Meek: Handling elimination tie."
-					<< endl;
-				list<int> recordholders;
-				vector<bool> contained(num_candidates, false);
-				for (list<int>::const_iterator lp =
+
+				std::list<int> recordholders;
+				std::vector<bool> contained(num_candidates, false);
+				for (std::list<int>::const_iterator lp =
 						tied_for_last.begin(); lp !=
 					tied_for_last.end(); ++lp) {
 					contained[*lp] = true;
@@ -409,15 +336,10 @@ list<int> MeekSTV::get_council(int council_size, int num_candidates,
 				recordholder = *(recordholders.rbegin());
 			}
 
-			//cout << "Eliminated " << recordholder << endl;
 			eliminated[recordholder] = true;
 			candidate_weight[recordholder] = 0;
 		}
-		cout << "Computerized STV: Council size is " << num_elected << " out of "
-			<< council_size << endl;
 	}
 
 	return (council);
 }
-
-#endif

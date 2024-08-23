@@ -25,9 +25,8 @@
 #include <time.h>
 #include <limits.h>
 
-#include "methods.cc"
+#include "shuntsstv.h"
 
-#include <iostream>
 #include <vector>
 #include <list>
 #include <set>
@@ -397,15 +396,15 @@ void read_ballot_input(const election_t & input, int council_size,
 void Reading_the_Input() {
 	int i1,i2,i3,i4,i5;
 	char c1;
-	char Problemname[256];
+	std::string Problemname;
 
-	printf("Please insert the name of the data file.\n");
-	scanf("%s",&Problemname);
+	std::cout << "Please insert the name of the data file.\n";
+	std::cin >> Problemname;
 
 	time(&start);
 	time1=clock();
 
-	datafile =fopen(Problemname,"r");
+	datafile =fopen(Problemname.c_str(),"r");
 
 	while (!feof(datafile)) {
 		c1=fgetc(datafile);
@@ -4103,31 +4102,6 @@ std::list<int> Dijkstra() {
  printf("runtime=%d seconds (%d processor timer ticks)\n",elapsed_time,time2-time1);
 
 }*/
-
-class SchulzeSTV : public multiwinner_method {
-
-	public:
-		std::list<int> get_council(int council_size, int num_candidates,
-			const election_t & ballots) const;
-
-		std::string name() const {
-			return ("Schulze STV");
-		}
-
-		// HACK - not really true.
-		// Ideally should be two functions: first, "is permissible for
-		// all", second, "is permissible for this particular setup"
-		// (that is, numcands, council size, etc.)
-		// The former would be used for one-char info so that those that
-		// only sample a subset are marked as such.
-
-		// Or perhaps "Expected time" and "expected space", with -1
-		// on both for "always acceptable".
-		bool polytime() const {
-			return (false);
-		}
-
-};
 
 std::list<int> SchulzeSTV::get_council(int council_size,
 	int num_candidates,

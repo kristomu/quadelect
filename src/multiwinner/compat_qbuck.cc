@@ -1,33 +1,6 @@
-#ifndef _VOTE_COMPAT_QBUCK
+#include "compat_qbuck.h"
 
-#include <list>
 #include <iostream>
-#include "methods.cc"
-
-using namespace std;
-
-// QLTD-PR as copied from secprelect (where it gets extremely good scores).
-
-class old_qltd_pr : public multiwinner_method {
-	private:
-		std::vector<vector<int> > construct_old_ballots(
-			const election_t & ballots, int num_candidates) const;
-
-		std::vector<int> QuotaBucklin(
-			const std::vector<vector<int> > & rankings,
-			int num_candidates, int council_size, bool hare,
-			bool use_card, const std::vector<vector<double> > *
-			rated_ballots) const;
-
-	public:
-		std::list<int> get_council(int council_size, int num_candidates,
-			const election_t & ballots) const;
-
-		string name() const {
-			return ("Compat-QLTD-PR");
-		}
-
-};
 
 // This will fail on assert if the ballots are weighted, since the old-style
 // format doesn't have a parameter for that. Besides, this is only intended to
@@ -134,7 +107,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 		//cout << round << "\t" << allocated.size() << "\t" << council_size << endl;
 		// Wasn't there something about that Hare some times fail to
 		// fill the council?
-		if ((round > (council_size + 1)))
+		if ((round > (council_size + 1))) {
 			if (hare) {
 				cout << "Damn, a timeout. Allocated size: " << allocated.size() <<
 					". Switching to Droop "<<
@@ -148,6 +121,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 					"previous tally." << endl;
 				failsafe = true;
 			}
+		}
 
 		int step = 256;
 		int low = (round - floor(round)) * step, high = step, mid;

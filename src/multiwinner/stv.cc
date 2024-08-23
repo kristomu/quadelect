@@ -1,65 +1,7 @@
-#ifndef _VOTE_STV
-#define _VOTE_STV
+#include "stv.h"
 
-#include "singlewinner/positional/positional.h"
-#include "singlewinner/positional/simple_methods.h"
-#include "singlewinner/pairwise/method.h"
-#include "singlewinner/pairwise/simple_methods.h"
-
-#include "tools/ballot_tools.h"
-
-#include "methods.cc"
-#include <list>
-
-using namespace std;
-
-// TODO: Different quotas - either directly, or by passing a class.
-// Maybe: That which is to IRNR what STV is to IRV. We really have to fix
-// cardinal ratings somehow, because it naturally fits with all the positional
-// methods (only the "positions" are given by the voter, so it doesn't do well
-// with the positional matrix.)
-
-// DONE: BTR-STV that uses Plurality instead of Condorcet.
-
-// Really ought to make this more general: the loser elimination method
-// doesn't matter as far as Droop proportionality is concerned. Later,
-// after I've got this working.
-
-enum btr_type { BTR_NONE = 0, BTR_COND = 1, BTR_PLUR = 2 };
-
-class STV : public multiwinner_method {
-	private:
-		btr_type btr_stv;
-		vector<bool> get_btr_stv_hopefuls(const ordering & count,
-			const vector<bool> & uneliminated,
-			int num_candidates, int num_elected,
-			int council_size) const;
-
-	public:
-		list<int> get_council(int council_size,
-			int num_candidates,
-			const list<ballot_group> & ballots) const;
-
-		STV(btr_type btr_stv_in) {
-			if (btr_stv_in > BTR_PLUR) {
-				throw std::invalid_argument("STV: Invalid BTR type specified");
-			}
-
-			btr_stv = btr_stv_in;
-		}
-
-		string name() const {
-			switch (btr_stv) {
-				case BTR_NONE: return ("STV");
-				case BTR_COND: return ("STV-ME (Schulze)");
-				case BTR_PLUR: return ("STV-ME (Plurality)");
-				default: assert(false); // bug
-			}
-		};
-};
-
-vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
-	const vector<bool> & uneliminated, int num_candidates,
+std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
+	const std::vector<bool> & uneliminated, int num_candidates,
 	int num_elected, int council_size) const {
 
 	// Determine those that get to run in the "Condorcet loser contest" of
@@ -70,7 +12,7 @@ vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 
 	//cout << "N is " << N << endl;
 
-	vector<bool> hopefuls(num_candidates, false);
+	std::vector<bool> hopefuls(num_candidates, false);
 
 	ordering::const_reverse_iterator cpos = count.rbegin();
 
@@ -106,8 +48,8 @@ vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 // If eliminate is false, when deciding what candidate to remove from
 // consideration, we use the original (all candidates included) Plurality
 // ranking. Otherwise, we eliminate as in STV.
-list<int> STV::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> STV::get_council(int council_size, int num_candidates,
+	const election_t & ballots) const {
 
 	// STV rules (Senatorial rules, as they're the easiest to compute):
 	// 	While we have candidates remaining:
@@ -140,9 +82,9 @@ list<int> STV::get_council(int council_size, int num_candidates,
 	// subset that includes only the N+1 lowest ranked. It's slow, but that
 	// way we don't have to care about Condorcet paradoxes, etc.
 
-	vector<bool> elected(num_candidates, false),
-		   eliminated(num_candidates, false), hopefuls(num_candidates,
-			   true);
+	std::vector<bool> elected(num_candidates, false),
+		eliminated(num_candidates, false), hopefuls(num_candidates,
+			true);
 
 	int council_count = 0, num_hopefuls = num_candidates;
 
@@ -151,8 +93,8 @@ list<int> STV::get_council(int council_size, int num_candidates,
 
 	// Determine number of voters (sum of weights actually).
 	double num_voters = 0;
-	list<ballot_group>::const_iterator lpos;
-	list<ballot_group>::iterator bpos;
+	election_t::const_iterator lpos;
+	election_t::iterator bpos;
 	for (lpos = ballots.begin(); lpos != ballots.end(); ++lpos) {
 		num_voters += lpos->get_weight();
 	}
@@ -164,8 +106,8 @@ list<int> STV::get_council(int council_size, int num_candidates,
 	// Epsilon here? We should also move all of this to a quota class.
 	const double quota = num_voters / (double)(council_size + 1);
 
-	list<ballot_group> reweighted_ballots = ballots;
-	list<int> council;
+	election_t reweighted_ballots = ballots;
+	std::list<int> council;
 
 	// This is used for tie-breaking as a first-order approximation to
 	// the "first-difference" rule in Newland-Britton. We don't actually
@@ -175,12 +117,7 @@ list<int> STV::get_council(int council_size, int num_candidates,
 	bool tiebreaker_working = false;
 
 	while (council_count < council_size) {
-		//cout << endl;
-
-		if (num_hopefuls <= 0) {
-			cout << "Elected num: " << council_count << endl;
-			assert(num_hopefuls > 0);
-		}
+		assert(num_hopefuls > 0);
 
 		// Do a (plurality) tally, disregarding those who've been
 		// eliminated.
@@ -207,7 +144,7 @@ list<int> STV::get_council(int council_size, int num_candidates,
 			first_cs = *first_hopeful(social_order.begin(),
 					social_order.end(), hopefuls);
 
-		list<candscore> tied_for_last, tied_for_first;
+		std::list<candscore> tied_for_last, tied_for_first;
 
 		ordering::iterator opos = social_order.begin(), vpos;
 		for (opos = social_order.begin(); opos != social_order.end();
@@ -230,9 +167,9 @@ list<int> STV::get_council(int council_size, int num_candidates,
 
 		if ((++tied_for_first.begin()) != tied_for_first.end()) {
 			ordering intersect;
-			vector<bool> contained(num_candidates, false);
-			vector<double> relevant_score(num_candidates, 0);
-			for (list<candscore>::const_iterator lp =
+			std::vector<bool> contained(num_candidates, false);
+			std::vector<double> relevant_score(num_candidates, 0);
+			for (std::list<candscore>::const_iterator lp =
 					tied_for_first.begin(); lp !=
 				tied_for_first.end(); ++lp) {
 				contained[lp->get_candidate_num()] = true;
@@ -255,9 +192,9 @@ list<int> STV::get_council(int council_size, int num_candidates,
 
 		if ((++tied_for_last.begin()) != tied_for_last.end()) {
 			ordering intersect;
-			vector<bool> contained(num_candidates, false);
-			vector<double> relevant_score(num_candidates, 0);
-			for (list<candscore>::const_iterator lp =
+			std::vector<bool> contained(num_candidates, false);
+			std::vector<double> relevant_score(num_candidates, 0);
+			for (std::list<candscore>::const_iterator lp =
 					tied_for_last.begin(); lp !=
 				tied_for_last.end(); ++lp) {
 				contained[lp->get_candidate_num()] = true;
@@ -326,7 +263,7 @@ list<int> STV::get_council(int council_size, int num_candidates,
 				// TODO: Extensible so we can have condorcet,
 				// Plurality.
 				ordering elim_check;
-				vector<bool> purgatory = get_btr_stv_hopefuls(
+				std::vector<bool> purgatory = get_btr_stv_hopefuls(
 						social_order, hopefuls, num_candidates,
 						council_count, council_size);
 
@@ -334,18 +271,13 @@ list<int> STV::get_council(int council_size, int num_candidates,
 					condmat condorcet(ballots,
 						num_candidates, CM_WV);
 
-					cout << "(NH)" << endl;
-
 					// was minmax
 					elim_check = schulze(CM_WV).pair_elect(
 							condorcet, purgatory, false).first;
 				} else {
 					elim_check = plur_count.elect(ballots,
 							purgatory, num_candidates);
-
-					cout << "NH: " << num_hopefuls << endl;
 				}
-				//cout << "Verifier: " << condorcet.get_magnitude(8, 9) << ", " << condorcet.get_magnitude(9, 8) << endl;
 
 				ordering::iterator f = elim_check.begin();
 
@@ -359,23 +291,17 @@ list<int> STV::get_council(int council_size, int num_candidates,
 
 				elim_check = filter_elimcheck;
 
-				/*for (ordering::const_iterator f = elim_check.begin(); f != elim_check.end(); ++f) {
-					cout << "cand: " << f->get_candidate_num() << " score: " << f->get_score() << endl;
-				}*/
-
 				// Beware random tiebreaking! TODO: Fix.
 				// Clean up the ugliness above, too.
 
 				last_candidate = elim_check.rbegin()->get_candidate_num();
 				assert(purgatory[last_candidate]);
-				cout << endl;
 			} else {
 				last_candidate = bottom.get_candidate_num();
 			}
 
 			assert(hopefuls[last_candidate]);
 
-			// cout << "Eliminating " << last_candidate <<endl;
 			eliminated[last_candidate] = true;
 			hopefuls[last_candidate] = false;
 			--num_hopefuls;
@@ -385,5 +311,3 @@ list<int> STV::get_council(int council_size, int num_candidates,
 	return (council);
 
 }
-
-#endif

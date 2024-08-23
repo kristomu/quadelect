@@ -1,33 +1,6 @@
 // D'Hondt without lists
 
-#ifndef _VOTE_DHWL_MAT
-#define _VOTE_DHWL_MAT
-
-#include "pairwise/matrix.h"
-#include <vector>
-
-class DHwLmatrix : public condmat {
-	private:
-		std::vector<bool> elected;
-		double C;
-
-		double deweight(int num_higher_elected_prefs) const;
-
-		void count_ballots(const election_t & scores,
-			int num_candidates);
-
-		void add(size_t candidate, size_t against,
-			double value);
-
-	public:
-		void set_elected(const std::vector<bool> & source);
-		void set_elected(int elected_idx);
-
-		DHwLmatrix(const election_t & scores,
-			const std::vector<bool> & already_elected,
-			int num_candidates, pairwise_type type_in,
-			bool tie_at_top, double C_in);
-};
+#include "dhwl_mat.h"
 
 double DHwLmatrix::deweight(int num_higher_elected_prefs) const {
 	return (C/(double)(C + num_higher_elected_prefs));
@@ -150,5 +123,3 @@ DHwLmatrix::DHwLmatrix(const election_t & scores, const
 	zeroize(num_candidates);
 	count_ballots(scores, num_candidates);
 }
-
-#endif
