@@ -100,10 +100,10 @@ double hardcard::birational(const std::vector<bool> & W,
 			double atw = this_ballot.scores[w],
 				   ats = this_ballot.scores[s];
 
-			if (!finite(atw)) {
+			if (!isfinite(atw)) {
 				atw = 0;
 			}
-			if (!finite(ats)) {
+			if (!isfinite(ats)) {
 				ats = 0;
 			}
 
@@ -217,7 +217,7 @@ double hardcard::LPV(const std::vector<bool> & W, int council_size,
 
 	double logarithm = log((k + council_size)/(log_denom));
 
-	if (!finite(logarithm)) {
+	if (!isfinite(logarithm)) {
 		return logarithm;
 	}
 

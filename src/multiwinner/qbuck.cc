@@ -257,14 +257,11 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 		council.push_back(winner.get_candidate_num());
 		++num_elected;
 
-		double verify = 0;
-
 		for (lpos = reweighted_ballots.begin(); lpos !=
 			reweighted_ballots.end(); ++lpos)
 			if (is_contributing(*lpos, hopefuls, winner.
 					get_candidate_num(),
 					-winner.get_score())) {
-				verify += lpos->get_weight();
 				lpos->set_weight(lpos->get_weight() *
 					surplus/(quota + surplus));
 			}

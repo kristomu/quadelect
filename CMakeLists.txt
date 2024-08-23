@@ -49,7 +49,7 @@ else()
 	# warning as it falsely triggers on SpookyHash.
 	# -flto may lead to further speedups, but linking with it enabled is way
 	# too slow, so it's been omitted here.
-	set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros")
+	set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros -Wno-unknown-warning-option")
 endif()
 
 # g++: Disable the free-nonheap-object warning as it seems to be buggy.

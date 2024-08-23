@@ -38,11 +38,13 @@
 #include "multiwinner/stv.h"
 //#include "multiwinner/qpq.cc"
 
+#include "hack/msvc_random.h"
+
 #include <vector>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
-#include <ext/numeric>
+#include <numeric>
 #include <set>
 #include <assert.h>
 

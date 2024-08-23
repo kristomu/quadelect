@@ -38,7 +38,7 @@
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-
+#pragma GCC diagnostic ignored "-Wunused-result"
 
 const long double eps1=0.00000000000001;
 const long double eps2=0.0000000001;
