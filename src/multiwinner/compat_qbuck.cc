@@ -1,5 +1,7 @@
 #include "compat_qbuck.h"
 
+#include "singlewinner/positional/simple_methods.h"
+
 #include <iostream>
 
 // This will fail on assert if the ballots are weighted, since the old-style
@@ -36,6 +38,7 @@ std::vector<std::vector<int> > old_qltd_pr::construct_old_ballots(
 
 
 std::vector<int> old_qltd_pr::QuotaBucklin(
+	const election_t & ballots,
 	const std::vector<std::vector<int> > & rankings,
 	int num_candidates, int council_size, bool hare, bool use_card,
 	const std::vector<std::vector<double> > * rated_ballots) const {
@@ -111,8 +114,8 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 				std::cout << "Damn, a timeout. Allocated size: "
 					<< allocated.size() << ". Switching to Droop "<<
 					"quota." << std::endl;
-				return (QuotaBucklin(rankings, num_candidates,
-							council_size, !hare,
+				return (QuotaBucklin(ballots, rankings,
+							num_candidates, council_size, !hare,
 							use_card, rated_ballots));
 			} else {
 				std::cout << "This shouldn't happen. Allocated size: "
@@ -232,37 +235,28 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 		// If there are more than one, break by Borda.
 		// Should probably be a better system, but for now, Borda'll
 		// work.
+
+		// This actually didn't work, and I'm patching something in here
+		// that might sorta work.
 		if (found_count > 1) {
-			// TODO: Detect multiple with same Borda score. If
-			// there are any, tiebreak randomly.
+			std::vector<bool> hopefuls(num_candidates, false);
 
-			// Doesn't seem to matter in the long run, but of course
-			// matters in the short run.
-
-			// Removed because we would have to port positional too,
-			// which is too much of a bother.
-
-			/*vector<double> borda_tally(num_candidates, 0);
-			for (counter = 0; counter < rankings.size(); ++counter)
-				positional_one(weighting[counter],
-						rankings[counter],
-						borda_tally, nauru_positional);
-						//borda_positional);
-
-			double borda_record = -1;
-			int recordholder = -1;
 			for (std::list<int>::const_iterator lpos =
 					candidates_past_quota.begin();
-					lpos != candidates_past_quota.end();
-					++lpos)
-				if (borda_tally[*lpos] > borda_record) {
-					borda_record = borda_tally[*lpos];
-					recordholder = *lpos;
-				}
-			found = recordholder;*/
-			//		cout << "Borda winner was " << found << std::endl;
+				lpos != candidates_past_quota.end();
+				++lpos) {
 
-			throw std::logic_error("Not yet implemented");
+				hopefuls[*lpos] = true;
+			}
+
+			ordering social_order = borda(PT_WHOLE).elect(ballots,
+					hopefuls, num_candidates);
+
+			std::vector<int> winners = ordering_tools::get_winners(
+					social_order);
+
+			// Pick a random winner.
+			found = winners[random() % winners.size()];
 		}
 
 		//	assert (found_count < 2);
@@ -292,12 +286,10 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 			}
 			elected[found] = true;
 		} else {
-			//		fraction += 0.01;
 			if (fraction >= 1) {
 				round++;
 				fraction = 0;
 			}
-			//		0.01; // Meek-type adjustment. Very slow. Make adaptive later.
 		}
 	}
 
@@ -305,14 +297,13 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 }
 
 std::list<int> old_qltd_pr::get_council(int council_size,
-	int num_candidates,
-	const election_t & ballots) const {
+	int num_candidates, const election_t & ballots) const {
 
 	std::vector<std::vector<int> > translated = construct_old_ballots(ballots,
 			num_candidates);
 
-	std::vector<int> retval = QuotaBucklin(translated, num_candidates,
-			council_size, false, false, NULL);
+	std::vector<int> retval = QuotaBucklin(ballots, translated,
+			num_candidates, council_size, false, false, NULL);
 
 	std::list<int> council;
 

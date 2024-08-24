@@ -12,6 +12,7 @@ class old_qltd_pr : public multiwinner_method {
 
 		// BEWARE: Pointers!
 		std::vector<int> QuotaBucklin(
+			const election_t & ballots,
 			const std::vector<std::vector<int> > & rankings,
 			int num_candidates, int council_size, bool hare,
 			bool use_card, const std::vector<std::vector<double> > *

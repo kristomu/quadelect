@@ -138,10 +138,19 @@ class ballot_tools {
 template<typename T> T first_hopeful(T cur, T end,
 	const std::vector<bool> & hopefuls) {
 
-	while (cur != end && !hopefuls[cur->get_candidate_num()]) {
-		if (++cur == end) {
-			return (cur);
+	while (cur != end) {
+		size_t candidate = cur->get_candidate_num();
+
+		if (candidate >= hopefuls.size()) {
+			throw std::invalid_argument("Candidate number " + itos(candidate) +
+				" out of bounds: hopefuls only lists " + itos(hopefuls.size()));
 		}
+
+		if (hopefuls[candidate]) {
+			return cur;
+		}
+
+		++cur;
 	}
 
 	return cur;

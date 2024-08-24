@@ -72,7 +72,8 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 	// may often be the winner outright). Then, for each voter, get that
 	// candidate's score based on the voter's ballot alone, and reweight by
 	// C / (C + relative power), where relative power is how many points he
-	// contributed divided by the maximum number of points attainable.
+	// contributed, scaled so that the maximum number of points is one and
+	// the minimum is zero.
 
 	// Since determining the social order is relatively expensive for a
 	// positional system when candidates >> voters, we need a separate
@@ -123,10 +124,14 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 		// 	STV.
 
 		// Should this be "num_unelecteds" ?
-		double maxscore = base->get_pos_maximum(num_candidates);
+		double maxscore = base->get_pos_maximum(num_candidates),
+			   minscore = base->get_pos_minimum(num_candidates);
 
-		if (maxscore == 0) {
-			maxscore = 1e-6;
+		// Perhaps throw an exception here instead? If the positional
+		// method gives every candidate the same amount of points,
+		// there's really nothing we can do.
+		if (maxscore - minscore == 0) {
+			maxscore = minscore + 1e-6;
 		}
 
 		// TODO: Handle fractional votes, since they only count
@@ -135,9 +140,12 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 		for (election_t::iterator ballot_pos =
 				reweighted_ballots.begin(); ballot_pos !=
 			reweighted_ballots.end(); ++ballot_pos) {
+
 			double current_state = base->get_pos_score(
 					*ballot_pos, next, hopefuls, num_candidates);
-			double inner_denom = B + (current_state / maxscore);
+			double relative_power = renorm(minscore, maxscore,
+					current_state, 0.0, 1.0);
+			double inner_denom = B + relative_power;
 
 			if (inner_denom == 0) {
 				continue;
@@ -146,8 +154,8 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 
 			//cout << "Debug " << name() << ": " << current_state << "\t" << inner_denom << "\t" << C / inner_denom << "\t" << ballot_pos->get_weight() << " -> ";
 
-			ballot_pos->set_weight(ballot_pos->get_weight() * A / (/*C +*/
-					inner_denom));
+			ballot_pos->set_weight(ballot_pos->get_weight() * A /
+				inner_denom);
 			//cout << ballot_pos->get_weight() << endl;
 		}
 	}
@@ -162,19 +170,18 @@ std::list<int> addt_ballot_reweighting::get_council(int council_size,
 
 	// First get the original weightings and count the number of ballots.
 
-	std::vector<double> orig_weightings;
+	std::vector<double> original_weights;
 
 	election_t::const_iterator qpos;
 	election_t::iterator wpos;
 
 	for (qpos = ballots.begin(); qpos != ballots.end(); ++qpos) {
-		orig_weightings.push_back(qpos->get_weight());
+		original_weights.push_back(qpos->get_weight());
 	}
 
-	int num_ballots = orig_weightings.size();
+	size_t num_ballots = original_weights.size();
 
-	std::vector<double> points_attributed(num_ballots, 0),
-		point_maximum(num_ballots, 0);
+	std::vector<double> total_power_given(num_ballots, 0);
 
 	std::list<int> council;
 	int council_count = 0;
@@ -209,27 +216,32 @@ std::list<int> addt_ballot_reweighting::get_council(int council_size,
 			continue;
 		}
 
-		double maxscore = base->get_pos_maximum(num_candidates - council_count);
-		int counter = 0;
+		double maxscore = base->get_pos_maximum(num_candidates - council_count),
+			   minscore = base->get_pos_minimum(num_candidates - council_count);
+
+		size_t ballot_idx = 0;
 
 		for (wpos = reweighted_ballots.begin(); wpos !=
 			reweighted_ballots.end(); ++wpos) {
-			points_attributed[counter] += base->get_pos_score(
+
+			double points_given = base->get_pos_score(
 					*wpos, next, hopefuls, num_candidates);
-			point_maximum[counter] += maxscore;
 
-			double C = point_maximum[counter] * 0.5;
+			double relative_power = renorm(minscore, maxscore,
+					points_given, 0.0, 1.0);
 
-			double denom = C + points_attributed[counter];
+			total_power_given[ballot_idx] += relative_power;
 
-			if (denom == 0) {
-				continue;
-			}
+			double C = 0.5;
 
-			wpos->set_weight(orig_weightings[counter] * C / (C +
-					points_attributed[counter]));
+			// This generalizes Sainte-Laguë because 0.5 / (0.5 + k) =
+			// 1/(2k) for integer k. The total power it's possible to give
+			// is if the voter provides maximum voting power to the elected
+			// candidate in every round, thus total power given would be the
+			// number of rounds, as desired.
 
-			++counter;
+			wpos->set_weight(original_weights[ballot_idx] * C / (C +
+					total_power_given[ballot_idx]));
 		}
 	}
 

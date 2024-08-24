@@ -1,5 +1,8 @@
 #include "stv.h"
 
+// There's a known bug: this may crash due to hopefuls being all false.
+// Find out what's going on and then fix, later.
+
 std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 	const std::vector<bool> & uneliminated, int num_candidates,
 	int num_elected, int council_size) const {
@@ -226,18 +229,32 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 			// Reweight those that voted for him.
 			// We can make this part sublinear but that'd
 			// break our abstraction.
-			for (bpos = reweighted_ballots.begin(); bpos !=
-				reweighted_ballots.end(); ++bpos)
+			// The somewhat unwieldy while() construct here
+			// is due to erase() returning an iterator *after*
+			// the one that was erased.
+
+			bpos = reweighted_ballots.begin();
+			while (bpos != reweighted_ballots.end()) {
 				if (plur_count.get_pos_score(*bpos,
-						electable, hopefuls,
-						num_hopefuls) > 0) {
-					double before = bpos->get_weight();
-					if (!isfinite(before)) {
-						throw std::invalid_argument(
-							"STV: can't handle ballot with infinite weight");
-					}
-					bpos->set_weight(before * surplus / score);
+						electable, hopefuls, num_hopefuls) <= 0) {
+
+					++bpos;
+					continue;
 				}
+
+				double before = bpos->get_weight();
+				if (!isfinite(before)) {
+					throw std::invalid_argument(
+						"STV: can't handle ballot with infinite weight");
+				}
+
+				if (surplus == 0) {
+					bpos = reweighted_ballots.erase(bpos);
+				} else {
+					bpos->set_weight(before * surplus / score);
+					++bpos;
+				}
+			}
 
 			elected[electable] = true;
 			hopefuls[electable] = false;

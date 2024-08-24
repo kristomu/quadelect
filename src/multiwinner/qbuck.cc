@@ -257,14 +257,25 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 		council.push_back(winner.get_candidate_num());
 		++num_elected;
 
-		for (lpos = reweighted_ballots.begin(); lpos !=
-			reweighted_ballots.end(); ++lpos)
-			if (is_contributing(*lpos, hopefuls, winner.
-					get_candidate_num(),
-					-winner.get_score())) {
+		lpos = reweighted_ballots.begin();
+
+		while (lpos != reweighted_ballots.end()) {
+			if (!is_contributing(*lpos, hopefuls, winner.
+					get_candidate_num(), -winner.get_score())) {
+				++lpos;
+				continue;
+			}
+
+			// If there's no surplus, every contributing vote
+			// is completely used up.
+			if (surplus == 0) {
+				lpos = reweighted_ballots.erase(lpos);
+			} else {
 				lpos->set_weight(lpos->get_weight() *
 					surplus/(quota + surplus));
+				++lpos;
 			}
+		}
 
 		hopefuls[winner.get_candidate_num()] = false;
 

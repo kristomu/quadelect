@@ -65,8 +65,10 @@ class random_council : public multiwinner_method {
 // --- //
 
 // Multiplicative voter-based reweighting.
-// 	WeightNew = WeightOld * A / (B + curscore / maxscore)
-// 	C / (/*C +*/ inner_denom)
+// 	WeightNew = WeightOld * A / (B + relative power)
+// Usually A and B would both be set to C (???)
+// This code is old and musty, and I should go through it again...
+
 class mult_ballot_reweighting : public multiwinner_method {
 
 	private:
