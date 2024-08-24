@@ -106,7 +106,8 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 	//double quota = floor(( num_voters / (double)(council_size + 1) ) + 1);
 
 	// Epsilon here? We should also move all of this to a quota class.
-	const double quota = num_voters / (double)(council_size + 1);
+	double quota = num_voters / (double)(council_size + 1);
+	quota -= 1e-15; // HACK: Argh, numerical imprecision is such a *pain*.
 
 	election_t reweighted_ballots = ballots;
 	std::list<int> council;
