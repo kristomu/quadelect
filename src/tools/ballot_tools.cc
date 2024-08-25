@@ -168,6 +168,20 @@ bool ordering_tools::has_multiple_winners(const ordering & in) {
 	return false;
 }
 
+// Cut and paste code -- see above.
+bool ordering_tools::has_multiple_losers(const ordering & in) {
+
+	for (auto pos = in.rbegin(); pos != in.rend() &&
+		pos->get_score() == in.rbegin()->get_score(); ++pos) {
+
+		if (pos != in.rbegin()) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 std::vector<int> ordering_tools::get_winners(const ordering & in) {
 
 	std::vector<int> winners;

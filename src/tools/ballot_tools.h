@@ -35,6 +35,7 @@ class ordering_tools {
 		ordering scrub_scores_by_cand(const ordering & in) const;
 
 		static bool has_multiple_winners(const ordering & in);
+		static bool has_multiple_losers(const ordering & in);
 		static std::vector<int> get_winners(const ordering & in);
 		static bool is_winner(const ordering & in, int candidate_num);
 

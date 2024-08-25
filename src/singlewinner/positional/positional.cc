@@ -7,9 +7,10 @@
 #include <vector>
 
 
-// DONE: Handle equal ranks.
+// TODO: Handle equal ranks.
 // Two options for rank: Equal rank, fractional rank. Two for truncated
 // ballots: Tied at last, and modified Borda. BLUESKY: Implement that, too.
+// This isn't actually handled! What gives???
 
 // Perhaps also a function that returns how many nonzero positions exist, so
 // that it only counts the first votes for Plurality. DONE.
@@ -111,6 +112,16 @@ double positional::get_pos_score(const ballot_group & input,
 	size_t counter = 0, span = 0;
 	double lastvalue = INFINITY;
 
+	// Really, this should be interpreted as equal-rank among between
+	// every hopeful. But an all-empty ballot indicates that something
+	// is seriously wrong.
+	if (input.contents.empty()) {
+		throw std::invalid_argument(
+			"Positional: empty ballot is not supported.");
+	}
+
+	assert(hopefuls[candidate_number]);
+
 	for (ordering::const_iterator pos = input.contents.begin();
 		pos != input.contents.end(); ++pos) {
 		if (!hopefuls[pos->get_candidate_num()]) {
@@ -118,6 +129,7 @@ double positional::get_pos_score(const ballot_group & input,
 		}
 
 		if (pos->get_candidate_num() == candidate_number) {
+			assert(counter < num_hopefuls);
 			return pos_weight(counter, num_hopefuls - 1);
 		}
 
@@ -127,6 +139,9 @@ double positional::get_pos_score(const ballot_group & input,
 			span = 0;
 		}
 	}
+
+	throw std::logic_error("Oops, equal rank isn't actually "
+		"handled. TODO, FIX.");
 
 	return -1;
 }

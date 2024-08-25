@@ -9,28 +9,18 @@ ordering loser_elimination::break_tie(const ordering & original_ordering,
 	const std::list<ordering> & past_ordering,
 	int num_candidates) const {
 
+	assert(!original_ordering.empty());
+
 	ordering fixed_ordering = original_ordering;
 
 	// While more than one candidate is ranked last, go down the
 	// past_ordering list, breaking ties.
 
-	bool tied = true;
-	ordering::const_reverse_iterator pos;
-
 	ordering_tools otools;
 
 	for (std::list<ordering>::const_iterator vpos = past_ordering.begin();
-		vpos != past_ordering.end() && tied; ++vpos) {
-
-		// A rather hackish way of checking that there are more than
-		// two with the same rank, but I suppose it works. Ech.
-		pos = fixed_ordering.rbegin();
-		++pos;
-		tied = (pos->get_score() == fixed_ordering.
-				rbegin()->get_score());
-		if (!tied) {
-			continue;
-		}
+		vpos != past_ordering.end() &&
+		ordering_tools::has_multiple_losers(fixed_ordering); ++vpos) {
 
 		fixed_ordering = otools.tiebreak(fixed_ordering, *vpos,
 				num_candidates);
