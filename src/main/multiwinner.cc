@@ -211,7 +211,7 @@ election_t construct_ballots(const vector<vector<bool> > &
 
 // Framing
 
-list<int> random_council(int num_candidates, int council_size) {
+list<int> random_council(size_t num_candidates, size_t council_size) {
 
 	vector<int> numbered_candidates(num_candidates);
 
@@ -231,9 +231,8 @@ list<int> random_council(int num_candidates, int council_size) {
 // TODO: Handle case with weighted ballots: 1000 A > B, 1 B > C should have
 // only 1/1000 chance of picking B > C, not 1/2.
 // Beware: this method is not cloneproof.
-list<int> random_ballot(int num_ballots,
-	const election_t & ballots,
-	int num_candidates, size_t council_size, size_t accept_number) {
+list<int> random_ballot(int num_ballots, const election_t & ballots,
+	size_t num_candidates, size_t council_size, size_t accept_number) {
 
 	// Read off the first min(ordering size, accept_number) candidates.
 	// Then permute randomly and pick the first council_size of these.
@@ -252,7 +251,7 @@ list<int> random_ballot(int num_ballots,
 
 	// Now pos is a random ballot.
 	size_t requested = min(accept_number, pos->contents.size());
-	vector<int> accepted(requested, 0);
+	vector<size_t> accepted(requested, 0);
 	vector<bool> taken(num_candidates, false); // incomplete ballots
 
 	counter = 0;
@@ -284,7 +283,6 @@ list<int> random_ballot(int num_ballots,
 
 	for (counter = 0; counter < council_size; ++counter) {
 		assert(accepted[counter] < num_candidates);
-		assert(accepted[counter] >= 0);
 		toRet.push_back(accepted[counter]);
 	}
 
@@ -292,8 +290,8 @@ list<int> random_ballot(int num_ballots,
 }
 
 
-double get_error(const list<int> & council, int num_candidates,
-	int council_size,
+double get_error(const list<int> & council,
+	int num_candidates, size_t council_size,
 	const vector<vector<bool> > & population_profiles,
 	const vector<double> & whole_pop_profile) {
 

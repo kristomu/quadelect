@@ -41,7 +41,7 @@ std::pair<bool, candscore> qltd_pr::get_first_above_quota(const
 				if (!hopefuls[sec]) {
 					continue;
 				}
-				if (tally[sec] < quota) {
+				if (tally[sec] <= quota) {
 					continue;
 				}
 				if (recordholder == -1) {
@@ -64,20 +64,21 @@ std::pair<bool, candscore> qltd_pr::get_first_above_quota(const
 	}
 
 	// So the recordholder's above quota. There are two situations here;
-	// either we started at 0 (or at a point where it was below the quota),
-	// or we didn't and it was above quota even before. In the former case,
-	// old_tally won't be above quota and we can figure out how much the
-	// candidate is above by determining the fractional contribution of
-	// (tally - old_tally) required to make it just above quota, so surplus
-	// is zero. In the latter case, we reached quota at the original
-	// start_at, and surplus is however much we were above the quota then.
+	// either we started at 0 (or at a point where it was below or at the
+	// quota), or we didn't and it was above quota even before. In the
+	// former case, old_tally won't be above quota and we can figure out
+	// how much the candidate is above by determining the fractional
+	// contribution of (tally - old_tally) required to make it just above
+	// quota, so surplus is zero. In the latter case, we reached quota at the
+	// original start_at, and surplus is however much we were above the quota
+	// then.
 	// To handle this properly, we'll first calculate the round at which
 	// we got above quota (fractional rounds included), and then we sum up
 	// to verify. If start_at is 0 and surplus is significantly nonzero,
 	// then we have a bug.
 
 	double reached_quota = 0;
-	if (old_tally[recordholder] < quota) {
+	if (old_tally[recordholder] <= quota) {
 		reached_quota = (counter - 1) +
 			renorm(old_tally[recordholder], tally[recordholder],
 				quota, 0.0, 1.0);
@@ -242,7 +243,6 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 
 			assert(num_elected == council_size);
 			return (council);
-			//winner = candscore(borda_result.begin()->get_candidate_num(), -start_at);
 		}
 
 
