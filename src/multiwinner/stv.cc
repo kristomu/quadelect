@@ -31,7 +31,7 @@ std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 
 		double score_now = cpos->get_score();
 
-		while (cpos->get_score() == score_now && cpos != count.rend()) {
+		while (cpos != count.rend() && cpos->get_score() == score_now) {
 			hopefuls[cpos->get_candidate_num()] = uneliminated[
 					cpos->get_candidate_num()];
 			++cpos;

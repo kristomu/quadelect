@@ -165,6 +165,10 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 
 // --------------------- Additive voter-base reweighting. ---------------------
 
+// This method eliminates candidates who have been elected. It's also possible
+// to just keep them and use the same weighted positional scale, but that would
+// be a bit weird. TODO? Make that a parameter?
+
 std::list<int> addt_ballot_reweighting::get_council(int council_size,
 	int num_candidates, const election_t & ballots) const {
 
@@ -211,7 +215,6 @@ std::list<int> addt_ballot_reweighting::get_council(int council_size,
 
 		elected[next] = true;
 		council.push_back(next);
-		++council_count;
 		if (council_count == council_size) {
 			continue;
 		}
@@ -225,7 +228,10 @@ std::list<int> addt_ballot_reweighting::get_council(int council_size,
 			reweighted_ballots.end(); ++wpos) {
 
 			double points_given = base->get_pos_score(
-					*wpos, next, hopefuls, num_candidates);
+					*wpos, next, hopefuls, num_candidates - council_count);
+
+			assert(points_given >= minscore);
+			assert(points_given <= maxscore);
 
 			double relative_power = renorm(minscore, maxscore,
 					points_given, 0.0, 1.0);
@@ -243,6 +249,9 @@ std::list<int> addt_ballot_reweighting::get_council(int council_size,
 			wpos->set_weight(original_weights[ballot_idx] * C / (C +
 					total_power_given[ballot_idx]));
 		}
+
+		++council_count;
+		hopefuls[next] = false;
 	}
 
 	return (council);
