@@ -46,7 +46,12 @@ class positional : public election_method {
 			size_t num_hopefuls) const;
 
 		double get_pos_maximum(size_t num_candidates) const {
-			return (pos_weight(0, num_candidates-1));
+			return pos_weight(0, num_candidates-1);
+		}
+
+		double get_pos_minimum(size_t num_candidates) const {
+			return pos_weight(num_candidates-1,
+					num_candidates-1);
 		}
 
 		// Interfaces

@@ -1,6 +1,7 @@
 #include "compat_qbuck.h"
 
 #include "singlewinner/positional/simple_methods.h"
+#include "hack/msvc_random.h"
 
 #include <iostream>
 
