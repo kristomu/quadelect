@@ -1,8 +1,9 @@
 
 #include "qbuck.h"
+#include "quotas.h"
 #include <limits>
 
-candscore qltd_pr::get_first_above_quota(const
+std::pair<bool, candscore> qltd_pr::get_first_above_quota(const
 	std::vector<std::vector<double> > &
 	positional_matrix, const std::vector<bool> & hopefuls,
 	const double quota, double start_at, double & surplus) const {
@@ -15,7 +16,7 @@ candscore qltd_pr::get_first_above_quota(const
 	// higher score is better).
 	//
 	// If nobody's above quota, even with all votes counted, we
-	// return (0, NaN).
+	// return false for the first operand. The second is undefined.
 
 	double recordholder = -1;
 	int num_candidates = positional_matrix.size();
@@ -59,7 +60,7 @@ candscore qltd_pr::get_first_above_quota(const
 	// Okay, at this point we've either exhausted all the ballots, or
 	// someone's above quota. Deal with the first case first.
 	if (recordholder == -1) {
-		return (candscore(0, std::numeric_limits<double>::quiet_NaN()));
+		return {false, candscore(0, 0)};
 	}
 
 	// So the recordholder's above quota. There are two situations here;
@@ -76,35 +77,37 @@ candscore qltd_pr::get_first_above_quota(const
 	// then we have a bug.
 
 	double reached_quota = 0;
-	if (old_tally[recordholder] < quota)
+	if (old_tally[recordholder] < quota) {
 		reached_quota = (counter - 1) +
 			renorm(old_tally[recordholder], tally[recordholder],
 				quota, 0.0, 1.0);
-	else {
+	} else {
 		reached_quota = start_at;
 	}
 
 	// Calculate surplus.
 	tally[recordholder] = 0;
 	for (counter = 0; counter < ceil(reached_quota); ++counter) {
-		if (bucklin)
+		if (bucklin) {
 			tally[recordholder] += positional_matrix[recordholder]
 				[counter];
-		else
+		} else {
 			tally[recordholder] += std::min(1.0, reached_quota -
 					counter) * positional_matrix
 				[recordholder][counter];
+		}
 	}
 
 	surplus = tally[recordholder] - quota;
 
-	assert(bucklin || start_at != 0 || fabs(surplus) < 1e-10);
+	assert(bucklin || start_at != 0);
+	assert(surplus >= 0);
 
 	// Set the candscore return value.
 	if (bucklin) {
-		return candscore(recordholder, -ceil(reached_quota));
+		return {true, candscore(recordholder, -ceil(reached_quota))};
 	} else	{
-		return candscore(recordholder, -reached_quota);
+		return {true, candscore(recordholder, -reached_quota)};
 	}
 }
 
@@ -168,17 +171,9 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 	// QPQ, and would be really easy to implement with the "qltd" half-
 	// positional class.
 
-	double num_voters = 0;
 	election_t reweighted_ballots = ballots;
-	election_t::iterator lpos; // For debugging, since
-	// this'll break on compile if we reference ballots by accident.
-
-	for (lpos = reweighted_ballots.begin(); lpos != reweighted_ballots.
-		end(); ++lpos) {
-		num_voters += lpos->get_weight();
-	}
-
-	std::vector<bool> hopefuls(num_candidates, true), all_hopefuls = hopefuls;
+	std::vector<bool> hopefuls(num_candidates, true),
+		all_hopefuls = hopefuls;
 
 	std::list<int> council;
 	int num_elected = 0;
@@ -203,9 +198,9 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 
 	// 1e-13 required because of double precision number inaccuracy.
 	if (hare_quota) {
-		quota = num_voters/(double)(council_size + 1e-10);
+		quota = get_hare_quota(reweighted_ballots, council_size);
 	} else	{
-		quota = num_voters/(double)(council_size + 1);
+		quota = get_droop_quota(reweighted_ballots, council_size);
 	}
 
 	while (num_elected < council_size) {
@@ -220,14 +215,14 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 				-1);
 
 		double surplus = 0;
-		candscore winner = get_first_above_quota(positional_matrix,
-				hopefuls, quota, start_at, surplus);
+		std::pair<bool, candscore> quota_result = get_first_above_quota(
+				positional_matrix, hopefuls, quota, start_at, surplus);
 
 		// TODO: Complete later.
 		//assert (winner.get_candidate_num() != -1);
 
 		// If we didn't find anybody above the quota...
-		if (isnan(winner.get_score())) {
+		if (!quota_result.first) {
 			ordering borda_result = borda_count.pos_elect(
 					positional_matrix, num_candidates -
 					num_elected, hopefuls);
@@ -253,11 +248,12 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 
 		// So now we have a winner. Admit him to the council, remove
 		// hopeful status, reweight, and increase num_elected.
+		candscore winner = quota_result.second;
 		assert(hopefuls[winner.get_candidate_num()]);
 		council.push_back(winner.get_candidate_num());
 		++num_elected;
 
-		lpos = reweighted_ballots.begin();
+		election_t::iterator lpos = reweighted_ballots.begin();
 
 		while (lpos != reweighted_ballots.end()) {
 			if (!is_contributing(*lpos, hopefuls, winner.
@@ -281,6 +277,20 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 
 		if (!restart_at_zero) {
 			start_at = -winner.get_score();
+		}
+
+		// We shouldn't need to recalculate the quota, but
+		// numerical imprecision means we have to.
+		if (council_size == num_elected) {
+			continue;
+		}
+
+		if (hare_quota) {
+			quota = get_hare_quota(reweighted_ballots,
+					council_size - num_elected);
+		} else	{
+			quota = get_droop_quota(reweighted_ballots,
+					council_size - num_elected);
 		}
 	}
 

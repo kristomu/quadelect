@@ -1,4 +1,5 @@
 #include "stv.h"
+#include "quotas.h"
 
 // There's a known bug: this may crash due to hopefuls being all false.
 // Find out what's going on and then fix, later.
@@ -11,8 +12,6 @@ std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 	// BTR-STV. See the main procedure for information on BTR-STV.
 
 	int N = (council_size - num_elected) + 1;
-
-	//cout << "N is " << N << endl;
 
 	std::vector<bool> hopefuls(num_candidates, false);
 
@@ -33,7 +32,6 @@ std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 		double score_now = cpos->get_score();
 
 		while (cpos->get_score() == score_now && cpos != count.rend()) {
-			//		cout << "Setting " << cpos->get_candidate_num() << endl;
 			hopefuls[cpos->get_candidate_num()] = uneliminated[
 					cpos->get_candidate_num()];
 			++cpos;
@@ -93,21 +91,7 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 	// TODO: Make this changeable
 	plurality plur_count(PT_WHOLE);
 
-	// Determine number of voters (sum of weights actually).
-	double num_voters = 0;
-	election_t::const_iterator lpos;
-	election_t::iterator bpos;
-	for (lpos = ballots.begin(); lpos != ballots.end(); ++lpos) {
-		num_voters += lpos->get_weight();
-	}
-
-	// Droop quota. Hare is better but more vulnerable to vote mgmt.
-	// TODO: Make this tunable too.
-	//double quota = floor(( num_voters / (double)(council_size + 1) ) + 1);
-
-	// Epsilon here? We should also move all of this to a quota class.
-	double quota = num_voters / (double)(council_size + 1);
-	quota -= 1e-15; // HACK: Argh, numerical imprecision is such a *pain*.
+	double quota = get_droop_quota(ballots, council_size);
 
 	election_t reweighted_ballots = ballots;
 	std::list<int> council;
@@ -234,7 +218,7 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 			// is due to erase() returning an iterator *after*
 			// the one that was erased.
 
-			bpos = reweighted_ballots.begin();
+			election_t::iterator bpos = reweighted_ballots.begin();
 			while (bpos != reweighted_ballots.end()) {
 				if (plur_count.get_pos_score(*bpos,
 						electable, hopefuls, num_hopefuls) <= 0) {
@@ -262,6 +246,16 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 			council.push_back(electable);
 			++council_count;
 			--num_hopefuls;
+
+			// We shouldn't need to recalculate the quota every
+			// time someone is elected, but numerical imprecision
+			// is a pain and can make the quota drift.
+
+			if (council_count < council_size) {
+				quota = get_droop_quota(reweighted_ballots,
+						council_size - council_count);
+			}
+
 		} else {
 			int last_candidate;
 

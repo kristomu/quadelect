@@ -23,7 +23,7 @@ class qltd_pr : public multiwinner_method {
 		bool restart_at_zero;
 		bool bucklin;
 
-		candscore get_first_above_quota(
+		std::pair<bool, candscore> get_first_above_quota(
 			const std::vector<std::vector<double> > & positional_matrix,
 			const std::vector<bool> & hopefuls, const double quota,
 			double start_at, double & surplus) const;

@@ -49,7 +49,7 @@ else()
 	# warning as it falsely triggers on SpookyHash.
 	# -flto may lead to further speedups, but linking with it enabled is way
 	# too slow, so it's been omitted here.
-	set(CMAKE_CXX_FLAGS "-O3 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros -Wno-unknown-warning-option")
+	set(CMAKE_CXX_FLAGS "-ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros -Wno-unknown-warning-option")
 endif()
 
 # g++: Disable the free-nonheap-object warning as it seems to be buggy.
@@ -198,6 +198,7 @@ add_library(qe_multiwinner_methods
 	src/multiwinner/meek_stv.cc
 	src/multiwinner/methods.cc
 	src/multiwinner/psc.cc
+	src/multiwinner/quotas.cc
 	src/multiwinner/qbuck.cc
 	# src/multiwinner/qpq.cc
 	src/multiwinner/shuntsstv.cc

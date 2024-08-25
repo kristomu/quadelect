@@ -1,4 +1,5 @@
 #include "compat_qbuck.h"
+#include "quotas.h"
 
 #include "singlewinner/positional/simple_methods.h"
 #include "hack/msvc_random.h"
@@ -53,11 +54,15 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 	// To generalize, one'd want to deweight the voters just so that the
 	// candidate's no longer above quota.
 
+	// NOTE: Now uses the common quota functions, but these quotas are
+	// significantly different! It may cause the method's performance to
+	// change.
+
 	double quota;
 	if (hare) {
-		quota = rankings.size()/(double)(council_size);
+		quota = get_hare_quota(ballots, council_size);
 	} else	{
-		quota = (rankings.size())/(council_size + 1) + 1;
+		quota = get_droop_quota(ballots, council_size);
 	}
 
 	std::vector<bool> elected(num_candidates, false);
@@ -69,6 +74,8 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 	double round = 0;
 	double surplus;
 	bool failsafe = false;
+
+	int elected_candidates = 0;
 
 	// Do Meek-type binary search to find the round value where a vote goes
 	// just above the quota. (Actually, that would be a sort of bisection
@@ -260,15 +267,15 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 			found = winners[random() % winners.size()];
 		}
 
-		//	assert (found_count < 2);
-
 		if (found != -1) {
-			//		cout << "Found" << std::endl;
-			surplus = std::max(0.0, tally[found] - quota);
+			assert(tally[found] >= quota);
+			surplus = tally[found] - quota;
 
 			allocated.push_back(found);
 			last_elected = found;
 			// Reweight
+
+			double total_weight = 0;
 
 			for (counter = 0; counter < rankings.size(); ++counter) {
 				int this_round = round;
@@ -277,15 +284,26 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 					int cand = rankings[counter][sec];
 
 					if (!elected[cand]) {
-						/*the 1e-6 is so that we never divide by zero. It's a hack, but should help against the "round 119" problem until I figure out why it's happening.*/
 						if (cand == last_elected) {
 							weighting[counter] *= surplus / quota;
 						}
 						--this_round;
 					}
 				}
+
+				total_weight += weighting[counter];
 			}
 			elected[found] = true;
+			++elected_candidates;
+
+			// Recalculate the quota to handle numerical imprecision
+			if (elected_candidates < council_size) {
+				if (hare) {
+					quota = total_weight / (double)(council_size - elected_candidates);
+				} else {
+					quota = total_weight / (double)(council_size - elected_candidates + 1.0);
+				}
+			}
 		} else {
 			if (fraction >= 1) {
 				round++;
