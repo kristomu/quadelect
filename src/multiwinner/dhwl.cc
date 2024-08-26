@@ -3,7 +3,7 @@
 std::list<int> reweighted_condorcet::get_council(int council_size,
 	int num_candidates, const election_t & ballots) const {
 
-	if (council_size <= num_candidates) {
+	if (council_size > num_candidates) {
 		throw std::invalid_argument("multiwinner: Too few candidates for the council");
 	}
 
@@ -18,8 +18,6 @@ std::list<int> reweighted_condorcet::get_council(int council_size,
 	std::vector<bool> elected(num_candidates, false);
 
 	while (council_count < council_size) {
-
-		std::cerr << "[" << council_count << "]" << std::flush;
 
 		// TODO: Fix later. DHwL no longer implements it.
 		bool tie_at_top = false;

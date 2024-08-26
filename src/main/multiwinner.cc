@@ -538,9 +538,10 @@ int main(int argc, char * * argv) {
 			false));
 	other_methods.push_back(std::make_shared<cardinal_ratings>(-10, 10, true));
 
-	// TODO: FIX
-	/*condorcet.push_back(std::make_shared<minmax>(CM_WV));
-	condorcet.push_back(std::make_shared<minmax>(CM_MARGINS));*/
+	// These are not all Condorcet. Minmin is not.
+	// TODO: Better name for the vector.
+	condorcet.push_back(std::make_shared<ext_minmax>(CM_MARGINS, true));
+	condorcet.push_back(std::make_shared<ext_minmax>(CM_MARGINS, false));
 	condorcet.push_back(std::make_shared<schulze>(CM_WV));
 
 	for (counter = 0; counter < condorcet.size(); ++counter) {
@@ -568,7 +569,7 @@ int main(int argc, char * * argv) {
 
 	// Maybe: IRV-SNTV
 
-	for (counter = 1; counter < condorcet.size(); ++counter) {
+	for (counter = 0; counter < condorcet.size(); ++counter) {
 		e_methods.push_back(multiwinner_stats(
 				std::make_shared<reweighted_condorcet>(
 					condorcet[counter])));

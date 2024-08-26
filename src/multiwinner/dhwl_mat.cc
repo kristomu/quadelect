@@ -21,6 +21,19 @@ void DHwLmatrix::count_ballots(const election_t & scores,
 	election_t::const_iterator pri;
 	std::list<candscore>::const_iterator checker, against;
 
+	// First set the total number of voters (voting weight),
+	// which the abstract matrix class requires.
+
+	double total_weight = 0;
+
+	for (pri = scores.begin(); pri != scores.end(); ++pri) {
+		total_weight += pri->get_weight();
+	}
+
+	set_num_voters(total_weight);
+
+	// Then set the pairwise contests.
+
 	for (pri = scores.begin(); pri != scores.end(); ++pri) {
 		// Reduce n^2 to n as set iterations are extremely slow.
 		// KLUDGE.
