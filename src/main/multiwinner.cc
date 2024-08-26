@@ -485,9 +485,11 @@ int main(int argc, char * * argv) {
 
 	// Used for inlining.
 	int maxnum = 0;
+	bool run_forever = false;
 	if (argc < 2) {
-		cerr << "Specfiy max match number." << endl;
-		return (-1);
+		std::cerr << "No max match number specified, running forever." << endl;
+		run_forever = true;
+		maxnum = 1;
 	} else {
 		maxnum = stoi(argv[1]);
 	}
@@ -590,7 +592,7 @@ int main(int argc, char * * argv) {
 
 	// Only enable this if we can handle the extremely large structure
 	// it requires.
-	//e_methods.push_back(multiwinner_stats(std::make_shared<PSC>()));
+	e_methods.push_back(multiwinner_stats(std::make_shared<PSC>()));
 
 	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_NONE)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_PLUR)));
@@ -602,14 +604,15 @@ int main(int argc, char * * argv) {
 
 	// Put on hold until we can do something about the huge memory
 	// demands.
-	//e_methods.push_back(multiwinner_stats(new SchulzeSTV()));
+	e_methods.push_back(multiwinner_stats(std::make_shared<SchulzeSTV>()));
 
 	// Not very good. Takes time, too.
 	// And these were supposed to be "very good indeed"! What failed?
 	// (Whatever I do, I get lousy results.)
 
-	/*e_methods.push_back(multiwinner_stats(new hardcard(HC_BIRATIONAL)));
-	e_methods.push_back(multiwinner_stats(new hardcard(HC_LPV)));*/
+	e_methods.push_back(multiwinner_stats(std::make_shared<hardcard>
+			(HC_BIRATIONAL)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<hardcard>(HC_LPV)));
 
 	// QPQ mass test
 	// Disabled for now because QPQ needs a more extensive rework.
@@ -665,27 +668,23 @@ int main(int argc, char * * argv) {
 
 	// 149
 	// 156 crashed BTR-STV. No more.
-	for (idx = 0; idx < maxnum; ++idx) {
+	for (idx = 0; idx < maxnum || run_forever; ++idx) {
 
 		srandom(idx); // So we can replay in the case of bugs.
 		srand(idx);
 		srand48(idx);
 
-		/*int num_voters = 512 + round((drand48() * 512));
-		int num_candidates = 31 + round(drand48() * 100);
-		int council_size = 3 * round((drand48() + 1) * 5);
-		int opinions = 1 + round(drand48() * 10);*/
-
-		size_t num_voters =  5 + pow(5, 1 + drand48() * 4.72);
-		size_t num_candidates = min(max(10.0, num_voters/10.0), pow(5,
-					1 + drand48() * 3.29));
-		size_t council_size = max(1.0, min(max(1.0, num_candidates/2.0),
-					400-((double)(1 + random() % 20)*(1+random()%20))));
-		// KLUDGE to test PSC-CLE. I need to find a way of doing this in
-		// polyspace.
-		//while (num_candidates > 80) { num_candidates >>= 1; council_size >>= 1; }
-
+		size_t num_voters = 5 + random() % 256;
+		size_t num_candidates, council_size;
 		int opinions = 1 + round(drand48() * 10);
+
+		do {
+			num_candidates = 5 + random() % 5;
+		} while (num_candidates > num_voters);
+
+		do {
+			council_size = 2 + random() % 8;
+		} while (council_size > num_candidates);
 
 		cout << endl;
 		cout << "=========================================" << endl;

@@ -6,6 +6,8 @@
 
 #include "hard_card.h"
 
+#include <numeric>
+
 // Auxiliary functions. TESTS thus KLUDGY. Fix later
 
 double gini_one(const std::vector<double> & a) {
@@ -65,14 +67,14 @@ std::vector<scored_ballot> hardcard::make_cardinal_array(const
 			results[counter].scores[opos->get_candidate_num()] =
 				opos->get_score();
 		}
+		++counter;
 	}
 
 	return results;
 }
 
 double hardcard::birational(const std::vector<bool> & W,
-	const scored_ballot &
-	this_ballot) const {
+	const scored_ballot & this_ballot) const {
 
 	//                                     x_w
 	// L(w) = SUM      SUM      SUM      -------
@@ -210,10 +212,12 @@ double hardcard::LPV(const std::vector<bool> & W, int council_size,
 
 	size_t counter = 0;
 
-	for (counter = 0; counter < W.size(); ++counter)
+	for (counter = 0; counter < std::min(W.size(),
+			this_ballot.scores.size()); ++counter) {
 		if (W[counter]) {
 			log_denom += this_ballot.scores[counter];
 		}
+	}
 
 	double logarithm = log((k + council_size)/(log_denom));
 
@@ -284,6 +288,15 @@ std::list<int> hardcard::get_council(int council_size, int num_candidates,
 	std::vector<scored_ballot> cballots = make_cardinal_array(ballots,
 			num_candidates);
 	std::vector<bool> W(num_candidates, false);
+
+	// Paper over a BUG. Handle this in a more principled manner,
+	// probably with a "next_combination" analog, later.
+	// TODO. Who knew I could write such buggy code :-P
+	if (council_size == num_candidates) {
+		std::list<int> out(num_candidates, 0);
+		std::iota(out.begin(), out.end(), 0);
+		return out;
+	}
 
 	std::list<int> council;
 	size_t counter;

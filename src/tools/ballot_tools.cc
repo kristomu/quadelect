@@ -248,7 +248,7 @@ std::list<candscore> ordering_tools::get_loser_candscores(
 // deltas will only disambiguate equals. Then we proceed down the original
 // ballot, adding deltas accordingly.
 ordering ordering_tools::tiebreak(const ordering & tied,
-	const ordering & tiebreaker, size_t num_candidates) const {
+	const ordering & tiebreaker, size_t num_candidates) {
 
 	// Some simple checks.
 	// If tied is of size 1, then there's nothing to do - the tie is

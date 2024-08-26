@@ -88,30 +88,29 @@ std::pair<ordering, bool> election_method::elect_detailed(
 	// If all are hopeful, it's just an ordinary election and so we can
 	// make use of the cache. Detect that.
 
-	int num_hopefuls = 0, last_hopeful = -1, counter = 0;
+	int num_hopefuls = 0;
 	std::vector<bool>::const_iterator hpos;
 
 	for (hpos = hopefuls.begin(); hpos != hopefuls.end(); ++hpos) {
 		if (*hpos) {
 			++num_hopefuls;
-			last_hopeful = counter;
 		}
-		++counter;
 	}
 
-	// If there's only one candidate left, return him; and if all candidates
-	// are in play, go directly to elect so that we may make use of a cached
-	// entry.
-	if (num_hopefuls <= 1) {
-		std::pair<ordering, bool> toRet;
-		toRet.second = false;
-		toRet.first.insert(candscore(last_hopeful, 1));
-		return (toRet);
-	}
+	// There used to be a check that would return (last hopeful, 1) here
+	// if there was only one hopeful candidate left. However, we can't do
+	// that for rated or weighted positional systems, where the number of
+	// points of the sole winner matters. This has thus been removed.
+	// Fix the special case elsewhere!
 
-	if (num_hopefuls == num_candidates)
+
+
+	// If every candidate is in play, consult the cache if possible.
+
+	if (num_hopefuls == num_candidates) {
 		return (elect_detailed(papers, num_candidates, cache,
 					winner_only));
+	}
 
 	// Otherwise, go about it the hard way.
 

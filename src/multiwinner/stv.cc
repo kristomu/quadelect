@@ -206,7 +206,7 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 		// total vote gathered. Otherwise, eliminate the bottom-ranked
 		// candidate.
 
-		if (top.get_score() >= quota) {
+		if (top.get_score() > quota) {
 			int electable = top.get_candidate_num();
 			double score = top.get_score();
 			double surplus = score - quota;

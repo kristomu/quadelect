@@ -58,58 +58,86 @@ std::pair<bool, candscore> qltd_pr::get_first_above_quota(const
 	}
 
 	// Okay, at this point we've either exhausted all the ballots, or
-	// someone's above quota. Deal with the first case first.
+	// someone's above quota. Deal with the exhausted case first.
 	if (recordholder == -1) {
 		return {false, candscore(0, 0)};
 	}
 
-	// So the recordholder's above quota. There are two situations here;
-	// either we started at 0 (or at a point where it was below or at the
-	// quota), or we didn't and it was above quota even before. In the
-	// former case, old_tally won't be above quota and we can figure out
-	// how much the candidate is above by determining the fractional
+	// If we're in Bucklin mode, then the tally of the recordholder
+	// gives his current support, and the surplus is just that minus
+	// the quota.
+
+	if (bucklin) {
+		surplus = tally[recordholder] - quota;
+		assert(surplus >= 0);
+
+		// Set the candscore return value.
+		size_t current_round = counter;
+		return {true, candscore(recordholder, -current_round)};
+	}
+
+	// Otherwise, we're in QLTD mode.
+
+	// There are two situations here: either we started at 0 (or at a point
+	// where start_at was below or at the quota), or we didn't and start_at
+	// was above quota even before.
+
+	// In the former case, old_tally won't be above quota and we can figure
+	// out how much the candidate is above by determining the fractional
 	// contribution of (tally - old_tally) required to make it just above
 	// quota, so surplus is zero. In the latter case, we reached quota at the
 	// original start_at, and surplus is however much we were above the quota
 	// then.
+
 	// To handle this properly, we'll first calculate the round at which
 	// we got above quota (fractional rounds included), and then we sum up
 	// to verify. If start_at is 0 and surplus is significantly nonzero,
 	// then we have a bug.
 
+	// XXX: This should actually use the same logic as Bucklin, because
+	// having the surplus always be zero doesn't make any sense (and we
+	// can infer the Bucklin surplus rule anyway by assuming a continuum
+	// of ranks with a uniform distribution of votes on the continuum between
+	// two adjacent ranks). Instead, what *should* change is who gets elected.
+	// Suppose the quota is 100, and A has 80 votes on rank 1, B has 90.
+	// However, A has 150 on rank 2, B has 101. Then with QLTD, A should be
+	// elected, because it takes a lower fraction of votes from rank 2 to elect
+	// A than B. Now suppose that A has 80 votes on rank 1 and B has 70.
+	// On rank 2, A has 1002 and B has 1003. Then A should be elected,
+	// because 80 + 0.025 * (1002-80) > 100, 70 + 0.025 * (1003-70) < 100.
+	// So the QLTD rule is slightly more complex than straight Bucklin.
+
 	double reached_quota = 0;
 	if (old_tally[recordholder] <= quota) {
-		reached_quota = (counter - 1) +
-			renorm(old_tally[recordholder], tally[recordholder],
+		double current_round_fraction = renorm(
+				old_tally[recordholder], tally[recordholder],
 				quota, 0.0, 1.0);
-	} else {
-		reached_quota = start_at;
+
+		reached_quota = (counter - 1) + current_round_fraction;
+		surplus = 0;
+
+		return {true, candscore(recordholder, -reached_quota)};
 	}
 
+	// The surplus is given by start_at, so count up to it.
+	// I'm not sure about this code... I guess it's used when
+	// we have multiple winners at the same rank ???
+
+	assert(start_at != 0);
+	reached_quota = start_at;
 	// Calculate surplus.
 	tally[recordholder] = 0;
-	for (counter = 0; counter < ceil(reached_quota); ++counter) {
-		if (bucklin) {
-			tally[recordholder] += positional_matrix[recordholder]
-				[counter];
-		} else {
-			tally[recordholder] += std::min(1.0, reached_quota -
-					counter) * positional_matrix
-				[recordholder][counter];
-		}
+	for (size_t sec = 0; sec < counter; ++sec) {
+		tally[recordholder] += std::min(1.0, reached_quota - sec) *
+			positional_matrix[recordholder][sec];
 	}
 
 	surplus = tally[recordholder] - quota;
 
-	assert(bucklin || start_at != 0);
 	assert(surplus >= 0);
 
 	// Set the candscore return value.
-	if (bucklin) {
-		return {true, candscore(recordholder, -ceil(reached_quota))};
-	} else	{
-		return {true, candscore(recordholder, -reached_quota)};
-	}
+	return {true, candscore(recordholder, -reached_quota)};
 }
 
 bool qltd_pr::is_contributing(const ballot_group & ballot,

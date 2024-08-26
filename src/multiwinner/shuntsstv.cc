@@ -27,6 +27,7 @@
 
 #include "shuntsstv.h"
 
+#include <numeric>
 #include <vector>
 #include <list>
 #include <set>
@@ -4117,6 +4118,18 @@ std::list<int> Dijkstra() {
 std::list<int> SchulzeSTV::get_council(int council_size,
 	int num_candidates,
 	const election_t & ballots) const {
+
+	if (council_size > num_candidates) {
+		throw std::invalid_argument("Schulze STV: Too few candidates "
+			"for council.");
+	}
+
+	// Num seats = num candidates is not supported by Schulze STV.
+	if (council_size == num_candidates) {
+		std::list<int> full_council(num_candidates, 0);
+		std::iota(full_council.begin(), full_council.end(), 0);
+		return full_council;
+	}
 
 	read_ballot_input(ballots, council_size, num_candidates);
 	Analyzing_the_Input();

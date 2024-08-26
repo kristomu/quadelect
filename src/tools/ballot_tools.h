@@ -47,9 +47,9 @@ class ordering_tools {
 
 		// Break ties in "tied" according to tiebreaker and return
 		// result.
-		ordering tiebreak(const ordering & tied,
+		static ordering tiebreak(const ordering & tied,
 			const ordering & tiebreaker,
-			size_t num_candidates) const;
+			size_t num_candidates);
 
 		// Used for testing. Or should be, anyway.
 		static ordering ranked_tiebreak(const ordering & tied,
