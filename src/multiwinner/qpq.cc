@@ -73,6 +73,7 @@ const double QPQ::getC(int council_size, int num_candidates) const {
 	return ((1/K) * log(K/(1-exp(-K))));
 }
 
+// It now handles compressed ballots, although they may skew the tiebreak.
 list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 	int num_candidates, int num_voters,
 	const list<ballot_group> & ballots,
@@ -92,7 +93,7 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 	// of the fractional candidates those contributing ballots have
 	// elected.
 	//
-	// Any candidate that contributes to some candidate is active.
+	// Any ballot that contributes to some candidate is active.
 	// After calculating quotients, calculate the quota q = v_a/(1+s - t_x)
 	// where v_a is the number of active ballots, s is the council size,
 	// and t_x is the sum of the fractional candidates elected by inactive
@@ -115,7 +116,7 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 		   contributing_weights(num_candidates), quotients(num_candidates);
 
 	list<int> council;
-	int num_elected = 0;
+	int num_elected = 0, num_elim = 0;
 
 	vector<bool> elected(num_candidates, false);
 
@@ -151,19 +152,19 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 			ordering::const_iterator contribute =
 				ballot_contribution(eliminated, elected, *pos);
 
-			sum_weights += elect_fraction[counter];
+			sum_weights += elect_fraction[counter] * pos->weight;
 
 			if (contribute == pos->contents.end()) {
-				inactive_ballots += pos->get_weight();
+				inactive_ballots += pos->weight;
 				inactive_ballot_fraction +=
-					elect_fraction[counter];
+					elect_fraction[counter] * pos->weight;
 			} else {
-				active_ballots += pos->get_weight();
+				active_ballots += pos->weight;
 				contributing_ballots[contribute->
-					get_candidate_num()] += pos->get_weight();
+					get_candidate_num()] += pos->weight;
 				contributing_weights[contribute->
 					get_candidate_num()] +=
-						elect_fraction[counter];
+						elect_fraction[counter] * pos->weight;
 			}
 			++counter;
 		}
@@ -172,6 +173,7 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 		// precision mismatch. It should still sum to the number
 		// elected, but this way we won't break the assert if there's
 		// a spurious 1e-16 error or something.
+		// DONE: Fix really strange bug here.
 		assert(round(sum_weights) == num_elected);
 
 		// Calculate quotients.
@@ -286,8 +288,10 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 		// to use it anyhow.
 		if (elimination_candidates.size() > 1 &&
 			election_candidates.size() == 0) {
-			cout << "QPQ: Doing difference tiebreak on elims."
-				<< endl;
+			cout << "QPQ: Doing difference tiebreak on elims." <<
+				" num_elected: " << num_elected <<
+				" remain: " << num_candidates - (num_elected +
+					num_elim) << endl;
 			elimination_candidates = intersect_orders(
 					elimination_candidates, past_orderings,
 					false, !first);
@@ -337,6 +341,7 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 			// reset set to true, tail-recurse. Otherwise, just loop
 			// through.
 			eliminated[lowest] = true;
+			++num_elim;
 
 			// TODO: Heuristic that automatically elects rest if
 			// just enough to fill council.

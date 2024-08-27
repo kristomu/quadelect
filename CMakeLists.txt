@@ -92,7 +92,7 @@ find_package(Boost REQUIRED)
 find_library(GETOPT_LIB getopt)
 
 include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR}/src/)
+include_directories(${PROJECT_SOURCE_DIR}/src/ ${PROJECT_SOURCE_DIR}/src/lib/)
 
 # Internal functionality groupings. Not all programs need all the
 # functionality: in particular, the yee/BR program doesn't need the
@@ -218,6 +218,7 @@ add_library(quadelect_lib src/common/ballots.cc
 	src/grad_median/grad_median.cc
 	src/images/color/color.cc
 	src/interpreter/rank_order.cc
+	src/lib/spookyhash/SpookyV2.cpp
 	src/linear_model/constraints/constraint_polytope.cc
 	src/linear_model/constraints/constraint_tools.cc
 	src/linear_model/constraints/direct_relative_criterion.cc
@@ -264,7 +265,6 @@ add_library(quadelect_lib src/common/ballots.cc
 	src/simulator/utility/opt_frequency.cc
 	src/simulator/utility/vse.cc
 	src/simulator/stubs/bernoulli.cc
-	src/spookyhash/SpookyV2.cpp
 	src/stats/confidence/as241.cc
 	src/stats/confidence/confidence.cc
 	src/stats/coordinate_gen.cc
