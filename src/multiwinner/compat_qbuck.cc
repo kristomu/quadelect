@@ -293,6 +293,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 
 				total_weight += weighting[counter];
 			}
+			assert(!elected[found]);
 			elected[found] = true;
 			++elected_candidates;
 
@@ -305,6 +306,19 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 				}
 			}
 		} else {
+			// If fraction == 0, seems like we're stuck. Just pick some hopefuls
+			// and bail. I don't understand my own code :-) From 2008.
+			if (fraction == 0) {
+				for (size_t j = 0; j < elected.size()
+					&& elected_candidates < council_size; ++j) {
+					if (!elected[j]) {
+						allocated.push_back(j);
+						++elected_candidates;
+					}
+				}
+				return allocated;
+			}
+
 			if (fraction >= 1) {
 				round++;
 				fraction = 0;
