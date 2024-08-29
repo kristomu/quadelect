@@ -80,11 +80,16 @@ template<class T> class exhaustive_method_runner : public
 			int num_candidates, const election_t & ballots) const;
 
 		std::string name() const {
-			return T().name();
+			return params_set.name();
 		}
 
 		void set_parameters(const T reference) {
 			params_set = reference;
+		}
+
+		exhaustive_method_runner() {}
+		exhaustive_method_runner(const T reference) {
+			set_parameters(reference);
 		}
 };
 

@@ -1,19 +1,17 @@
 #pragma once
 
 #include "method.h"
-#include "multiwinner/hard_card.h"
 
 // These methods optimize a function that depends on the proposed
 // seat assignment and the number of points given to each candidate
 // by each voter.
 
 // This category includes LPV0+ and birational voting.
-// (TODO: Add sources.)
 
-/*struct scored_ballot {
+struct scored_ballot {
 	double weight; // #voters
 	std::vector<double> scores; // #voters by #cands
-};*/
+};
 
 class scored_method : public exhaustive_method {
 	private:

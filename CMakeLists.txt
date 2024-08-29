@@ -189,12 +189,12 @@ add_library(qe_singlewinner_methods
 target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
 
 add_library(qe_multiwinner_methods
+	src/multiwinner/exhaustive/scored_method.cc
 	src/multiwinner/helper/dsc.cc
 	src/multiwinner/helper/errors.cc
 	src/multiwinner/compat_qbuck.cc
 	src/multiwinner/dhwl.cc
 	src/multiwinner/dhwl_mat.cc
-	src/multiwinner/hard_card.cc
 	src/multiwinner/meek_stv.cc
 	src/multiwinner/methods.cc
 	src/multiwinner/psc.cc

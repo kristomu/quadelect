@@ -27,13 +27,14 @@
 #include "multiwinner/helper/errors.cc"
 
 #include "multiwinner/methods.h"
+#include "multiwinner/exhaustive/birational.h"
+#include "multiwinner/exhaustive/lpv.h"
 
 #include "multiwinner/psc.h"
 #include "multiwinner/qbuck.h"
 #include "multiwinner/meek_stv.h"
 #include "multiwinner/shuntsstv.h"
 #include "multiwinner/compat_qbuck.h"
-#include "multiwinner/hard_card.h"
 #include "multiwinner/dhwl.h"
 #include "multiwinner/stv.h"
 //#include "multiwinner/qpq.cc"
@@ -611,9 +612,17 @@ int main(int argc, char * * argv) {
 	// And these were supposed to be "very good indeed"! What failed?
 	// (Whatever I do, I get lousy results.)
 
-	e_methods.push_back(multiwinner_stats(std::make_shared<hardcard>
-			(HC_BIRATIONAL)));
-	e_methods.push_back(multiwinner_stats(std::make_shared<hardcard>(HC_LPV)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<birational>()));
+	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>()));
+
+	// Other values of K are possible, but this way of passing parameters is
+	// not very elegant.
+	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
+				log_penalty_eval(1))));
+	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
+				log_penalty_eval(10))));
+	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
+				log_penalty_eval(1000))));
 
 	// QPQ mass test
 	// Disabled for now because QPQ needs a more extensive rework.

@@ -7,7 +7,7 @@ class birational_eval : public scored_method {
 
 	public:
 		std::string name() const {
-			return "Birational";
+			return "Cardinal: Birational";
 		}
 
 		bool maximize() const {
@@ -20,16 +20,21 @@ double birational_eval::evaluate(combo::it & start, combo::it & end,
 
 	//                                     x_w
 	// L(w) = SUM      SUM      SUM      -------
-	// 	  vote     w in W   s in W       1 + x_s
+	// 	  vote     w in W   s in W   1 + x_s
 	// 	  vectors
 	// 	  x->
+
+	// From https://rangevoting.org/WarrenSmithPages/homepage/multisurv.pdf
+	// method 7.8, "the birational system".
 
 	// We don't handle Range-style "no opinion" ballots yet - they
 	// get set to 0. I might just snip that out of scored_method since
 	// I'm not using it :-P
 
-	// Possible later TODO, change 1 + x_s so that the D'Hondt
-	// generalization of PAV turns into Sainte-Laguë instead.
+	// I thought that replacing the one in the denominator with a C
+	// could generalize to more or less proportionality vs. single-winner
+	// quality, but that turned out to be wrong; using 0.5 instead just
+	// degrades the proportionality without any compensation.
 
 	double total = 0;
 
