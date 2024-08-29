@@ -35,10 +35,12 @@ double birational_eval::evaluate(combo::it & start, combo::it & end,
 	// could generalize to more or less proportionality vs. single-winner
 	// quality, but that turned out to be wrong; using 0.5 instead just
 	// degrades the proportionality without any compensation.
+	// (TODO: Check that now that we've got proportionality vs VSE going)
+
+	// It might also be a good idea to try normalization here as well,
+	// particularly given the extreme results it's producing...
 
 	double total = 0;
-
-	// Minimax doesn't do much better either.
 
 	for (auto pos = start; pos != end; ++pos) {
 		size_t w = *pos;
