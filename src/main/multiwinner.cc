@@ -28,6 +28,7 @@
 
 #include "multiwinner/methods.h"
 #include "multiwinner/exhaustive/birational.h"
+#include "multiwinner/exhaustive/isoelastic.h"
 #include "multiwinner/exhaustive/lpv.h"
 
 #include "multiwinner/psc.h"
@@ -614,9 +615,18 @@ int main(int argc, char * * argv) {
 
 	e_methods.push_back(multiwinner_stats(std::make_shared<birational>()));
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>()));
+	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>()));
 
-	// Other values of K are possible, but this way of passing parameters is
+	// It's possible to parameterize, but this way of passing parameters is
 	// not very elegant.
+	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
+				isoelastic_eval(-1))));
+	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
+				isoelastic_eval(-0.5))));
+	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
+				isoelastic_eval(0))));
+	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
+				isoelastic_eval(2))));
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
 				log_penalty_eval(1))));
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(

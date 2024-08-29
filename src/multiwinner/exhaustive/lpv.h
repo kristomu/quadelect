@@ -62,7 +62,7 @@ double log_penalty_eval::evaluate(combo::it & start, combo::it & end,
 	double inner_denominator = 0;
 
 	for (auto pos = start; pos != end; ++pos) {
-		inner_denominator += this_ballot.scores[*pos];
+		inner_denominator += this_ballot.get_norm_score(*pos);
 	}
 
 	if (inner_denominator == 0 && K == 0) {

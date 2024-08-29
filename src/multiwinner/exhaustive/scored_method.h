@@ -8,9 +8,16 @@
 
 // This category includes LPV0+ and birational voting.
 
-struct scored_ballot {
-	double weight; // #voters
-	std::vector<double> scores; // #voters by #cands
+class scored_ballot {
+	public:
+		double weight; // #voters
+		double min, max;
+		std::vector<double> scores; // #voters by #cands
+
+		double get_norm_score(size_t candidate) const {
+			return renorm(min, max,
+					scores[candidate], 0.0, 1.0);
+		}
 };
 
 class scored_method : public exhaustive_method {

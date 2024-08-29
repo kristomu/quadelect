@@ -21,9 +21,27 @@ void scored_method::process_ballots(const
 		scored_ballots[ballot_idx].weight = pos->get_weight();
 		scored_ballots[ballot_idx].scores.resize(
 			num_candidates, NAN);
+		scored_ballots[ballot_idx].min = 0;
+		scored_ballots[ballot_idx].max = 0;
+
+		bool set_extrema = false;
 
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos) {
+
+			if (!set_extrema && !isnan(opos->get_score())) {
+				scored_ballots[ballot_idx].min = opos->get_score();
+				scored_ballots[ballot_idx].max = opos->get_score();
+				set_extrema = true;
+			}
+
+			if (set_extrema) {
+				scored_ballots[ballot_idx].min = std::min(
+						scored_ballots[ballot_idx].min, opos->get_score());
+				scored_ballots[ballot_idx].max = std::max(
+						scored_ballots[ballot_idx].max, opos->get_score());
+			}
+
 			scored_ballots[ballot_idx].scores[opos->get_candidate_num()] =
 				opos->get_score();
 		}
