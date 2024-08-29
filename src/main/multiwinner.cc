@@ -313,6 +313,69 @@ double get_error(const list<int> & council,
 					council, population_profiles)));
 }
 
+/* Majoritarian utility (VSE)
+   This nabs the utility from the expressed ballots, which
+   may not hold true if we transform them. (It already is only
+   approximately true due to the added noise, showing my point.)
+*/
+
+std::vector<double> get_utilities(const election_t & election,
+	size_t num_candidates) {
+
+	std::vector<double> mean_utilities(num_candidates, 0);
+	double total_voting_weight = 0;
+
+	for (const ballot_group & ballot: election) {
+		total_voting_weight += ballot.get_weight();
+
+		for (const candscore & cs: ballot.contents) {
+			size_t candidate = cs.get_candidate_num();
+			mean_utilities[candidate] += cs.get_score();
+		}
+	}
+
+	for (size_t i = 0; i < num_candidates; ++i) {
+		mean_utilities[i] /= total_voting_weight;
+	}
+
+	return mean_utilities;
+}
+
+double get_random_utilities(const std::vector<double> & utilities) {
+	return std::accumulate(utilities.begin(), utilities.end(), 0.0)/
+		(double)utilities.size();
+}
+
+double get_optimal_utility(std::vector<double> utilities,
+	size_t council_size) {
+	std::sort(utilities.begin(), utilities.end()); // ascending
+	std::reverse(utilities.begin(), utilities.end()); // Now it's descending.
+
+	assert(council_size <= utilities.size());
+
+	double sum_utils = 0;
+
+	for (size_t i = 0; i < council_size; ++i) {
+		sum_utils += utilities[i];
+	}
+
+	return sum_utils / (double)council_size;
+}
+
+double get_council_utility(const std::vector<double> & utilities,
+	std::list<int> & council) {
+
+	double sum_utils = 0;
+
+	for (int candidate: council) {
+		sum_utils += utilities[candidate];
+	}
+
+	return sum_utils / (double)council.size();
+}
+
+////
+
 void get_limits(int num_candidates, int council_size,
 	const vector<vector<bool> > & population_profiles,
 	const vector<double> & whole_pop_profile, int tries,
@@ -429,30 +492,6 @@ void print_std_pref(const election_t & f) {
 		}
 		cerr << endl;
 	}
-}
-
-void print_sstv_pref(const election_t & f, int council_size, int
-	num_candidates) {
-
-	cerr << "M " << council_size << endl;
-	cerr << "C " << num_candidates << endl;
-	cerr << "N " << f.size() << endl;
-	cerr << "F 2" << endl; // format type
-
-	cerr << endl << "BEGIN" << endl;
-
-	int voter = 1;
-
-	for (election_t::const_iterator pos = f.begin(); pos != f.end();
-		++pos) {
-		cerr << voter++ << " ";
-		for (ordering::const_iterator opos = pos->contents.begin();
-			opos != pos->contents.end(); ++opos) {
-			cerr << (char)('A' + opos->get_candidate_num()) << " ";
-		}
-		cerr << endl;
-	}
-	cerr << "END" << endl;
 }
 
 void set_best(multiwinner_stats & meta, double minimum, double maximum,
@@ -665,6 +704,15 @@ int main(int argc, char * * argv) {
 	multiwinner_stats qpqmetam("Best of QPQ(Meta, multiround)"), qpqmetas(
 		"Best of QPQ(Meta, sequential)");*/
 
+
+	/////////////////////////////////////////////////////////////////////////
+	/// Done adding voting methods.
+	/////////////////////////////////////////////////////////////////////////
+
+	// I'm going to resize to one just to make debugging easier.
+	/*e_methods.clear();
+	e_methods.push_back(multiwinner_stats(std::make_shared<SchulzeSTV>()));*/
+
 	int number = 0;
 
 	// This should be turned into a proper multiwinner method. So should
@@ -674,6 +722,16 @@ int main(int argc, char * * argv) {
 	election_t ballots;
 
 	double sum_rbal = 0;
+
+	double sum_worst = 0;
+	double sum_best = 0;
+
+	// Very quick and dirty majoritarian VSE data.
+	std::map<std::string, double> method_utility;
+	double random_utility = 0;
+	double best_utility = 0;
+	double cur_random_utility = 0, cur_best_utility = 0;
+	size_t utility_count = 0;
 
 	// DONE: Reproduce in secpr to see where we get different result.
 	// IRV sounds way too low. It's not a glitch! It may be an effect of
@@ -688,7 +746,7 @@ int main(int argc, char * * argv) {
 
 	// 149
 	// 156 crashed BTR-STV. No more.
-	for (idx = 0; idx < maxnum || run_forever; ++idx) {
+	for (idx = 0; maxnum || run_forever; ++idx) {
 
 		srandom(idx); // So we can replay in the case of bugs.
 		srand(idx);
@@ -733,10 +791,8 @@ int main(int argc, char * * argv) {
 		cout << "Candidate profiles:" << endl;
 		print_profiles(population_profiles, 0, num_candidates);
 
-		// Readjust to handle quantization errors wrt the entire population.
-		// We could do this in a more sophisticated way by randomizing according
-		// to the first n issues, then setting 0..bias/total to true and the
-		// rest to false, before randomizing again, and so on. Later.
+		// Our binary profiles per voter may not sum up exactly to the
+		// percentage support for each profile in society. Fix this here.
 		pop_opinion_profile = sum_opinion_profile(population_profiles);
 
 		cout << "Population opinion profile: ";
@@ -744,28 +800,73 @@ int main(int argc, char * * argv) {
 			ostream_iterator<double>(cout, " "));
 		cout << endl;
 
-		double worst, average, best, norm_average;
-		get_limits(num_candidates, council_size, population_profiles,
-			pop_opinion_profile, 75000, worst, average,
-			best);
-
-		cout << "Worst: " << worst << ", Average: " << average <<
-			", Best: " << best << endl;
-
-		norm_average = renorm(best, worst, average, 0.0, 1.0);
-
-		sum_random += norm_average;
-
-		cout << display_stats(sum_random, number,
-				average, norm_average, "-- Random candidates --") << endl;
-
 		// To test the memory leak, perhaps put this outside the loop
 		// and fix num_candidates and num_voters? The results would be
 		// nonsensical, but that's not what we're trying to fix anyhow.
 		ballots.clear();
 		ballots = construct_ballots(population_profiles,
 				num_candidates, 0.001);
-		//print_sstv_pref(ballots, council_size, num_candidates);
+
+		// Calculate majoritarian VSE.
+		std::vector<double> utilities = get_utilities(ballots,
+				num_candidates);
+		cur_best_utility = get_optimal_utility(utilities,
+				council_size);
+		cur_random_utility = get_random_utilities(utilities);
+
+		best_utility += cur_best_utility;
+		random_utility += cur_random_utility;
+		++utility_count;
+
+		std::cout << "VSE: random: " << cur_random_utility << ", best: " <<
+			cur_best_utility << std::endl;
+		std::cout << "Total: random: " << random_utility/utility_count <<
+			", best: " << best_utility/utility_count << "\n";
+
+		// Get the disproportionality of random councils, which is needed
+		// to anchor the proportionality of random candidate for the VSE-
+		// like disproportionality measure.
+
+		// We could also run this through for_each_combination. TODO later.
+
+		double random_disprop = 0;
+		size_t max_disprop_iters = 1000;
+
+		for (size_t i = 0; i < max_disprop_iters; ++i) {
+			std::list<int> random_draw = random_council(num_candidates,
+					council_size);
+
+			random_disprop += get_error(random_draw,
+					num_candidates, council_size,
+					population_profiles,
+					pop_opinion_profile);
+		}
+
+		// The stuff below should use proper multiwinner_stats objects.
+		// TODO!!!
+
+		random_disprop /= (double)max_disprop_iters;
+		std::cout << "Random candidate (raw): " << random_disprop << "\n";
+		assert(1!=1);
+
+		double worst, average, best;
+		get_limits(num_candidates, council_size, population_profiles,
+			pop_opinion_profile, 75000, worst, average,
+			best);
+
+		sum_worst += worst;
+		sum_best += best;
+
+		cout << "Worst: " << worst << ", Average: " << average <<
+			", Best: " << best << endl;
+
+		sum_random += random_disprop;
+
+		cout << display_stats(0, number, random_disprop,
+				0, "-- Random candidates --") << endl;
+
+		// Create ballots consistent with the population's preferences.
+		// (Yuck, this is ugly...)
 
 		// Not good
 		double rbal_value = random_ballot(ballots, num_candidates,
@@ -773,32 +874,21 @@ int main(int argc, char * * argv) {
 				population_profiles, pop_opinion_profile,
 				10000);
 
-		double norm_rbal = renorm(best, worst, rbal_value, 0.0, 1.0);
+		sum_rbal += rbal_value;
 
-		sum_rbal += norm_rbal;
+		double random_ballot_vse = (sum_rbal - sum_random) /
+			(sum_best - sum_random);
+		double this_round_rb_vse = (rbal_value - random_disprop) /
+			(best - random_disprop);
 
-		cout << display_stats(sum_rbal, number, rbal_value,
-				norm_rbal, "-- Random ballot (0.25) --") << endl;
-
-		/* Testing something
-		// TODO: Make it possible to alter weights without having to
-		// copy the entire ballot list.
-		double rvp_value = get_error(voter_reweighted_council(
-					council_size, num_candidates,
-					ballots, (positional *)e_methods[1].
-					method), council_size,
-				population_profiles, pop_opinion_profile);
-
-		double norm_rvp = renorm(best, worst, rvp_value, 0.0, 1.0);
-
-		sum_rvp += norm_rvp;
-
-		cout << display_stats(sum_rvp, number, rvp_value, norm_rvp,
-				"(Reweighted Borda)") << endl;*/
+		cout << display_stats(random_ballot_vse, 1, rbal_value,
+				this_round_rb_vse, "-- Random ballot (0.25) --") << endl;
 
 		double error;
-		//double norm_error;
 
+		std::cout << "\n";
+		std::cout << s_padded("Prop.", 8) << " " << s_padded("VSE",
+				8) << " Method\n";
 		for (size_t counter = 0; counter < e_methods.size(); ++counter) {
 			if (e_methods[counter].method() == NULL) {
 				continue;
@@ -812,23 +902,37 @@ int main(int argc, char * * argv) {
 			if (!e_methods[counter].method()->polytime() && council_size > 15) {
 				continue;
 			}
-			error = get_error(e_methods[counter].method()->
-					get_council(council_size,
-						num_candidates,	ballots),
+
+			std::list<int> council = e_methods[counter].method()->
+				get_council(council_size,
+					num_candidates,	ballots);
+
+			error = get_error(council,
 					num_candidates, council_size,
 					population_profiles,
 					pop_opinion_profile);
-			//norm_error = renorm(best, worst, error, 0.0, 1.0);
 
-//			cout << "\t" << e_methods[counter].name << ": " << error << ", norm: " << norm_error << "\t";
-			e_methods[counter].add_result(best, error, worst);
-			/*e_methods[counter].sum_scores += error;
-			e_methods[counter].sum_normalized_scores += norm_error;
+			e_methods[counter].add_result(rbal_value, error, best);
 
-			cout << display_stats(e_methods[counter], number, error, norm_error) << endl;*/
-			cout << e_methods[counter].display_stats() << endl;
+			// VSE update
 
-			//		cout << "avg norm.: " << e_methods[counter].sum_normalized_scores / (double)number << "\tunnorm: " << e_methods[counter].sum_scores / (double)number << endl;
+			double this_method_utility = get_council_utility(utilities,
+					council);
+
+			if (method_utility.find(e_methods[counter].get_name()) ==
+				method_utility.end()) {
+				method_utility[e_methods[counter].get_name()] = this_method_utility;
+			} else {
+				method_utility[e_methods[counter].get_name()] += this_method_utility;
+			}
+
+			double total_utility = method_utility[e_methods[counter].get_name()];
+			double VSE = (total_utility - random_utility) / (best_utility -
+					random_utility);
+
+			// Print it all out.
+
+			cout << e_methods[counter].display_stats(VSE) << endl;
 		}
 
 		// Meta

@@ -42,7 +42,9 @@ class multiwinner_stats {
 		//double get_median(bool normalized);
 		double get_last(bool normalized) const;
 
-		std::string display_stats();
+		std::string display_stats(double additional_stat) const;
+
+		std::string display_stats() const;
 		std::string get_name() const {
 			return (name);
 		}

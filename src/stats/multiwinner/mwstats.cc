@@ -47,6 +47,9 @@ multiwinner_stats::multiwinner_stats(std::string meta_name) {
 void multiwinner_stats::add_result(double random_score,
 	double result_score, double optimal_score) {
 
+	assert((random_score <= optimal_score && result_score <= optimal_score)
+		|| (random_score >= optimal_score && result_score >= optimal_score));
+
 	scores.push_back(result_score);
 
 	scores_sum += result_score;
@@ -89,7 +92,8 @@ double multiwinner_stats::get_last(bool normalized) const {
 	}
 }
 
-std::string multiwinner_stats::display_stats() {
+std::string multiwinner_stats::display_stats(double additional_stat)
+const {
 
 	/*std::string name;
 
@@ -97,11 +101,23 @@ std::string multiwinner_stats::display_stats() {
 		name = "N/A";
 	else	name = mw_method->name();*/
 
-	return (s_padded(dtos(get_average(true), 5), 7) + " " +
-			"?????"/*s_padded(dtos(get_median(true), 5), 7)*/ + "  " +
+	std::string additional_stat_str;
+	if (isfinite(additional_stat)) {
+		additional_stat_str = s_padded(dtos(additional_stat, 5), 7);
+	} else {
+		additional_stat_str = "?????";
+	}
+
+	return (s_padded(dtos(get_average(true), 5), 8) + " " +
+			additional_stat_str + "  " +
 			s_padded(name, 32) + "round: " + s_padded(dtos(
-					get_last(true), 5), 7) + " (unnorm: " +
+					get_last(true), 4), 7) + " (unnorm: " +
 			s_padded(dtos(get_last(false), 3), 5) + ")");
+}
+
+std::string multiwinner_stats::display_stats() const {
+
+	return display_stats(NAN);
 }
 
 // TEST
