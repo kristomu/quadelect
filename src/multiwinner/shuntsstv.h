@@ -23,6 +23,10 @@ class SchulzeSTV : public multiwinner_method {
 			return ("Schulze STV");
 		}
 
+		// Render an election in the Schulze STV input file format.
+		void print_schulze_stv_prefs(size_t council_size,
+			size_t num_candidates, const election_t & ballots) const;
+
 		// HACK - not really true.
 		// Ideally should be two functions: first, "is permissible for
 		// all", second, "is permissible for this particular setup"

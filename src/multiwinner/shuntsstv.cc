@@ -4144,3 +4144,27 @@ std::list<int> SchulzeSTV::get_council(int council_size,
 	//print3(council);
 	return council;
 }
+
+void SchulzeSTV::print_schulze_stv_prefs(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
+
+	std::cerr << "M " << council_size << "\n";
+	std::cerr << "C " << num_candidates << "\n";
+	std::cerr << "N " << ballots.size() << "\n";
+	std::cerr << "F 2" << "\n"; // format type
+
+	std::cerr << "\nBEGIN\n";
+
+	int voter = 1;
+
+	for (election_t::const_iterator pos = ballots.begin();
+		pos != ballots.end(); ++pos) {
+		std::cerr << voter++ << " ";
+		for (ordering::const_iterator opos = pos->contents.begin();
+			opos != pos->contents.end(); ++opos) {
+			std::cerr << (char)('A' + opos->get_candidate_num()) << " ";
+		}
+		std::cerr << "\n";
+	}
+	std::cerr << "END" << std::endl;
+}

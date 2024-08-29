@@ -847,7 +847,6 @@ int main(int argc, char * * argv) {
 
 		random_disprop /= (double)max_disprop_iters;
 		std::cout << "Random candidate (raw): " << random_disprop << "\n";
-		assert(1!=1);
 
 		double worst, average, best;
 		get_limits(num_candidates, council_size, population_profiles,

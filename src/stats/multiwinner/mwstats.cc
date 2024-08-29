@@ -81,7 +81,7 @@ double multiwinner_stats::get_average(bool normalized) const {
 }*/
 
 double multiwinner_stats::get_last(bool normalized) const {
-	assert(!normalized_scores.empty() && !scores.empty());
+	assert(!scores.empty());
 
 	double last_score = *scores.rbegin();
 
