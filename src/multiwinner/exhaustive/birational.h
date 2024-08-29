@@ -1,18 +1,22 @@
 #include "scored_method.h"
 
-class birational : public scored_method {
+class birational_eval : public scored_method {
 	private:
 		double evaluate(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot) const;
+			const scored_ballot & this_ballot);
 
 	public:
 		std::string name() const {
 			return "Birational";
 		}
-}
 
-double birational::evaluate(combo::it & start, combo::it & end,
-	const scored_ballot & this_ballot) const {
+		bool maximize() const {
+			return true;
+		}
+};
+
+double birational_eval::evaluate(combo::it & start, combo::it & end,
+	const scored_ballot & this_ballot) {
 
 	//                                     x_w
 	// L(w) = SUM      SUM      SUM      -------
@@ -20,7 +24,10 @@ double birational::evaluate(combo::it & start, combo::it & end,
 	// 	  vectors
 	// 	  x->
 
-	// We don't handle Range-style ballots yet - they get set to 0.
+	// We don't handle Range-style "no opinion" ballots yet - they
+	// get set to 0. I might just snip that out of scored_method since
+	// I'm not using it :-P
+
 	// Possible later TODO, change 1 + x_s so that the D'Hondt
 	// generalization of PAV turns into Sainte-Laguë instead.
 
@@ -31,16 +38,9 @@ double birational::evaluate(combo::it & start, combo::it & end,
 	for (auto pos = start; pos != end; ++pos) {
 		size_t w = *pos;
 
-		if (!W[w]) {
-			continue;
-		}
-
 		for (auto sec_pos = start; sec_pos != end; ++sec_pos) {
 			size_t s = *sec_pos;
 
-			if (!W[s]) {
-				continue;
-			}
 			double atw = this_ballot.scores[w],
 				   ats = this_ballot.scores[s];
 
@@ -57,3 +57,5 @@ double birational::evaluate(combo::it & start, combo::it & end,
 
 	return total * this_ballot.weight;
 }
+
+typedef exhaustive_method_runner<birational_eval> birational;

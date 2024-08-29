@@ -15,7 +15,7 @@
 
 class exhaustive_optima {
 	private:
-		bool maximize;
+		bool maximize, opt_direction_set;
 
 		double minimum, maximum;
 		std::vector<size_t> minimum_solution, maximum_solution;
@@ -25,9 +25,23 @@ class exhaustive_optima {
 		// should be set by the combinatorial method
 		exhaustive_optima(bool maximize_in) {
 			maximize = maximize_in;
+			opt_direction_set = true;
 
 			minimum = std::numeric_limits<double>::signaling_NaN();
 			maximum = std::numeric_limits<double>::signaling_NaN();
+		}
+
+		exhaustive_optima() {
+			opt_direction_set = false;
+
+			minimum = std::numeric_limits<double>::signaling_NaN();
+			maximum = std::numeric_limits<double>::signaling_NaN();
+		}
+
+		// Set whether to maximize or minimize.
+		void set_optimum_direction(bool maximize_in) {
+			maximize = maximize_in;
+			opt_direction_set = true;
 		}
 
 		void update(double objective_value,
@@ -60,6 +74,7 @@ class exhaustive_optima {
 		}
 
 		std::vector<size_t> get_optimal_solution() const {
+			assert(opt_direction_set);
 			if (maximize) {
 				return get_maximum_solution();
 			} else {
@@ -78,6 +93,7 @@ class exhaustive_optima {
 		}
 
 		double get_optimum() const {
+			assert(opt_direction_set);
 			if (maximize) {
 				return get_maximum();
 			} else {

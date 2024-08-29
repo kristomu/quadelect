@@ -3,7 +3,7 @@
 #include <vector>
 
 void scored_method::process_ballots(const
-	election_t & ballots, int numcand) const {
+	election_t & ballots, size_t num_candidates) {
 
 	// This is used to calculate birational and LPV results quickly, as
 	// those methods have terms like "voter X's rating of candidate Y".
@@ -18,12 +18,13 @@ void scored_method::process_ballots(const
 	for (election_t::const_iterator pos = ballots.begin();
 		pos != ballots.end(); ++pos) {
 
-		results[ballot_idx].weight = pos->get_weight();
-		results[ballot_idx].scores.resize(numcand, NAN);
+		scored_ballots[ballot_idx].weight = pos->get_weight();
+		scored_ballots[ballot_idx].scores.resize(
+			num_candidates, NAN);
 
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos) {
-			results[ballot_idx].scores[opos->get_candidate_num()] =
+			scored_ballots[ballot_idx].scores[opos->get_candidate_num()] =
 				opos->get_score();
 		}
 		++ballot_idx;
