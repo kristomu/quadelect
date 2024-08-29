@@ -31,7 +31,8 @@ multiwinner_stats::multiwinner_stats(
 	mw_method = method_in;
 	name = method_in->name();
 	scores_sum = 0;
-	norm_scores_sum = 0;
+	random_sum = 0;
+	optimal_sum = 0;
 }
 
 // Hack for "meta-methods" that pick best-of, average-of, worst-of.
@@ -39,60 +40,52 @@ multiwinner_stats::multiwinner_stats(std::string meta_name) {
 	mw_method = NULL;
 	name = meta_name;
 	scores_sum = 0;
-	norm_scores_sum = 0;
+	random_sum = 0;
+	optimal_sum = 0;
 }
 
-void multiwinner_stats::add_result(double minimum, double result,
-	double maximum) {
+void multiwinner_stats::add_result(double random_score,
+	double result_score, double optimal_score) {
 
-	double normalized = renorm(minimum, maximum, result, 0.0, 1.0);
+	scores.push_back(result_score);
 
-	scores.push_back(result);
-	normalized_scores.push_back(normalized);
+	scores_sum += result_score;
+	random_sum += random_score;
+	optimal_sum += optimal_score;
 
-	scores_sum += result;
-	norm_scores_sum += normalized;
+	last_random = random_score;
+	last_optimum = optimal_score;
 }
 
 double multiwinner_stats::get_average(bool normalized) const {
-	// Do assert here to check if these are the same. Bug suggests they
-	// are not; there's a case where average > median! Or meh, seems
-	// that's possible.
-	/*	const std::vector<double> * rel;
 
-		if (normalized) {
-			rel = &normalized_scores;
-		} else {
-			rel = &scores;
-		}
+	double num_scores = scores.size();
 
-		double total = 0; int count = 0;
-
-		for (int counter = 0; counter < rel->size(); ++counter)
-			total += (*rel)[counter];
-
-		return(total/(double)(rel->size()));*/
 	if (normalized) {
-		return (norm_scores_sum / (double)normalized_scores.size());
+		// (E[method]-E[random])/(E[optimal]-E[random]
+		return renorm(random_sum, optimal_sum, scores_sum, 0.0, 1.0);
 	} else	{
-		return (scores_sum / (double)scores.size());
+		return scores_sum / num_scores;
 	}
 }
 
-double multiwinner_stats::get_median(bool normalized) {
+/*double multiwinner_stats::get_median(bool normalized) {
 	if (normalized) {
 		return (get_median(normalized_scores));
 	} else	{
 		return (get_median(scores));
 	}
-}
+}*/
 
 double multiwinner_stats::get_last(bool normalized) const {
 	assert(!normalized_scores.empty() && !scores.empty());
+
+	double last_score = *scores.rbegin();
+
 	if (normalized) {
-		return (*normalized_scores.rbegin());
+		return renorm(last_random, last_optimum, last_score, 0.0, 1.0);
 	} else	{
-		return (*scores.rbegin());
+		return last_score;
 	}
 }
 
@@ -105,7 +98,7 @@ std::string multiwinner_stats::display_stats() {
 	else	name = mw_method->name();*/
 
 	return (s_padded(dtos(get_average(true), 5), 7) + " " +
-			s_padded(dtos(get_median(true), 5), 7) + "  " +
+			"?????"/*s_padded(dtos(get_median(true), 5), 7)*/ + "  " +
 			s_padded(name, 32) + "round: " + s_padded(dtos(
 					get_last(true), 5), 7) + " (unnorm: " +
 			s_padded(dtos(get_last(false), 3), 5) + ")");
