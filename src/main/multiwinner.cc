@@ -24,6 +24,8 @@
 #include "condorcet/methods.cc"*/
 
 #include "stats/multiwinner/mwstats.h"
+#include "stats/multiwinner/vse.h"
+
 #include "multiwinner/helper/errors.cc"
 
 #include "multiwinner/methods.h"
@@ -50,7 +52,7 @@
 #include <set>
 #include <assert.h>
 
-#define errm rmse
+#define errm sli
 
 using namespace std;
 
@@ -746,7 +748,7 @@ int main(int argc, char * * argv) {
 
 	// 149
 	// 156 crashed BTR-STV. No more.
-	for (idx = 0; maxnum || run_forever; ++idx) {
+	for (idx = 0; idx < maxnum || run_forever; ++idx) {
 
 		srandom(idx); // So we can replay in the case of bugs.
 		srand(idx);
@@ -757,11 +759,11 @@ int main(int argc, char * * argv) {
 		int opinions = 1 + round(drand48() * 10);
 
 		do {
-			num_candidates = 5 + random() % 5;
+			num_candidates = 5 + random() % 7;
 		} while (num_candidates > num_voters);
 
 		do {
-			council_size = 2 + random() % 8;
+			council_size = 3 + random() % 8;
 		} while (council_size > num_candidates);
 
 		cout << endl;
@@ -926,12 +928,12 @@ int main(int argc, char * * argv) {
 			}
 
 			double total_utility = method_utility[e_methods[counter].get_name()];
-			double VSE = (total_utility - random_utility) / (best_utility -
+			double maj_VSE = (total_utility - random_utility) / (best_utility -
 					random_utility);
 
 			// Print it all out.
 
-			cout << e_methods[counter].display_stats(VSE) << endl;
+			cout << e_methods[counter].display_stats(maj_VSE) << endl;
 		}
 
 		// Meta
