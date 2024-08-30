@@ -2,12 +2,6 @@
 // Multiwinner hacks.
 // Segment properly later. TODO.
 
-// Also TODO aggregate ballots in the case that multiple voters vote in the
-// same way. Sketch of how to do this: Make map from orderings to int,
-// map[this ordering]++ for all ballots, then adjust weights accordingly.
-// Remember to delete the first and second keys of the map properly, or it'll
-// leak.
-
 // TODO: Write normalized array contents to files so that we can make graphs
 // based on them, etc.
 // Wishlist: Candidate ordering by opinions. FindBest/FindWorst instead of
@@ -18,10 +12,6 @@
 #include "singlewinner/pairwise/all.h"
 #include "singlewinner/elimination/elimination.h"
 #include "singlewinner/stats/cardinal.h"
-
-/*#include "tools.cc"
-#include "mwstats.cc"
-#include "condorcet/methods.cc"*/
 
 #include "stats/multiwinner/mwstats.h"
 #include "stats/multiwinner/vse.h"
@@ -40,6 +30,8 @@
 #include "multiwinner/compat_qbuck.h"
 #include "multiwinner/dhwl.h"
 #include "multiwinner/stv.h"
+
+#include "multiwinner/randballots.h"
 //#include "multiwinner/qpq.cc"
 
 #include "hack/msvc_random.h"
@@ -232,68 +224,6 @@ list<int> random_council(size_t num_candidates, size_t council_size) {
 	return (toRet);
 }
 
-// TODO: Handle case with weighted ballots: 1000 A > B, 1 B > C should have
-// only 1/1000 chance of picking B > C, not 1/2.
-// Beware: this method is not cloneproof.
-list<int> random_ballot(int num_ballots, const election_t & ballots,
-	size_t num_candidates, size_t council_size, size_t accept_number) {
-
-	// Read off the first min(ordering size, accept_number) candidates.
-	// Then permute randomly and pick the first council_size of these.
-	// Inspired by LeGrand's 3OPT minmax approval scheme.
-
-
-	// Pick the random ballot
-	size_t counter = 0, rand_ballot = floor(drand48() * num_ballots);
-
-	election_t::const_iterator pos;
-
-	for (pos = ballots.begin(); pos != ballots.end() && counter <
-		rand_ballot; ++pos) {
-		++counter;
-	}
-
-	// Now pos is a random ballot.
-	size_t requested = min(accept_number, pos->contents.size());
-	vector<size_t> accepted(requested, 0);
-	vector<bool> taken(num_candidates, false); // incomplete ballots
-
-	counter = 0;
-
-	for (ordering::const_iterator opos = pos->contents.begin();
-		opos != pos->contents.end() && counter < requested;
-		++opos) {
-		assert(opos->get_candidate_num() < num_candidates);
-		taken[opos->get_candidate_num()] = true;
-		accepted[counter++] = opos->get_candidate_num();
-	}
-
-	// Fill with random if the voter was too indecisive.
-	while (accepted.size() < max(accept_number, council_size)) {
-		int proposed_candidate = floor(drand48() * num_candidates);
-		if (taken[proposed_candidate]) {
-			continue;
-		}
-		accepted.push_back(proposed_candidate);
-		taken[proposed_candidate] = true;
-	}
-
-	// Randomly shuffle
-	random_shuffle(accepted.begin(), accepted.end());
-
-	// .. and load to the list we're going to return.
-
-	list<int> toRet;
-
-	for (counter = 0; counter < council_size; ++counter) {
-		assert(accepted[counter] < num_candidates);
-		toRet.push_back(accepted[counter]);
-	}
-
-	return (toRet);
-}
-
-
 double get_error(const list<int> & council,
 	int num_candidates, size_t council_size,
 	const vector<vector<bool> > & population_profiles,
@@ -306,13 +236,16 @@ double get_error(const list<int> & council,
 	vector<bool> seen(num_candidates, false);
 	for (list<int>::const_iterator pos = council.begin();
 		pos != council.end(); ++pos) {
+
 		assert(0 <= *pos && *pos < num_candidates);
 		assert(!seen[*pos]);
+
 		seen[*pos] = true;
 	}
 
-	return (errm(whole_pop_profile, get_quantized_opinion_profile(
-					council, population_profiles)));
+	return errm(whole_pop_profile,
+			get_quantized_opinion_profile(
+				council, population_profiles));
 }
 
 /* Majoritarian utility (VSE)
@@ -376,6 +309,35 @@ double get_council_utility(const std::vector<double> & utilities,
 	return sum_utils / (double)council.size();
 }
 
+// Gets the expected utility from a random dictator procedure. Note: this
+// assumes that every voter ranks at least as many candidates as the
+// council size.
+
+double get_random_dictator_utility(const std::vector<double> & utilities,
+	const election_t & election, size_t council_size) {
+
+	double total_weight = 0;
+	double total_utility = 0;
+
+	for (const ballot_group & ballot: election) {
+		size_t cands_picked = 0;
+
+		assert(ballot.contents.size() >= council_size);
+
+		for (auto pos = ballot.contents.begin();
+			cands_picked < council_size && pos != ballot.contents.end();
+			++pos, ++cands_picked) {
+
+			size_t candidate = pos->get_candidate_num();
+
+			total_weight += ballot.get_weight();
+			total_utility += ballot.get_weight() * utilities[candidate];
+		}
+	}
+
+	return total_utility / total_weight;
+}
+
 ////
 
 void get_limits(int num_candidates, int council_size,
@@ -383,16 +345,22 @@ void get_limits(int num_candidates, int council_size,
 	const vector<double> & whole_pop_profile, int tries,
 	double & worst, double & average, double & best) {
 
+	// TODO: use exhaustive enumeration if the number of
+	// different combinations is smaller than the "tries"
+	// limit.
+
+	// log combinations can be calculated as
+	// lgamma(N+1) - (lgamma(r+1)+lgamma(N-r+1)),
+	// it's better to use logarithms because the numbers
+	// may become too large.
+
 	worst = -INFINITY;
 	average = 0;
 	best = INFINITY;
 
-	double d_worst = 0;
-
 	int counter;
 
 	for (counter = 0; counter < tries; ++counter) {
-
 		double this_error = get_error(random_council(num_candidates,
 					council_size), num_candidates,
 				council_size, population_profiles,
@@ -406,56 +374,48 @@ void get_limits(int num_candidates, int council_size,
 		}
 
 		average += this_error;
-
-		// Exponential average.
-		d_worst = d_worst * 0.5 + this_error * 0.5;
-
-		// Try to normalize the noise in getting best and worst by
-		// breaking after a certain error level.
-		// Didn't work very well.
-		//	if (fabs(this_error - d_worst) < 1e-6) break;
-
 	}
 
 	average /= (double)(counter);
 }
 
 // n * tries instead of plain n(as we would have with a vector of ballots.
-// TODO: Fix somehow.
-double random_ballot(const election_t & ballots,
-	int num_candidates, int council_size, int accept_number,
+// TODO: Just calculate the expected value by letting every voter be
+// a dictator.
+
+double random_dictator(const election_t & election,
+	size_t num_candidates, size_t council_size,
 	const vector<vector<bool> > & population_profiles,
-	const vector<double> & whole_pop_profile, int tries) {
+	const vector<double> & whole_pop_profile) {
 
-	int num_ballots = population_profiles.size();
+	double total_weight = 0;
+	double total_disprop = 0;
 
-	double sum = 0;
+	for (const ballot_group & ballot: election) {
+		size_t cands_picked = 0;
 
-	for (int counter = 0; counter < tries; ++counter)
-		sum += get_error(random_ballot(num_ballots, ballots,
-					num_candidates, council_size,
-					accept_number), num_candidates,
-				council_size, population_profiles,
-				whole_pop_profile);
+		assert(ballot.contents.size() >= council_size);
+		std::list<int> dictatorial_council;
 
-	return (sum / (double)tries);
+		for (auto pos = ballot.contents.begin();
+			cands_picked < council_size && pos != ballot.contents.end();
+			++pos, ++cands_picked) {
+
+			size_t candidate = pos->get_candidate_num();
+
+			dictatorial_council.push_back(candidate);
+		}
+		total_disprop += ballot.get_weight() * get_error(
+				dictatorial_council, num_candidates, council_size,
+				population_profiles, whole_pop_profile);
+
+		total_weight += ballot.get_weight();
+	}
+
+	return total_disprop / total_weight;
 }
 
-
 // Election method normalization info
-
-/*class multiwinner_stats {
-	public:
-		multiwinner_method * method;
-		double sum_scores;
-		double sum_normalized_scores;
-
-		multiwinner_stats(multiwinner_method * method_in) {
-			method = method_in;
-			sum_scores = 0;
-			sum_normalized_scores = 0;
-		}
-};*/
 
 string padded(string a, int maxlen) {
 	int len = max(1, maxlen - (int)a.size());
@@ -463,23 +423,16 @@ string padded(string a, int maxlen) {
 	return (a + string(len, ' '));
 }
 
-string display_stats(double stat_sum, double rounds_so_far,
-	double current_unnorm_result, double current_norm_result,
+string display_stats(const VSE & disprop, const VSE & utility,
 	string name) {
 
-	string toRet = padded(dtos(stat_sum/rounds_so_far), 12) + padded(name,
-			30) + "round: " + padded(dtos(current_norm_result),
-			9) + " (unnorm: " + padded(dtos(current_unnorm_result), 9) +")";
+	std::string toRet = padded(dtos(disprop.get(), 5), 8) + " " +
+		padded(dtos(utility.get(), 5), 7) + "  " +
+		s_padded(name, 32) + "round: " + s_padded(dtos(
+				disprop.get_this_round(), 4), 7);
 
-	return (toRet);
+	return toRet;
 }
-
-/*string display_stats(const multiwinner_stats & in, double rounds_so_far,
-		double current_unnorm_result, double current_norm_result) {
-	return (display_stats(in.sum_normalized_scores, rounds_so_far,
-				current_unnorm_result, current_norm_result,
-				in.method->name()));
-}*/
 
 // QnD
 void print_std_pref(const election_t & f) {
@@ -524,27 +477,17 @@ void set_best(multiwinner_stats & meta, double minimum, double maximum,
 	meta.add_result(minimum, gathered_scores[0], maximum);
 }
 
-int main(int argc, char * * argv) {
-
-	// Used for inlining.
-	int maxnum = 0;
-	bool run_forever = false;
-	if (argc < 2) {
-		std::cerr << "No max match number specified, running forever." << endl;
-		run_forever = true;
-		maxnum = 1;
-	} else {
-		maxnum = stoi(argv[1]);
-	}
-
-	assert(maxnum > 0);
-
+std::vector<multiwinner_stats> get_multiwinner_methods() {
 	// Set up some majoritarian election methods and their stats.
 	// Condorcet methods should probably have their own arrays.
 	vector<multiwinner_stats> e_methods; // WARNING: Leak. TODO, fix.
 	vector<std::shared_ptr<positional> > positional_methods;
 	vector<std::shared_ptr<pairwise_method> > condorcet;
 	vector<std::shared_ptr<election_method> > other_methods;
+
+	// Set the random ballot method's seed to 1 for reproducibility.
+	e_methods.push_back(multiwinner_stats(std::make_shared<random_ballots>
+			(1)));
 
 	// All are PT_WHOLE for now.
 	positional_methods.push_back(std::make_shared<plurality>(PT_WHOLE));
@@ -706,49 +649,43 @@ int main(int argc, char * * argv) {
 	multiwinner_stats qpqmetam("Best of QPQ(Meta, multiround)"), qpqmetas(
 		"Best of QPQ(Meta, sequential)");*/
 
+	return e_methods;
+}
+
+int main(int argc, char * * argv) {
+
+	// Used for inlining.
+	int maxnum = 0;
+	bool run_forever = false;
+	if (argc < 2) {
+		std::cerr << "No max match number specified, running forever." << endl;
+		run_forever = true;
+		maxnum = 1;
+	} else {
+		maxnum = stoi(argv[1]);
+	}
+
+	assert(maxnum > 0);
+
+	vector<multiwinner_stats> e_methods = get_multiwinner_methods();
 
 	/////////////////////////////////////////////////////////////////////////
 	/// Done adding voting methods.
 	/////////////////////////////////////////////////////////////////////////
 
-	// I'm going to resize to one just to make debugging easier.
-	/*e_methods.clear();
-	e_methods.push_back(multiwinner_stats(std::make_shared<SchulzeSTV>()));*/
-
-	int number = 0;
-
-	// This should be turned into a proper multiwinner method. So should
-	// "worst of n" and "best of n" for that matter.
-	double sum_random = 0;
-
 	election_t ballots;
 
-	double sum_rbal = 0;
-
-	double sum_worst = 0;
-	double sum_best = 0;
-
 	// Very quick and dirty majoritarian VSE data.
-	std::map<std::string, double> method_utility;
-	double random_utility = 0;
-	double best_utility = 0;
-	double cur_random_utility = 0, cur_best_utility = 0;
-	size_t utility_count = 0;
+	std::map<std::string, VSE> method_utility;
 
-	// DONE: Reproduce in secpr to see where we get different result.
-	// IRV sounds way too low. It's not a glitch! It may be an effect of
-	// the ballots assumptions or the council distributions, though..
+	double cur_best_utility = 0, cur_random_utility = 0;
 
-	number = 0;
-	int idx; // 55 to 56
+	// I probably need to make mwstats independent of the election
+	// method or something... using a map might not be such a bad idea.
+	// then this could also do all the Pareto stuff I'd like to do.
+	VSE random_dictator_disprop, random_dictator_maj;
 
-	// 26 is example of Meek being worse than "ordinary" STV. Very strange.
-	// 63 is another. Round 148 is an example where tiebreaking is needed
-	// because at some point all remaining tie for quota.
-
-	// 149
-	// 156 crashed BTR-STV. No more.
-	for (idx = 0; idx < maxnum || run_forever; ++idx) {
+	for (int idx = 0; idx < maxnum || run_forever; ++idx) {
 
 		srandom(idx); // So we can replay in the case of bugs.
 		srand(idx);
@@ -772,13 +709,10 @@ int main(int argc, char * * argv) {
 		cout << " Voters: " << num_voters << "  Candidates: " << num_candidates <<
 			"  Council size: " << council_size << "  Opinions: " << opinions << endl;
 
-		++number;
-
 		// Construct opinion profile
 
 		vector<double> pop_opinion_profile(opinions, 0);
 
-		// TODO: Find functional way of doing this
 		for (int counter = 0; counter < opinions; ++counter) {
 			pop_opinion_profile[counter] = drand48();
 		}
@@ -816,74 +750,38 @@ int main(int argc, char * * argv) {
 				council_size);
 		cur_random_utility = get_random_utilities(utilities);
 
-		best_utility += cur_best_utility;
-		random_utility += cur_random_utility;
-		++utility_count;
+		// Get the best, random (expected), and worst council
+		// disproportionality. The best and random are needed to anchor
+		// the VSE-like disproportionality scale. These are all
+		// approximate except for small councils.
 
-		std::cout << "VSE: random: " << cur_random_utility << ", best: " <<
-			cur_best_utility << std::endl;
-		std::cout << "Total: random: " << random_utility/utility_count <<
-			", best: " << best_utility/utility_count << "\n";
+		double cur_worst_disprop, cur_mean_disprop, cur_best_disprop;
 
-		// Get the disproportionality of random councils, which is needed
-		// to anchor the proportionality of random candidate for the VSE-
-		// like disproportionality measure.
-
-		// We could also run this through for_each_combination. TODO later.
-
-		double random_disprop = 0;
-		size_t max_disprop_iters = 1000;
-
-		for (size_t i = 0; i < max_disprop_iters; ++i) {
-			std::list<int> random_draw = random_council(num_candidates,
-					council_size);
-
-			random_disprop += get_error(random_draw,
-					num_candidates, council_size,
-					population_profiles,
-					pop_opinion_profile);
-		}
+		get_limits(num_candidates, council_size, population_profiles,
+			pop_opinion_profile, 75000, cur_worst_disprop,
+			cur_mean_disprop, cur_best_disprop);
 
 		// The stuff below should use proper multiwinner_stats objects.
 		// TODO!!!
 
-		random_disprop /= (double)max_disprop_iters;
-		std::cout << "Random candidate (raw): " << random_disprop << "\n";
+		std::cout << "Random candidate (raw): " << cur_mean_disprop << "\n";
 
-		double worst, average, best;
-		get_limits(num_candidates, council_size, population_profiles,
-			pop_opinion_profile, 75000, worst, average,
-			best);
+		cout << "Worst: " << cur_worst_disprop << ", Average: "
+			<< cur_mean_disprop << ", Best: " << cur_best_disprop << endl;
 
-		sum_worst += worst;
-		sum_best += best;
+		double rdic_value = random_dictator(ballots, num_candidates,
+				council_size, population_profiles, pop_opinion_profile);
 
-		cout << "Worst: " << worst << ", Average: " << average <<
-			", Best: " << best << endl;
+		double rdic_utility = get_random_dictator_utility(utilities,
+				ballots, council_size);
 
-		sum_random += random_disprop;
+		random_dictator_disprop.add_result(cur_mean_disprop,
+			rdic_value, cur_best_disprop);
+		random_dictator_maj.add_result(cur_random_utility,
+			rdic_utility, cur_best_utility);
 
-		cout << display_stats(0, number, random_disprop,
-				0, "-- Random candidates --") << endl;
-
-		// Create ballots consistent with the population's preferences.
-		// (Yuck, this is ugly...)
-
-		// Not good
-		double rbal_value = random_ballot(ballots, num_candidates,
-				council_size, num_candidates / 4,
-				population_profiles, pop_opinion_profile,
-				10000);
-
-		sum_rbal += rbal_value;
-
-		double random_ballot_vse = (sum_rbal - sum_random) /
-			(sum_best - sum_random);
-		double this_round_rb_vse = (rbal_value - random_disprop) /
-			(best - random_disprop);
-
-		cout << display_stats(random_ballot_vse, 1, rbal_value,
-				this_round_rb_vse, "-- Random ballot (0.25) --") << endl;
+		cout << display_stats(random_dictator_disprop,
+				random_dictator_maj, "-- Random dictator --") << endl;
 
 		double error;
 
@@ -913,43 +811,20 @@ int main(int argc, char * * argv) {
 					population_profiles,
 					pop_opinion_profile);
 
-			e_methods[counter].add_result(rbal_value, error, best);
+			e_methods[counter].add_result(rdic_value, error, cur_best_disprop);
 
 			// VSE update
 
 			double this_method_utility = get_council_utility(utilities,
 					council);
 
-			if (method_utility.find(e_methods[counter].get_name()) ==
-				method_utility.end()) {
-				method_utility[e_methods[counter].get_name()] = this_method_utility;
-			} else {
-				method_utility[e_methods[counter].get_name()] += this_method_utility;
-			}
-
-			double total_utility = method_utility[e_methods[counter].get_name()];
-			double maj_VSE = (total_utility - random_utility) / (best_utility -
-					random_utility);
+			method_utility[e_methods[counter].get_name()].add_result(
+				cur_random_utility, this_method_utility, cur_best_utility);
 
 			// Print it all out.
 
-			cout << e_methods[counter].display_stats(maj_VSE) << endl;
+			cout << e_methods[counter].display_stats(
+					method_utility[e_methods[counter].get_name()].get()) << endl;
 		}
-
-		// Meta
-		/*set_best(qpqmetas, best, worst, e_methods, "QPQ", "sequential");
-		cout << qpqmetas.display_stats() << endl;
-		set_best(qpqmetam, best, worst, e_methods, "QPQ", "multiround");
-		cout << qpqmetam.display_stats() << endl;*/
 	}
-
-	/*cout << "Borda: " << error << ", norm: " << renorm(best, worst, error,
-			0.0, 1.0) << endl;
-
-	error = get_error(majoritarian_council(council_size, num_candidates,
-				ballots, &hare), population_profiles,
-			pop_opinion_profile);
-
-	cout << "Other: " << error << ", norm: " << renorm(best, worst, error,
-			0.0, 1.0) << endl;*/
 }

@@ -72,14 +72,6 @@ double multiwinner_stats::get_average(bool normalized) const {
 	}
 }
 
-/*double multiwinner_stats::get_median(bool normalized) {
-	if (normalized) {
-		return (get_median(normalized_scores));
-	} else	{
-		return (get_median(scores));
-	}
-}*/
-
 double multiwinner_stats::get_last(bool normalized) const {
 	assert(!scores.empty());
 
@@ -92,14 +84,8 @@ double multiwinner_stats::get_last(bool normalized) const {
 	}
 }
 
-std::string multiwinner_stats::display_stats(double additional_stat)
-const {
-
-	/*std::string name;
-
-	if (mw_method == NULL)
-		name = "N/A";
-	else	name = mw_method->name();*/
+std::string multiwinner_stats::display_stats(
+	double additional_stat) const {
 
 	std::string additional_stat_str;
 	if (isfinite(additional_stat)) {

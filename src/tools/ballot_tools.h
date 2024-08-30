@@ -37,6 +37,8 @@ class ordering_tools {
 		static bool has_multiple_winners(const ordering & in);
 		static bool has_multiple_losers(const ordering & in);
 		static std::vector<int> get_winners(const ordering & in);
+		static std::vector<int> get_winners(const ordering & in,
+			const std::vector<bool> & hopefuls);
 		static bool is_winner(const ordering & in, int candidate_num);
 
 		// Checks if the ordering has any explicitly equal-ranked

@@ -194,6 +194,29 @@ std::vector<int> ordering_tools::get_winners(const ordering & in) {
 	return (winners);
 }
 
+std::vector<int> ordering_tools::get_winners(const ordering & in,
+	const std::vector<bool> & hopefuls) {
+
+	std::vector<int> winners;
+
+	ordering::const_iterator start = in.begin();
+
+	while (start != in.end() && !hopefuls[start->get_candidate_num()]) {
+		++start;
+	}
+
+	if (start == in.end()) {
+		return winners;
+	}
+
+	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
+		pos->get_score() == in.begin()->get_score(); ++pos) {
+		winners.push_back(pos->get_candidate_num());
+	}
+
+	return winners;
+}
+
 bool ordering_tools::is_winner(const ordering & in,
 	int candidate_num) {
 

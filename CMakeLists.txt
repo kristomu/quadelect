@@ -201,6 +201,7 @@ add_library(qe_multiwinner_methods
 	src/multiwinner/quotas.cc
 	src/multiwinner/qbuck.cc
 	# src/multiwinner/qpq.cc
+	src/multiwinner/randballots.cc
 	src/multiwinner/shuntsstv.cc
 	src/multiwinner/stv.cc
 	src/stats/multiwinner/mwstats.cc)

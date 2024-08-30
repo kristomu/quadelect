@@ -40,6 +40,10 @@ class VSE {
 				(last_best - last_random);
 		}
 
+		double get_this_round_raw() const {
+			return last_method;
+		}
+
 		size_t get_rounds() const {
 			return rounds;
 		}
