@@ -182,9 +182,9 @@ bool ordering_tools::has_multiple_losers(const ordering & in) {
 	return false;
 }
 
-std::vector<int> ordering_tools::get_winners(const ordering & in) {
+std::vector<size_t> ordering_tools::get_winners(const ordering & in) {
 
-	std::vector<int> winners;
+	std::vector<size_t> winners;
 
 	for (ordering::const_iterator pos = in.begin(); pos != in.end() &&
 		pos->get_score() == in.begin()->get_score(); ++pos) {
@@ -194,10 +194,10 @@ std::vector<int> ordering_tools::get_winners(const ordering & in) {
 	return (winners);
 }
 
-std::vector<int> ordering_tools::get_winners(const ordering & in,
+std::vector<size_t> ordering_tools::get_winners(const ordering & in,
 	const std::vector<bool> & hopefuls) {
 
-	std::vector<int> winners;
+	std::vector<size_t> winners;
 
 	ordering::const_iterator start = in.begin();
 
@@ -217,12 +217,28 @@ std::vector<int> ordering_tools::get_winners(const ordering & in,
 	return winners;
 }
 
+std::vector<size_t> ordering_tools::get_winners(const ordering & in,
+	election_t::const_iterator begin, election_t::const_iterator end,
+	size_t num_candidates) {
+
+	ordering so_far = in;
+	election_t::const_iterator pos;
+
+	for (pos = begin; has_multiple_winners(in) && pos != end; ++pos) {
+		so_far = ranked_tiebreak(so_far, pos->contents,
+				num_candidates);
+	}
+
+	return get_winners(so_far);
+
+}
+
 bool ordering_tools::is_winner(const ordering & in,
-	int candidate_num) {
+	size_t candidate_num) {
 
 	// This may be slower than an optimized loop that aborts once
 	// the winner has been found, but deal with that later if required.
-	std::vector<int> winners = get_winners(in);
+	std::vector<size_t> winners = get_winners(in);
 
 	return std::find(winners.begin(), winners.end(), candidate_num)
 		!= winners.end();
@@ -258,6 +274,21 @@ std::list<candscore> ordering_tools::get_loser_candscores(
 		++rpos) {
 
 		losers.push_back(*rpos);
+	}
+
+	return losers;
+}
+
+std::vector<size_t> ordering_tools::get_losers(
+	const ordering & in) {
+
+	std::vector<size_t> losers;
+
+	for (ordering::const_reverse_iterator rpos = in.rbegin();
+		rpos != in.rend() && rpos->get_score() == in.rbegin()->get_score();
+		++rpos) {
+
+		losers.push_back(rpos->get_candidate_num());
 	}
 
 	return losers;

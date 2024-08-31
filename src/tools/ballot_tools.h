@@ -36,16 +36,25 @@ class ordering_tools {
 
 		static bool has_multiple_winners(const ordering & in);
 		static bool has_multiple_losers(const ordering & in);
-		static std::vector<int> get_winners(const ordering & in);
-		static std::vector<int> get_winners(const ordering & in,
+		static std::vector<size_t> get_winners(const ordering & in);
+		static std::vector<size_t> get_winners(const ordering & in,
 			const std::vector<bool> & hopefuls);
-		static bool is_winner(const ordering & in, int candidate_num);
+
+		// Get winners, and perform tiebreaks by intersecting with the
+		// first preferences of the ballots given until we have a single
+		// winner or we've exhausted the ballots.
+		static std::vector<size_t> get_winners(const ordering & in,
+			election_t::const_iterator begin, election_t::const_iterator end,
+			size_t num_candidates);
+
+		static bool is_winner(const ordering & in, size_t candidate_num);
 
 		// Checks if the ordering has any explicitly equal-ranked
 		// candidates. NOTE: Does not check truncation! TODO?
 		static bool has_some_equal_rank(const ordering & in);
 
 		static std::list<candscore> get_loser_candscores(const ordering & in);
+		static std::vector<size_t> get_losers(const ordering & in);
 
 		// Break ties in "tied" according to tiebreaker and return
 		// result.
@@ -54,6 +63,7 @@ class ordering_tools {
 			size_t num_candidates);
 
 		// Used for testing. Or should be, anyway.
+		// TODO: Find out where this is used.
 		static ordering ranked_tiebreak(const ordering & tied,
 			const ordering & tiebreaker,
 			size_t num_candidates);

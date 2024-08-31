@@ -13,9 +13,10 @@
 
 // https://stackoverflow.com/questions/12940522
 
-bool is_disjoint(const std::vector<int> & x, const std::vector<int> & y) {
-	std::vector<int>::const_iterator i = x.begin();
-	std::vector<int>::const_iterator j = y.begin();
+bool is_disjoint(const std::vector<size_t> & x,
+	const std::vector<size_t> & y) {
+	std::vector<size_t>::const_iterator i = x.begin();
+	std::vector<size_t>::const_iterator j = y.begin();
 
 	while (i != x.end() && j != y.end()) {
 		if (*i == *j) {
@@ -64,7 +65,7 @@ double monotone_check::do_simulation() {
 		before_ordering = method_tested->elect(
 				ballots_before, numcands, true);
 
-		std::vector<int> winners = ordering_tools::get_winners(
+		std::vector<size_t> winners = ordering_tools::get_winners(
 				before_ordering);
 
 		// TODO: Throw exception if a weight is nonzero.
@@ -114,7 +115,7 @@ double monotone_check::do_simulation() {
 			after_ordering = method_tested->elect(
 					ballots_after, numcands, true);
 
-			std::vector<int> after_winners = ordering_tools::get_winners(
+			std::vector<size_t> after_winners = ordering_tools::get_winners(
 					after_ordering);
 
 			// We have weak nonmonotonicity if the candidate we raised

@@ -150,7 +150,7 @@ void append_pairwise_list_for_results(const std::vector<ordering> &
 // Alternate winner-only check: distance between two orderings is equal to the
 // symmetric difference between the two winner sets.
 
-set<int> get_winners(const ordering & a) {
+std::set<int> get_winners(const ordering & a) {
 
 	std::set<int> winners_a; // You don't like winners. Winners? Yes, winners.
 

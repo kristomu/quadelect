@@ -28,7 +28,7 @@ double vse_sim::do_simulation() {
 
 	ordering outcome = method->elect(election, numcands, true);
 
-	std::vector<int> winners = ordering_tools::get_winners(outcome);
+	std::vector<size_t> winners = ordering_tools::get_winners(outcome);
 
 	double chosen_utilities = 0, mean_utilities = 0;
 

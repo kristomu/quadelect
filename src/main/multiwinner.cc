@@ -32,7 +32,7 @@
 #include "multiwinner/stv.h"
 
 #include "multiwinner/randballots.h"
-//#include "multiwinner/qpq.cc"
+#include "multiwinner/qpq.h"
 
 #include "hack/msvc_random.h"
 
@@ -586,8 +586,12 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_COND)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<MeekSTV>(true)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<MeekSTV>(false)));
-	/*e_methods.push_back(multiwinner_stats(new QPQ(-1, false)));
-	e_methods.push_back(multiwinner_stats(new QPQ(-1, true)));*/
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, false)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, false)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, false)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, true)));
 
 	// Put on hold until we can do something about the huge memory
 	// demands.

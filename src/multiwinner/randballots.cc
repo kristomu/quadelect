@@ -32,7 +32,7 @@ std::list<int> random_ballots::get_council(int council_size,
 				throw std::invalid_argument("Random ballots: "
 					"weighted ballots are not supported.");
 			}
-			std::vector<int> winners = ordering_tools::get_winners(
+			std::vector<size_t> winners = ordering_tools::get_winners(
 					ballot.contents, hopefuls);
 
 			std::random_shuffle(winners.begin(),

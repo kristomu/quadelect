@@ -260,7 +260,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 			ordering social_order = borda(PT_WHOLE).elect(ballots,
 					hopefuls, num_candidates);
 
-			std::vector<int> winners = ordering_tools::get_winners(
+			std::vector<size_t> winners = ordering_tools::get_winners(
 					social_order);
 
 			// Pick a random winner.

@@ -36,11 +36,11 @@ std::set<std::string> dh2_test::get_method_winners(
 	ordering outcome = method.elect(name_election.second,
 			numcands, true);
 
-	std::vector<int> winners = ordering_tools::get_winners(outcome);
+	std::vector<size_t> winners = ordering_tools::get_winners(outcome);
 
 	std::set<std::string> winning_cands;
 
-	for (int winner: winners) {
+	for (size_t winner: winners) {
 		winning_cands.insert(
 			name_election.first.find(winner)->second);
 	}

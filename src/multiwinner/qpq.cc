@@ -1,48 +1,147 @@
-#ifndef _VOTE_QPQ
-#define _VOTE_QPQ
+#include "qpq.h"
 
-#include "methods.cc"
-//#include "../tiebreaker.cc"
-#include <vector>
-#include <list>
+/* TODO: REMOVE THIS. Once we have a figure for QPQ. */
 
-// NOT YET PORTED.
+std::set<size_t> get_tied_candidates(const ordering & social_order,
+	double tied_score) {
 
-using namespace std;
+	candscore bound_score(0, tied_score);
 
-class QPQ : public multiwinner_method {
-	private:
-		ordering::const_iterator ballot_contribution(
-			const vector<bool> & eliminated,
-			const vector<bool> & elected,
-			const ballot_group & ballot) const;
+	// Ugly linear search hack. Fix later!
 
-		list<int> get_council(vector<bool> & eliminated,
-			int council_size, int num_candidates,
-			int num_voters,
-			const list<ballot_group> & ballots,
-			bool restart_on_elimination) const;
+	std::set<size_t> candidates;
 
-		bool recursive;
-		double C_val;	// 1 = D'Hondt, 0.5 = Sainte-Lague,
-		// EXPERIMENTAL: -1 = WDS dynamic
-
-		const double getC(int council_size, int num_candidates) const;
-
-	public:
-		list<int> get_council(int council_size, int num_candidates,
-			const list<ballot_group> & ballots) const;
-
-		string name() const;
-
-		QPQ(double c_in, bool recurs_in) {
-			C_val = c_in;
-			recursive = recurs_in;
+	for (ordering::const_iterator pos = social_order.begin(); pos !=
+		social_order.end(); ++pos)
+		if (pos->get_score() == tied_score) {
+			candidates.insert(pos->get_candidate_num());
 		}
-};
 
-ordering::const_iterator QPQ :: ballot_contribution(const vector<bool> &
-	eliminated, const vector<bool> & elected,
+	return (candidates);
+}
+
+std::set<size_t> intersect_order(const std::set<size_t> & input,
+	const ordering & social_order, bool best) {
+
+	// First find the candidate that's best (resp worst) ranked. That
+	// takes lg n (find) times n (number of candidates) time.
+
+	//cout << "RS: " << social_order.size() << endl;
+
+	ordering::const_iterator record_cand = social_order.end();
+	bool new_record = true; // so it's immediately set.
+
+	assert(!input.empty());
+
+	for (std::set<size_t>::const_iterator p = input.begin(); p != input.end();
+		++p) {
+		// This has now turned into a linear search because the < and >
+		// on candscore isn't transitive. Fix later!! Or make a map
+		// or something.
+		ordering::const_iterator matching_cand = social_order.end(), q;
+		for (q = social_order.begin(); q != social_order.end() &&
+			matching_cand == social_order.end(); ++q)
+			if (q->get_candidate_num() == *p) {
+				matching_cand = q;
+			}
+
+		// DEBUG
+		/*cout << "Looking for " << *p << endl;
+		for (q = social_order.begin(); q != social_order.end(); ++q) {
+			cout << "( " << q->get_candidate_num() << ", " <<
+				q->get_score() << ")" << endl;
+		}*/
+
+		/*ordering::const_iterator matching_cand = social_order.lower_bound(
+				candscore(*p, 100));*/
+		assert(matching_cand != social_order.end());
+		//assert (*matching_cand == *p);
+
+		if (!new_record) {
+			if (best)
+				new_record = matching_cand->get_score() >
+					record_cand->get_score();
+			else	new_record = matching_cand->get_score() <
+					record_cand->get_score();
+		}
+
+		if (new_record) {
+			//cout << "acc new record " << matching_cand->get_candidate_num() << endl;
+			record_cand = matching_cand;
+			new_record = false;
+		}
+		//cout << "next" << endl;
+	}
+
+	assert(record_cand != social_order.end());
+
+	// Then get a tied_candidate set for the score of whoever was best
+	// (or worst) ranked. That takes lg n time.
+	std::set<size_t> tied_for_preferrable = get_tied_candidates(social_order,
+			record_cand->get_score());
+
+	// Then do an intersection of the two sets. That takes linear time.
+
+	std::set<size_t> intersect;
+	set_intersection(input.begin(), input.end(),
+		tied_for_preferrable.begin(),
+		tied_for_preferrable.end(), inserter(
+			intersect, intersect.begin()));
+
+	/*cout << "DEBUG: tfp: ";
+	copy(tied_for_preferrable.begin(), tied_for_preferrable.end(),
+			ostream_iterator<int>(cout, " "));
+	cout << endl << "DBUG: input: ";
+	copy(input.begin(), input.end(), ostream_iterator<int>(cout, " "));
+
+	cout << endl;*/
+
+	// Finally, return.
+
+	return (intersect);
+}
+
+template<typename A> std::set<size_t> intersect_orders(
+	const std::set<size_t> & input,
+	const A & iter_start, const A & iter_end, bool best) {
+
+	std::set<size_t> shaved = input;
+
+	for (A pos = iter_start; pos != iter_end && shaved.size() != 1; ++pos) {
+		shaved = intersect_order(shaved, *pos, best);
+	}
+
+	return (shaved);
+}
+
+template<typename A> std::set<size_t> intersect_ballots(
+	std::set<size_t> process,
+	const A & iter_start, const A & iter_end, bool best) {
+
+	for (A pos = iter_start; pos != iter_end && process.size() != 1; ++pos) {
+		process = intersect_order(process, pos->contents, best);
+	}
+
+	return (process);
+}
+
+std::set<size_t> intersect_orders(const std::set<size_t> & input,
+	const std::list<ordering> & social_orders, bool best,
+	bool reversed) {
+
+	if (reversed) {
+		return (intersect_orders(input, social_orders.rbegin(),
+					social_orders.rend(), best));
+	} else {
+		return (intersect_orders(input, social_orders.begin(),
+					social_orders.end(), best));
+	}
+}
+
+/** REMOVAL END **/
+
+ordering::const_iterator QPQ::ballot_contribution(const std::vector<bool> &
+	eliminated, const std::vector<bool> & elected,
 	const ballot_group & ballot) const {
 
 	// Find out which candidate this ballot "contributes" to - i.e the
@@ -59,7 +158,7 @@ ordering::const_iterator QPQ :: ballot_contribution(const vector<bool> &
 	return (ballot.contents.end());
 }
 
-const double QPQ::getC(int council_size, int num_candidates) const {
+double QPQ::getC(int council_size, int num_candidates) const {
 
 	if (C_val != -1) {
 		return (C_val);
@@ -74,9 +173,10 @@ const double QPQ::getC(int council_size, int num_candidates) const {
 }
 
 // It now handles compressed ballots, although they may skew the tiebreak.
-list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
+std::list<int> QPQ::get_council(std::vector<bool> & eliminated,
+	int council_size,
 	int num_candidates, int num_voters,
-	const list<ballot_group> & ballots,
+	const election_t & ballots,
 	bool restart_on_elimination) const {
 
 	// Algorithm:
@@ -111,21 +211,21 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 	// to the next stage or recurse, depending on whether restart_on_elim
 	// is false or true.
 
-	vector<double> elect_fraction(num_voters, 0);
-	vector<double> contributing_ballots(num_candidates, 0),
-		   contributing_weights(num_candidates), quotients(num_candidates);
+	std::vector<double> elect_fraction(num_voters, 0);
+	std::vector<double> contributing_ballots(num_candidates, 0),
+		contributing_weights(num_candidates), quotients(num_candidates);
 
-	list<int> council;
+	std::list<int> council;
 	int num_elected = 0, num_elim = 0;
 
-	vector<bool> elected(num_candidates, false);
+	std::vector<bool> elected(num_candidates, false);
 
 	int counter;
 
 	double C = getC(council_size, num_candidates);
 	assert(0 <= C && C <= 1);
 
-	list<ordering> past_orderings; // For tie-breaking using the "first
+	std::list<ordering> past_orderings; // For tie-breaking using the "first
 	// difference" rule. TODO: Also try "last difference" or externally
 	// supplied ordering from Condorcet/whatever (unweighted, or weighted
 	// according to quotients).
@@ -140,10 +240,10 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 		// count the number of inactive ballots (and the combined
 		// fraction of these).
 
-		list<ballot_group>::const_iterator pos;
+		election_t::const_iterator pos;
 		counter = 0;
 
-		double inactive_ballots = 0, inactive_ballot_fraction = 0,
+		double inactive_ballot_fraction = 0,
 			   active_ballots = 0, sum_weights = 0;
 
 		// Bah dual track. Get the active and inactive ballot data.
@@ -152,19 +252,19 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 			ordering::const_iterator contribute =
 				ballot_contribution(eliminated, elected, *pos);
 
-			sum_weights += elect_fraction[counter] * pos->weight;
+			sum_weights += elect_fraction[counter] * pos->get_weight();
 
 			if (contribute == pos->contents.end()) {
-				inactive_ballots += pos->weight;
+				//inactive_ballots += pos->get_weight();
 				inactive_ballot_fraction +=
-					elect_fraction[counter] * pos->weight;
+					elect_fraction[counter] * pos->get_weight();
 			} else {
-				active_ballots += pos->weight;
+				active_ballots += pos->get_weight();
 				contributing_ballots[contribute->
-					get_candidate_num()] += pos->weight;
+					get_candidate_num()] += pos->get_weight();
 				contributing_weights[contribute->
 					get_candidate_num()] +=
-						elect_fraction[counter] * pos->weight;
+						elect_fraction[counter] * pos->get_weight();
 			}
 			++counter;
 		}
@@ -216,7 +316,7 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 		// time, these will be unit sets.
 
 		// Note: This might be a memory leak. Check later.
-		set<int> election_candidates, elimination_candidates;
+		std::set<size_t> election_candidates, elimination_candidates;
 		ordering current_ordering;
 
 		for (counter = 0; counter < num_candidates; ++counter) {
@@ -247,8 +347,8 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 		// results.
 
 		if (election_candidates.size() > 1) {
-			cout << "QPQ: Doing difference tiebreak on electeds."
-				<< endl;
+			std::cout << "QPQ: Doing difference tiebreak on electeds."
+				<< std::endl;
 			election_candidates = intersect_orders(
 					election_candidates, past_orderings,
 					true, !first);
@@ -274,8 +374,8 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 						ballots.rbegin(),
 						ballots.rend(), true);
 				if (election_candidates.size() > 1) {
-					cout << "QPQ: Elect. tie remains, breaking first."
-						<< endl;
+					std::cout << "QPQ: Elect. tie remains, breaking first."
+						<< std::endl;
 				}
 				highest = *election_candidates.begin();
 			} else {
@@ -288,27 +388,28 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 		// to use it anyhow.
 		if (elimination_candidates.size() > 1 &&
 			election_candidates.size() == 0) {
-			cout << "QPQ: Doing difference tiebreak on elims." <<
+			std::cout << "QPQ: Doing difference tiebreak on elims." <<
 				" num_elected: " << num_elected <<
 				" remain: " << num_candidates - (num_elected +
-					num_elim) << endl;
+					num_elim) << std::endl;
 			elimination_candidates = intersect_orders(
 					elimination_candidates, past_orderings,
 					false, !first);
 
 			// Same as above
-			if (elimination_candidates.size() > 1)
+			if (elimination_candidates.size() > 1) {
 				elimination_candidates = intersect_ballots(
 						elimination_candidates,
 						ballots.rbegin(),
 						ballots.rend(),false);
+			}
 
 			if (elimination_candidates.size() > 1) {
-				cout << "QPQ: Elim. tie remains, breaking "<<
-					"first." << endl;
+				std::cout << "QPQ: Elim. tie remains, breaking "<<
+					"first." << std::endl;
 			}
 			lowest = *elimination_candidates.begin();
-			cout << "Picked " << lowest << endl;
+			std::cout << "Picked " << lowest << std::endl;
 		}
 
 		// If there are still ties, break randomly and tell the user.
@@ -323,10 +424,9 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 				ordering::const_iterator contribute =
 					ballot_contribution(eliminated,
 						elected, *pos);
-				if (contribute->get_candidate_num() == highest)
-					/*elect_fraction[counter] = 1.0/
-						quotients[highest];*/
-				{
+				// XXX: Really should use another sentinel mechanism and
+				// have highest/lowest be size_t
+				if (contribute->get_candidate_num() == (size_t)highest) {
 					elect_fraction[counter] = (1 + contributing_weights[highest]) /
 						contributing_ballots[highest];
 				}
@@ -347,7 +447,7 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 			// just enough to fill council.
 
 			if (restart_on_elimination) {
-				cout << "Recursing with " << num_elected << " elected." << endl;
+				std::cout << "Recursing with " << num_elected << " elected." << std::endl;
 				past_orderings.clear();
 				return (get_council(eliminated, council_size,
 							num_candidates,
@@ -362,10 +462,10 @@ list<int> QPQ::get_council(vector<bool> & eliminated, int council_size,
 	return (council);
 }
 
-list<int> QPQ::get_council(int council_size, int num_candidates,
-	const list<ballot_group> & ballots) const {
+std::list<int> QPQ::get_council(int council_size, int num_candidates,
+	const election_t & ballots) const {
 
-	vector<bool> eliminated(num_candidates, false);
+	std::vector<bool> eliminated(num_candidates, false);
 
 	int num_voters = ballots.size();
 
@@ -373,8 +473,8 @@ list<int> QPQ::get_council(int council_size, int num_candidates,
 				ballots, recursive));
 }
 
-string QPQ::name() const {
-	string divisor;
+std::string QPQ::name() const {
+	std::string divisor;
 	if (C_val == 1) {
 		divisor = "D'Hondt";
 	}
@@ -394,5 +494,3 @@ string QPQ::name() const {
 		return ("QPQ(div " + divisor +", sequential)");
 	}
 }
-
-#endif

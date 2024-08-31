@@ -11,14 +11,8 @@
 /*              http://m-schulze.webhop.net/schulze2.pdf                       */
 /*              http://m-schulze.webhop.net/schulze3.zip                       */
 
-// Added minimal shunt functions to enable this for thirdelect usage, although
+// Added minimal shunt functions to enable this for quadelect usage, although
 // it may be too slow. -KM
-
-// TODO: Fix unexplained crash that appears after a few rounds. It's probably
-// related to the archaic allocation practice of the system, or the global
-// variables that retain their value between rounds.
-// It happens even when we start from the round in question, so I guess it's
-// a memory allocation problem, and not any retention problem.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,8 +93,8 @@ int    elapsed_time;
 int i99;
 
 int N2;
-int *Vote2;
-int *Value2;
+std::vector<int> Vote2;
+std::vector<int> Value2;
 
 int N3;
 unsigned char *Vote3;
@@ -152,7 +146,7 @@ bool SimplexNoetig;
 
 FILE *datafile;
 
-int  *Sets;
+std::vector<int> Sets;
 struct DefeatElement *Link;
 int *Zeilenerster,*Spaltenerster;
 
@@ -508,8 +502,8 @@ void Analyzing_the_Input() {
 	int i1,i2,i3,i4,i5,i6,i7,i8,i9,i10;
 	bool j1;
 
-	Vote2 =(int*)calloc(N*C+1,sizeof(int));
-	Value2=(int*)calloc(N+1,sizeof(int));
+	Vote2.resize(N*C+1);
+	Value2.resize(N+1);
 
 	for (i1=0; i1<C; i1++) {
 		Vote2[i1]=Vote[i1];
@@ -567,8 +561,6 @@ void Analyzing_the_Input() {
 	}
 
 	N2++;
-
-//free(Vote);
 }
 
 /*******************************************************************************/
@@ -3510,7 +3502,7 @@ void Kombinationen() {
 	bool j1;
 	int *KombiG;
 
-	Sets  =(int*)calloc(Comb1*M+1,sizeof(int));
+	Sets.resize(Comb1*M+1);
 	KombiG=(int*)calloc(M+1,sizeof(int));
 
 	for (i1=0; i1<M; i1++) {
@@ -3555,13 +3547,12 @@ void Kombinationen2() {
 	/* Link[i].winner to vertex Link[i].loser.                                    */
 
 	int i1,i2,i3,i4,i5,i6,i7;
-	int *KombG1,*KombG2;
+	//int *KombG1,*KombG2;
 	long double d1;
 
 	m1=Comb2*(M+1)*M;
 
-	KombG1 =(int*)calloc(M+2,sizeof(int));
-	KombG2 =(int*)calloc(M+2,sizeof(int));
+	std::vector<int> KombG1(M+2), KombG2(M+2);
 	Link   =(struct DefeatElement*)calloc(m1+1,sizeof(struct DefeatElement));
 	Zeilenerster =(int*)calloc(Comb1+1,sizeof(int));
 	Spaltenerster=(int*)calloc(Comb1+1,sizeof(int));
@@ -3618,8 +3609,6 @@ void Kombinationen2() {
 		}
 	}
 
-	free(KombG1);
-	free(KombG2);
 	free(Matrix1);
 	free(Matrix2);
 }
@@ -3628,19 +3617,16 @@ void Kombinationen2() {
 
 std::list<int> Dijkstra() {
 	int i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,erster,letzter;
-	int *ON,*UN,*pairwise,*p1,*p2,*rank;
+	int *pairwise,*p1,*p2,*rank;
 	long double d1,d2;
-	long double *Von,*Nach;
 	bool j1,j2,j3;
-	bool *Richtig,*marked;
+	bool *marked;
 
 	std::list<int> winner; // -KM
 
-	Von     =(long double*)calloc(Comb1+1,sizeof(long double));
-	Nach    =(long double*)calloc(Comb1+1,sizeof(long double));
-	Richtig =(bool       *)calloc(Comb1+1,sizeof(bool));
-	ON      =(int        *)calloc(Comb1+1,sizeof(int));
-	UN      =(int        *)calloc(Comb1+1,sizeof(int));
+	std::vector<long double> Von(Comb1+1), Nach(Comb1+1);
+	std::vector<bool> Richtig(Comb1+1);
+	std::vector<int> ON(Comb1+1), UN(Comb1+1);
 
 	for (i1=0; i1<Comb1; i1++) {
 		Richtig[i1]=true;
@@ -3839,9 +3825,6 @@ std::list<int> Dijkstra() {
 		}
 	}
 
-	free(Von);
-	free(Nach);
-	free(ON);
 	free(Link);
 	free(Spaltenerster);
 	free(Zeilenerster);
@@ -4077,11 +4060,6 @@ std::list<int> Dijkstra() {
 		free(rank);
 	}
 
-	free(UN);
-	free(Richtig);
-	free(Sets);
-	free(Vote2);
-	free(Value2);
 	return (winner);
 }
 

@@ -31,7 +31,7 @@ double utility_freq_sim::do_simulation() {
 
 	ordering outcome = method->elect(election, numcands, true);
 
-	std::vector<int> winners = ordering_tools::get_winners(outcome);
+	std::vector<size_t> winners = ordering_tools::get_winners(outcome);
 
 	double optimum_utility = *std::max_element(candidate_scores.begin(),
 			candidate_scores.end());
