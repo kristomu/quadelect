@@ -149,7 +149,7 @@ void test_strategy(std::shared_ptr<const election_method> to_test,
 	}
 
 
-	int strategy_worked = 0, strategy_failed = 0;
+	int strategy_worked = 0;
 	int i;
 	int total_test_attempts = 0;
 
@@ -161,8 +161,6 @@ void test_strategy(std::shared_ptr<const election_method> to_test,
 		// The total number of tests actually performed is retrieved later.
 		if (st.simulate(true) == 0) {
 			++strategy_worked;
-		} else {
-			++strategy_failed;
 		}
 
 		if ((i & 63) == 63) {

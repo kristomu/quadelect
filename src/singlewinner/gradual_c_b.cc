@@ -34,14 +34,6 @@ std::pair<ordering, bool> gradual_cond_borda::elect_inner(const
 	election_t & papers, const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
-	size_t num_hopefuls = 0;
-
-	for (bool x: hopefuls) {
-		if (x) {
-			++num_hopefuls;
-		}
-	}
-
 	cond_borda_matrix gcb(papers, num_candidates, CM_PAIRWISE_OPP,
 		cardinal, completion);
 	condmat gcond(papers, num_candidates, CM_PAIRWISE_OPP);

@@ -32,6 +32,11 @@ class exhaustive_optima {
 		}
 
 		exhaustive_optima() {
+			// We have to set a maximization direction as otherwise
+			// it will count as an undefined value and may trip compiler
+			// warnings. However, we never use this direction since
+			// opt_direction_set is false.
+			maximize = false;
 			opt_direction_set = false;
 
 			minimum = std::numeric_limits<double>::signaling_NaN();
@@ -74,7 +79,10 @@ class exhaustive_optima {
 		}
 
 		std::vector<size_t> get_optimal_solution() const {
-			assert(opt_direction_set);
+			if (!opt_direction_set) {
+				throw std::runtime_error("Exhaustive optima: Init bug! No direction"
+					" of optimization has been set.");
+			}
 			if (maximize) {
 				return get_maximum_solution();
 			} else {

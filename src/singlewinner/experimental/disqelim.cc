@@ -28,7 +28,6 @@ bool disqelim::disqualifies(int candidate,
 		power_set(continuing);
 
 	disqualified[candidate] = false;
-	int disqualifieds = count_trues(disqualified);
 
 	// For every subset of the continuing set:
 	//	if the candidate is not in it, skip.
@@ -106,7 +105,6 @@ bool disqelim::disqualifies(int candidate,
 			}
 
 			disqualified[saved_cand] = false;
-			--disqualifieds;
 
 			// TODO: Return early if we don't disqualify
 			// anyone; no need to test further.

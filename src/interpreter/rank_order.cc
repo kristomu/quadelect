@@ -23,8 +23,6 @@ bool rank_order_int::is_this_format(const std::vector<std::string> &
 	// Possible todo later: more sophisticated checking, such as no rank
 	// symbols before a :.
 
-	int alnums_seen = 0;
-
 	for (size_t line = 0; line < inputs.size(); ++line) {
 		for (size_t sec = 0; sec < inputs[line].size(); ++sec) {
 			bool accepted = false;
@@ -43,7 +41,6 @@ bool rank_order_int::is_this_format(const std::vector<std::string> &
 				// "Write-In".
 				default:
 					if (isprint(inputs[line][sec])) {
-						++ alnums_seen;
 						accepted = true;
 					} else {
 						accepted = false;

@@ -12,6 +12,7 @@
 #include <glpk.h>
 #include <assert.h>
 
+// This code needs a review; I think it may be buggy.
 
 class gradual_cond_borda : public election_method {
 	private:
