@@ -22,6 +22,7 @@
 #include "multiwinner/exhaustive/birational.h"
 #include "multiwinner/exhaustive/isoelastic.h"
 #include "multiwinner/exhaustive/lpv.h"
+#include "multiwinner/exhaustive/psi.h"
 
 #include "multiwinner/auction.h"
 #include "multiwinner/compat_qbuck.h"
@@ -630,6 +631,10 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<birational>()));
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>()));
 	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>()));
+
+	e_methods.push_back(multiwinner_stats(std::make_shared<psi_voting>(0)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<psi_voting>(0.5)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<psi_voting>(1)));
 
 	// It's possible to parameterize, but this way of passing parameters is
 	// not very elegant.
