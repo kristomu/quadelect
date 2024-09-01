@@ -457,7 +457,12 @@ std::vector<std::vector<bool> > power_set(
 		}
 	}
 
-	assert(power_set_out.size() == (1ULL << num_hopefuls));
+	// Can't use assert because then clang will complain when making
+	// a Release build.
+	if (power_set_out.size() != (1ULL << num_hopefuls)) {
+		throw std::logic_error("power_set: output set is of the wrong size! "
+			"This is a bug.");
+	}
 
 	return power_set_out;
 }

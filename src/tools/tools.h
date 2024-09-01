@@ -9,6 +9,8 @@
 #include <vector>
 #include <map>
 
+typedef ptrdiff_t ssize_t;	/* ssize_t is not part of the C standard */
+
 const double PI = 4 * atan(1);
 
 // Transforms parameters of 0 1 2 ... skip skip+1 ... into

@@ -18,12 +18,10 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 	// to the sum (for all non-elected candidates). Note the potential
 	// for vote-management.
 	size_t counter = 0;
-	double voters = 0;
 
 	for (election_t::const_iterator pos = ballots.begin(); pos !=
 		ballots.end(); ++pos) {
 		assert(pos->rated);
-		voters += pos->get_weight(); // not req'd?
 
 		double adjust = 0; // maximum if not cumulative, sum if so.
 		ordering::const_iterator sec;

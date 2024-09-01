@@ -76,7 +76,7 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 		contributing_weights(num_candidates), quotients(num_candidates);
 
 	std::list<size_t> council;
-	size_t num_elected = 0, num_elim = 0;
+	size_t num_elected = 0;
 
 	std::vector<bool> elected(num_candidates, false);
 
@@ -104,7 +104,7 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 		counter = 0;
 
 		double inactive_ballot_fraction = 0,
-			   active_ballots = 0, sum_weights = 0;
+			   active_ballots = 0;
 
 		// Bah dual track. Get the active and inactive ballot data.
 
@@ -112,10 +112,7 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 			ordering::const_iterator contribute =
 				ballot_contribution(eliminated, elected, *pos);
 
-			sum_weights += elect_fraction[counter] * pos->get_weight();
-
 			if (contribute == pos->contents.end()) {
-				//inactive_ballots += pos->get_weight();
 				inactive_ballot_fraction +=
 					elect_fraction[counter] * pos->get_weight();
 			} else {
@@ -228,7 +225,6 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 			// reset set to true, tail-recurse. Otherwise, just loop
 			// through.
 			eliminated[lowest] = true;
-			++num_elim;
 
 			// TODO: Heuristic that automatically elects rest if
 			// just enough to fill council.

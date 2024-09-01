@@ -144,7 +144,6 @@ int QRangeSTV::elect_next(size_t council_size, size_t num_candidates,
 	// i.e...
 
 	double p_y = quota / count_quad[winner];
-	double verify = 0;
 
 	election_t::iterator pos = altered_ballots.begin();
 
@@ -165,7 +164,6 @@ int QRangeSTV::elect_next(size_t council_size, size_t num_candidates,
 			pos = altered_ballots.erase(pos);
 		} else {
 			pos->set_weight(std::max(0.0, pos->get_weight() - subtr));
-			verify += pos->get_weight() * winner_score;
 			++pos;
 		}
 	}
