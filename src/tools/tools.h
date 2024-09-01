@@ -31,6 +31,10 @@ template<typename T> T inc(T in) {
 
 int factorial(int x);
 
+// Create a synthetic candidate name corresponding to the given index, by
+// a variant of counting in base 26.
+std::string cand_name(ssize_t candidate_index);
+
 // Map inversion - used when parsing ballots, because the main program couldn't
 // care less about maps from candidate names to ints, but the printout part
 // could use maps from candidate ints to names.

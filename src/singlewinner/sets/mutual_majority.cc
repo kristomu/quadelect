@@ -21,7 +21,7 @@ std::pair<ordering, bool> mutual_majority_set::elect_inner(
 	coalition_data current_best = *solid_coalitions.begin();
 	bool found = false;
 	for (const coalition_data & cur_coalition: solid_coalitions) {
-		if (cur_coalition.score > numvoters/2) {
+		if (cur_coalition.support > numvoters/2.0) {
 			if (!found || cur_coalition.coalition.size() <
 				current_best.coalition.size()) {
 				current_best = cur_coalition;

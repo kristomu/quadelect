@@ -15,7 +15,7 @@ class desc_coalition_method : public election_method {
 			std::vector<coalition_data> & coalitions,
 			int candidate) const;
 		bool can_candidate_win(std::vector<coalition_data> & coalitions,
-			const std::set<int> & starting_candidate_set,
+			const std::set<size_t> & starting_candidate_set,
 			int candidate, int num_candidates) const;
 
 	protected:

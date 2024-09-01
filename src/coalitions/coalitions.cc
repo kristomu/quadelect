@@ -1,6 +1,8 @@
 #include "coalitions.h"
+#include "tools/tools.h"
 
 #include <iterator>
+#include <iostream>
 
 // TODO: Update comments and combine DAC and DSC functions to make HDSC.
 // The DAC function really needs some OPTIMIZATION!
@@ -11,8 +13,8 @@ std::vector<coalition_data> get_solid_coalitions(
 
 	// Go through the ballot set, incrementing the coalition counts.
 
-	std::map<std::set<int>, double> coalition_count;
-	std::set<int> current_coalition, all_candidates;
+	std::map<std::set<size_t>, double> coalition_count;
+	std::set<size_t> current_coalition, all_candidates;
 
 	for (int i = 0; i < numcands; ++i) {
 		if (hopefuls[i]) {
@@ -61,11 +63,14 @@ std::vector<coalition_data> get_solid_coalitions(
 	// support. The actual sorting happens inside get_candidate_score.
 
 	std::vector<coalition_data> coalitions;
-	for (std::map<std::set<int>, double>::const_iterator
+	for (std::map<std::set<size_t>, double>::const_iterator
 		pos = coalition_count.begin(); pos != coalition_count.end();
 		++pos) {
 		coalitions.push_back(coalition_data(pos->second, pos->first));
 	}
+
+	std::sort(coalitions.begin(), coalitions.end(),
+		std::greater<coalition_data>());
 
 	return coalitions;
 }
@@ -84,8 +89,8 @@ void add_acquiescing_coalition(
 	double ballot_weight,
 	const std::vector<int> & current_level_set,
 	size_t position, size_t level_set_size,
-	size_t included_elements, std::set<int> & current_coalition,
-	std::map<std::set<int>, double> & coalition_count) {
+	size_t included_elements, std::set<size_t> & current_coalition,
+	std::map<std::set<size_t>, double> & coalition_count) {
 
 
 	// We've gone through the whole level set, get ready
@@ -115,9 +120,9 @@ std::vector<coalition_data> get_acquiescing_coalitions(
 	const election_t & elections,
 	const std::vector<bool> & hopefuls, int numcands) {
 
-	std::map<std::set<int>, double> coalition_count;
+	std::map<std::set<size_t>, double> coalition_count;
 
-	std::set<int> all_candidates;
+	std::set<size_t> all_candidates;
 
 	for (int i = 0; i < numcands; ++i) {
 		if (hopefuls[i]) {
@@ -131,7 +136,7 @@ std::vector<coalition_data> get_acquiescing_coalitions(
 		// Create the level sets.
 		std::vector<std::vector<int> > level_sets;
 		std::vector<int> current_level_set;
-		std::set<int> remaining_candidates = all_candidates;
+		std::set<size_t> remaining_candidates = all_candidates;
 
 		ordering::const_iterator pos = ballot->contents.begin(),
 								 level_start = pos;
@@ -171,7 +176,7 @@ std::vector<coalition_data> get_acquiescing_coalitions(
 		// set into the current_coalition set, as every higher level set
 		// needs to be included in later acquiescing coalitions.
 
-		std::set<int> current_coalition;
+		std::set<size_t> current_coalition;
 
 		for (const std::vector<int> & level_set: level_sets) {
 			add_acquiescing_coalition(ballot->get_weight(),
@@ -183,11 +188,27 @@ std::vector<coalition_data> get_acquiescing_coalitions(
 	}
 
 	std::vector<coalition_data> coalitions;
-	for (std::map<std::set<int>, double>::const_iterator
+	for (std::map<std::set<size_t>, double>::const_iterator
 		pos = coalition_count.begin(); pos != coalition_count.end();
 		++pos) {
 		coalitions.push_back(coalition_data(pos->second, pos->first));
 	}
 
 	return coalitions;
+}
+
+void print_coalitions(const std::vector<coalition_data> & coalitions) {
+
+	for (const coalition_data & cc: coalitions) {
+
+		std::cout << cc.support << "\t{";
+		for (auto pos = cc.coalition.begin();
+			pos != cc.coalition.end(); ++pos) {
+			if (pos != cc.coalition.begin()) {
+				std::cout << " ";
+			}
+			std::cout << cand_name(*pos);
+		}
+		std::cout << "}\n";
+	}
 }

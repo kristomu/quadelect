@@ -585,6 +585,16 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	// Only enable this if we can handle the extremely large structure
 	// it requires.
 	e_methods.push_back(multiwinner_stats(std::make_shared<PSC>()));
+	e_methods.push_back(multiwinner_stats(std::make_shared<PSC>(0.5)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<PSC>(0)));
+
+	// Not as good as STV. "Plurality PSC".
+	e_methods.push_back(multiwinner_stats(
+			std::make_shared<coalition_elimination>(positional_methods[0])));
+	e_methods.push_back(multiwinner_stats(
+			std::make_shared<coalition_elimination>(positional_methods[0], 0.5)));
+	e_methods.push_back(multiwinner_stats(
+			std::make_shared<coalition_elimination>(positional_methods[0], 0)));
 
 	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_NONE)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_PLUR)));

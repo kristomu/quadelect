@@ -14,17 +14,17 @@ void desc_coalition_method::sort_by_candidate(
 
 bool desc_coalition_method::can_candidate_win(
 	std::vector<coalition_data> & coalitions,
-	const std::set<int> & starting_candidate_set,
+	const std::set<size_t> & starting_candidate_set,
 	int candidate, int num_candidates) const {
 
 	sort_by_candidate(coalitions, candidate);
 
-	std::set<int> coalition_so_far = starting_candidate_set;
+	std::set<size_t> coalition_so_far = starting_candidate_set;
 
 	for (std::vector<coalition_data>::const_iterator pos = coalitions.begin();
 		pos != coalitions.end(); ++pos) {
 
-		std::set<int> test_intersection;
+		std::set<size_t> test_intersection;
 
 		std::set_intersection(coalition_so_far.begin(), coalition_so_far.end(),
 			pos->coalition.begin(), pos->coalition.end(),
@@ -58,8 +58,8 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 
 	// Get the coalitions corresponding to this ballot group.
 
-	std::map<std::set<int>, double> coalition_count;
-	std::set<int> current_coalition, all_candidates;
+	std::map<std::set<size_t>, double> coalition_count;
+	std::set<size_t> current_coalition, all_candidates;
 
 	for (int i = 0; i < num_candidates; ++i) {
 		if (hopefuls[i]) {
@@ -83,11 +83,11 @@ std::pair<ordering, bool> desc_coalition_method::elect_inner(
 	// Unknown_candidates are the candidates we don't know the rank of yet.
 	// Revealed_candidates are the candidates we've revealed during that
 	// turn.
-	std::set<int> unknown_candidates = all_candidates,
-				  revealed_candidates;
+	std::set<size_t> unknown_candidates = all_candidates,
+					 revealed_candidates;
 	int rank_score = num_candidates;
 
-	std::set<int>::const_iterator pos;
+	std::set<size_t>::const_iterator pos;
 
 	while (!unknown_candidates.empty()) {
 		revealed_candidates.clear();

@@ -23,7 +23,7 @@ std::pair<ordering, bool> dmt_set::elect_inner(
 	coalition_data current_best = *solid_coalitions.begin();
 	bool found = false;
 	for (const coalition_data & cur_coalition: solid_coalitions) {
-		if (cur_coalition.score <= numvoters/3) {
+		if (cur_coalition.support <= numvoters/3.0) {
 			continue;
 		}
 

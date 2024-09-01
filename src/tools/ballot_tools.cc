@@ -6,6 +6,8 @@
 #include <iterator>
 
 // TODO: Handle more than 26 candidates??
+// We now have a function that would do that, but
+// we don't know in advance how many candidates to add to the map...
 std::map<size_t, std::string> get_default_candidate_labeling() {
 	std::map<size_t, std::string> fakecand;
 

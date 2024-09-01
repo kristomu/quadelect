@@ -33,6 +33,25 @@ int factorial(int x) {
 	return (x * factorial(x-1));
 }
 
+std::string cand_name(ssize_t candidate_index) {
+
+	// The modulo way of converting to a base is easier,
+	// but it produces the digits in reverse order, hence
+	// the need for this intermediate representation.
+	std::vector<char> reversed_name;
+
+	while (candidate_index >= 0) {
+		reversed_name.push_back('A' + candidate_index % 26);
+		candidate_index /= 26;
+
+		// This makes sure that we use the whole alphabet for the next
+		// digit.
+		--candidate_index;
+	}
+
+	return std::string(reversed_name.rbegin(), reversed_name.rend());
+}
+
 
 // Distance on the Lp norm (generalized Euclidean).
 double lp_distance(double Lp, const std::vector<double> & a,
