@@ -23,6 +23,7 @@
 #include "multiwinner/exhaustive/isoelastic.h"
 #include "multiwinner/exhaustive/lpv.h"
 
+#include "multiwinner/auction.h"
 #include "multiwinner/psc.h"
 #include "multiwinner/qbuck.h"
 #include "multiwinner/meek_stv.h"
@@ -33,6 +34,8 @@
 
 #include "multiwinner/randballots.h"
 #include "multiwinner/qpq.h"
+#include "multiwinner/qrange_stv.h"
+#include "multiwinner/range_stv.h"
 
 #include "hack/msvc_random.h"
 
@@ -229,7 +232,9 @@ double get_error(const list<int> & council,
 	const vector<vector<bool> > & population_profiles,
 	const vector<double> & whole_pop_profile) {
 
-	assert(council.size() == council_size);
+	if (council.size() != council_size) {
+		throw std::invalid_argument("get_error: Given council is the wrong size!");
+	}
 
 	// Check that there's no double-entry and that the method hasn't
 	// elected someone outside of the allowed range.
@@ -496,8 +501,8 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	positional_methods.push_back(std::make_shared<for_and_against>(PT_WHOLE));
 	positional_methods.push_back(std::make_shared<nauru>(PT_WHOLE));
 	positional_methods.push_back(std::make_shared<heismantrophy>(PT_WHOLE));
-	/*positional_methods.push_back(new baseballmvp(PT_WHOLE));
-	positional_methods.push_back(new worstpos(PT_WHOLE));*/
+	positional_methods.push_back(std::make_shared<baseballmvp>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<worstpos>(PT_WHOLE));
 
 	size_t counter;
 
@@ -592,6 +597,13 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, true)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, false)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.01, false)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.01, true)));
+
+	e_methods.push_back(multiwinner_stats(std::make_shared<r_auction>(true)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<r_auction>(false)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<LRangeSTV>()));
+	e_methods.push_back(multiwinner_stats(std::make_shared<QRangeSTV>()));
 
 	// Put on hold until we can do something about the huge memory
 	// demands.

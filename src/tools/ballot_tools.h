@@ -39,14 +39,6 @@ class ordering_tools {
 		static std::vector<size_t> get_winners(const ordering & in);
 		static std::vector<size_t> get_winners(const ordering & in,
 			const std::vector<bool> & hopefuls);
-
-		// Get winners, and perform tiebreaks by intersecting with the
-		// first preferences of the ballots given until we have a single
-		// winner or we've exhausted the ballots.
-		static std::vector<size_t> get_winners(const ordering & in,
-			election_t::const_iterator begin, election_t::const_iterator end,
-			size_t num_candidates);
-
 		static bool is_winner(const ordering & in, size_t candidate_num);
 
 		// Checks if the ordering has any explicitly equal-ranked
@@ -67,6 +59,11 @@ class ordering_tools {
 		static ordering ranked_tiebreak(const ordering & tied,
 			const ordering & tiebreaker,
 			size_t num_candidates);
+
+		// Should this be in ballot tools? IDK
+		static ordering repeated_tiebreak(const ordering & in,
+			election_t::const_iterator begin,
+			election_t::const_iterator end, size_t num_candidates);
 
 		// Returns true if everybody who is ranked is also tied.
 		bool all_ranked_equal(const ordering & to_check) const;

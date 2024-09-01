@@ -217,22 +217,6 @@ std::vector<size_t> ordering_tools::get_winners(const ordering & in,
 	return winners;
 }
 
-std::vector<size_t> ordering_tools::get_winners(const ordering & in,
-	election_t::const_iterator begin, election_t::const_iterator end,
-	size_t num_candidates) {
-
-	ordering so_far = in;
-	election_t::const_iterator pos;
-
-	for (pos = begin; has_multiple_winners(in) && pos != end; ++pos) {
-		so_far = ranked_tiebreak(so_far, pos->contents,
-				num_candidates);
-	}
-
-	return get_winners(so_far);
-
-}
-
 bool ordering_tools::is_winner(const ordering & in,
 	size_t candidate_num) {
 
@@ -480,6 +464,20 @@ ordering ordering_tools::ranked_tiebreak(const ordering & tied,
 			<< std::endl;
 
 	return (output);
+}
+
+ordering ordering_tools::repeated_tiebreak(
+	const ordering & in, election_t::const_iterator begin,
+	election_t::const_iterator end, size_t num_candidates) {
+
+	ordering so_far = in;
+
+	for (auto pos = begin; pos != end; ++pos) {
+		so_far = ranked_tiebreak(so_far, pos->contents,
+				num_candidates);
+	}
+
+	return so_far;
 }
 
 bool ordering_tools::all_ranked_equal(const ordering & to_check) const {

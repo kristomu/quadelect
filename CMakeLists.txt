@@ -189,6 +189,7 @@ add_library(qe_singlewinner_methods
 target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
 
 add_library(qe_multiwinner_methods
+	src/multiwinner/auction.cc
 	src/multiwinner/exhaustive/scored_method.cc
 	src/multiwinner/helper/dsc.cc
 	src/multiwinner/helper/errors.cc
@@ -201,7 +202,9 @@ add_library(qe_multiwinner_methods
 	src/multiwinner/quotas.cc
 	src/multiwinner/qbuck.cc
 	src/multiwinner/qpq.cc
+	src/multiwinner/qrange_stv.cc
 	src/multiwinner/randballots.cc
+	src/multiwinner/range_stv.cc
 	src/multiwinner/shuntsstv.cc
 	src/multiwinner/stv.cc
 	src/stats/multiwinner/mwstats.cc)
