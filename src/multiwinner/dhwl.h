@@ -12,8 +12,8 @@ class reweighted_condorcet : public multiwinner_method {
 		std::shared_ptr<pairwise_method> base;
 
 	public:
-		std::list<int> get_council(int council_size,
-			int num_candidates,
+		std::list<size_t> get_council(size_t council_size,
+			size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {

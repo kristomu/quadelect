@@ -1,7 +1,7 @@
 #include "dhwl.h"
 
-std::list<int> reweighted_condorcet::get_council(int council_size,
-	int num_candidates, const election_t & ballots) const {
+std::list<size_t> reweighted_condorcet::get_council(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
 
 	if (council_size > num_candidates) {
 		throw std::invalid_argument("multiwinner: Too few candidates for the council");
@@ -12,8 +12,8 @@ std::list<int> reweighted_condorcet::get_council(int council_size,
 	// in the social order, add him to the council, and set that one as
 	// elected.
 
-	std::list<int> council;
-	int council_count = 0;
+	std::list<size_t> council;
+	size_t council_count = 0;
 
 	std::vector<bool> elected(num_candidates, false);
 

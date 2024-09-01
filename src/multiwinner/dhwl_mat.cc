@@ -14,7 +14,7 @@ void DHwLmatrix::add(size_t candidate, size_t against,
 }
 
 void DHwLmatrix::count_ballots(const election_t & scores,
-	int num_candidates) {
+	size_t num_candidates) {
 
 	// See pairwise/matrix.cc
 
@@ -113,7 +113,7 @@ void DHwLmatrix::set_elected(size_t elected_idx) {
 }
 
 DHwLmatrix::DHwLmatrix(const election_t & scores, const
-	std::vector<bool> & already_elected, int num_candidates,
+	std::vector<bool> & already_elected, size_t num_candidates,
 	pairwise_type type_in, bool tie_at_top, double C_in) : condmat(
 			type_in) {
 

@@ -1,6 +1,6 @@
 #include "range_stv.h"
 
-std::vector<double> LRangeSTV::count_score(int num_candidates,
+std::vector<double> LRangeSTV::count_score(size_t num_candidates,
 	const election_t & ballots,
 	const std::list<double> & weights) const {
 
@@ -25,7 +25,7 @@ std::vector<double> LRangeSTV::count_score(int num_candidates,
 	return (score);
 }
 
-ordering LRangeSTV::get_possible_winners(int num_candidates,
+ordering LRangeSTV::get_possible_winners(size_t num_candidates,
 	const election_t & ballots,
 	const std::list<double> & weights) const {
 
@@ -41,7 +41,7 @@ ordering LRangeSTV::get_possible_winners(int num_candidates,
 	return (out);
 }
 
-int LRangeSTV::elect_next(int council_size, int num_candidates,
+int LRangeSTV::elect_next(size_t council_size, size_t num_candidates,
 	std::vector<bool> & elected,
 	election_t & altered_ballots) const {
 
@@ -80,8 +80,9 @@ int LRangeSTV::elect_next(int council_size, int num_candidates,
 
 	double quota = num_voters / (num_candidates+1.0);
 
-	for (election_t::iterator pos = altered_ballots.begin(); pos !=
-		altered_ballots.end(); ++pos) {
+	election_t::iterator pos = altered_ballots.begin();
+
+	while (pos != altered_ballots.end()) {
 		double winner_score = 0;
 
 		for (ordering::iterator opos = pos->contents.begin(); opos !=
@@ -98,24 +99,32 @@ int LRangeSTV::elect_next(int council_size, int num_candidates,
 
 		double factor = (pos->get_weight() - quota*prop)/pos->get_weight();
 
-		pos->set_weight(pos->get_weight() * std::max(0.0, factor));
+		// Should a negative factor even be possible??
+		if (factor <= 0) {
+			pos = altered_ballots.erase(pos);
+		} else {
+			pos->set_weight(pos->get_weight() * std::max(0.0, factor));
+			++pos;
+		}
 	}
 
 	return (winner);
 }
 
-std::list<int> LRangeSTV::get_council(int council_size, int num_candidates,
+std::list<size_t> LRangeSTV::get_council(size_t council_size,
+	size_t num_candidates,
 	const election_t & ballots) const {
 
 	election_t x = ballots;
 
-	std::list<int> council;
+	std::list<size_t> council;
 	std::vector<bool> elected(num_candidates, false);
 
-	for (int counter = 0; counter < council_size; ++counter)
+	for (size_t counter = 0; counter < council_size; ++counter) {
 		// Ow, me side effects!
 		council.push_back(elect_next(council_size - counter,
 				num_candidates, elected, x));
+	}
 
 	return (council);
 }

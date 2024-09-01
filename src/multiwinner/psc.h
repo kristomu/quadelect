@@ -28,8 +28,8 @@ class coalition_elimination : public multiwinner_method {
 		double quota_mod;
 
 	public:
-		std::list<int> get_council(int council_size,
-			int num_candidates, const election_t & ballots) const;
+		std::list<size_t> get_council(size_t council_size,
+			size_t num_candidates, const election_t & ballots) const;
 
 		coalition_elimination(std::shared_ptr<election_method>
 			base_method_in) {

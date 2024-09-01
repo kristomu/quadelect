@@ -15,12 +15,12 @@ class r_auction : public multiwinner_method {
 			std::vector<double> & account_balance,
 			const election_t & ballots,
 			double minimum, double maximum,
-			int num_candidates, bool cumulative) const;
+			size_t num_candidates, bool cumulative) const;
 
 		bool cumul_setting;
 
 	public:
-		std::list<int> get_council(int council_size, int num_candidates,
+		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		r_auction(bool cumul_in) {

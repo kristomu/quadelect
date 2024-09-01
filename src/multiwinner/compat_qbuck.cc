@@ -10,7 +10,7 @@
 // format doesn't have a parameter for that. Besides, this is only intended to
 // be scaffolding. Needs CLEANUP.
 std::vector<std::vector<int> > old_qltd_pr::construct_old_ballots(
-	const election_t & ballots, int num_candidates) const {
+	const election_t & ballots, size_t num_candidates) const {
 
 	std::vector<std::vector<int> > out_ballots;
 
@@ -42,7 +42,7 @@ std::vector<std::vector<int> > old_qltd_pr::construct_old_ballots(
 std::vector<int> old_qltd_pr::QuotaBucklin(
 	const election_t & ballots,
 	const std::vector<std::vector<int> > & rankings,
-	int num_candidates, int council_size, bool hare, bool use_card,
+	size_t num_candidates, size_t council_size, bool hare, bool use_card,
 	const std::vector<std::vector<double> > * rated_ballots) const {
 
 	// Of those that aren't elected, count the p first candidates into a
@@ -75,7 +75,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 	double surplus;
 	bool failsafe = false;
 
-	int elected_candidates = 0;
+	size_t elected_candidates = 0;
 
 	// Do Meek-type binary search to find the round value where a vote goes
 	// just above the quota. (Actually, that would be a sort of bisection
@@ -221,7 +221,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 		int found = -1, found_count = 0;
 		double found_record = -1;
 		double irrespec_record = -1;
-		std::list<int> candidates_past_quota;
+		std::list<size_t> candidates_past_quota;
 		for (counter = 0; counter < tally.size(); ++counter) {
 			if (elected[counter]) {
 				continue;
@@ -249,7 +249,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 		if (found_count > 1) {
 			std::vector<bool> hopefuls(num_candidates, false);
 
-			for (std::list<int>::const_iterator lpos =
+			for (std::list<size_t>::const_iterator lpos =
 					candidates_past_quota.begin();
 				lpos != candidates_past_quota.end();
 				++lpos) {
@@ -329,8 +329,8 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 	return (allocated);
 }
 
-std::list<int> old_qltd_pr::get_council(int council_size,
-	int num_candidates, const election_t & ballots) const {
+std::list<size_t> old_qltd_pr::get_council(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
 
 	std::vector<std::vector<int> > translated = construct_old_ballots(ballots,
 			num_candidates);
@@ -338,7 +338,7 @@ std::list<int> old_qltd_pr::get_council(int council_size,
 	std::vector<int> retval = QuotaBucklin(ballots, translated,
 			num_candidates, council_size, false, false, NULL);
 
-	std::list<int> council;
+	std::list<size_t> council;
 
 	copy(retval.begin(), retval.end(), inserter(council, council.begin()));
 

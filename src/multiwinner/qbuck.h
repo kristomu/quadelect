@@ -33,7 +33,7 @@ class qltd_pr : public multiwinner_method {
 			double num_preferences) const;
 
 	public:
-		std::list<int> get_council(int council_size, int num_candidates,
+		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const;

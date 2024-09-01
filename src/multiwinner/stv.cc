@@ -5,8 +5,8 @@
 // Find out what's going on and then fix, later.
 
 std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
-	const std::vector<bool> & uneliminated, int num_candidates,
-	int num_elected, int council_size) const {
+	const std::vector<bool> & uneliminated, size_t num_candidates,
+	int num_elected, size_t council_size) const {
 
 	// Determine those that get to run in the "Condorcet loser contest" of
 	// BTR-STV. See the main procedure for information on BTR-STV.
@@ -48,7 +48,8 @@ std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 // If eliminate is false, when deciding what candidate to remove from
 // consideration, we use the original (all candidates included) Plurality
 // ranking. Otherwise, we eliminate as in STV.
-std::list<int> STV::get_council(int council_size, int num_candidates,
+std::list<size_t> STV::get_council(size_t council_size,
+	size_t num_candidates,
 	const election_t & ballots) const {
 
 	// STV rules (Senatorial rules, as they're the easiest to compute):
@@ -86,7 +87,7 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 		eliminated(num_candidates, false), hopefuls(num_candidates,
 			true);
 
-	int council_count = 0, num_hopefuls = num_candidates;
+	size_t council_count = 0, num_hopefuls = num_candidates;
 
 	// TODO: Make this changeable
 	plurality plur_count(PT_WHOLE);
@@ -94,7 +95,7 @@ std::list<int> STV::get_council(int council_size, int num_candidates,
 	double quota = get_droop_quota(ballots, council_size);
 
 	election_t reweighted_ballots = ballots;
-	std::list<int> council;
+	std::list<size_t> council;
 
 	// This is used for tie-breaking as a first-order approximation to
 	// the "first-difference" rule in Newland-Britton. We don't actually

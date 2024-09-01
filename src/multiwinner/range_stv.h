@@ -13,20 +13,20 @@
 
 class LRangeSTV : public multiwinner_method {
 	private:
-		std::vector<double> count_score(int num_candidates,
+		std::vector<double> count_score(size_t num_candidates,
 			const election_t & ballots,
 			const std::list<double> & weights) const;
 
-		ordering get_possible_winners(int num_candidates,
+		ordering get_possible_winners(size_t num_candidates,
 			const election_t & ballots,
 			const std::list<double> & weights) const;
 
-		int elect_next(int council_size, int num_candidates,
+		int elect_next(size_t council_size, size_t num_candidates,
 			std::vector<bool> & elected,
 			election_t & altered_ballots) const;
 
 	public:
-		std::list<int> get_council(int council_size, int num_candidates,
+		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {

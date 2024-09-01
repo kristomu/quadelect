@@ -29,12 +29,12 @@ class STV : public multiwinner_method {
 		btr_type btr_stv;
 		std::vector<bool> get_btr_stv_hopefuls(const ordering & count,
 			const std::vector<bool> & uneliminated,
-			int num_candidates, int num_elected,
-			int council_size) const;
+			size_t num_candidates, int num_elected,
+			size_t council_size) const;
 
 	public:
-		std::list<int> get_council(int council_size,
-			int num_candidates, const election_t & ballots) const;
+		std::list<size_t> get_council(size_t council_size,
+			size_t num_candidates, const election_t & ballots) const;
 
 		STV(btr_type btr_stv_in) {
 			if (btr_stv_in > BTR_PLUR) {

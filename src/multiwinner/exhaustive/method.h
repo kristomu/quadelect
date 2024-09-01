@@ -76,8 +76,8 @@ template<class T> class exhaustive_method_runner : public
 		T params_set;
 
 	public:
-		std::list<int> get_council(int council_size,
-			int num_candidates, const election_t & ballots) const;
+		std::list<size_t> get_council(size_t council_size,
+			size_t num_candidates, const election_t & ballots) const;
 
 		std::string name() const {
 			return params_set.name();
@@ -93,8 +93,9 @@ template<class T> class exhaustive_method_runner : public
 		}
 };
 
-template<class T> std::list<int> exhaustive_method_runner<T>::get_council(
-	int council_size, int num_candidates,
+template<class T> std::list<size_t>
+exhaustive_method_runner<T>::get_council(
+	size_t council_size, size_t num_candidates,
 	const election_t & ballots) const {
 
 	std::vector<size_t> v(num_candidates);
@@ -113,7 +114,7 @@ template<class T> std::list<int> exhaustive_method_runner<T>::get_council(
 	exhaustive_optima optimum = for_each_combination(v.begin(),
 			v.begin() + council_size, v.end(), evaluator);
 
-	std::list<int> out;
+	std::list<size_t> out;
 
 	// FIX LATER
 	for (size_t i: optimum.get_optimal_solution()) {

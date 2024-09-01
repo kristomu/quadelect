@@ -21,7 +21,7 @@ class DHwLmatrix : public condmat {
 		double deweight(int num_higher_elected_prefs) const;
 
 		void count_ballots(const election_t & scores,
-			int num_candidates);
+			size_t num_candidates);
 
 		void add(size_t candidate, size_t against,
 			double value);
@@ -32,6 +32,6 @@ class DHwLmatrix : public condmat {
 
 		DHwLmatrix(const election_t & scores,
 			const std::vector<bool> & already_elected,
-			int num_candidates, pairwise_type type_in,
+			size_t num_candidates, pairwise_type type_in,
 			bool tie_at_top, double C_in);
 };

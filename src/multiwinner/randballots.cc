@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-std::list<int> random_ballots::get_council(int council_size,
-	int num_candidates, const election_t & ballots) const {
+std::list<size_t> random_ballots::get_council(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
 
 	// https://stackoverflow.com/a/38158887
 	std::vector<std::reference_wrapper<const ballot_group> >
@@ -18,7 +18,7 @@ std::list<int> random_ballots::get_council(int council_size,
 
 	bool elected_a_candidate;
 	size_t num_elected = 0;
-	std::list<int> elected_candidates;
+	std::list<size_t> elected_candidates;
 
 	do {
 		elected_a_candidate = false;

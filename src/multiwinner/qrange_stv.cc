@@ -1,6 +1,6 @@
 #include "qrange_stv.h"
 
-std::vector<double> QRangeSTV::count_score(int num_candidates,
+std::vector<double> QRangeSTV::count_score(size_t num_candidates,
 	const election_t & ballots,
 	const std::list<double> & weights) const {
 
@@ -25,7 +25,7 @@ std::vector<double> QRangeSTV::count_score(int num_candidates,
 	return (score);
 }
 
-ordering QRangeSTV::get_possible_winners(int num_candidates,
+ordering QRangeSTV::get_possible_winners(size_t num_candidates,
 	const election_t & ballots,
 	const std::list<double> & weights) const {
 
@@ -81,7 +81,7 @@ election_t QRangeSTV::normalize_ballots(const
 	return (toRet);
 }
 
-int QRangeSTV::elect_next(int council_size, int num_candidates,
+int QRangeSTV::elect_next(size_t council_size, size_t num_candidates,
 	std::vector<bool> & elected,
 	election_t & altered_ballots) const {
 
@@ -146,8 +146,10 @@ int QRangeSTV::elect_next(int council_size, int num_candidates,
 	double p_y = quota / count_quad[winner];
 	double verify = 0;
 
-	for (election_t::iterator pos = altered_ballots.begin(); pos !=
-		altered_ballots.end(); ++pos) {
+	election_t::iterator pos = altered_ballots.begin();
+
+	while (pos !=
+		altered_ballots.end()) {
 		double winner_score = 0;
 
 		for (ordering::iterator opos = pos->contents.begin(); opos !=
@@ -159,25 +161,32 @@ int QRangeSTV::elect_next(int council_size, int num_candidates,
 
 		double subtr = pos->get_weight() * winner_score * p_y;
 
-		pos->set_weight(std::max(0.0, pos->get_weight() - subtr));
-		verify += pos->get_weight() * winner_score;
+		if (pos->get_weight() - subtr < 0) {
+			pos = altered_ballots.erase(pos);
+		} else {
+			pos->set_weight(std::max(0.0, pos->get_weight() - subtr));
+			verify += pos->get_weight() * winner_score;
+			++pos;
+		}
 	}
 
 	return (winner);
 }
 
-std::list<int> QRangeSTV::get_council(int council_size, int num_candidates,
+std::list<size_t> QRangeSTV::get_council(size_t council_size,
+	size_t num_candidates,
 	const election_t & ballots) const {
 
 	election_t x = normalize_ballots(ballots);
 
-	std::list<int> council;
+	std::list<size_t> council;
 	std::vector<bool> elected(num_candidates, false);
 
-	for (int counter = 0; counter < council_size; ++counter)
+	for (size_t counter = 0; counter < council_size; ++counter) {
 		// Ow, me side effects!
 		council.push_back(elect_next(council_size - counter,
 				num_candidates, elected, x));
+	}
 
 	return (council);
 }

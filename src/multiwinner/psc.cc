@@ -36,8 +36,8 @@ size_t coalition_elimination::quota_limit(double total_weight,
 	return minimum;
 }
 
-std::list<int> coalition_elimination::get_council(int council_size,
-	int num_candidates, const election_t & ballots) const {
+std::list<size_t> coalition_elimination::get_council(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
 
 	// Get the elimination order from a Condorcet method. Perhaps
 	// ranked pairs would be superior here due to LIIA?
@@ -53,7 +53,7 @@ std::list<int> coalition_elimination::get_council(int council_size,
 	double num_voters = ballot_tools::get_num_voters(ballots);
 
 	std::set<size_t> continuing;
-	for (int i = 0; i < num_candidates; ++i) {
+	for (size_t i = 0; i < num_candidates; ++i) {
 		continuing.insert(i);
 	}
 
@@ -100,5 +100,5 @@ std::list<int> coalition_elimination::get_council(int council_size,
 
 	assert(continuing.size() == council_size);
 
-	return std::list<int>(continuing.begin(), continuing.end());
+	return std::list<size_t>(continuing.begin(), continuing.end());
 }

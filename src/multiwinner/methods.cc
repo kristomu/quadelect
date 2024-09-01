@@ -10,8 +10,8 @@
 
 // ------------------ Majoritarian --------------
 
-std::list<int> majoritarian_council::get_council(int council_size,
-	int num_candidates, const election_t & ballots) const {
+std::list<size_t> majoritarian_council::get_council(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
 
 	// First get the ordering
 
@@ -25,9 +25,9 @@ std::list<int> majoritarian_council::get_council(int council_size,
 	// acquire those that are ranked at that level, shuffle the result,
 	// and read off until the council has been filled.
 
-	std::list<int> council;
+	std::list<size_t> council;
 
-	int count = 0;
+	size_t count = 0;
 
 	for (ordering::const_iterator pos = social_order.begin(); pos !=
 		social_order.end() && count < council_size; ++pos) {
@@ -40,8 +40,8 @@ std::list<int> majoritarian_council::get_council(int council_size,
 
 // ------------------ Random --------------
 
-std::list<int> random_council::get_council(int council_size,
-	int num_candidates,
+std::list<size_t> random_council::get_council(size_t council_size,
+	size_t num_candidates,
 	const election_t & ballots) const {
 
 	// First generate a candidate list 0..num_candidates. Then shuffle
@@ -54,7 +54,7 @@ std::list<int> random_council::get_council(int council_size,
 	std::random_shuffle(numbered_candidates.begin(),
 		numbered_candidates.end());
 
-	std::list<int> toRet;
+	std::list<size_t> toRet;
 
 	std::copy(numbered_candidates.begin(), numbered_candidates.begin() +
 		council_size, inserter(toRet, toRet.begin()));
@@ -64,8 +64,8 @@ std::list<int> random_council::get_council(int council_size,
 
 // ---------------- Multiplicative voter-based reweighting. ------------
 
-std::list<int> mult_ballot_reweighting::get_council(int council_size,
-	int num_candidates, const election_t & ballots) const {
+std::list<size_t> mult_ballot_reweighting::get_council(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
 
 	// first get the social ordering for the entire ballot set. Once that's
 	// done, pick the unelected candidate that's closest to the winner (and
@@ -85,8 +85,8 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 	// relative power is just his score relative tot he maximum. And
 	// cumulative vote as well.
 
-	std::list<int> council;
-	int count = 0;
+	std::list<size_t> council;
+	size_t count = 0;
 
 	election_t reweighted_ballots = ballots;
 
@@ -169,8 +169,8 @@ std::list<int> mult_ballot_reweighting::get_council(int council_size,
 // to just keep them and use the same weighted positional scale, but that would
 // be a bit weird. TODO? Make that a parameter?
 
-std::list<int> addt_ballot_reweighting::get_council(int council_size,
-	int num_candidates, const election_t & ballots) const {
+std::list<size_t> addt_ballot_reweighting::get_council(size_t council_size,
+	size_t num_candidates, const election_t & ballots) const {
 
 	// First get the original weightings and count the number of ballots.
 
@@ -187,8 +187,8 @@ std::list<int> addt_ballot_reweighting::get_council(int council_size,
 
 	std::vector<double> total_power_given(num_ballots, 0);
 
-	std::list<int> council;
-	int council_count = 0;
+	std::list<size_t> council;
+	size_t council_count = 0;
 
 	std::vector<bool> elected(num_candidates, 0);
 	std::vector<bool> hopefuls(num_candidates, true);

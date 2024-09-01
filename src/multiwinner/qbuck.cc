@@ -19,7 +19,7 @@ std::pair<bool, candscore> qltd_pr::get_first_above_quota(const
 	// return false for the first operand. The second is undefined.
 
 	double recordholder = -1;
-	int num_candidates = positional_matrix.size();
+	size_t num_candidates = positional_matrix.size();
 
 	std::vector<double> tally(num_candidates, 0), old_tally = tally;
 
@@ -29,7 +29,7 @@ std::pair<bool, candscore> qltd_pr::get_first_above_quota(const
 	for (counter = 0; counter < positional_matrix[0].size() &&
 		recordholder == -1; ++counter) {
 		// Sum up this row
-		int sec;
+		size_t sec;
 		old_tally = tally;
 		for (sec = 0; sec < num_candidates; ++sec) {
 			tally[sec] += positional_matrix[sec][counter];
@@ -178,7 +178,8 @@ bool qltd_pr::is_contributing(const ballot_group & ballot,
 
 
 
-std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
+std::list<size_t> qltd_pr::get_council(size_t council_size,
+	size_t num_candidates,
 	const election_t & ballots) const {
 
 	// All start off as hopeful. As in usual Bucklin, count until some
@@ -204,8 +205,8 @@ std::list<int> qltd_pr::get_council(int council_size, int num_candidates,
 	std::vector<bool> hopefuls(num_candidates, true),
 		all_hopefuls = hopefuls;
 
-	std::list<int> council;
-	int num_elected = 0;
+	std::list<size_t> council;
+	size_t num_elected = 0;
 
 	// First construct positional array. Then, find the round at which
 	// some candidate go above quota. Once that is done and the candidate

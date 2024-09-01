@@ -25,13 +25,13 @@ class MeekSTV : public multiwinner_method {
 			const std::vector<double> & weighting,
 			std::vector<double> & candidate_tally, double & excess) const;
 		double absolute_quota_error(const std::vector<double> & cand_tally,
-			const std::list<int> & elected, double quota) const;
+			const std::list<size_t> & elected, double quota) const;
 
 		bool warren;
 
 	public:
-		std::list<int> get_council(int council_size,
-			int num_candidates, const election_t & ballots) const;
+		std::list<size_t> get_council(size_t council_size,
+			size_t num_candidates, const election_t & ballots) const;
 
 		MeekSTV(bool use_warren) {
 			warren = use_warren;

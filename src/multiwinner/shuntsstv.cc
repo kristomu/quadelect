@@ -346,17 +346,11 @@ void Print2() {
 
 // -KM
 
-void print3(const std::list<int> & input) {
+void print3(const std::list<size_t> & input) {
 
-	for (std::list<int>::const_iterator pos = input.begin();
-		pos != input.end();
-		++pos) {
-		if (0 <= *pos && *pos < 26) {
-			std::cout << (char)(*pos + 'A');
-		} else {
-			std::cout << (*pos) + 1;
-		}
-		std::cout << " ";
+	for (std::list<size_t>::const_iterator pos = input.begin();
+		pos != input.end(); ++pos) {
+		std::cout << cand_name(*pos) << " ";
 	}
 }
 
@@ -365,8 +359,8 @@ void print3(const std::list<int> & input) {
 
 // KM
 // Note that all weights must be unitary.
-void read_ballot_input(const election_t & input, int council_size,
-	int num_candidates) {
+void read_ballot_input(const election_t & input, size_t council_size,
+	size_t num_candidates) {
 
 	// Set the parameters
 	M = council_size;	// number of seats
@@ -3615,14 +3609,14 @@ void Kombinationen2() {
 
 /*******************************************************************************/
 
-std::list<int> Dijkstra() {
+std::list<size_t> Dijkstra() {
 	int i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,erster,letzter;
 	int *pairwise,*p1,*p2,*rank;
 	long double d1,d2;
 	bool j1,j2,j3;
 	bool *marked;
 
-	std::list<int> winner; // -KM
+	std::list<size_t> winner; // -KM
 
 	std::vector<long double> Von(Comb1+1), Nach(Comb1+1);
 	std::vector<bool> Richtig(Comb1+1);
@@ -4076,7 +4070,7 @@ std::list<int> Dijkstra() {
  Calculation_of_the_Strengths_of_the_Vote_Managements();
  Kombinationen();
  Kombinationen2();
- std::list<int> winners = Dijkstra();
+ std::list<size_t> winners = Dijkstra();
 
  cout << "And the winners are: ";
  print3(winners);
@@ -4093,8 +4087,8 @@ std::list<int> Dijkstra() {
 
 #pragma GCC diagnostic pop
 
-std::list<int> SchulzeSTV::get_council(int council_size,
-	int num_candidates,
+std::list<size_t> SchulzeSTV::get_council(size_t council_size,
+	size_t num_candidates,
 	const election_t & ballots) const {
 
 	if (council_size > num_candidates) {
@@ -4104,7 +4098,7 @@ std::list<int> SchulzeSTV::get_council(int council_size,
 
 	// Num seats = num candidates is not supported by Schulze STV.
 	if (council_size == num_candidates) {
-		std::list<int> full_council(num_candidates, 0);
+		std::list<size_t> full_council(num_candidates, 0);
 		std::iota(full_council.begin(), full_council.end(), 0);
 		return full_council;
 	}
@@ -4117,7 +4111,7 @@ std::list<int> SchulzeSTV::get_council(int council_size,
 	Calculation_of_the_Strengths_of_the_Vote_Managements();
 	Kombinationen();
 	Kombinationen2();
-	std::list<int> council = Dijkstra();
+	std::list<size_t> council = Dijkstra();
 	//cout << "DEBUG: Winners are ";
 	//print3(council);
 	return council;

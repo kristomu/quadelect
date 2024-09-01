@@ -4,7 +4,7 @@
 int r_auction::elect_and_update(std::vector<bool> & elected,
 	std::vector<double> & account_balance,
 	const election_t & ballots, double minimum,
-	double maximum, int num_candidates, bool cumulative) const {
+	double maximum, size_t num_candidates, bool cumulative) const {
 
 	// Some sanity checks.
 	assert(num_candidates > 0);
@@ -42,7 +42,7 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 			sec != pos->contents.end(); ++sec) {
 			assert(sec->get_candidate_num() >= 0 &&
 				sec->get_candidate_num() <
-				(size_t)num_candidates);
+				num_candidates);
 
 			if (elected[sec->get_candidate_num()]) {
 				continue;
@@ -116,7 +116,8 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 	return (record_pos); // next winner
 }
 
-std::list<int> r_auction::get_council(int council_size, int num_candidates,
+std::list<size_t> r_auction::get_council(size_t council_size,
+	size_t num_candidates,
 	const election_t & ballots) const {
 
 	std::vector<bool> elected(num_candidates, false);
@@ -126,13 +127,14 @@ std::list<int> r_auction::get_council(int council_size, int num_candidates,
 
 	double minimum = 0, maximum = 100; // FIX LATER
 
-	std::list<int> council;
+	std::list<size_t> council;
 
-	for (int counter = 0; counter < council_size; ++counter)
+	for (size_t counter = 0; counter < council_size; ++counter) {
 		// Bad programmer, bad! (Side effects ahoy.)
 		council.push_back(elect_and_update(elected, account_balance,
 				ballots, minimum, maximum,
 				num_candidates, cumul_setting));
+	}
 
 	return (council);
 }

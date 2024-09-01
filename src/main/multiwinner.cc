@@ -110,7 +110,8 @@ vector<double> sum_opinion_profile(const vector<vector<bool> > &
 	return (opinion_count);
 }
 
-vector<double> get_quantized_opinion_profile(const list<int> & candidates,
+vector<double> get_quantized_opinion_profile(const list<size_t> &
+	candidates,
 	const vector<vector<bool> > & population_profiles) {
 
 	// Same as above, really, only with a subset.
@@ -119,7 +120,7 @@ vector<double> get_quantized_opinion_profile(const list<int> & candidates,
 
 	size_t counter, sec;
 
-	for (list<int>::const_iterator pos = candidates.begin(); pos !=
+	for (list<size_t>::const_iterator pos = candidates.begin(); pos !=
 		candidates.end(); ++pos)
 		for (sec = 0; sec < opinion_count.size(); ++sec)
 			if (population_profiles[*pos][sec]) {
@@ -210,7 +211,7 @@ election_t construct_ballots(const vector<vector<bool> > &
 
 // Framing
 
-list<int> random_council(size_t num_candidates, size_t council_size) {
+list<size_t> random_council(size_t num_candidates, size_t council_size) {
 
 	vector<int> numbered_candidates(num_candidates);
 
@@ -219,15 +220,15 @@ list<int> random_council(size_t num_candidates, size_t council_size) {
 	iota(numbered_candidates.begin(), numbered_candidates.end(), 0);
 	random_shuffle(numbered_candidates.begin(), numbered_candidates.end());
 
-	list<int> toRet;
+	list<size_t> toRet;
 
 	copy(numbered_candidates.begin(), numbered_candidates.begin() +
 		council_size, inserter(toRet, toRet.begin()));
 
-	return (toRet);
+	return toRet;
 }
 
-double get_error(const list<int> & council,
+double get_error(const list<size_t> & council,
 	int num_candidates, size_t council_size,
 	const vector<vector<bool> > & population_profiles,
 	const vector<double> & whole_pop_profile) {
@@ -239,7 +240,7 @@ double get_error(const list<int> & council,
 	// Check that there's no double-entry and that the method hasn't
 	// elected someone outside of the allowed range.
 	vector<bool> seen(num_candidates, false);
-	for (list<int>::const_iterator pos = council.begin();
+	for (list<size_t>::const_iterator pos = council.begin();
 		pos != council.end(); ++pos) {
 
 		assert(0 <= *pos && *pos < num_candidates);
@@ -303,7 +304,7 @@ double get_optimal_utility(std::vector<double> utilities,
 }
 
 double get_council_utility(const std::vector<double> & utilities,
-	std::list<int> & council) {
+	std::list<size_t> & council) {
 
 	double sum_utils = 0;
 
@@ -400,7 +401,7 @@ double random_dictator(const election_t & election,
 		size_t cands_picked = 0;
 
 		assert(ballot.contents.size() >= council_size);
-		std::list<int> dictatorial_council;
+		std::list<size_t> dictatorial_council;
 
 		for (auto pos = ballot.contents.begin();
 			cands_picked < council_size && pos != ballot.contents.end();
@@ -828,13 +829,12 @@ int main(int argc, char * * argv) {
 				continue;
 			}
 
-			std::list<int> council = e_methods[counter].method()->
+			std::list<size_t> council = e_methods[counter].method()->
 				get_council(council_size,
 					num_candidates,	ballots);
 
-			error = get_error(council,
-					num_candidates, council_size,
-					population_profiles,
+			error = get_error(council, num_candidates,
+					council_size, population_profiles,
 					pop_opinion_profile);
 
 			e_methods[counter].add_result(rdic_value, error, cur_best_disprop);

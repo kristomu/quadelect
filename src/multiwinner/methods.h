@@ -21,8 +21,8 @@
 class multiwinner_method {
 
 	public:
-		virtual std::list<int> get_council(int council_size,
-			int num_candidates, const election_t & ballots) const = 0;
+		virtual std::list<size_t> get_council(size_t council_size,
+			size_t num_candidates, const election_t & ballots) const = 0;
 
 		virtual std::string name() const = 0;
 
@@ -38,7 +38,7 @@ class majoritarian_council : public multiwinner_method {
 		std::shared_ptr<election_method> base;
 
 	public:
-		std::list<int> get_council(int council_size, int num_candidates,
+		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {
@@ -53,7 +53,7 @@ class majoritarian_council : public multiwinner_method {
 
 class random_council : public multiwinner_method {
 	public:
-		std::list<int> get_council(int council_size, int num_candidates,
+		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {
@@ -76,7 +76,7 @@ class mult_ballot_reweighting : public multiwinner_method {
 		double A, B;
 
 	public:
-		std::list<int> get_council(int council_size, int num_candidates,
+		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {
@@ -111,7 +111,7 @@ class addt_ballot_reweighting : public multiwinner_method {
 		std::shared_ptr<positional> base; // But not QLTD or Bucklin. But Range.
 
 	public:
-		std::list<int> get_council(int council_size, int num_candidates,
+		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		addt_ballot_reweighting(std::shared_ptr<positional> base_in) {
