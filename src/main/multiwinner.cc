@@ -24,12 +24,13 @@
 #include "multiwinner/exhaustive/lpv.h"
 
 #include "multiwinner/auction.h"
-#include "multiwinner/psc.h"
-#include "multiwinner/qbuck.h"
-#include "multiwinner/meek_stv.h"
-#include "multiwinner/shuntsstv.h"
 #include "multiwinner/compat_qbuck.h"
 #include "multiwinner/dhwl.h"
+#include "multiwinner/meek_stv.h"
+#include "multiwinner/psc.h"
+#include "multiwinner/qbuck.h"
+#include "multiwinner/set_webster.h"
+#include "multiwinner/shuntsstv.h"
 #include "multiwinner/stv.h"
 
 #include "multiwinner/randballots.h"
@@ -582,6 +583,8 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 				true)));
 
 	e_methods.push_back(multiwinner_stats(std::make_shared<old_qltd_pr>()));
+
+	e_methods.push_back(multiwinner_stats(std::make_shared<set_webster>()));
 
 	// Only enable this if we can handle the extremely large structure
 	// it requires.
