@@ -9,6 +9,10 @@
 // try every possible set inside a bisection search that finds the greatest value
 // of x.
 
+// Note, this may be different from the earlier (thirdelect etc) versions of
+// Set Webster, where I seem to have been trying to make somethind that reduces
+// to DAC or DSC in the single winner case.
+
 #include "coalitions/coalitions.h"
 
 #include "multiwinner/exhaustive/set_webster_helper.h"

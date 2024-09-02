@@ -24,6 +24,13 @@
 #include "multiwinner/exhaustive/lpv.h"
 #include "multiwinner/exhaustive/psi.h"
 
+#include "multiwinner/rusty/fc_kemeny.h"
+#include "multiwinner/rusty/mono_webst_640.h"
+#include "multiwinner/rusty/mono_webst_c37.h"
+#include "multiwinner/rusty/mono_webst_f03.h"
+#include "multiwinner/rusty/mw_kemeny2_34e.h"
+#include "multiwinner/rusty/mw_kemeny_db0.h"
+
 #include "multiwinner/auction.h"
 #include "multiwinner/compat_qbuck.h"
 #include "multiwinner/dhwl.h"
@@ -653,6 +660,36 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
 				log_penalty_eval(1000))));
 
+	// Test some rusty methods.
+
+	// Nope
+	/*e_methods.push_back(multiwinner_stats(
+		std::make_shared<fc_kemeny>(true)));
+	e_methods.push_back(multiwinner_stats(
+		std::make_shared<fc_kemeny>(false)));*/
+
+	// Nope! (Times out and proportionality < 0.)
+	/*e_methods.push_back(multiwinner_stats(
+			std::make_shared<mw_kemeny2_34e>()));*/
+
+	// Too slow, has worse proportionality than birational with
+	// about the same utility VSE.
+	/*e_methods.push_back(multiwinner_stats(
+			std::make_shared<mw_kemeny>()));*/
+
+	// Slow but okay performance. May be something to investigate further,
+	// later, since it's much better than my recent attempt at
+	// reimplementing Set Webster.
+
+	/*
+	e_methods.push_back(multiwinner_stats(
+			std::make_shared<mono_webster_640>(MM_INVERTED, false, false)));
+	e_methods.push_back(multiwinner_stats(
+			std::make_shared<mono_webster_640>(MM_PLUSHALF, false, false)));
+	e_methods.push_back(multiwinner_stats(
+			std::make_shared<mono_webster_c37>(false, MMC_PLUSONE, true, false)));
+	*/
+
 	// QPQ mass test
 	// Disabled for now because QPQ needs a more extensive rework.
 	/*
@@ -678,11 +715,7 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 		}
 
 		e_methods.push_back(multiwinner_stats(new QPQ(rc, true)));
-	}
-
-	// QPQ hack
-	multiwinner_stats qpqmetam("Best of QPQ(Meta, multiround)"), qpqmetas(
-		"Best of QPQ(Meta, sequential)");*/
+	}*/
 
 	return e_methods;
 }

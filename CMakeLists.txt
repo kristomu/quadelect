@@ -204,6 +204,7 @@ add_library(qe_multiwinner_methods
 	src/multiwinner/qrange_stv.cc
 	src/multiwinner/randballots.cc
 	src/multiwinner/range_stv.cc
+	src/multiwinner/rusty/aux/dsc.cc
 	src/multiwinner/shuntsstv.cc
 	src/multiwinner/stv.cc
 	src/stats/multiwinner/mwstats.cc)
