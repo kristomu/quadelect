@@ -36,6 +36,7 @@
 #include "multiwinner/compat_qbuck.h"
 #include "multiwinner/dhwl.h"
 #include "multiwinner/meek_stv.h"
+#include "multiwinner/prbucklin.h"
 #include "multiwinner/psc.h"
 #include "multiwinner/qbuck.h"
 #include "multiwinner/set_webster.h"
@@ -567,6 +568,9 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 		e_methods.push_back(multiwinner_stats(
 				std::make_shared<addt_ballot_reweighting>(
 					positional_methods[counter])));
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<mult_ballot_reweighting>(
+					positional_methods[counter])));
 	}
 
 	// Maybe: IRV-SNTV
@@ -600,6 +604,8 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<PSC>()));
 	e_methods.push_back(multiwinner_stats(std::make_shared<PSC>(0.5)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<PSC>(0)));
+
+	e_methods.push_back(multiwinner_stats(std::make_shared<set_pr_bucklin>()));
 
 	// Not as good as STV. "Plurality PSC".
 	e_methods.push_back(multiwinner_stats(

@@ -197,6 +197,7 @@ add_library(qe_multiwinner_methods
 	src/multiwinner/dhwl_mat.cc
 	src/multiwinner/meek_stv.cc
 	src/multiwinner/methods.cc
+	src/multiwinner/prbucklin.cc
 	src/multiwinner/psc.cc
 	src/multiwinner/quotas.cc
 	src/multiwinner/qbuck.cc
