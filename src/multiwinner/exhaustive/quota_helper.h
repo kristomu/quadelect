@@ -45,6 +45,13 @@ class quota_helper : public exhaustive_method {
 double quota_helper::evaluate(combo::it & start, combo::it & end) {
 	std::set<size_t> council(start, end);
 
+	// Assumes that we can get the total weight from the first solid
+	// coalition, i.e. that they're in sorted order. TODO, fix so that
+	// if I change this later, it will trigger instead of silently fail.
+	// Or get the total weight (num voters) from somewhere else.
+
+	double total_weight = solid_coalitions.begin()->support;
+
 	if (council_size == 0) {
 		throw std::runtime_error("Quota helper: council size not set!");
 	}
@@ -52,9 +59,13 @@ double quota_helper::evaluate(combo::it & start, combo::it & end) {
 	for (auto cc_pos = solid_coalitions.begin();
 		cc_pos != solid_coalitions.end(); ++cc_pos) {
 
+		// See PSC-CLE.
+		size_t minimum = ceil(cc_pos->support *
+				(council_size + 1) / total_weight - 1);
+
 		size_t elect_constraint = std::min(
-				(double)cc_pos->coalition.size(),
-				cc_pos->support/(council_size + 1.0));
+				cc_pos->coalition.size(),
+				minimum);
 
 		if (elect_constraint == 0) {
 			continue;

@@ -15,7 +15,7 @@
 
 #include "stats/multiwinner/mwstats.h"
 #include "stats/multiwinner/vse.h"
-//#include "stats/multiwinner/vse_region_mapper.h"
+#include "stats/multiwinner/vse_region_mapper.h"
 
 #include "multiwinner/helper/errors.cc"
 
@@ -406,12 +406,14 @@ void get_limits(int num_candidates, int council_size,
 
 // This is currently very hacky.
 
-/*std::vector<VSE_point>*/ void get_droop_council_results(
+std::vector<VSE_point> get_droop_council_results(
 	const election_t & election,
 	size_t num_candidates, size_t council_size,
 	const std::vector<vector<bool> > & population_profiles,
 	const std::vector<double> & whole_pop_profile,
-	const std::vector<double> & utilities) {
+	const std::vector<double> & utilities,
+	double best_disprop, double random_disprop,
+	double best_utility, double random_utility) {
 
 	quota_helper droop_sifter(council_size);
 
@@ -425,6 +427,8 @@ void get_limits(int num_candidates, int council_size,
 
 	std::vector<std::vector<size_t> > output = optimum.
 		get_optimal_solutions();
+
+	std::vector<VSE_point> droop_councils;
 
 	for (std::vector<size_t> & council: output) {
 		// TODO: Deal with this annoying thing where it only accepts
@@ -442,9 +446,20 @@ void get_limits(int num_candidates, int council_size,
 		std::cout << "Valid council: ";
 		std::copy(converted.begin(), converted.end(),
 			std::ostream_iterator<size_t>(std::cout, " "));
-		std::cout << " disproportionality " << disprop << ", utility "
-			<< utility << "\n";
+
+		VSE disprop_VSE;
+		disprop_VSE.add_result(random_disprop, disprop, best_disprop);
+		VSE utility_VSE;
+		utility_VSE.add_result(random_utility, utility, best_utility);
+
+		std::cout << " disprop. " << disprop << "(VSE " << disprop_VSE.get() <<
+			"),"
+			" utility " << utility << "(VSE " << utility_VSE.get() << ")\n";
+
+		droop_councils.push_back({disprop_VSE, utility_VSE});
 	}
+
+	return droop_councils;
 }
 
 // n * tries instead of plain n(as we would have with a vector of ballots.
@@ -788,6 +803,8 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 
 int main(int argc, char * * argv) {
 
+	vse_region_mapper region_mapper(200);
+
 	// Used for inlining.
 	int maxnum = 0;
 	bool run_forever = false;
@@ -891,14 +908,23 @@ int main(int argc, char * * argv) {
 
 		double cur_worst_disprop, cur_mean_disprop, cur_best_disprop;
 
-		get_droop_council_results(ballots,
-			num_candidates, council_size,
-			population_profiles, pop_opinion_profile,
-			utilities);
-
 		get_limits(num_candidates, council_size, population_profiles,
 			pop_opinion_profile, 75000, cur_worst_disprop,
 			cur_mean_disprop, cur_best_disprop);
+
+		// Calculate the feasible region for Droop proportionality
+		// (almost; it's slightly too generous). TODO: Explain why.
+		// And perhaps put it somewhere else once I've refactored
+		// properly.
+
+		region_mapper.add_points(get_droop_council_results(ballots,
+				num_candidates, council_size,
+				population_profiles, pop_opinion_profile,
+				utilities, cur_best_disprop, cur_mean_disprop,
+				cur_best_utility, cur_random_utility));
+		region_mapper.update();
+		std::ofstream coords_out("droop_coords.txt");
+		region_mapper.dump_coordinates(coords_out);
 
 		// The stuff below should use proper multiwinner_stats objects.
 		// TODO!!!

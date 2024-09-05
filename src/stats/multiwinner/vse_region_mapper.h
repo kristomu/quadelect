@@ -14,6 +14,9 @@
 // binned in n-space to produce "voxels"; multiple points within the same
 // hypercube are discarded before the new point cloud is admitted.
 
+// Even so, 2D convolution with lots of points can be pretty expensive.
+// Don't use too high an elements per dimension value.
+
 #include "vse.h"
 
 #include <map>
@@ -43,12 +46,15 @@ class vse_region_mapper {
 		double get_quantization_error(
 			const VSE_point & pt) const;
 
-		// For enforcing additional constraints, e.g. Pareto frontier.
+		// For enforcing additional constraints, e.g. convex hull or
+		// Pareto frontier.
 		virtual std::map<std::vector<double>, VSE_point>
 		filter_augmented_points(const
 			std::map<std::vector<double>, VSE_point> & proposed) const {
 			return proposed;
 		}
+
+		void add_augmented_point(const VSE_point & augmented_point);
 
 	public:
 		// Call this with a vector of VSEs; the mapper will use
@@ -56,6 +62,7 @@ class vse_region_mapper {
 		// point in n-space, so this would be called once per
 		// new point.
 		void add_point(const VSE_point & cur_round_VSE);
+		void add_points(const std::vector<VSE_point> & points);
 		// Then call this to update the cloud.
 		void update();
 
@@ -64,9 +71,7 @@ class vse_region_mapper {
 
 		vse_region_mapper(int elements_per_dim_in) {
 			elements_per_dimension = elements_per_dim_in;
-
-			// Add a null point so that we don't have to special-
-			// case a bunch of stuff in add_point.
-			VSE_cloud[ {}] = VSE();
 		}
+
+		void dump_coordinates(std::ostream & where) const;
 };

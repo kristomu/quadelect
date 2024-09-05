@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+#include <cstddef>
+#include <stdexcept>
+
 // VSE container.
 
 // This works both for scores and penalties; it doesn't matter if higher values

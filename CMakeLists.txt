@@ -208,7 +208,8 @@ add_library(qe_multiwinner_methods
 	src/multiwinner/rusty/aux/dsc.cc
 	src/multiwinner/shuntsstv.cc
 	src/multiwinner/stv.cc
-	src/stats/multiwinner/mwstats.cc)
+	src/stats/multiwinner/mwstats.cc
+	src/stats/multiwinner/vse_region_mapper.cc)
 
 add_library(quadelect_lib src/common/ballots.cc
 	src/bandit/lilucb.cc
