@@ -24,6 +24,9 @@ double QPQ::getC(size_t council_size, size_t num_candidates) const {
 		return (C_val);
 	}
 
+	// So C_val == 1, hence we're using Warren's dynamic scheme.
+	// TODO: Source?? Probably the "optimal PR" one.
+
 	// Is this right? What if all vote ... > A > B > C > D > ..
 	// then A > B > C > D is a "party" and the numerator here should
 	// be decreased accordingly..
@@ -34,10 +37,8 @@ double QPQ::getC(size_t council_size, size_t num_candidates) const {
 
 // It now handles compressed ballots, although they may skew the tiebreak.
 std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
-	size_t council_size,
-	size_t num_candidates, int num_voters,
-	const election_t & ballots,
-	bool restart_on_elimination) const {
+	size_t council_size, size_t num_candidates, int num_voters,
+	const election_t & ballots, bool restart_on_elimination) const {
 
 	// Algorithm:
 	// The method proceeds in stages. At each stage, each ballot is said to
@@ -76,21 +77,38 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 		contributing_weights(num_candidates), quotients(num_candidates);
 
 	std::list<size_t> council;
-	size_t num_elected = 0;
+	size_t num_elected = 0, num_eliminated = 0;
 
 	std::vector<bool> elected(num_candidates, false);
 
 	size_t counter;
 
 	double C = getC(council_size, num_candidates);
-	assert(0 <= C && C <= 1);
-
-	std::list<ordering> past_orderings; // For tie-breaking using the "first
-	// difference" rule. TODO: Also try "last difference" or externally
-	// supplied ordering from Condorcet/whatever (unweighted, or weighted
-	// according to quotients).
+	assert(C > 0);
 
 	while (num_elected < council_size) {
+
+		// Heuristic that automatically elects rest if
+		// just enough to fill council.
+
+		// It's now possible to coerce the thing to use C > 1,
+		// but it's not a good idea.
+
+		// If number of candidates still in the running is equal
+		// to the number of seats remaining in play, just complete
+		// the council.
+
+		if (num_candidates - num_elected - num_eliminated == council_size -
+			num_elected) {
+			for (size_t i = 0; i < num_candidates; ++i) {
+				if (!eliminated[i] && !elected[i]) {
+					council.push_back(i);
+				}
+			}
+
+			return council;
+		}
+
 		fill(contributing_ballots.begin(), contributing_ballots.end(),
 			0);
 		fill(contributing_weights.begin(), contributing_weights.end(),
@@ -192,8 +210,6 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 					quotients[counter]));
 		}
 
-		past_orderings.push_back(current_ordering);
-
 		// Test just electing the luckiest (highest) candidate
 		// or eliminating the least lucky. Let's see if that helps;
 		// if not, I'll implement tiebreak stuff later.
@@ -224,14 +240,13 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 			// Eliminate. First mark as eliminated. Then if we have
 			// reset set to true, tail-recurse. Otherwise, just loop
 			// through.
-			eliminated[lowest] = true;
 
-			// TODO: Heuristic that automatically elects rest if
-			// just enough to fill council.
+			// Could experiment with Condorcet loser elimination
+			// here too...
+			eliminated[lowest] = true;
+			++num_eliminated;
 
 			if (restart_on_elimination) {
-				std::cout << "Recursing with " << num_elected << " elected." << std::endl;
-				past_orderings.clear();
 				return (get_council(eliminated, council_size,
 							num_candidates,
 							num_voters,
