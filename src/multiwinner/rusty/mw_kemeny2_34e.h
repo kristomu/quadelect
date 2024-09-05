@@ -18,7 +18,7 @@
 #include <numeric>
 #include <vector>
 
-#include "aux/qballot.h"
+#include "auxiliary/qballot.h"
 
 using namespace std;
 

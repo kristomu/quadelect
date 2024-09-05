@@ -12,7 +12,7 @@
 #include <math.h>
 #include <assert.h>
 
-#include "aux/dsc.h"
+#include "auxiliary/dsc.h"
 #include "multiwinner/methods.h"
 #include "tools/ballot_tools.h"
 #include "multiwinner/rusty/setwise/coalition.h"

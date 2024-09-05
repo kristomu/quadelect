@@ -12,7 +12,7 @@
 
 #include "multiwinner/methods.h"
 #include "tools/ballot_tools.h"
-#include "aux/qballot.h"
+#include "auxiliary/qballot.h"
 
 #include <iostream>
 #include <iterator>

@@ -75,7 +75,7 @@ class sorted_reference {
 // I.e. count AB|, C|, AC|, then later complete these in one swoop each... Hm.
 // DSC doesn't have to deal with that.
 
-struct simple_hash : unary_function<vector<bool>, size_t> {
+struct simple_hash {
 
 	size_t operator()(const vector<bool> & a) const {
 

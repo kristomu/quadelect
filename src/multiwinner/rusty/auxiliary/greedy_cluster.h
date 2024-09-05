@@ -80,7 +80,12 @@ int get_clustering_error(const vector<vector<int> > & penalties,
 
 	sort(queue.begin(), queue.end(), sorting);
 
-	for (counter = penalties.size() - 1; counter >= 0; --counter) {
+	for (size_t idx = 0; idx < penalties.size(); ++idx) {
+		// We want to count backwards. Why not put this in the for loop?
+		// Because then the end condition would be "counter >= 0" which
+		// is always true!
+		counter = penalties.size() - 1 - idx;
+
 		// If any are now above the threshold, mark them as full
 		// and redo sort based on this.
 

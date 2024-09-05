@@ -10,12 +10,12 @@
 
 // Ranks are struct vectors of ints, easier that way.
 
-#include "aux/greedy_cluster.h"
-#include "aux/assignment.h"
+#include "auxiliary/greedy_cluster.h"
+#include "auxiliary/assignment.h"
 #include "multiwinner/methods.h"
 #include "tools/ballot_tools.h"
 
-#include "aux/qballot.h"
+#include "auxiliary/qballot.h"
 
 #include <iostream>
 #include <iterator>
