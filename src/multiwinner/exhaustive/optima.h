@@ -18,7 +18,8 @@ class exhaustive_optima {
 		bool maximize, opt_direction_set;
 
 		double minimum, maximum;
-		std::vector<size_t> minimum_solution, maximum_solution;
+		std::vector<std::vector<size_t> >
+		minimum_solutions, maximum_solutions;
 
 	public:
 
@@ -58,24 +59,46 @@ class exhaustive_optima {
 				return;
 			}
 
-			if (isnan(minimum) || objective_value < minimum) {
+			if (isnan(minimum) || objective_value <= minimum) {
+				if (objective_value < minimum) {
+					minimum_solutions.clear();
+				}
+
 				minimum = objective_value;
-				minimum_solution = std::vector<size_t>(
-						solution_start, solution_end);
+				minimum_solutions.push_back(std::vector<size_t>(
+						solution_start, solution_end));
 			}
-			if (isnan(maximum) || objective_value > maximum) {
+			if (isnan(maximum) || objective_value >= maximum) {
+				if (objective_value > maximum) {
+					maximum_solutions.clear();
+				}
+
 				maximum = objective_value;
-				maximum_solution = std::vector<size_t>(
-						solution_start, solution_end);
+				maximum_solutions.push_back(std::vector<size_t>(
+						solution_start, solution_end));
 			}
 		}
 
 		std::vector<size_t> get_maximum_solution() const {
-			return maximum_solution;
+			if (maximum_solutions.empty()) {
+				throw std::runtime_error("Exhaustive optima: Trying to get optimum"
+					" without having evaluated anything.");
+			}
+
+			// TODO? do something random here? Kinda hard to see
+			// what would be the right design option; doing random
+			// might be clone-dependent in all sorts of nasty ways.
+			// Picking the first might violate neutrality.
+			return maximum_solutions[0];
 		}
 
 		std::vector<size_t> get_minimum_solution() const {
-			return minimum_solution;
+			if (maximum_solutions.empty()) {
+				throw std::runtime_error("Exhaustive optima: Trying to get optimum"
+					" without having evaluated anything.");
+			}
+
+			return minimum_solutions[0];
 		}
 
 		std::vector<size_t> get_optimal_solution() const {
@@ -87,6 +110,36 @@ class exhaustive_optima {
 				return get_maximum_solution();
 			} else {
 				return get_minimum_solution();
+			}
+		}
+
+		std::vector<std::vector<size_t> > get_maximum_solutions() const {
+			if (maximum_solutions.empty()) {
+				throw std::runtime_error("Exhaustive optima: Trying to get optimum"
+					" without having evaluated anything.");
+			}
+
+			return maximum_solutions;
+		}
+
+		std::vector<std::vector<size_t> > get_minimum_solutions() const {
+			if (maximum_solutions.empty()) {
+				throw std::runtime_error("Exhaustive optima: Trying to get optimum"
+					" without having evaluated anything.");
+			}
+
+			return minimum_solutions;
+		}
+
+		std::vector<std::vector<size_t> > get_optimal_solutions() const {
+			if (!opt_direction_set) {
+				throw std::runtime_error("Exhaustive optima: Init bug! No direction"
+					" of optimization has been set.");
+			}
+			if (maximize) {
+				return get_maximum_solutions();
+			} else {
+				return get_minimum_solutions();
 			}
 		}
 

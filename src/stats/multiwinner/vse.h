@@ -40,11 +40,36 @@ class VSE {
 				(last_best - last_random);
 		}
 
+		double get_this_round_random() const {
+			return last_random;
+		}
+
+		double get_this_round_best() const {
+			return last_best;
+		}
+
 		double get_this_round_raw() const {
 			return last_method;
+		}
+
+		// Adds the last result data from another VSE object.
+		void add_last(const VSE & other) {
+			if (other.get_rounds() == 0) {
+				throw std::invalid_argument("VSE add_last given "
+					"VSE object with no data!");
+			}
+
+			add_result(other.get_this_round_random(),
+				other.get_this_round_raw(),
+				other.get_this_round_best());
 		}
 
 		size_t get_rounds() const {
 			return rounds;
 		}
 };
+
+// For storing multiple VSEs together, e.g. proportionality and utilitarian
+// efficiency.
+
+typedef std::vector<VSE> VSE_point;

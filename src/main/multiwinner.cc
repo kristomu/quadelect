@@ -15,6 +15,7 @@
 
 #include "stats/multiwinner/mwstats.h"
 #include "stats/multiwinner/vse.h"
+//#include "stats/multiwinner/vse_region_mapper.h"
 
 #include "multiwinner/helper/errors.cc"
 
@@ -24,6 +25,7 @@
 #include "multiwinner/exhaustive/isoelastic.h"
 #include "multiwinner/exhaustive/lpv.h"
 #include "multiwinner/exhaustive/psi.h"
+#include "multiwinner/exhaustive/quota_helper.h"
 
 #include "multiwinner/rusty/fc_kemeny.h"
 #include "multiwinner/rusty/mono_webst_640.h"
@@ -121,8 +123,8 @@ vector<double> sum_opinion_profile(const vector<vector<bool> > &
 	return (opinion_count);
 }
 
-vector<double> get_quantized_opinion_profile(const list<size_t> &
-	candidates,
+vector<double> get_quantized_opinion_profile(
+	const list<size_t> & candidates,
 	const vector<vector<bool> > & population_profiles) {
 
 	// Same as above, really, only with a subset.
@@ -197,8 +199,8 @@ ordering construct_ballot_order(const vector<vector<bool> > &
 }
 
 ballot_group construct_ballot(const vector<vector<bool> > &
-	population_profiles,
-	int num_candidates, int current_index, double noise_magnitude) {
+	population_profiles, int num_candidates, int current_index,
+	double noise_magnitude) {
 
 	return (ballot_group(1,
 				construct_ballot_order(population_profiles,
@@ -239,25 +241,28 @@ list<size_t> random_council(size_t num_candidates, size_t council_size) {
 	return toRet;
 }
 
-double get_error(const list<size_t> & council,
+double get_error(std::list<size_t> council,
 	int num_candidates, size_t council_size,
 	const vector<vector<bool> > & population_profiles,
 	const vector<double> & whole_pop_profile) {
 
-	if (council.size() != council_size) {
-		throw std::invalid_argument("get_error: Given council is the wrong size!");
-	}
+	size_t seen_size = 0;
 
 	// Check that there's no double-entry and that the method hasn't
 	// elected someone outside of the allowed range.
 	vector<bool> seen(num_candidates, false);
-	for (list<size_t>::const_iterator pos = council.begin();
+	for (auto pos = council.begin();
 		pos != council.end(); ++pos) {
 
 		assert(0 <= *pos && *pos < num_candidates);
 		assert(!seen[*pos]);
 
 		seen[*pos] = true;
+		++seen_size;
+	}
+
+	if (seen_size != council_size) {
+		throw std::invalid_argument("get_error: Given council is the wrong size!");
 	}
 
 	return errm(whole_pop_profile,
@@ -394,6 +399,52 @@ void get_limits(int num_candidates, int council_size,
 	}
 
 	average /= (double)(counter);
+}
+
+// TODO: Somehow formalize this, with proportionality being the first
+// VSE and utility being the second.
+
+// This is currently very hacky.
+
+/*std::vector<VSE_point>*/ void get_droop_council_results(
+	const election_t & election,
+	size_t num_candidates, size_t council_size,
+	const std::vector<vector<bool> > & population_profiles,
+	const std::vector<double> & whole_pop_profile,
+	const std::vector<double> & utilities) {
+
+	quota_helper droop_sifter(council_size);
+
+	std::vector<size_t> v(num_candidates);
+	std::iota(v.begin(), v.end(), 0);
+
+	droop_sifter.process_ballots(election, num_candidates);
+
+	exhaustive_optima optimum = for_each_combination(v.begin(),
+			v.begin() + council_size, v.end(), droop_sifter);
+
+	std::vector<std::vector<size_t> > output = optimum.
+		get_optimal_solutions();
+
+	for (std::vector<size_t> & council: output) {
+		// TODO: Deal with this annoying thing where it only accepts
+		// lists, later. I might just change the signature so that
+		// everything uses vectors.
+		std::list<size_t> converted(council.begin(), council.end());
+
+		double disprop = get_error(converted, num_candidates,
+				council_size, population_profiles,
+				whole_pop_profile);
+
+		double utility = get_council_utility(utilities,
+				converted);
+
+		std::cout << "Valid council: ";
+		std::copy(converted.begin(), converted.end(),
+			std::ostream_iterator<size_t>(std::cout, " "));
+		std::cout << " disproportionality " << disprop << ", utility "
+			<< utility << "\n";
+	}
 }
 
 // n * tries instead of plain n(as we would have with a vector of ballots.
@@ -839,6 +890,11 @@ int main(int argc, char * * argv) {
 		// approximate except for small councils.
 
 		double cur_worst_disprop, cur_mean_disprop, cur_best_disprop;
+
+		get_droop_council_results(ballots,
+			num_candidates, council_size,
+			population_profiles, pop_opinion_profile,
+			utilities);
 
 		get_limits(num_candidates, council_size, population_profiles,
 			pop_opinion_profile, 75000, cur_worst_disprop,
