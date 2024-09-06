@@ -18,6 +18,12 @@ class harmonic_voting_eval : public scored_method {
 			if (delta == 1) {
 				return "Cardinal: Harmonic (D'Hondt)";
 			}
+			// TODO: a better scale where e.g. 2 is pure Range (delta=infty)
+			// and 1 is the same, and the spread (angle from 0 in polar coords)
+			// is approximately linear in this value.
+			if (delta > 1) {
+				return "Cardinal: Harmonic extended (" + dtos(delta) + ")";
+			}
 			return "Cardinal: Harmonic (delta = " + dtos(delta) + ")";
 		}
 

@@ -560,7 +560,9 @@ void set_best(multiwinner_stats & meta, double minimum, double maximum,
 	meta.add_result(minimum, gathered_scores[0], maximum);
 }
 
-std::vector<multiwinner_stats> get_multiwinner_methods() {
+std::vector<multiwinner_stats> get_multiwinner_methods(
+	bool extensive_param_sweep) {
+
 	// Set up some majoritarian election methods and their stats.
 	// Condorcet methods should probably have their own arrays.
 	vector<multiwinner_stats> e_methods; // WARNING: Leak. TODO, fix.
@@ -686,12 +688,29 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<STV>(BTR_COND)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<MeekSTV>(true)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<MeekSTV>(false)));
+	/**/
+
 	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, false)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, true)));
-	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, false)));
-	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, true)));
-	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, false)));
-	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, true)));
+
+	if (extensive_param_sweep) {
+		for (int x = 1; x <= 10; ++x) {
+			e_methods.push_back(multiwinner_stats(
+					std::make_shared<QPQ>(x*0.1, false)));
+		}
+
+		for (int x = 1; x <= 10; ++x) {
+			e_methods.push_back(multiwinner_stats(
+					std::make_shared<QPQ>(x*0.1, true)));
+		}
+	} else {
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, false)));
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, true)));
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, false)));
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, true)));
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, false)));
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, true)));
+	}
 	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.01, false)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.01, true)));
 
@@ -712,28 +731,57 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>()));
 	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>()));
 
-	e_methods.push_back(multiwinner_stats(std::make_shared<psi_voting>(0)));
-	e_methods.push_back(multiwinner_stats(std::make_shared<psi_voting>(0.5)));
-	e_methods.push_back(multiwinner_stats(std::make_shared<psi_voting>(1)));
+	if (extensive_param_sweep) {
+		for (int x = 0; x <= 100; ++x) {
+			e_methods.push_back(multiwinner_stats(
+					std::make_shared<psi_voting>(x*0.01)));
+		}
+
+		for (int x = 0; x <= 100; ++x) {
+			e_methods.push_back(multiwinner_stats(
+					std::make_shared<harmonic_voting>(x*0.01)));
+		}
+	} else {
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<psi_voting>(0)));
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<psi_voting>(0.5)));
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<psi_voting>(1)));
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<harmonic_voting>(0)));
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<harmonic_voting>(0.5)));
+		e_methods.push_back(multiwinner_stats(
+				std::make_shared<harmonic_voting>(1)));
+	}
 
 	e_methods.push_back(multiwinner_stats(std::make_shared<harmonic_voting>
-			(0)));
+			(10)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<harmonic_voting>
-			(0.5)));
+			(100)));
 	e_methods.push_back(multiwinner_stats(std::make_shared<harmonic_voting>
-			(1)));
+			(1000)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<harmonic_voting>
+			(100000)));
+	e_methods.push_back(multiwinner_stats(std::make_shared<harmonic_voting>
+			(1e9)));
 
+	// Not the most elegant way to parameterize.
+	if (extensive_param_sweep) {
+		for (double p = -10; p < 10; p += 0.1) {
+			e_methods.push_back(multiwinner_stats(
+					std::make_shared<isoelastic>(isoelastic_eval(p))));
+		}
+	} else {
+		e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
+					isoelastic_eval(-0.5))));
+		e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
+					isoelastic_eval(0))));
+		e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
+					isoelastic_eval(2))));
+	}
 
-	// It's possible to parameterize, but this way of passing parameters is
-	// not very elegant.
-	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
-				isoelastic_eval(-1))));
-	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
-				isoelastic_eval(-0.5))));
-	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
-				isoelastic_eval(0))));
-	e_methods.push_back(multiwinner_stats(std::make_shared<isoelastic>(
-				isoelastic_eval(2))));
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
 				log_penalty_eval(1))));
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
@@ -741,24 +789,47 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(std::make_shared<log_penalty>(
 				log_penalty_eval(1000))));
 
-	// Test some rusty methods.
+	// Below this point are the rusty methods.
 
-	// Nope
+	// The two below work but are *very* slow. Too bad, because they
+	// seem to be on the Pareto frontier. Of the two, CFC-Kemeny (i.e.
+	// init parameter false) is the best theoretically founded.
+	// Try these parameters if you want to use it.
+	/*num_voters = 32;
+	num_candidates = 4;
+	council_size = 2 + random() % 2;*/
+
+	// Some preliminary stats with these parameters and Sainte-Laguë
+	// error are:
+	//  Prop'ty  Utility
+	//  0.61272  0.585    CFC-Kemeny (EXP)
+	//  0.52561  0.63968  FC-Kemeny (EXP)
+	// -0.44419  0.40814  SL-Kemeny (EXP, 34e)
+	//  0.67621  0.36445  MW-Kemeny (EXP)
+
+	//  0.38733  0.86918  STV (for comparison)
+
+	// So a tunable CFC-Kemeny, or something in the same vein that
+	// isn't too slow to deal with reasonable election sizes, will
+	// probably beat or tie all of these Kemeny variants.
+
 	/*e_methods.push_back(multiwinner_stats(
-		std::make_shared<fc_kemeny>(true)));
+		std::make_shared<fc_kemeny>(true)));			// FC-Kemeny
 	e_methods.push_back(multiwinner_stats(
-		std::make_shared<fc_kemeny>(false)));*/
+		std::make_shared<fc_kemeny>(false)));			// CFC-Kemeny
+	*/
 
-	// Nope! (Times out and proportionality < 0.)
+	// This one is similarly expensive, but its proportionality is
+	// less than zero, thus not very good. (SL-Kemeny)
 	/*e_methods.push_back(multiwinner_stats(
 			std::make_shared<mw_kemeny2_34e>()));*/
 
-	// Too slow, has worse proportionality than birational with
-	// about the same utility VSE.
-	/*e_methods.push_back(multiwinner_stats(
+	// MW-Kemeny
+	/*
+	e_methods.push_back(multiwinner_stats(
 			std::make_shared<mw_kemeny>()));*/
 
-	// Slow but okay performance. May be something to investigate further,
+	// Slow but okay quality values. May be something to investigate further,
 	// later, since it's much better than my recent attempt at
 	// reimplementing Set Webster.
 
@@ -770,33 +841,6 @@ std::vector<multiwinner_stats> get_multiwinner_methods() {
 	e_methods.push_back(multiwinner_stats(
 			std::make_shared<mono_webster_c37>(false, MMC_PLUSONE, true, false)));
 	*/
-
-	// QPQ mass test
-	// Disabled for now because QPQ needs a more extensive rework.
-	/*
-	double coeff;
-
-	for (coeff = 0; coeff < 1.0; coeff += 0.1) {
-		double rc;
-		if (coeff == 0) {
-			rc = 0.05;
-		} else	{
-			rc = coeff;
-		}
-
-		e_methods.push_back(multiwinner_stats(new QPQ(rc, false)));
-	}
-
-	for (coeff = 0; coeff < 1.0; coeff += 0.1) {
-		double rc;
-		if (coeff == 0) {
-			rc = 0.05;
-		} else	{
-			rc = coeff;
-		}
-
-		e_methods.push_back(multiwinner_stats(new QPQ(rc, true)));
-	}*/
 
 	return e_methods;
 }
@@ -818,7 +862,7 @@ int main(int argc, char * * argv) {
 
 	assert(maxnum > 0);
 
-	vector<multiwinner_stats> e_methods = get_multiwinner_methods();
+	vector<multiwinner_stats> e_methods = get_multiwinner_methods(false);
 
 	/////////////////////////////////////////////////////////////////////////
 	/// Done adding voting methods.
@@ -916,18 +960,19 @@ int main(int argc, char * * argv) {
 		// (almost; it's slightly too generous). TODO: Explain why.
 		// And perhaps put it somewhere else once I've refactored
 		// properly.
-
+		/*
 		region_mapper.add_points(get_droop_council_results(ballots,
 				num_candidates, council_size,
 				population_profiles, pop_opinion_profile,
 				utilities, cur_best_disprop, cur_mean_disprop,
 				cur_best_utility, cur_random_utility));
 		region_mapper.update();
-		std::ofstream coords_out("droop_coords.txt");
+		std::ofstream coords_out("droop_coords_200.txt");
 		region_mapper.dump_coordinates(coords_out);
+		*/
 
 		// The stuff below should use proper multiwinner_stats objects.
-		// TODO!!!
+		// TODO
 
 		std::cout << "Random candidate (raw): " << cur_mean_disprop << "\n";
 
@@ -953,6 +998,7 @@ int main(int argc, char * * argv) {
 		std::cout << "\n";
 		std::cout << s_padded("Prop.", 8) << " " << s_padded("VSE",
 				8) << " Method\n";
+
 		for (size_t counter = 0; counter < e_methods.size(); ++counter) {
 			if (e_methods[counter].method() == NULL) {
 				continue;
@@ -963,19 +1009,20 @@ int main(int argc, char * * argv) {
 			// and ideally we should have "permissible" within
 			// the method itself, to calculate for each method
 			// whether we can reasonably find the winners.
+			// TODO: Remove it because it isn't properly implemented anyway.
 			if (!e_methods[counter].method()->polytime() && council_size > 15) {
 				continue;
 			}
 
 			std::list<size_t> council = e_methods[counter].method()->
 				get_council(council_size,
-					num_candidates,	ballots);
+					num_candidates, ballots);
 
 			error = get_error(council, num_candidates,
 					council_size, population_profiles,
 					pop_opinion_profile);
 
-			e_methods[counter].add_result(rdic_value, error, cur_best_disprop);
+			e_methods[counter].add_result(cur_mean_disprop, error, cur_best_disprop);
 
 			// VSE update
 
@@ -986,6 +1033,7 @@ int main(int argc, char * * argv) {
 				cur_random_utility, this_method_utility, cur_best_utility);
 
 			// Print it all out.
+			// TODO: Place a timer here so we only do it so often.
 
 			cout << e_methods[counter].display_stats(
 					method_utility[e_methods[counter].get_name()].get()) << endl;
