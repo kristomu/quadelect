@@ -18,6 +18,8 @@
 #include "setwise/coalition.h"
 #include "tools/tools.h"
 
+#include "hack/msvc_random.h"
+
 using namespace std;
 
 enum margin_type { MM_PLUSONE = 0, MM_PLUSHALF = 1, MM_FABS = 2, MM_INVERTED = 3 };
@@ -234,7 +236,7 @@ std::set<std::set<int> > mono_webster_640::get_passed_lowest(
 		}
 	}
 
-	assert(finite(last_true));
+	assert(isfinite(last_true));
 
 	std::set<std::set<int> > passed_sets = get_passed_sets(constraints, in,
 			last_true);
@@ -255,7 +257,7 @@ std::set<std::set<int> > mono_webster_640::get_passed_lowest(
 	}
 	divisor = last_true;
 
-	if (finite(last_true)) {
+	if (isfinite(last_true)) {
 		return (passed_sets);
 	} else	{
 		return (std::set<std::set<int> >());    // Shouldn't happen

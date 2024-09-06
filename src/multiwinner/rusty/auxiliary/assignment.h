@@ -112,11 +112,10 @@ void assignment::initialize(double n, int u, int k,
 	// Row (constraint #) indices in ia, column indices (var #) in ja,
 	// multipliers (always 1) in ar.
 
-	//int ia[u*k], ja[u*k];
-	//double ar[u*k];
-
-	int ia[u*k*2], ja[u*k*2];
-	double ar[u*k*2];
+	// Building these arrays dynamically doesn't work for some
+	// reason. Find out why later.
+	std::vector<int> ia(u*k*2, 0), ja(u*k*2, 0);
+	std::vector<double> ar(u*k*2, 0);
 
 	// Now actually link the constraints to the right variables.
 	// First the ballot power constraints (includes a single row)...
@@ -143,7 +142,7 @@ void assignment::initialize(double n, int u, int k,
 		++constraint_num;
 	}
 
-	glp_load_matrix(lp, lincount-1, ia, ja, ar);
+	glp_load_matrix(lp, ia.size(), ia.data(), ja.data(), ar.data());
 
 	// And we're all set to receive the distances.
 	return;

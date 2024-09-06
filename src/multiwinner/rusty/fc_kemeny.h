@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include <iterator>
-#include <ext/numeric>
+#include <numeric>
 #include <vector>
 
 using namespace std;
