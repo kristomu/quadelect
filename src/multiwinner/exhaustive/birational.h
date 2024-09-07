@@ -5,14 +5,45 @@ class birational_eval : public scored_method {
 		double evaluate(combo::it & start, combo::it & end,
 			const scored_ballot & this_ballot);
 
+		double K;
+		bool relative;
+
 	public:
 		std::string name() const {
-			return "Cardinal: Birational";
+
+			// For "absolute" as in absolute scale
+			std::string rel_abs = "A-Birational";
+
+			if (relative) {
+				rel_abs = "R-Birational"; // [R]elative, i.e. normalized.
+			}
+
+			if (K == 1) {
+				return "Cardinal: " + rel_abs;
+			} else {
+				return "Cardinal: " + rel_abs + " ext (" + dtos(K) + ")";
+			}
 		}
 
 		bool maximize() const {
 			return true;
 		}
+
+		birational_eval() {
+			K = 1;
+			relative = true;
+		}
+
+		birational_eval(double K_in) {
+			K = K_in;
+			relative = true;
+		}
+
+		birational_eval(double K_in, bool relative_in) {
+			K = K_in;
+			relative = relative_in;
+		}
+
 };
 
 double birational_eval::evaluate(combo::it & start, combo::it & end,
@@ -40,7 +71,7 @@ double birational_eval::evaluate(combo::it & start, combo::it & end,
 	// It might also be a good idea to try normalization here as well,
 	// particularly given the extreme results it's producing...
 
-	double total = 0;
+	double total = 0, atw, ats;
 
 	for (auto pos = start; pos != end; ++pos) {
 		size_t w = *pos;
@@ -48,8 +79,13 @@ double birational_eval::evaluate(combo::it & start, combo::it & end,
 		for (auto sec_pos = start; sec_pos != end; ++sec_pos) {
 			size_t s = *sec_pos;
 
-			double atw = this_ballot.scores[w],
-				   ats = this_ballot.scores[s];
+			if (relative) {
+				atw = this_ballot.get_norm_score(w);
+				ats = this_ballot.get_norm_score(s);
+			} else {
+				atw = this_ballot.scores[w];
+				ats = this_ballot.scores[s];
+			}
 
 			if (!isfinite(atw)) {
 				atw = 0;
@@ -58,7 +94,7 @@ double birational_eval::evaluate(combo::it & start, combo::it & end,
 				ats = 0;
 			}
 
-			total += atw / (1 + ats);
+			total += atw / (K + ats);
 		}
 	}
 
