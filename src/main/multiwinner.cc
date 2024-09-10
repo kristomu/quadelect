@@ -13,9 +13,9 @@
 #include "singlewinner/elimination/elimination.h"
 #include "singlewinner/stats/cardinal.h"
 
+#include "stats/multiwinner/convex_hull.h"
 #include "stats/multiwinner/mwstats.h"
 #include "stats/multiwinner/vse.h"
-#include "stats/multiwinner/vse_region_mapper.h"
 
 #include "multiwinner/helper/errors.cc"
 
@@ -462,6 +462,63 @@ std::vector<VSE_point> get_droop_council_results(
 	return droop_councils;
 }
 
+// A simple copy of the above, but for all councils.
+// Maybe it would be better to do both in one function so that the
+// VSE calculations aren't duplicated. Just enumerate them all and
+// then if (compatible with droop quota) etc.
+
+std::vector<VSE_point> get_all_council_results(
+	const election_t & election,
+	size_t num_candidates, size_t council_size,
+	const std::vector<vector<bool> > & population_profiles,
+	const std::vector<double> & whole_pop_profile,
+	const std::vector<double> & utilities,
+	double best_disprop, double random_disprop,
+	double best_utility, double random_utility) {
+
+	std::vector<size_t> candidates(num_candidates, 0);
+	std::iota(candidates.begin(), candidates.end(), 0);
+
+	std::vector<std::vector<size_t> > all_councils;
+
+	// Just get all the combinations so I don't have to introduce every
+	// parameter into the closure. It's much slower than doing the
+	// VSE instantiation inside, but... fix later maybe.
+
+	for_each_combination(candidates.begin(), candidates.begin() + council_size,
+		candidates.end(),
+		[&all_councils](std::vector<size_t>:: const_iterator start,
+	std::vector<size_t>:: const_iterator end) -> bool {
+
+		all_councils.push_back(std::vector<size_t>(start, end));
+
+		return false;
+	});
+
+	std::vector<VSE_point> out_councils;
+
+	for (auto & council: all_councils) {
+		// Cut and paste from above
+		std::list<size_t> converted(council.begin(), council.end());
+
+		double disprop = get_error(converted, num_candidates,
+				council_size, population_profiles,
+				whole_pop_profile);
+
+		double utility = get_council_utility(utilities,
+				converted);
+
+		VSE disprop_VSE;
+		disprop_VSE.add_result(random_disprop, disprop, best_disprop);
+		VSE utility_VSE;
+		utility_VSE.add_result(random_utility, utility, best_utility);
+
+		out_councils.push_back({disprop_VSE, utility_VSE});
+	}
+
+	return out_councils;
+}
+
 // n * tries instead of plain n(as we would have with a vector of ballots.
 // TODO: Just calculate the expected value by letting every voter be
 // a dictator.
@@ -847,7 +904,7 @@ std::vector<multiwinner_stats> get_multiwinner_methods(
 
 int main(int argc, char * * argv) {
 
-	vse_region_mapper region_mapper(200);
+	VSE_convex_hull convhull_droop, convhull_all;
 
 	// Used for inlining.
 	int maxnum = 0;
@@ -961,14 +1018,24 @@ int main(int argc, char * * argv) {
 		// And perhaps put it somewhere else once I've refactored
 		// properly.
 		/*
-		region_mapper.add_points(get_droop_council_results(ballots,
-				num_candidates, council_size,
-				population_profiles, pop_opinion_profile,
-				utilities, cur_best_disprop, cur_mean_disprop,
-				cur_best_utility, cur_random_utility));
-		region_mapper.update();
-		std::ofstream coords_out("droop_coords_200.txt");
-		region_mapper.dump_coordinates(coords_out);
+		convhull_droop.add_points(get_droop_council_results(ballots,
+			num_candidates, council_size,
+			population_profiles, pop_opinion_profile,
+			utilities, cur_best_disprop, cur_mean_disprop,
+			cur_best_utility, cur_random_utility));
+		convhull_droop.update();
+		std::ofstream coords_out("convex_hull_droop.txt");
+		convhull_droop.dump_coordinates(coords_out);
+
+		// And then for *all* points.
+		convhull_all.add_points(get_all_council_results(ballots,
+			num_candidates, council_size,
+			population_profiles, pop_opinion_profile,
+			utilities, cur_best_disprop, cur_mean_disprop,
+			cur_best_utility, cur_random_utility));
+		convhull_all.update();
+		std::ofstream coords_out_all("convex_hull_all.txt");
+		convhull_all.dump_coordinates(coords_out_all);
 		*/
 
 		// The stuff below should use proper multiwinner_stats objects.

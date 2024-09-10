@@ -107,7 +107,7 @@ std::vector<VSE_point_wrapper> VSE_convex_hull::convex_hull(
 	// Early pruning, etc, TODO; we know roughly where each point is,
 	// too.
 
-	std::cout << "Dealing with " << n << " potential points.\n";
+	std::cout << "Convex hull: Dealing with " << n << " potential points.\n";
 
 	std::vector<VSE_point_wrapper> H(2*n);
 
@@ -131,6 +131,9 @@ std::vector<VSE_point_wrapper> VSE_convex_hull::convex_hull(
 	}
 
 	H.resize(k-1);
+
+	std::cout << "Convex hull: reduced to " << k-1 << " points. " << std::endl;
+
 	return H;
 }
 
