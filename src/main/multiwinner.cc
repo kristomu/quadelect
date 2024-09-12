@@ -639,7 +639,8 @@ std::vector<multiwinner_stats> get_multiwinner_methods(
 	positional_methods.push_back(std::make_shared<nauru>(PT_WHOLE));
 	positional_methods.push_back(std::make_shared<heismantrophy>(PT_WHOLE));
 	positional_methods.push_back(std::make_shared<baseballmvp>(PT_WHOLE));
-	positional_methods.push_back(std::make_shared<worstpos>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<worstplur>(PT_WHOLE));
+	positional_methods.push_back(std::make_shared<worstantiplur>(PT_WHOLE));
 
 	size_t counter;
 

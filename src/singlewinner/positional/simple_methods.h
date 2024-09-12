@@ -250,7 +250,8 @@ class nrem : public positional {
 // A few deliberately perverse ones, to check the dynamics of voter reweighting
 // and PR/minority support.
 
-class worstpos : public positional {
+// Elects the Antiplurality loser...
+class worstantiplur : public positional {
 	protected:
 		double pos_weight(size_t position, size_t last_position) const {
 			if (position == last_position) {
@@ -261,13 +262,34 @@ class worstpos : public positional {
 		}
 
 		std::string pos_name() const {
-			return ("Worst Plurality");
+			return ("Worst Antiplurality");
 		}
 
 	public:
-		worstpos(positional_type kind_in) : positional(kind_in) {}
+		worstantiplur(positional_type kind_in) : positional(kind_in) {}
 };
 
+// ... the plurality loser...
+class worstplur : public positional {
+	protected:
+		size_t zero_run_beginning() const {
+			return (1);
+		}
+		double pos_weight(size_t position, size_t last_position) const {
+			if (position == 0) {
+				return (-1);
+			} else {
+				return (0);
+			}
+		}
+		std::string pos_name() const {
+			return ("Worst Plurality");
+		}
+	public:
+		worstplur(positional_type kind_in) : positional(kind_in) {}
+};
+
+// or the Borda loser.
 class worstborda : public positional {
 	protected:
 		double pos_weight(size_t position, size_t last_position) const {

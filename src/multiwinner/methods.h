@@ -98,13 +98,13 @@ class mult_ballot_reweighting : public multiwinner_method {
 // Say the original weight is origwt. Then at some round,
 // 	weight = origwt * C / (C + Q)
 // 	where
-// 		C = M (D'Hondt) or M/2 (Sainte-Lague)
-// 		M = maximum attainable score of all the rounds
-// 		Q = sum of score given to elected candidates
-// There are two ways this can be treated. Either M is the same for all rounds
-// for positional systems, or it's the maximum given the number of unelected
-// candidates left. The latter seems to give better scores. For Range, M is
-// fixed and so the two approaches are equal.
+// 		C = 1 (D'Hondt) or 1/2 (Sainte-Lague)
+// 		Q = sum of scores given to elected candidates,
+//			with each score normalized so that maximum is 1 and minimum is 0.
+// There are two ways this can be treated. Either the maximum is the same for
+// all rounds for positional systems, or it's the maximum given the number of
+// unelected candidates left. The latter seems to give better scores.
+// For Range, the maximum is fixed and so the two approaches are equal.
 class addt_ballot_reweighting : public multiwinner_method {
 
 	private:

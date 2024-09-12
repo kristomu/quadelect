@@ -100,7 +100,8 @@ std::vector<std::shared_ptr<positional> > get_positional_methods(
 		pmethods.push_back(std::make_shared<eurovision>(*pos));
 		pmethods.push_back(std::make_shared<dabagh>(*pos));
 		pmethods.push_back(std::make_shared<nrem>(*pos));
-		pmethods.push_back(std::make_shared<worstpos>(*pos));
+		pmethods.push_back(std::make_shared<worstplur>(*pos));
+		pmethods.push_back(std::make_shared<worstantiplur>(*pos));
 		pmethods.push_back(std::make_shared<worstborda>(*pos));
 	}
 
