@@ -52,6 +52,8 @@
 
 #include "hack/msvc_random.h"
 
+#include "tools/time_tools.h"
+
 #include <vector>
 #include <iostream>
 #include <iterator>
@@ -254,8 +256,13 @@ double get_error(std::list<size_t> council,
 	for (auto pos = council.begin();
 		pos != council.end(); ++pos) {
 
-		assert(0 <= *pos && *pos < num_candidates);
-		assert(!seen[*pos]);
+		if (*pos >= (size_t)num_candidates) {
+			throw std::invalid_argument("get_error: Council names out-of-bounds candidates");
+		}
+
+		if (seen[*pos]) {
+			throw std::invalid_argument("get_error: same candidate named twice");
+		}
 
 		seen[*pos] = true;
 		++seen_size;
@@ -265,9 +272,10 @@ double get_error(std::list<size_t> council,
 		throw std::invalid_argument("get_error: Given council is the wrong size!");
 	}
 
-	return errm(whole_pop_profile,
-			get_quantized_opinion_profile(
-				council, population_profiles));
+	// Quantized first!
+	return errm(get_quantized_opinion_profile(
+				council, population_profiles),
+			whole_pop_profile);
 }
 
 /* Majoritarian utility (VSE)
@@ -764,6 +772,8 @@ std::vector<multiwinner_stats> get_multiwinner_methods(
 	} else {
 		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, false)));
 		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(-1, true)));
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.1, false)));
+		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.1, true)));
 		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, false)));
 		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(0.5, true)));
 		e_methods.push_back(multiwinner_stats(std::make_shared<QPQ>(1, false)));
@@ -938,6 +948,8 @@ int main(int argc, char * * argv) {
 	// then this could also do all the Pareto stuff I'd like to do.
 	VSE random_dictator_disprop, random_dictator_maj;
 
+	time_pt last_printout = get_now();
+
 	for (int idx = 0; idx < maxnum || run_forever; ++idx) {
 
 		srandom(idx); // So we can replay in the case of bugs.
@@ -1067,6 +1079,9 @@ int main(int argc, char * * argv) {
 		std::cout << s_padded("Prop.", 8) << " " << s_padded("VSE",
 				8) << " Method\n";
 
+		time_pt now = get_now();
+		bool did_printout = false;
+
 		for (size_t counter = 0; counter < e_methods.size(); ++counter) {
 			if (e_methods[counter].method() == NULL) {
 				continue;
@@ -1100,11 +1115,18 @@ int main(int argc, char * * argv) {
 			method_utility[e_methods[counter].get_name()].add_result(
 				cur_random_utility, this_method_utility, cur_best_utility);
 
-			// Print it all out.
-			// TODO: Place a timer here so we only do it so often.
+			// Print it all out if it's been a while since last time, or
+			// if we're at the last iteration.
 
-			cout << e_methods[counter].display_stats(
-					method_utility[e_methods[counter].get_name()].get()) << endl;
+			if (idx == maxnum-1 || secs_elapsed(last_printout, now) > 5) {
+				cout << e_methods[counter].display_stats(
+						method_utility[e_methods[counter].get_name()].get()) << endl;
+				did_printout = true;
+			}
+		}
+
+		if (did_printout) {
+			last_printout = now;
 		}
 	}
 }

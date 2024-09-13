@@ -57,7 +57,9 @@ double sli(const std::vector<double> & quantized, const
 			(pop_profile[counter] + slack);
 	}
 
-	return (sum/(double)sumcount);
+	// Not mean, just raw
+	// not that it matters :-)
+	return sum;
 }
 
 double webster_idx(const std::vector<double> & quantized,
