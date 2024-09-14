@@ -36,7 +36,6 @@ double evaluate(const party_list_result & result,
 	return sli;
 }
 
-
 /* Divisor methods, using the Webster formulation. */
 
 party_list_result get_council_inner(double rounding_bias,
@@ -192,7 +191,7 @@ class voter_opinions {
 		std::vector<std::vector<bool> > opinions;
 		std::vector<std::vector<bool> > candidate_opinions;
 
-		std::vector<double> opinion_share;
+		std::vector<double> opinion_profile;
 };
 
 voter_opinions get_party_voting_instance(size_t num_voters,
@@ -238,13 +237,11 @@ voter_opinions get_party_voting_instance(size_t num_voters,
 
 		while (party < num_parties && cdf_so_far < p) {
 			cdf_so_far += support[party];
-			//std::cout << "party " << party << " with CDF so far " << cdf_so_far << std::endl;
 			if (cdf_so_far < p) {
 				++party;
 			}
 		}
 
-		//std::cout << "Picked party " << party << " with p " << p << std::endl;
 		std::vector<bool> opinion(num_issues, false);
 		opinion[party] = true;
 		output.opinions.push_back(opinion);
@@ -255,7 +252,7 @@ voter_opinions get_party_voting_instance(size_t num_voters,
 		support[party] = voters_supporting_party[party]/(double)num_voters;
 	}
 
-	output.opinion_share = support;
+	output.opinion_profile = support;
 
 	return output;
 }
@@ -403,9 +400,9 @@ void test_sli_implementation() {
 // It's currently known that delta=0 and delta=1 give diverging
 // results; so we should properly only trust 0 < delta < 1.
 
-void test_harmonic(std::vector<double> & sli_results,
-	std::vector<size_t> & tests_performed,
-	size_t max_bias_bins) {
+void test_harmonic(std::vector<double> & out_sli_results,
+	std::vector<size_t> & out_tests_performed,
+	size_t max_bias_bin) {
 
 	size_t num_voters = 20, num_parties = 5, num_seats = 5;
 
@@ -429,7 +426,7 @@ void test_harmonic(std::vector<double> & sli_results,
 
 		try {
 			direct_party_list_result = get_council(
-					rounding_bias, opinion_instance.opinion_share,
+					rounding_bias, opinion_instance.opinion_profile,
 					num_seats);
 		} catch (std::runtime_error & e) {
 			continue;
@@ -452,18 +449,183 @@ void test_harmonic(std::vector<double> & sli_results,
 		std::cout << "\n";
 
 		if (pr_result.seats != direct_party_list_result.seats) {
-			throw std::runtime_error("Discrepancy detected!");
+			throw std::runtime_error("Harmonic voting: Discrepancy "
+				"with party list outcome detected!");
 		}
 
-		sli_results[]
+		out_sli_results[bias_bin] += evaluate(pr_result,
+				opinion_instance.opinion_profile);
+		++out_tests_performed[bias_bin];
 
 		std::cout << " Test: " << evaluate(pr_result,
-				opinion_instance.opinion_share) << "\n";
+				opinion_instance.opinion_profile) << "\n";
 	}
 }
 
+/* End of harmonic voting party list verification */
+
+
+/* Beginning of reproduction of the main simulator approach. */
+/* Some parts differ slightly: for instance, we don't let the
+   candidates vote, as real elections have tons of voters and
+   few candidates. */
+
+voter_opinions get_general_voting_instance(size_t num_voters,
+	size_t num_candidates, size_t num_issues, size_t council_size) {
+
+	// We want as many candidates per party as there are seats.
+	// Opinion space has as many dimensions as there are parties,
+	// and every candidate has a positive opinion of his own party.
+
+	size_t candidate, voter, issue;
+
+	voter_opinions output;
+
+	// Set the rough popularity of "yes" on each opinion axis.
+	for (issue = 0; issue < num_issues; ++issue) {
+		output.opinion_profile.push_back(drand48());
+	}
+
+	// Set the voters' opinions.
+	for (voter = 0; voter < num_voters; ++voter) {
+		std::vector<bool> voter_opinion(num_issues, false);
+
+		for (issue = 0; issue < num_issues; ++issue) {
+			voter_opinion[issue] = (drand48() < output.opinion_profile[issue]);
+		}
+		output.opinions.push_back(voter_opinion);
+	}
+
+	// Update popularity.
+	for (issue = 0; issue < num_issues; ++issue) {
+		size_t agreeing_voters = 0;
+		for (voter = 0; voter < num_voters; ++voter) {
+			if (output.opinions[voter][issue]) {
+				++agreeing_voters;
+			}
+		}
+		output.opinion_profile[issue] = agreeing_voters/(double)num_voters;
+	}
+
+	// Set the candidates' opinions.
+	for (candidate = 0; candidate < num_candidates; ++candidate) {
+		std::vector<bool> cand_opinion(num_issues, false);
+
+		for (issue = 0; issue < num_issues; ++issue) {
+			cand_opinion[issue] = (drand48() < output.opinion_profile[issue]);
+		}
+		output.candidate_opinions.push_back(cand_opinion);
+	}
+
+	return output;
+}
+
+double evaluate_sli(const voter_opinions & opinion_instance,
+	assignment outcome) {
+
+	size_t num_candidates = opinion_instance.candidate_opinions.size();
+	size_t num_issues = opinion_instance.opinion_profile.size();
+	size_t issue;
+
+	std::vector<double> elected_opinion_profile(num_issues, 0);
+
+	// Get the opinion profile of the elected candidates.
+	for (size_t elected_cand_idx: outcome) {
+		for (issue = 0; issue < num_issues; ++issue) {
+			if (opinion_instance.candidate_opinions[elected_cand_idx][issue]) {
+				++elected_opinion_profile[issue];
+			}
+		}
+	}
+
+	for (issue = 0; issue < num_issues; ++issue) {
+		elected_opinion_profile[issue] /= (double)num_candidates;
+	}
+
+	double sli = 0;
+
+	for (issue = 0; issue < num_issues; ++issue) {
+		double observed = elected_opinion_profile[issue];
+		double expected = opinion_instance.opinion_profile[issue];
+
+		if (observed == 0 && expected == 0) {
+			continue;
+		}
+
+		sli += pow(observed - expected, 2)/expected;
+	}
+
+	return sli;
+}
+
+
+// Now try generating more complex opinion profiles. Are we going to
+// get the same strange lower-bias preference as in the main simulator?
+
+void test_harmonic_composite(std::vector<double> & out_sli_results,
+	std::vector<size_t> & out_tests_performed,
+	size_t max_bias_bin) {
+
+	size_t num_voters = 20, num_parties = 5, num_seats = 5,
+		   num_issues = 4, num_candidates = 8, council_size = 5;
+
+	voter_opinions opinion_instance = get_general_voting_instance(
+			num_voters, num_candidates, num_issues, council_size);
+
+	std::vector<std::vector<double> > rated_ballots =
+		get_rated_ballots(opinion_instance);
+
+	for (size_t bias_bin = 1; bias_bin < max_bias_bin; ++bias_bin) {
+
+		double rounding_bias = bias_bin / (double) max_bias_bin;
+
+		assignment optimal_council = get_optimal_council(rounding_bias,
+				rated_ballots, num_seats);
+
+		double sli_result = evaluate_sli(opinion_instance,
+				optimal_council);
+
+		out_sli_results[bias_bin] += sli_result;
+		++out_tests_performed[bias_bin];
+
+		/*std::cout << "Bias: " << rounding_bias << " Test: "
+			<< sli_result << "\n";*/
+	}
+}
+
+// IDEA: Determine bias this way:
+
+// Let x_i be the fraction of the voters who agree with issue i.
+// Let y_i be the number of seats held by candidates who agree with issue i,
+//			divided by x_i, i.e. the number of seats per voter, times a
+//			constant.
+// Use Spearman's rank correlation between x_i and y_i. If large x_i predict
+// large y_i then we have a "big opinion bias" and vice versa.
+
+// I'm going to need some kind of anchor point to determine if Harmonic is
+// simply bad or if something else is going on.
+
 int main() {
+	size_t max_bias_bin = 20;
+
+	std::vector<double> sli_results(max_bias_bin+1);
+	std::vector<size_t> tests_performed(max_bias_bin+1);
+
 	for (int i = 0; i < 100; ++i) {
-		test_harmonic();
+		std::cout << "==== iteration " << i << " ====\n";
+		test_harmonic_composite(sli_results, tests_performed,
+			max_bias_bin);
+	}
+
+	for (size_t bias_bin = 0; bias_bin <= max_bias_bin; ++bias_bin) {
+		double rounding_bias = bias_bin / (double) max_bias_bin;
+
+		std::cout << "Bias: " << rounding_bias << "\t";
+
+		if (tests_performed[bias_bin] == 0) {
+			std::cout << "N/A\n";
+		} else {
+			std::cout << sli_results[bias_bin]/tests_performed[bias_bin] << "\n";
+		}
 	}
 }
