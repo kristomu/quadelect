@@ -336,10 +336,12 @@ std::vector<std::vector<double> > get_rated_ballots(
 			candidate < vo.candidate_opinions.size(); ++candidate) {
 			size_t rating = hamming_equality(vo.opinions[voter],
 					vo.candidate_opinions[candidate]);
-			this_ballot.push_back(rating);
+			this_ballot.push_back(rating
+				+ drand48() * 0.001);
 			//std::cout << rating << " ";
 		}
 		ballots.push_back(normalize(this_ballot));
+		//ballots.push_back(this_ballot);
 		/*std::cout << "\n";
 		std::vector<double> normalized = normalize(this_ballot);
 		std::cout << "\tAfter normalization: ";
@@ -483,7 +485,7 @@ voter_opinions get_general_voting_instance(size_t num_voters,
 
 	// Set the rough popularity of "yes" on each opinion axis.
 	for (issue = 0; issue < num_issues; ++issue) {
-		output.opinion_profile.push_back(drand48());
+		output.opinion_profile.push_back(/*drand48()*/0.1);
 	}
 
 	// Set the voters' opinions.
@@ -562,6 +564,9 @@ double evaluate_sli(const voter_opinions & opinion_instance,
 // Now try generating more complex opinion profiles. Are we going to
 // get the same strange lower-bias preference as in the main simulator?
 
+double evaluate_bias(const voter_opinions & opinion_instance,
+	assignment outcome);
+
 void test_harmonic_composite(std::vector<double> & out_sli_results,
 	std::vector<size_t> & out_tests_performed,
 	size_t max_bias_bin) {
@@ -589,7 +594,8 @@ void test_harmonic_composite(std::vector<double> & out_sli_results,
 		++out_tests_performed[bias_bin];
 
 		/*std::cout << "Bias: " << rounding_bias << " Test: "
-			<< sli_result << "\n";*/
+			<< sli_result << " " << evaluate_bias(opinion_instance,
+				optimal_council) << "\n";*/
 	}
 }
 
@@ -602,8 +608,93 @@ void test_harmonic_composite(std::vector<double> & out_sli_results,
 // Use Spearman's rank correlation between x_i and y_i. If large x_i predict
 // large y_i then we have a "big opinion bias" and vice versa.
 
+// We should also determine if it's possible to choose candidates so that this
+// is unbiased. If not, then the model itself may be biased.
+
 // I'm going to need some kind of anchor point to determine if Harmonic is
 // simply bad or if something else is going on.
+
+// https://wikimedia.org/api/rest_v1/media/math/render/svg/5984dfb290912b0e0b92a984bf49cdd628c38b2c
+
+double correlation(std::vector<double> & x, std::vector<double> & y) {
+
+	if (x.size() != y.size()) {
+		throw std::runtime_error("Correlation: equal sized vectors, please.");
+	}
+
+	size_t i;
+
+	double EX = std::accumulate(x.begin(), x.end(), 0.0)/x.size();
+	double EY = std::accumulate(y.begin(), y.end(), 0.0)/y.size();
+	double EXY = 0, EXsq = 0, EYsq = 0;
+
+	for (i = 0; i < x.size(); ++i) {
+		EXY += x[i] * y[i];
+		EXsq += x[i] * x[i];
+		EYsq += y[i] * y[i];
+	}
+
+	EXY /= x.size();
+	EXsq /= x.size();
+	EYsq /= y.size();
+
+	return (EXY - EX * EY) / (sqrt(EXsq - EX*EX) * sqrt(EYsq - EY*EY));
+}
+
+double rank_correlation(std::vector<double> & x, std::vector<double> & y) {
+
+	std::vector<std::pair<double, size_t> > xp, yp;
+
+	for (size_t i = 0; i < x.size(); ++i) {
+		xp.push_back({x[i], i});
+		yp.push_back({y[i], i});
+	}
+
+	std::sort(xp.begin(), xp.end());
+	std::sort(yp.begin(), yp.end());
+
+	std::vector<double> x_rank, y_rank;
+
+	for (size_t i = 0; i < x.size(); ++i) {
+		x_rank.push_back(xp[i].second);
+		y_rank.push_back(yp[i].second);
+	}
+
+	return correlation(x_rank, y_rank);
+}
+
+// Let x_i be the fraction of the voters who agree with issue i.
+// Let y_i be the number of seats held by candidates who agree with issue i,
+//			divided by x_i, i.e. the number of seats per voter, times a
+//			constant.
+// Use Spearman's rank correlation between x_i and y_i. If large x_i predict
+// large y_i then we have a "big opinion bias" and vice versa.
+
+
+// UNTESTED, I should confirm Warren's results for pure party list first...
+// Or check with some example/test vectors.
+double evaluate_bias(const voter_opinions & opinion_instance,
+	assignment outcome) {
+
+	size_t num_issues = opinion_instance.opinion_profile.size();
+
+	std::vector<double> x = opinion_instance.opinion_profile;
+	std::vector<double> y(num_issues, 0);
+
+	for (size_t candidate_idx: outcome) {
+		for (size_t issue = 0; issue < num_issues; ++issue) {
+			if (opinion_instance.candidate_opinions[candidate_idx][issue]) {
+				++y[issue];
+			}
+		}
+	}
+
+	for (size_t issue = 0; issue < num_issues; ++issue) {
+		y[issue] /= x[issue];
+	}
+
+	return rank_correlation(x, y);
+}
 
 int main() {
 	size_t max_bias_bin = 20;
@@ -611,7 +702,7 @@ int main() {
 	std::vector<double> sli_results(max_bias_bin+1);
 	std::vector<size_t> tests_performed(max_bias_bin+1);
 
-	for (int i = 0; i < 100; ++i) {
+	for (int i = 0; i < 10000; ++i) {
 		std::cout << "==== iteration " << i << " ====\n";
 		test_harmonic_composite(sli_results, tests_performed,
 			max_bias_bin);

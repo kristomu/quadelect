@@ -1,23 +1,31 @@
-
 #include "errors.h"
 
 #include <vector>
+#include <numeric>
+#include <iterator>
 #include <math.h>
 #include "tools/tools.h"
 
-double rmse(const std::vector<double> & a, const std::vector<double> & b) {
+#include <iostream>
+
+// Hmm, these might not be valid after all if they all assume mutual
+// exclusive categories (due to the nature of party list). I should
+// investigate if that's the case.
+
+double gallagher(const std::vector<double> & a,
+	const std::vector<double> & b) {
 	double squared = 0;
 	int sumcount = std::min(a.size(), b.size());
 
 	for (int counter = 0; counter < sumcount; ++counter) {
-		squared += (a[counter]-b[counter])*(a[counter]-b[counter]);
+		squared += square(a[counter] - b[counter]);
 	}
 
-	return (sqrt(squared/(double)sumcount));
+	return (sqrt(0.5 * squared));
 }
 
 
-// Loosemore-Hanby, scaled by number of entries
+// Loosemore-Hanby
 double lhi(const std::vector<double> & a, const std::vector<double> & b) {
 
 	double absdiff = 0;
@@ -27,7 +35,7 @@ double lhi(const std::vector<double> & a, const std::vector<double> & b) {
 		absdiff += fabs(a[counter]-b[counter]);
 	}
 
-	return (absdiff/(double)(sumcount));
+	return (absdiff/2.0);
 }
 
 // Sainte-Laguë Index.
@@ -35,7 +43,20 @@ double sli(const std::vector<double> & quantized, const
 	std::vector<double> & pop_profile) {
 
 	double sum = 0;
-	double slack = 1e-9; // to prevent division by zero
+	double slack = 1e-10; // to prevent division by zero
+
+#ifndef NDEBUG
+
+	double a_sum = std::accumulate(quantized.begin(), quantized.end(), 0.0),
+		   b_sum = std::accumulate(pop_profile.begin(), pop_profile.end(), 0.0);
+
+	if (fabs(a_sum - b_sum) > 1e-9) {
+		std::cout << "Expected " << a_sum << " and " << b_sum << " to be equal.\n";
+		throw std::runtime_error("Both observed and expected must use "
+			"the same scale!");
+	}
+
+#endif
 
 	// TODO: Somehow deal with the "zero vote problem", where
 	// some people have an opinion along a dimension, but no
@@ -53,6 +74,9 @@ double sli(const std::vector<double> & quantized, const
 
 	size_t sumcount = std::min(quantized.size(), pop_profile.size());
 	for (size_t counter = 0; counter < sumcount; ++counter) {
+		if (quantized[counter] == 0 && pop_profile[counter] == 0) {
+			continue;
+		}
 		sum += square(quantized[counter]-pop_profile[counter])/
 			(pop_profile[counter] + slack);
 	}
@@ -104,7 +128,9 @@ double entropy(const std::vector<double> & quantized,
 
 	for (size_t counter = 0; counter < std::min(
 			quantized.size(), real.size()); ++counter) {
-		sum += real[counter] * log(quantized[counter]);
+		if (real[counter] != 0) {
+			sum += real[counter] * log(quantized[counter]);
+		}
 	}
 
 	return (-sum);

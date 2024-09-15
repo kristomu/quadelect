@@ -21,6 +21,11 @@ double cross(const VSE_point_wrapper & O, const VSE_point_wrapper & A,
 		- (A.y() - O.y()) * (B.x() - O.x());
 }
 
+// TODO: Reduce the points if we have too many. add_point will create
+// a bunch of points and we don't need them all; this can cause memory
+// problems if it gets really bad. So we should run convex hull on partials
+// if the vector gets too big.
+
 void VSE_convex_hull::add_point(const VSE_point & cur_round_VSE) {
 	for (auto pos = hull.begin(); pos != hull.end(); ++pos) {
 
