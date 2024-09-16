@@ -917,6 +917,8 @@ int main(int argc, char * * argv) {
 
 	VSE_convex_hull convhull_droop, convhull_all;
 
+	bool do_convex_hull = false, do_methods = true;
+
 	// Used for inlining.
 	int maxnum = 0;
 	bool run_forever = false;
@@ -1030,26 +1032,35 @@ int main(int argc, char * * argv) {
 		// (almost; it's slightly too generous). TODO: Explain why.
 		// And perhaps put it somewhere else once I've refactored
 		// properly.
-		/*
-		convhull_droop.add_points(get_droop_council_results(ballots,
-			num_candidates, council_size,
-			population_profiles, pop_opinion_profile,
-			utilities, cur_best_disprop, cur_mean_disprop,
-			cur_best_utility, cur_random_utility));
-		convhull_droop.update();
-		std::ofstream coords_out("convex_hull_droop.txt");
-		convhull_droop.dump_coordinates(coords_out);
+		if (do_convex_hull) {
+			convhull_droop.add_points(get_droop_council_results(ballots,
+					num_candidates, council_size,
+					population_profiles, pop_opinion_profile,
+					utilities, cur_best_disprop, cur_mean_disprop,
+					cur_best_utility, cur_random_utility));
+			convhull_droop.update();
+			std::ofstream coords_out("convex_hull_droop.txt");
+			convhull_droop.dump_coordinates(coords_out);
 
-		// And then for *all* points.
-		convhull_all.add_points(get_all_council_results(ballots,
-			num_candidates, council_size,
-			population_profiles, pop_opinion_profile,
-			utilities, cur_best_disprop, cur_mean_disprop,
-			cur_best_utility, cur_random_utility));
-		convhull_all.update();
-		std::ofstream coords_out_all("convex_hull_all.txt");
-		convhull_all.dump_coordinates(coords_out_all);
-		*/
+			// And then for *all* points.
+			convhull_all.add_points(get_all_council_results(ballots,
+					num_candidates, council_size,
+					population_profiles, pop_opinion_profile,
+					utilities, cur_best_disprop, cur_mean_disprop,
+					cur_best_utility, cur_random_utility));
+			convhull_all.update();
+			std::ofstream coords_out_all("convex_hull_all.txt");
+			convhull_all.dump_coordinates(coords_out_all);
+
+			std::cout << "Droop quota region area: " << convhull_droop.get_area() <<
+				std::endl;
+			std::cout << "Feasible region area: " << convhull_all.get_area() <<
+				std::endl;
+		}
+
+		if (!do_methods) {
+			continue;
+		}
 
 		// The stuff below should use proper multiwinner_stats objects.
 		// TODO

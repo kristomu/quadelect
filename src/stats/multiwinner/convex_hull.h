@@ -47,7 +47,8 @@ class VSE_point_wrapper {
 class VSE_convex_hull {
 	private:
 		std::vector<VSE_point_wrapper> convex_hull(
-			std::vector<VSE_point_wrapper> & P);
+			std::vector<VSE_point_wrapper> & P,
+			bool verbose);
 
 	public:
 		std::vector<VSE_point_wrapper> hull;
@@ -56,13 +57,15 @@ class VSE_convex_hull {
 		void add_point(const VSE_point & cur_round_VSE);
 		void add_points(const std::vector<VSE_point> & points);
 
+		double get_area() const;
+
 		VSE_convex_hull() {
 			// Add empty VSE so that add_point will work properly.
 			hull.resize(1);
 		}
 
 		void update() {
-			hull = convex_hull(new_points);
+			hull = convex_hull(new_points, true);
 			new_points.clear();
 		}
 
