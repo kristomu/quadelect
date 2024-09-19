@@ -24,6 +24,26 @@ double gallagher(const std::vector<double> & a,
 	return (sqrt(0.5 * squared));
 }
 
+// G-test. I'm still not sure that this is the correct order.
+// Needs testing.
+double g_test(const std::vector<double> & quantized,
+	const std::vector<double> & pop_profile) {
+
+	double sum = 0;
+	size_t elements = std::min(quantized.size(), pop_profile.size());
+
+	for (size_t i = 0; i < elements; ++i) {
+		double observed = quantized[i],
+			   expected = pop_profile[i];
+
+		if (observed == 0) {
+			continue;
+		}
+		sum += observed * log(observed/expected);
+	}
+
+	return 2 * sum;
+}
 
 // Loosemore-Hanby
 double lhi(const std::vector<double> & a, const std::vector<double> & b) {
