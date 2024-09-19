@@ -144,13 +144,6 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 			++counter;
 		}
 
-		// Quick and dirty way of getting rid of the problems with
-		// precision mismatch. It should still sum to the number
-		// elected, but this way we won't break the assert if there's
-		// a spurious 1e-16 error or something.
-		// DONE: Fix really strange bug here.
-		assert(round(sum_weights) == num_elected);
-
 		// Calculate quotients.
 		for (counter = 0; counter < num_candidates; ++counter)
 			quotients[counter] = (C * contributing_ballots[counter])

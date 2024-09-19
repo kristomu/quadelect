@@ -72,8 +72,14 @@ double harmonic_voting_eval::evaluate(combo::it & start, combo::it & end,
 	std::sort(elected_ratings.begin(), elected_ratings.begin()+idx,
 		std::greater<double>());
 
+	// Handle division by zero in a somewhat hacky fashion.
+	double delta_adjusted = delta;
+	if (delta == 0) {
+		delta_adjusted = 1e-9;
+	}
+
 	for (size_t i = 0; i < council_size; ++i) {
-		quality += elected_ratings[i] / (i + delta);
+		quality += elected_ratings[i] / (i + delta_adjusted);
 	}
 
 	return quality;

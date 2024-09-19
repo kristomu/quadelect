@@ -38,8 +38,7 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 
 		for (ordering::const_iterator sec = pos->contents.begin();
 			sec != pos->contents.end(); ++sec) {
-			assert(sec->get_candidate_num() >= 0 &&
-				sec->get_candidate_num() <
+			assert(sec->get_candidate_num() <
 				num_candidates);
 
 			if (elected[sec->get_candidate_num()]) {
@@ -62,13 +61,15 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 			record_pos = counter;
 		}
 
-	int second_place = -1;
+	size_t second_place = 0;
+	bool set_second_place = false;
 	for (counter = 0; counter < (size_t)num_candidates; ++counter) {
 		if (counter == record_pos) {
 			continue;    // first place
 		}
-		if (second_place == -1) {
+		if (!set_second_place) {
 			second_place = counter;
+			set_second_place = true;
 			continue;
 		}
 		if (sum[counter] > sum[second_place] && !elected[counter]) {
@@ -77,7 +78,7 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 	}
 
 	// Sanity check on output. Fails if num_candidates is 1.
-	assert(second_place != record_pos && second_place >= 0);
+	assert(second_place != record_pos && set_second_place);
 
 	// Elect whoever came in first.
 	elected[record_pos] = true;

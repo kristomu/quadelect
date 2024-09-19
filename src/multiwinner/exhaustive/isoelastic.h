@@ -56,17 +56,15 @@ double isoelastic_eval::evaluate(combo::it & start, combo::it & end,
 		total_rating += this_ballot.get_norm_score(*pos);
 	}
 
+	double r_adj = r;
+
 	if (r == 1) {
 		// We should return an infinite value, but doing it like this
 		// lets us tie-break on the finite values.
-		if (total_rating == 0) {
-			return this_ballot.weight * -1e15;
-		}
-
-		return this_ballot.weight * log(total_rating);
-	} else {
-		return this_ballot.weight * pow(total_rating, r-1)/(r-1);
+		r_adj = 1 + 1e-15;
 	}
+
+	return this_ballot.weight * pow(total_rating, r_adj-1)/(r_adj-1);
 }
 
 typedef exhaustive_method_runner<isoelastic_eval> isoelastic;
