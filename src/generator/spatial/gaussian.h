@@ -18,11 +18,12 @@ class gaussian_generator : public spatial_generator {
 	private:
 		gaussian_dist gdist;
 
-	protected:
+		// Hack
+	public:
 		std::vector<double> rnd_vector(size_t size,
 			coordinate_gen & coord_source) const;
 
-	public:
+		//public:
 		gaussian_generator() : spatial_generator() {
 			uses_center = true;
 			uses_dispersion = true; set_dispersion(0.2);
@@ -49,6 +50,14 @@ class gaussian_generator : public spatial_generator {
 		double get_mean_utility(
 			coordinate_gen & coord_source, size_t num_voters,
 			size_t numcands, size_t iterations) const;
+
+		// Should this be here or should it be extracted into
+		// gaussian_dist? I don't know, let's keep it here for now.
+		// Calculate the pdf for the given point.
+
+		// I could also make this static, or an isolated function.
+
+		double pdf(const std::vector<double> & point) const;
 
 		std::string name() const;
 };

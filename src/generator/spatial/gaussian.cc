@@ -69,7 +69,20 @@ double gaussian_generator::get_mean_utility(
 	// TODO: Do the proper thing with Warren model... or remove it.
 
 	return -distance; // JGA model
+}
 
+// TODO: use log pdf if numerical precision turns out to be a pain.
+double gaussian_generator::pdf(const std::vector<double> & point) const {
+
+	double point_pdf = 1;
+
+	for (size_t i = 0; i < point.size(); ++i) {
+		double mu = center[i], sigma = dispersion[i];
+		point_pdf *= exp(-square(point[i] - mu)/(2.0 * square(sigma))) /
+			(sigma * sqrt(2.0 * PI));
+	}
+
+	return point_pdf;
 }
 
 std::string gaussian_generator::name() const {

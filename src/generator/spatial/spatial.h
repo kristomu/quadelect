@@ -40,6 +40,13 @@
 // Dispersion might need to be a covariance matrix if we want to be fully
 // general. On the other hand, I don't need that yet.
 
+struct positions_election {
+	std::vector<std::vector<double> > candidates_pos;
+	std::vector<std::vector<double> > voters_pos;
+
+	election_t ballots;
+};
+
 class spatial_generator : public pure_ballot_generator {
 	private:
 		size_t num_dimensions; // Number of axes
@@ -63,9 +70,20 @@ class spatial_generator : public pure_ballot_generator {
 			coordinate_gen & coord_source) const = 0;
 		virtual std::vector<double> max_dim_vector(size_t dimensions) const;
 
+		// Generates just the coordinates; the ballots iteself
+		// will be empty.
+		positions_election generate_positions(
+			size_t num_voters, size_t numcands,
+			coordinate_gen & coord_source) const;
+
 		election_t generate_ballots_int(int num_voters,
 			int numcands, bool do_truncate,
-			coordinate_gen & coord_source) const;
+			coordinate_gen & coord_source) const {
+
+			return generate_election_result(num_voters,
+					numcands, do_truncate,
+					coord_source).ballots;
+		}
 
 	public:
 		spatial_generator() : pure_ballot_generator() {
@@ -93,6 +111,10 @@ class spatial_generator : public pure_ballot_generator {
 			uses_center = false; uses_dispersion = false;
 			fixed = false;
 		}
+
+		positions_election generate_election_result(
+			size_t num_voters, size_t numcands, bool do_truncate,
+			coordinate_gen & coord_source) const;
 
 		bool set_params(size_t num_dimensions_in, bool warren_util_in);
 

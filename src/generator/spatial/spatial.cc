@@ -28,64 +28,64 @@ std::vector<double> spatial_generator::max_dim_vector(
 	return (toRet);
 }
 
-election_t spatial_generator::generate_ballots_int(
-	int num_voters, int numcands, bool do_truncate,
+positions_election spatial_generator::generate_positions(
+	size_t num_voters, size_t numcands,
 	coordinate_gen & coord_source) const {
 
-	election_t toRet;
+	positions_election pos_out;
+
+	size_t cand, voter;
+
+	if (fixed && (size_t)numcands == fixed_cand_positions.size()) {
+		pos_out.candidates_pos = fixed_cand_positions;
+	} else {
+		for (cand = 0; cand < numcands; ++cand) {
+			pos_out.candidates_pos.push_back(
+				rnd_vector(num_dimensions, coord_source));
+		}
+	}
+
+	for (voter = 0; voter < num_voters; ++voter) {
+		pos_out.voters_pos.push_back(
+			rnd_vector(num_dimensions, coord_source));
+	}
+
+	return pos_out;
+}
+
+positions_election spatial_generator::generate_election_result(
+	size_t num_voters, size_t numcands, bool do_truncate,
+	coordinate_gen & coord_source) const {
 
 	// I'm ripping out the truncation logic because
 	// it's so bad anyway. FIX LATER.
-	assert(!do_truncate);
-
-
-	// First generate the candidate positions.
-
-	// Optimize: could make this part of the class, and mutable.
-	// Optimize: could also make this take a list<..>& as input and then
-	// have an auxiliary generate_ballots_int create election_t,
-	// run this on it, and return it. Probably not worth too much, given
-	// that we have to compress anyway.
-	std::vector<std::vector<double> > cand_positions;
-
-	// If they're fixed and the number of candidates are right, then
-	// defer to the fixed position.
-
-	size_t counter, sec;
-
-	if (fixed && (size_t)numcands == fixed_cand_positions.size()) {
-		cand_positions = fixed_cand_positions;
-	} else {
-		for (counter = 0; counter < (size_t)numcands; ++counter)
-			cand_positions.push_back(rnd_vector(num_dimensions,
-					coord_source));
+	if (do_truncate) {
+		throw std::invalid_argument("spatial generator: truncation not supported");
 	}
 
-	// Then, for each candidate, determine his position. If we need to
-	// truncate, find a radius beyond which we don't care, otherwise
-	// rank candidates in order of distance.
+	// First generate the positions.
+	positions_election pos_elect = generate_positions(
+			num_voters, numcands, coord_source);
 
-	// TODO: Move to another function.
-
-	std::vector<double> voter_pos, distances_to_cand(numcands, 0);
+	std::vector<double> distances_to_cand(numcands, 0);
 
 	ballot_group our_entry;
 	our_entry.set_weight(1);
 
 	double max_distance = 0;
 
-	for (counter = 0; counter < (size_t)num_voters; ++counter) {
-		our_entry.contents.clear();
+	size_t counter, sec;
 
-		// Get our location.
-		voter_pos = rnd_vector(num_dimensions, coord_source);
+	for (counter = 0; counter < num_voters; ++counter) {
+		our_entry.contents.clear();
 
 		// Dump distances to all the candidates and get the minimum
 		// distance (which may be needed for truncation).
 		double mindist = INFINITY;
-		for (sec = 0; sec < (size_t)numcands; ++sec) {
-			distances_to_cand[sec] = distance(voter_pos,
-					cand_positions[sec]);
+		for (sec = 0; sec < numcands; ++sec) {
+			distances_to_cand[sec] = distance(
+					pos_elect.voters_pos[counter],
+					pos_elect.candidates_pos[sec]);
 
 			mindist = std::min(mindist, distances_to_cand[sec]);
 			max_distance = std::max(max_distance, distances_to_cand[sec]);
@@ -117,10 +117,10 @@ election_t spatial_generator::generate_ballots_int(
 				(size_t)numcands);
 		our_entry.rated = true;
 
-		toRet.push_back(our_entry);
+		pos_elect.ballots.push_back(our_entry);
 	}
 
-	return toRet;
+	return pos_elect;
 }
 
 bool spatial_generator::set_params(size_t num_dimensions_in,
@@ -135,7 +135,7 @@ bool spatial_generator::set_params(size_t num_dimensions_in,
 	num_dimensions = num_dimensions_in;
 
 	// If we've defined a mean, pad it with zeroes or cut as needed.
-	if (center.size() != num_dimensions && !center.empty()) {
+	if (uses_center && center.size() != num_dimensions) {
 		center.resize(num_dimensions, 0);
 	}
 
@@ -308,18 +308,19 @@ bool spatial_generator::set_center(const std::vector<double> center_in) {
 bool spatial_generator::set_dispersion(const std::vector<double>
 	dispersion_in) {
 	if (!uses_dispersion) {
+		throw std::invalid_argument("set_dispersion: doesn't use dispersion");
 		return (false);
 	}
 
 	// If it's not the right number of dimensions, return false too.
 	if (dispersion_in.size() != ceil(num_dimensions)) {
-		return (false);
+		throw std::invalid_argument("set_dispersion: wrong number of dimensions");
 	}
 
 	// If not all values are positive, return false.
 	for (size_t i = 0; i < dispersion_in.size(); ++i)
 		if (dispersion_in[i] <= 0) {
-			return (false);
+			throw std::invalid_argument("set_dispersion: negative dispersion!");
 		}
 
 	// Otherwise, all OK. (Again, should check against min and max.)
