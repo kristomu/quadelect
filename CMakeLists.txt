@@ -208,6 +208,7 @@ add_library(qe_multiwinner_methods
 	src/multiwinner/methods/rusty/auxiliary/dsc.cc
 	src/multiwinner/methods/shuntsstv.cc
 	src/multiwinner/methods/stv.cc
+	src/multiwinner/pr_measures/binary.cc
 	src/multiwinner/pr_measures/clustering.cc
 	src/multiwinner/pr_measures/normal_fit.cc
 	src/stats/multiwinner/convex_hull.cc
@@ -220,6 +221,7 @@ add_library(quadelect_lib src/common/ballots.cc
 	src/generator/ballotgen.cc
 	src/generator/iac.cc
 	src/generator/impartial_gen.cc
+	src/generator/spatial/bernoulli.cc
 	src/generator/spatial/gaussian.cc
 	src/generator/spatial/spatial.cc
 	src/generator/spatial/uniform.cc
