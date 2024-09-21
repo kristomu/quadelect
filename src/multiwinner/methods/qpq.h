@@ -1,9 +1,12 @@
 #pragma once
 
 #include "methods.h"
-//#include "../tiebreaker.cc"
 #include <vector>
 #include <list>
+
+// KNOWN BUG: Does not handle negative scores well. I have no idea why,
+// since this is a ranked method. Use multiwinner_spatial with Euclidean
+// distance and no noise to reproduce.
 
 class QPQ : public multiwinner_method {
 	private:

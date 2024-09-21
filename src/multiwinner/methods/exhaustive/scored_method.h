@@ -15,6 +15,10 @@ class scored_ballot {
 		std::vector<double> scores; // #voters by #cands
 
 		double get_norm_score(size_t candidate) const {
+			assert(min <= max);
+			assert(scores[candidate] >= min);
+			assert(scores[candidate] <= max);
+
 			return renorm(min, max,
 					scores[candidate], 0.0, 1.0);
 		}

@@ -53,7 +53,7 @@ double digamma(double x) {
 	//  Check the input.
 
 	if (x <= 0.0) {
-		throw std::invalid_argument("digamma: x < 0 is not supported");
+		throw std::invalid_argument("digamma: x <= 0 is not supported");
 	}
 
 	//  Initialize.
@@ -97,6 +97,12 @@ double psi_voting_eval::evaluate(combo::it & start, combo::it & end,
 
 	for (auto pos = start; pos != end; ++pos) {
 		norm_rating_sum += this_ballot.get_norm_score(*pos);
+	}
+
+	// digamma(0) = infinity. HACK to deal with this without having
+	// to bring in infinities.
+	if (delta + norm_rating_sum == 0) {
+		return 1e9 * this_ballot.weight;
 	}
 
 	return digamma(delta + norm_rating_sum) * this_ballot.weight;
