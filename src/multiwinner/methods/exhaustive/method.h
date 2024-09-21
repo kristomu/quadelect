@@ -11,7 +11,7 @@
 
 #include "lib/combinations/combinations.h"
 
-#include "multiwinner/methods.h"
+#include "multiwinner/methods/methods.h"
 #include "optima.h"
 
 namespace combo {

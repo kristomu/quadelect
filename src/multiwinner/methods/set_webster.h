@@ -15,7 +15,7 @@
 
 #include "coalitions/coalitions.h"
 
-#include "multiwinner/exhaustive/set_webster_helper.h"
+#include "exhaustive/set_webster_helper.h"
 
 class set_webster : public multiwinner_method {
 	private:

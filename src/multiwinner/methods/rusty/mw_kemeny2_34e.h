@@ -10,84 +10,63 @@
 
 // Ranks are struct vectors of ints, easier that way.
 
-#include "auxiliary/greedy_cluster.h"
-#include "auxiliary/assignment.h"
-#include "multiwinner/methods.h"
+#include "multiwinner/methods/methods.h"
 #include "tools/ballot_tools.h"
-
-#include "auxiliary/qballot.h"
 
 #include <iostream>
 #include <iterator>
 #include <numeric>
 #include <vector>
 
+#include "auxiliary/qballot.h"
+
 using namespace std;
 
-class fc_kemeny : public multiwinner_method {
+class mw_kemeny2_34e : public multiwinner_method {
 
 	private:
+		ballot_tools btools;
+
 		// QnD
 		std::vector<std::vector<bool> > tournament_matrix(const
 			std::vector<int> & rank, int maxcand) const;
-		// Kemeny distance
-		int p_distance(const std::vector<std::vector<bool> > & cmat_a,
-			const std::vector<std::vector<bool> > & cmat_b,
-			int maxcand) const;
 		int p_distance(const std::vector<int> & a,
 			const std::vector<int> & b, int maxcand) const;
-
 		int tiebreak(const std::vector<std::vector<int> > & a, int maxcand) const;
 		void permutation(int input, std::vector<int> & rank) const;
 		void print_rank(const std::vector<int> & rank) const;
 		pair<int, int> distance_to_closest(const std::vector<int> &
 			our_rank, const std::vector<std::vector<int> > &
 			centroids, int numcands) const;
-		int get_continuous_score(const std::vector<q_ballot> & ballots,
-			const std::vector<std::vector<int> > & centroids,
-			int numcands, assignment & solver,
-			bool brute_calc) const;
 		int get_score(const std::vector<q_ballot> & ballots,
 			const std::vector<std::vector<int> > & centroids,
+			std::vector<int> & support,
 			int numcands) const;
-		bool verify(const std::vector<std::vector<int> > & centroids,
-			int numcands) const;
+		pair<bool, std::list<size_t> > verify(
+			const std::vector<std::vector<int> > & centroids,
+			const std::vector<int> & support, int numcands,
+			bool fill_list) const;
 		q_ballot build_ballot(int strength, string order) const;
 		int factorial(int n) const;
 		void recurse_ranking(const std::vector<q_ballot> & ballots,
 			const std::vector<int> & arch,
 			std::vector<std::vector<int> > & recordholder,
-			double & record,
-			std::vector<std::vector<int> > & centroids,
-			int pos, int offset,
-			int numcands, int fact,
-			assignment & solver,
-			const std::vector<std::vector<std::vector<bool> > > &
-			voter_matrices,
-			std::vector<std::vector<std::vector<bool> > > &
-			medoid_matrices) const;
-
-		bool use_continuous;
+			int & record, std::vector<std::vector<int> > & centroids,
+			int pos, int lastnum,
+			int numcands, int fact) const;
 
 	public:
 		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
-		fc_kemeny(bool continuous_in) {
-			use_continuous = continuous_in;
-		}
-
 		string name() const {
-			if (use_continuous) {
-				return ("CFC-Kemeny (EXP)");
-			} else {
-				return ("FC-Kemeny (EXP)");
-			}
+			return ("SL-Kemeny (EXP, 34e)");
 		}
 };
 
-std::vector<std::vector<bool> > fc_kemeny::tournament_matrix(
-	const std::vector<int> & rank, int maxcand) const {
+std::vector<std::vector<bool> > mw_kemeny2_34e::tournament_matrix(
+	const std::vector<int> & rank,
+	int maxcand) const {
 
 	std::vector<std::vector<bool> > toRet(maxcand,std::vector<bool>(maxcand,
 			false));
@@ -100,9 +79,12 @@ std::vector<std::vector<bool> > fc_kemeny::tournament_matrix(
 	return (toRet);
 }
 
-int fc_kemeny::p_distance(const std::vector<std::vector<bool> > & cmat_a,
-	const std::vector<std::vector<bool> > & cmat_b,
+int mw_kemeny2_34e::p_distance(const std::vector<int> & a,
+	const std::vector<int> & b,
 	int maxcand) const {
+
+	std::vector<std::vector<bool> > cmat_a = tournament_matrix(a, maxcand),
+									cmat_b = tournament_matrix(b, maxcand);
 
 	int mismatch_count = 0;
 
@@ -115,20 +97,9 @@ int fc_kemeny::p_distance(const std::vector<std::vector<bool> > & cmat_a,
 	return (mismatch_count);
 }
 
-int fc_kemeny::p_distance(const std::vector<int> & a,
-	const std::vector<int> & b,
-	int maxcand) const {
-
-	std::vector<std::vector<bool> > cmat_a = tournament_matrix(a, maxcand),
-									cmat_b = tournament_matrix(b, maxcand);
-
-	return (p_distance(cmat_a, cmat_b, maxcand));
-}
-
-
 // Improvised tiebreak: returns sum distance between centroids (all pairs).
 // Is greater better, or less better? We'll try less for now.
-int fc_kemeny::tiebreak(const std::vector<std::vector<int> > & a,
+int mw_kemeny2_34e::tiebreak(const std::vector<std::vector<int> > & a,
 	int maxcand) const {
 
 	int sum = 0;
@@ -141,17 +112,18 @@ int fc_kemeny::tiebreak(const std::vector<std::vector<int> > & a,
 	return (sum);
 }
 
-void fc_kemeny::permutation(int input, std::vector<int> & rank) const {
+void mw_kemeny2_34e::permutation(int input,
+	std::vector<int> & rank) const {
 	for (size_t counter = 0; counter < rank.size(); ++counter) {
-		size_t radix = rank.size() - counter;
-		size_t s = input % radix;
+		int radix = rank.size() - counter;
+		int s = input % radix;
 		input = (input - s)/radix;
 
 		swap(rank[counter], rank[counter + s]);
 	}
 }
 
-void fc_kemeny::print_rank(const std::vector<int> & rank) const {
+void mw_kemeny2_34e::print_rank(const std::vector<int> & rank) const {
 
 	for (size_t counter = 0; counter < rank.size(); ++counter) {
 		if (counter > 0) {
@@ -164,7 +136,7 @@ void fc_kemeny::print_rank(const std::vector<int> & rank) const {
 
 // Returns pair where the first is the record distance and the second is
 // the recordholder.
-pair<int, int> fc_kemeny::distance_to_closest(const std::vector<int> &
+pair<int, int> mw_kemeny2_34e::distance_to_closest(const std::vector<int> &
 	our_rank,
 	const std::vector<std::vector<int> > & centroids, int numcands) const {
 
@@ -183,75 +155,83 @@ pair<int, int> fc_kemeny::distance_to_closest(const std::vector<int> &
 	return (record);
 }
 
-// Behold the joy of linear programming!
-int fc_kemeny::get_continuous_score(const std::vector<q_ballot> & ballots,
-	const std::vector<std::vector<int> > & medoids, int numcands,
-	assignment & solver, bool brute_calc) const {
+int mw_kemeny2_34e::get_score(const std::vector<q_ballot> & ballots,
+	const std::vector<std::vector<int> > & centroids,
+	std::vector<int> & support, int numcands) const {
 
-	// Do gradually later.
+	int sum = 0;
 
-	for (size_t counter = 0; counter < ballots.size() && brute_calc; ++counter)
-		for (size_t sec = 0; sec < medoids.size(); ++sec)
-			solver.set_constraint(counter, sec,
-				p_distance(ballots[counter].rank,
-					medoids[sec], numcands));
+	for (size_t counter = 0; counter < ballots.size(); ++counter) {
+		pair<int, int> component = distance_to_closest(ballots[counter].
+				rank, centroids, numcands);
 
-	// TODO: Implement last record so that if infeasible, it can abort
-	// quickly.
+		sum += ballots[counter].strength * component.first;
+		support[component.second]++;
 
-	double score = solver.calc_minimum();
+		//	cout << counter << "("; print(ballots[counter].rank); cout << ") is closest to " << component.second << " with " << ballots[counter].strength << " * " << component.first << " = " << ballots[counter].strength * component.first << endl;
+	}
+	//cout << endl;
 
-	assert(solver.success());
-
-	return (score);
+	return (sum);
 }
 
-int fc_kemeny::get_score(const std::vector<q_ballot> & ballots,
-	const std::vector<std::vector<int> > & medoids, int numcands) const {
+pair<bool, std::list<size_t> > mw_kemeny2_34e::verify(
+	const std::vector<std::vector<int> > & centroids,
+	const std::vector<int> & support, int numcands,
+	bool fill_list) const {
+	// Proportionality hack. This is more like divisor proportionality
+	// than Droop proportionality: we take the fractions closest to each
+	// ordering and adjust the divisor so the sum is equal to the number
+	// of seats. Then we take the appropriate number from each ranking and
+	// see if any single member appears twice. If so, verification fails,
+	// otherwise succeeds.
+	// SLOW, but PoC.
 
-	// Force a clustering of equal size. For ideas, see the original
-	// fc_kemeny.cc - linearization might be possible!
+	// No. We can just use Sainte-Laguë.
+	std::vector<int> iters(centroids.size(), 0);
+	std::vector<bool> seen(numcands, false);
+	int total_iter;
 
-	std::vector<std::vector<int> > scores;
+	int numseats = centroids.size();
+	std::list<size_t> positions;
 
-	size_t counter, sec;
+	//cout << "CALL!" << endl;
 
-	for (counter = 0; counter < ballots.size(); ++counter) {
-		std::vector<int> cur(medoids.size(), 0);
+	for (total_iter = 0; total_iter < numseats; ++total_iter) {
+		//if (fill_list)
+		//	cout << "Support[" << total_iter << "] = " << support[total_iter] << endl;
+		int recordholder = 0;
+		for (size_t counter = 1; counter < centroids.size(); ++counter) {
+			if (support[counter]/(2.0*iters[counter]+1) >
+				support[recordholder]/
+				(2.0*iters[recordholder]+1)) {
+				recordholder = counter;
+			}
+		}
 
-		for (sec = 0; sec < medoids.size(); ++sec)
-			cur[sec] = p_distance(ballots[counter].rank,
-					medoids[sec], numcands);
+		/*if (fill_list)
+		cout << "Picked " << iters[recordholder] << "th from " <<
+			recordholder << " with adj. support " <<
+			support[recordholder] / (2.0 * iters[recordholder]+1)
+			<< endl;*/
 
-		for (sec = 0; sec < (size_t)ballots[counter].strength; ++sec) {
-			scores.push_back(cur);
+
+		int cand = centroids[recordholder][iters[recordholder]++];
+
+		if (fill_list) {
+			positions.push_back(cand);
+		}
+		if (seen[cand]) {
+			return (pair<bool, std::list<size_t> >(false, positions));
+		} else	{
+			seen[cand] = true;
 		}
 	}
 
-	return (get_clustering_error(scores, medoids.size()));
+	return (pair<bool, std::list<size_t> >(true, positions)); // for now
 }
 
-bool fc_kemeny::verify(const std::vector<std::vector<int> > & centroids,
-	int numcands) const {
-	// No candidate can be mentioned more than once in a single rank.
-	// Maybe this is unneccessary and the best centroids will have this
-	// property anyway.
-
-	for (int column = 0; column < 1;
-		++column) { //centroids[0].size(); ++column) {
-		std::vector<bool> seen(numcands, false);
-		for (size_t sec = 0; sec < centroids.size(); ++sec)
-			if (seen[centroids[sec][column]]) {
-				return (false);
-			} else	{
-				seen[centroids[sec][column]] = true;
-			}
-	}
-
-	return (true); // for now
-}
-
-q_ballot fc_kemeny::build_ballot(int strength, string order) const {
+q_ballot mw_kemeny2_34e::build_ballot(int strength, string order) const {
 
 	q_ballot toret;
 	toret.strength = strength;
@@ -263,7 +243,7 @@ q_ballot fc_kemeny::build_ballot(int strength, string order) const {
 	return (toret);
 }
 
-int fc_kemeny::factorial(int n) const {
+int mw_kemeny2_34e::factorial(int n) const {
 	if (n <= 1) {
 		return (n);
 	}
@@ -277,44 +257,46 @@ int fc_kemeny::factorial(int n) const {
 // Centroids is the vector of ranks that constitute our centroid (really) set.
 // Pos is the position (determining first member, second member), numerical
 // ranking is used so we don't check "B, A" if we've already checked "A, B"
-void fc_kemeny::recurse_ranking(const std::vector<q_ballot> & ballots,
+void mw_kemeny2_34e::recurse_ranking(const std::vector<q_ballot> & ballots,
 	const std::vector<int> & arch,
-	std::vector<std::vector<int> > & recordholder, double & record,
+	std::vector<std::vector<int> > & recordholder, int & record,
 	std::vector<std::vector<int> > & centroids, int pos,
-	int offset, int numcands, int fact, assignment & solver,
-	const std::vector<std::vector<std::vector<bool> > > & voter_matrices,
-	std::vector<std::vector<std::vector<bool> > > & medoid_matrices) const {
+	int lastnum, int numcands, int fact) const {
 
 	int counter;
 	int maximum = centroids.size();
 
+	/*if (pos != maximum) {
+		std::cout << "MW-Kemeny: Recursing on " << pos << " of " << maximum << std::endl;
+	}*/
+
 	if (pos == maximum) {
 		// REQUIRED for number ten!
 		// Why? Find out.
-		if (!verify(centroids, numcands)) {
+		std::vector<int> support(centroids.size(), 0);
+		int cand = get_score(ballots, centroids, support, numcands);
+
+		if (cand > record  && record != -1) {
+			return;    // no point verifying
+		}
+
+		if (!verify(centroids, support,  numcands, false).first) {
 			return;
 		}
 
-		double cand;
-		if (use_continuous)
-			cand = get_continuous_score(ballots, centroids,
-					numcands, solver, false);
-		else {
-			cand = get_score(ballots, centroids, numcands);
-		}
+		//cout << "Passed and stuff" << endl;
 
 		bool replace_with_new = cand < record || record == -1;
 		// Run improvised tiebreak. Whoever has the least distance
 		// between centroids wins (or should this be greatest?)
 		// (Must be > to pass the DPC?)
-		// We might have to have a tiebreak inside LP too. Or maybe
-		// not?
 		if (!replace_with_new && cand == record)
 			replace_with_new = (tiebreak(centroids, numcands) >
 					tiebreak(recordholder, numcands));
 
 		// Beware ties
 		if (replace_with_new) {
+			//		cout << "Replace" << endl;
 			record = cand;
 			recordholder = centroids;
 		}
@@ -322,47 +304,32 @@ void fc_kemeny::recurse_ranking(const std::vector<q_ballot> & ballots,
 		return;
 	}
 
-	if (offset == numcands) {
-		return;
-	}
-	if (numcands - offset < maximum - pos) {
-		return;    // not enough space
-	}
+	//if (offset == numcands) return;
+	//if (numcands - offset < maximum - pos) return; // not enough space
 
 	// Recurse!
 	// See other example for why we do it like this
-	recurse_ranking(ballots, arch, recordholder, record, centroids, pos,
-		offset+1, numcands, fact, solver, voter_matrices,
-		medoid_matrices);
+	//recurse_ranking(ballots, arch, recordholder, record, centroids, pos,
+	//		offset+1, numcands, fact);
 
-	for (counter = offset; counter < fact; ++counter) {
+	for (counter = lastnum; counter < fact; ++counter) {
+		//if (pos == 0) cout << counter << " of " << fact << endl;
 		centroids[pos] = arch;
 		permutation(counter, centroids[pos]);
 
-		medoid_matrices[pos] = tournament_matrix(centroids[pos],
-				numcands);
-
-		if (use_continuous)
-			for (size_t ball = 0; ball < ballots.size(); ++ball)
-				solver.set_constraint(ball, pos,
-					p_distance(voter_matrices[ball],
-						medoid_matrices[pos],
-						numcands));
-
 		recurse_ranking(ballots, arch, recordholder, record,
-			centroids, pos+1, offset+1, numcands, fact,
-			solver, voter_matrices, medoid_matrices);
+			centroids, pos+1, lastnum+1, numcands, fact);
 	}
 }
 
 
 // Make properly recursive later
 
-std::list<size_t> fc_kemeny::get_council(size_t council_size,
+std::list<size_t> mw_kemeny2_34e::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & vballots) const {
 
-	election_t compressed_ballots = ballot_tools().compress(vballots);
+	election_t compressed_ballots = btools.compress(vballots);
 
 	std::vector<int> rank(num_candidates, 0);
 	iota(rank.begin(), rank.end(), 0);
@@ -370,38 +337,31 @@ std::list<size_t> fc_kemeny::get_council(size_t council_size,
 	assert(num_candidates < 12);
 
 	std::vector<q_ballot> xlat_ballots;
-	std::vector<std::vector<std::vector<bool> > > ballot_matrices;
 	// translate here
 	// Doesn't handle equal rank, etc.
-	double num_voters = 0;
 	for (election_t::const_iterator pos = compressed_ballots.begin();
 		pos != compressed_ballots.end(); ++pos) {
 		q_ballot next_one;
-		num_voters += pos->get_weight();
 		next_one.strength = pos->get_weight();
 		for (ordering::const_iterator spos = pos->contents.begin();
 			spos != pos->contents.end(); ++spos) {
 			next_one.rank.push_back(spos->get_candidate_num());
 		}
 		xlat_ballots.push_back(next_one);
-		ballot_matrices.push_back(tournament_matrix(next_one.rank,
-				num_candidates));
 	}
 
-	double record = -1;
+	int record = -1;
 	std::vector<std::vector<int> > recordholder(council_size,
 		std::vector<int>(num_candidates, -1));
 	std::vector<std::vector<int> > centroids(council_size);
 
-	assignment check(num_voters, xlat_ballots.size(), council_size,
-		xlat_ballots);
-
-	std::vector<std::vector<std::vector<bool> > > medoid_matrices(
-		council_size);
-
 	recurse_ranking(xlat_ballots, rank, recordholder, record, centroids, 0,
-		0, num_candidates, factorial(num_candidates), check,
-		ballot_matrices, medoid_matrices);
+		0, num_candidates, factorial(num_candidates));
+
+	std::vector<int> support(centroids.size(), 0);
+	/*int cand = get_score(xlat_ballots, recordholder, support,
+			num_candidates);*/
+	return (verify(recordholder, support, num_candidates, true).second);
 
 	std::list<size_t> toRet;
 

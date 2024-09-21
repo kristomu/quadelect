@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tools/tools.h"
-#include "multiwinner/methods.h"
+#include "multiwinner/methods/methods.h"
 
 #include <memory>
 

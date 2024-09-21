@@ -189,25 +189,27 @@ add_library(qe_singlewinner_methods
 target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
 
 add_library(qe_multiwinner_methods
-	src/multiwinner/auction.cc
-	src/multiwinner/exhaustive/scored_method.cc
 	src/multiwinner/helper/errors.cc
-	src/multiwinner/compat_qbuck.cc
-	src/multiwinner/dhwl.cc
-	src/multiwinner/dhwl_mat.cc
-	src/multiwinner/meek_stv.cc
-	src/multiwinner/methods.cc
-	src/multiwinner/prbucklin.cc
-	src/multiwinner/psc.cc
-	src/multiwinner/quotas.cc
-	src/multiwinner/qbuck.cc
-	src/multiwinner/qpq.cc
-	src/multiwinner/qrange_stv.cc
-	src/multiwinner/randballots.cc
-	src/multiwinner/range_stv.cc
-	src/multiwinner/rusty/auxiliary/dsc.cc
-	src/multiwinner/shuntsstv.cc
-	src/multiwinner/stv.cc
+	src/multiwinner/methods/auction.cc
+	src/multiwinner/methods/exhaustive/scored_method.cc
+	src/multiwinner/methods/compat_qbuck.cc
+	src/multiwinner/methods/dhwl.cc
+	src/multiwinner/methods/dhwl_mat.cc
+	src/multiwinner/methods/meek_stv.cc
+	src/multiwinner/methods/methods.cc
+	src/multiwinner/methods/prbucklin.cc
+	src/multiwinner/methods/psc.cc
+	src/multiwinner/methods/quotas.cc
+	src/multiwinner/methods/qbuck.cc
+	src/multiwinner/methods/qpq.cc
+	src/multiwinner/methods/qrange_stv.cc
+	src/multiwinner/methods/randballots.cc
+	src/multiwinner/methods/range_stv.cc
+	src/multiwinner/methods/rusty/auxiliary/dsc.cc
+	src/multiwinner/methods/shuntsstv.cc
+	src/multiwinner/methods/stv.cc
+	src/multiwinner/pr_measures/clustering.cc
+	src/multiwinner/pr_measures/normal_fit.cc
 	src/stats/multiwinner/convex_hull.cc
 	src/stats/multiwinner/mwstats.cc)
 

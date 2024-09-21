@@ -13,9 +13,9 @@
 #include <assert.h>
 
 #include "auxiliary/dsc.h"
-#include "multiwinner/methods.h"
+#include "multiwinner/methods/methods.h"
 #include "tools/ballot_tools.h"
-#include "multiwinner/rusty/setwise/coalition.h"
+#include "setwise/coalition.h"
 #include "tools/tools.h"
 
 using namespace std;
