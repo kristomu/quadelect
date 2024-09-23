@@ -52,7 +52,6 @@ double harmonic_integral_monte_carlo(double x_1, double delta) {
 	double sumIIA = 0, sumIIB = 0;
 	double sumIIIA = 0, sumIIIB = 0;
 	double sumIVA = 0, sumIVB = 0;
-	double debug = 0;
 
 	if (x_1 > 0) {
 		throw std::invalid_argument("Harmonic integral MC: x_1 must be "
@@ -61,7 +60,7 @@ double harmonic_integral_monte_carlo(double x_1, double delta) {
 
 	double x_2 = -x_1;
 
-	for (int i = 0; i < maxiter; ++i) {
+	for (size_t i = 0; i < maxiter; ++i) {
 		double x = rnorm().first; // wasteful but wth
 		double contrib = 0;
 		if (dist(x, x_1) < dist(x, x_2)) {
@@ -123,10 +122,10 @@ double inverf(double x) {
 
 int main() {
 
-	double x_1 = -0.2, x_2 = 0.2;
 	double delta = 0.5;
 
 	double recordholder = -1, record = -1;
+	double x_1;
 
 	for (x_1 = -1; x_1 < 0; x_1 += 0.01) {
 		if (harmonic_integral(x_1, delta) > record) {
@@ -146,5 +145,8 @@ int main() {
 	std::cout << "The quality function is then " << record << "\n";
 
 	std::cout << "Compare semi-analytical optimum: " <<
-		sqrt(2) * inverf(1 - (2*delta+3)/(2.0*delta+2)) << "\n";
+		sqrt(2) * inverf(-1/(2*delta+2)) << "\n";
+
+	std::cout << "x_1 at the " << 100 * (2 * delta + 1) /
+		(4 * delta + 4) << " percentile.\n";
 }
