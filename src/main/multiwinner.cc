@@ -13,56 +13,9 @@
 #include "multiwinner/pr_measures/normal_fit.h"
 
 #include "stats/multiwinner/vse.h"
+#include "stats/multiwinner/vse_limits.h"
 
 #include <unordered_map>
-
-// normsum, etc.
-
-class VSE_limits {
-	private:
-		double worst, random, best;
-		bool seen_worst, seen_best;
-		size_t times_updated;
-
-	public:
-		void clear() {
-			worst = 0;
-			random = 0;
-			best = 0;
-			times_updated = 0;
-			seen_worst = false;
-			seen_best = false;
-		}
-
-		void update(double error) {
-			if (!seen_worst || error > worst) {
-				worst = error;
-				seen_worst = true;
-			}
-
-			if (!seen_best || error < best) {
-				best = error;
-				seen_best = true;
-			}
-
-			random += error;
-			++times_updated;
-		}
-
-		VSE_limits() {
-			clear();
-		}
-
-		double get_worst() const {
-			return worst;
-		}
-		double get_random() const {
-			return random/(double)times_updated;
-		}
-		double get_best() const {
-			return best;
-		}
-};
 
 // return the natural log of x!
 double lfac(size_t x) {
@@ -82,7 +35,7 @@ VSE_limits get_proportionality_limits(
 	std::vector<size_t> candidates(num_candidates, 0);
 	std::iota(candidates.begin(), candidates.end(), 0);
 
-	VSE_limits limits;
+	VSE_limits limits(MINIMIZE); // higher error is worse
 
 	auto evaluate = // TODO, const measure
 		[&limits, &measure](std::vector<size_t>::const_iterator start,
@@ -131,6 +84,7 @@ int main() {
 	size_t num_clusters = 2; // say
 
 	size_t maxiters = 50000;
+	size_t delta_spacing = 10;
 
 	std::cout << gauss.pdf(std::vector<double>(5, 0.1)) << "\n";
 
@@ -157,7 +111,8 @@ int main() {
 		VSE_limits limits = get_proportionality_limits(btest,
 				num_candidates, num_seats, rnd, 1024);
 
-		for (double delta = 0.1; delta <= 1; delta += 0.1) {
+		for (size_t j = 1; j <= delta_spacing; ++j) {
+			double delta = j / (double)delta_spacing;
 
 			// Elect using, say, QPQ.
 
@@ -174,7 +129,8 @@ int main() {
 	}
 
 
-	for (double delta = 0.1; delta <= 1; delta += 0.1) {
+	for (size_t j = 1; j <= delta_spacing; ++j) {
+		double delta = j / (double)delta_spacing;
 		std::cerr << "\n";
 		std::cout << delta << "\t" << error_per_delta[delta] << " (VSE: " <<
 			vse_per_delta[delta].get() << ")" << std::endl;
