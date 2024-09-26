@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <limits>
 #include <math.h>
 
 class coordinate_gen {
@@ -28,6 +29,8 @@ class coordinate_gen {
 		}
 
 	public:
+		typedef uint64_t result_type;
+
 		// Generates an n-dimensional vector in the hypercube [0..1]^n.
 		virtual std::vector<double> get_coordinate(size_t dimension) = 0;
 
@@ -90,11 +93,11 @@ class coordinate_gen {
 		// alternatives are worse.
 		// This ought to be ptrdiff_t, but we can't guarantee that it's
 		// 64 bits on every platform. TODO.
-		uint64_t operator()(uint64_t end) {
+		result_type operator()(result_type end) {
 			return next_long(end);
 		}
 
-		uint64_t operator()() {
+		result_type operator()() {
 			return next_long();
 		}
 
@@ -102,10 +105,10 @@ class coordinate_gen {
 		// and closed intervals? Should max() mean that we can actually
 		// obtain this value or not? Currently it does.
 
-		uint64_t max() const {
+		constexpr static result_type max() {
 			return UINT64_MAX;
 		}
-		uint64_t min() const {
+		constexpr static result_type min() {
 			return 0;
 		}
 };

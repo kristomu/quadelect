@@ -55,14 +55,10 @@ VSE_limits get_proportionality_limits(
 			evaluate);
 	} else {
 		for (size_t i = 0; i < max_iters; ++i) {
-			// make this possible later.
-			//std::shuffle(candidates.begin(), candidates.end(), rnd);
-			std::random_shuffle(candidates.begin(), candidates.end());
+			std::shuffle(candidates.begin(), candidates.end(), rnd);
 			evaluate(candidates.begin(), candidates.begin() + num_seats);
 		}
 	}
-
-	//std::cout << "test: best " << limits.get_best() << " random: " << limits.get_random() << " worst: " << limits.get_worst() << "\n";
 
 	return limits;
 }
