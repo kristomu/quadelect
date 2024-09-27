@@ -33,7 +33,7 @@ class STV : public multiwinner_method {
 			size_t council_size) const;
 
 	public:
-		std::list<size_t> get_council(size_t council_size,
+		council_t get_council(size_t council_size,
 			size_t num_candidates, const election_t & ballots) const;
 
 		STV(btr_type btr_stv_in) {

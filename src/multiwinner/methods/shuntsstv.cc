@@ -346,9 +346,9 @@ void Print2() {
 
 // -KM
 
-void print3(const std::list<size_t> & input) {
+void print3(const council_t & input) {
 
-	for (std::list<size_t>::const_iterator pos = input.begin();
+	for (council_t::const_iterator pos = input.begin();
 		pos != input.end(); ++pos) {
 		std::cout << cand_name(*pos) << " ";
 	}
@@ -3609,14 +3609,14 @@ void Kombinationen2() {
 
 /*******************************************************************************/
 
-std::list<size_t> Dijkstra() {
+council_t Dijkstra() {
 	int i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,erster,letzter;
 	int *pairwise,*p1,*p2,*rank;
 	long double d1,d2;
 	bool j1,j2,j3;
 	bool *marked;
 
-	std::list<size_t> winner; // -KM
+	council_t winner; // -KM
 
 	std::vector<long double> Von(Comb1+1), Nach(Comb1+1);
 	std::vector<bool> Richtig(Comb1+1);
@@ -4070,7 +4070,7 @@ std::list<size_t> Dijkstra() {
  Calculation_of_the_Strengths_of_the_Vote_Managements();
  Kombinationen();
  Kombinationen2();
- std::list<size_t> winners = Dijkstra();
+ council_t winners = Dijkstra();
 
  cout << "And the winners are: ";
  print3(winners);
@@ -4087,7 +4087,7 @@ std::list<size_t> Dijkstra() {
 
 #pragma GCC diagnostic pop
 
-std::list<size_t> SchulzeSTV::get_council(size_t council_size,
+council_t SchulzeSTV::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 
@@ -4098,7 +4098,7 @@ std::list<size_t> SchulzeSTV::get_council(size_t council_size,
 
 	// Num seats = num candidates is not supported by Schulze STV.
 	if (council_size == num_candidates) {
-		std::list<size_t> full_council(num_candidates, 0);
+		council_t full_council(num_candidates, 0);
 		std::iota(full_council.begin(), full_council.end(), 0);
 		return full_council;
 	}
@@ -4111,7 +4111,7 @@ std::list<size_t> SchulzeSTV::get_council(size_t council_size,
 	Calculation_of_the_Strengths_of_the_Vote_Managements();
 	Kombinationen();
 	Kombinationen2();
-	std::list<size_t> council = Dijkstra();
+	council_t council = Dijkstra();
 	//cout << "DEBUG: Winners are ";
 	//print3(council);
 	return council;

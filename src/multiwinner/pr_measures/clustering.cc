@@ -73,7 +73,7 @@ void cluster_proportionality::prepare(const positions_election & p_e) {
 // composition or templating?
 
 double cluster_proportionality::get_error(
-	const std::list<size_t> & outcome) {
+	const council_t & outcome) {
 
 	size_t num_seats = outcome.size();
 

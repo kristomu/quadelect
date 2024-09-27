@@ -34,7 +34,7 @@ void binary_proportionality::prepare(const positions_election & p_e) {
 }
 
 double binary_proportionality::get_error(
-	const std::list<size_t> & outcome) {
+	const council_t & outcome) {
 
 	size_t num_seats = outcome.size(),
 		   num_issues = issue_winner_proportions.size();

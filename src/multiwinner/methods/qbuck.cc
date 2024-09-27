@@ -178,7 +178,7 @@ bool qltd_pr::is_contributing(const ballot_group & ballot,
 
 
 
-std::list<size_t> qltd_pr::get_council(size_t council_size,
+council_t qltd_pr::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 
@@ -205,7 +205,7 @@ std::list<size_t> qltd_pr::get_council(size_t council_size,
 	std::vector<bool> hopefuls(num_candidates, true),
 		all_hopefuls = hopefuls;
 
-	std::list<size_t> council;
+	council_t council;
 	size_t num_elected = 0;
 
 	// First construct positional array. Then, find the round at which

@@ -36,7 +36,7 @@ size_t coalition_elimination::quota_limit(double total_weight,
 	return minimum;
 }
 
-std::list<size_t> coalition_elimination::get_council(size_t council_size,
+council_t coalition_elimination::get_council(size_t council_size,
 	size_t num_candidates, const election_t & ballots) const {
 
 	// Get the elimination order from a Condorcet method. Perhaps
@@ -100,5 +100,5 @@ std::list<size_t> coalition_elimination::get_council(size_t council_size,
 
 	assert(continuing.size() == council_size);
 
-	return std::list<size_t>(continuing.begin(), continuing.end());
+	return council_t(continuing.begin(), continuing.end());
 }

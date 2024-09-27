@@ -221,7 +221,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 		int found = -1, found_count = 0;
 		double found_record = -1;
 		double irrespec_record = -1;
-		std::list<size_t> candidates_past_quota;
+		council_t candidates_past_quota;
 		for (counter = 0; counter < tally.size(); ++counter) {
 			if (elected[counter]) {
 				continue;
@@ -249,7 +249,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 		if (found_count > 1) {
 			std::vector<bool> hopefuls(num_candidates, false);
 
-			for (std::list<size_t>::const_iterator lpos =
+			for (council_t::const_iterator lpos =
 					candidates_past_quota.begin();
 				lpos != candidates_past_quota.end();
 				++lpos) {
@@ -329,7 +329,7 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 	return (allocated);
 }
 
-std::list<size_t> old_qltd_pr::get_council(size_t council_size,
+council_t old_qltd_pr::get_council(size_t council_size,
 	size_t num_candidates, const election_t & ballots) const {
 
 	std::vector<std::vector<int> > translated = construct_old_ballots(ballots,
@@ -338,7 +338,7 @@ std::list<size_t> old_qltd_pr::get_council(size_t council_size,
 	std::vector<int> retval = QuotaBucklin(ballots, translated,
 			num_candidates, council_size, false, false, NULL);
 
-	std::list<size_t> council;
+	council_t council;
 
 	copy(retval.begin(), retval.end(), inserter(council, council.begin()));
 

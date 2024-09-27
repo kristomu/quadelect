@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include "multiwinner/types.h"
+
 // Maybe implement: IS_DETERMINISTIC, returns either -1 (random), 0 (determ. except
 // with ties) or 1 (fully determ - presumably non-neutral).
 
@@ -21,7 +23,7 @@
 class multiwinner_method {
 
 	public:
-		virtual std::list<size_t> get_council(size_t council_size,
+		virtual council_t get_council(size_t council_size,
 			size_t num_candidates, const election_t & ballots) const = 0;
 
 		virtual std::string name() const = 0;
@@ -38,7 +40,7 @@ class majoritarian_council : public multiwinner_method {
 		std::shared_ptr<election_method> base;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {
@@ -53,7 +55,7 @@ class majoritarian_council : public multiwinner_method {
 
 class random_council : public multiwinner_method {
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {
@@ -76,7 +78,7 @@ class mult_ballot_reweighting : public multiwinner_method {
 		double A, B;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {
@@ -111,7 +113,7 @@ class addt_ballot_reweighting : public multiwinner_method {
 		std::shared_ptr<positional> base; // But not QLTD or Bucklin. But Range.
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		addt_ballot_reweighting(std::shared_ptr<positional> base_in) {

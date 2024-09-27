@@ -1,6 +1,6 @@
 #include "prbucklin.h"
 
-std::list<size_t> set_pr_bucklin::count(
+council_t set_pr_bucklin::count(
 	const std::vector<std::vector<int> > & ballots,
 	const std::vector<double> & weights, size_t numcands, size_t seats) const {
 
@@ -9,7 +9,7 @@ std::list<size_t> set_pr_bucklin::count(
 	std::vector<bool> selected(numcands, false);
 	size_t num_selected = 0;
 
-	std::list<size_t> council;
+	council_t council;
 
 	size_t sum_weights = 0, counter, sec;
 
@@ -88,7 +88,7 @@ std::list<size_t> set_pr_bucklin::count(
 	return (council);
 }
 
-std::list<size_t> set_pr_bucklin::get_council(size_t council_size,
+council_t set_pr_bucklin::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 

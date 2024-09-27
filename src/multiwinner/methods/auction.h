@@ -20,7 +20,7 @@ class r_auction : public multiwinner_method {
 		bool cumul_setting;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		r_auction(bool cumul_in) {

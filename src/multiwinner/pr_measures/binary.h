@@ -24,5 +24,5 @@ class binary_proportionality : public proportionality_measure {
 
 	public:
 		void prepare(const positions_election & p_e);
-		double get_error(const std::list<size_t> & outcome);
+		double get_error(const council_t & outcome);
 };

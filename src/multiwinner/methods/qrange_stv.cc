@@ -171,13 +171,13 @@ int QRangeSTV::elect_next(size_t council_size, size_t num_candidates,
 	return (winner);
 }
 
-std::list<size_t> QRangeSTV::get_council(size_t council_size,
+council_t QRangeSTV::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 
 	election_t x = normalize_ballots(ballots);
 
-	std::list<size_t> council;
+	council_t council;
 	std::vector<bool> elected(num_candidates, false);
 
 	for (size_t counter = 0; counter < council_size; ++counter) {

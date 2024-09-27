@@ -48,7 +48,7 @@ std::vector<bool> STV::get_btr_stv_hopefuls(const ordering & count,
 // If eliminate is false, when deciding what candidate to remove from
 // consideration, we use the original (all candidates included) Plurality
 // ranking. Otherwise, we eliminate as in STV.
-std::list<size_t> STV::get_council(size_t council_size,
+council_t STV::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 
@@ -95,7 +95,7 @@ std::list<size_t> STV::get_council(size_t council_size,
 	double quota = get_droop_quota(ballots, council_size);
 
 	election_t reweighted_ballots = ballots;
-	std::list<size_t> council;
+	council_t council;
 
 	// This is used for tie-breaking as a first-order approximation to
 	// the "first-difference" rule in Newland-Britton. We don't actually

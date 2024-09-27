@@ -3,6 +3,7 @@
 #include <list>
 
 #include "generator/spatial/spatial.h"
+#include "multiwinner/types.h"
 
 // This ABC defines a way to measure proportionality of winners.
 // Classes that implement proportionality measures first gather some
@@ -14,5 +15,5 @@
 class proportionality_measure {
 	public:
 		virtual void prepare(const positions_election & p_e) = 0;
-		virtual double get_error(const std::list<size_t> & outcome) = 0;
+		virtual double get_error(const council_t & outcome) = 0;
 };

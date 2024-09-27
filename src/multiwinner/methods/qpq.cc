@@ -36,7 +36,7 @@ double QPQ::getC(size_t council_size, size_t num_candidates) const {
 }
 
 // It now handles compressed ballots, although they may skew the tiebreak.
-std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
+council_t QPQ::get_council(std::vector<bool> & eliminated,
 	size_t council_size, size_t num_candidates, int num_voters,
 	const election_t & ballots, bool restart_on_elimination) const {
 
@@ -76,7 +76,7 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 	std::vector<double> contributing_ballots(num_candidates, 0),
 		contributing_weights(num_candidates), quotients(num_candidates);
 
-	std::list<size_t> council;
+	council_t council;
 	size_t num_elected = 0, num_eliminated = 0;
 
 	std::vector<bool> elected(num_candidates, false);
@@ -253,7 +253,7 @@ std::list<size_t> QPQ::get_council(std::vector<bool> & eliminated,
 	return (council);
 }
 
-std::list<size_t> QPQ::get_council(size_t council_size,
+council_t QPQ::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 

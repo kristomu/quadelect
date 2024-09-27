@@ -19,7 +19,7 @@ class old_qltd_pr : public multiwinner_method {
 			rated_ballots) const;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const {

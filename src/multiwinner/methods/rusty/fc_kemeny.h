@@ -70,7 +70,7 @@ class fc_kemeny : public multiwinner_method {
 		bool use_continuous;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		fc_kemeny(bool continuous_in) {
@@ -358,7 +358,7 @@ void fc_kemeny::recurse_ranking(const std::vector<q_ballot> & ballots,
 
 // Make properly recursive later
 
-std::list<size_t> fc_kemeny::get_council(size_t council_size,
+council_t fc_kemeny::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & vballots) const {
 
@@ -403,7 +403,7 @@ std::list<size_t> fc_kemeny::get_council(size_t council_size,
 		0, num_candidates, factorial(num_candidates), check,
 		ballot_matrices, medoid_matrices);
 
-	std::list<size_t> toRet;
+	council_t toRet;
 
 	std::vector<int> already(num_candidates, false);
 

@@ -1,6 +1,6 @@
 #include "dhwl.h"
 
-std::list<size_t> reweighted_condorcet::get_council(size_t council_size,
+council_t reweighted_condorcet::get_council(size_t council_size,
 	size_t num_candidates, const election_t & ballots) const {
 
 	if (council_size > num_candidates) {
@@ -12,7 +12,7 @@ std::list<size_t> reweighted_condorcet::get_council(size_t council_size,
 	// in the social order, add him to the council, and set that one as
 	// elected.
 
-	std::list<size_t> council;
+	council_t council;
 	size_t council_count = 0;
 
 	std::vector<bool> elected(num_candidates, false);

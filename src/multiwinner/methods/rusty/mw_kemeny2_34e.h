@@ -42,7 +42,7 @@ class mw_kemeny2_34e : public multiwinner_method {
 			const std::vector<std::vector<int> > & centroids,
 			std::vector<int> & support,
 			int numcands) const;
-		pair<bool, std::list<size_t> > verify(
+		pair<bool, council_t > verify(
 			const std::vector<std::vector<int> > & centroids,
 			const std::vector<int> & support, int numcands,
 			bool fill_list) const;
@@ -56,7 +56,7 @@ class mw_kemeny2_34e : public multiwinner_method {
 			int numcands, int fact) const;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		string name() const {
@@ -175,7 +175,7 @@ int mw_kemeny2_34e::get_score(const std::vector<q_ballot> & ballots,
 	return (sum);
 }
 
-pair<bool, std::list<size_t> > mw_kemeny2_34e::verify(
+pair<bool, council_t > mw_kemeny2_34e::verify(
 	const std::vector<std::vector<int> > & centroids,
 	const std::vector<int> & support, int numcands,
 	bool fill_list) const {
@@ -193,7 +193,7 @@ pair<bool, std::list<size_t> > mw_kemeny2_34e::verify(
 	int total_iter;
 
 	int numseats = centroids.size();
-	std::list<size_t> positions;
+	council_t positions;
 
 	//cout << "CALL!" << endl;
 
@@ -222,13 +222,13 @@ pair<bool, std::list<size_t> > mw_kemeny2_34e::verify(
 			positions.push_back(cand);
 		}
 		if (seen[cand]) {
-			return (pair<bool, std::list<size_t> >(false, positions));
+			return (pair<bool, council_t >(false, positions));
 		} else	{
 			seen[cand] = true;
 		}
 	}
 
-	return (pair<bool, std::list<size_t> >(true, positions)); // for now
+	return (pair<bool, council_t >(true, positions)); // for now
 }
 
 q_ballot mw_kemeny2_34e::build_ballot(int strength, string order) const {
@@ -325,7 +325,7 @@ void mw_kemeny2_34e::recurse_ranking(const std::vector<q_ballot> & ballots,
 
 // Make properly recursive later
 
-std::list<size_t> mw_kemeny2_34e::get_council(size_t council_size,
+council_t mw_kemeny2_34e::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & vballots) const {
 
@@ -363,7 +363,7 @@ std::list<size_t> mw_kemeny2_34e::get_council(size_t council_size,
 			num_candidates);*/
 	return (verify(recordholder, support, num_candidates, true).second);
 
-	std::list<size_t> toRet;
+	council_t toRet;
 
 	std::vector<int> already(num_candidates, false);
 

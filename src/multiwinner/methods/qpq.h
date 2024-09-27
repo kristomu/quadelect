@@ -15,7 +15,7 @@ class QPQ : public multiwinner_method {
 			const std::vector<bool> & elected,
 			const ballot_group & ballot) const;
 
-		std::list<size_t> get_council(std::vector<bool> & eliminated,
+		council_t get_council(std::vector<bool> & eliminated,
 			size_t council_size, size_t num_candidates,
 			int num_voters,
 			const election_t & ballots,
@@ -28,7 +28,7 @@ class QPQ : public multiwinner_method {
 		double getC(size_t council_size, size_t num_candidates) const;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		std::string name() const;

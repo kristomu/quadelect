@@ -6,7 +6,7 @@ void normal_proportionality::prepare(const positions_election & p_e) {
 }
 
 double normal_proportionality::get_error(
-	const std::list<size_t> & outcome) {
+	const council_t & outcome) {
 
 	size_t num_seats = outcome.size();
 

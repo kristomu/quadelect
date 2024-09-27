@@ -84,7 +84,7 @@ class mono_webster_640 : public multiwinner_method {
 		}
 
 
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		string name() const {
@@ -491,7 +491,7 @@ std::set<int> mono_webster_640::check_one_brute() const {
 	return (origc);
 }
 
-std::list<size_t> mono_webster_640::get_council(size_t council_size,
+council_t mono_webster_640::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 
@@ -524,7 +524,7 @@ std::list<size_t> mono_webster_640::get_council(size_t council_size,
 	std::set<int> council = naive_sweb(scs, council_size, stepsize);
 
 	// But the output wants it in another format.
-	std::list<size_t> toRet;
+	council_t toRet;
 	copy(council.begin(), council.end(), inserter(toRet, toRet.begin()));
 
 	return (toRet);

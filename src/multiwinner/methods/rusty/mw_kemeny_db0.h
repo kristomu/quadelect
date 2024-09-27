@@ -107,7 +107,7 @@ class mw_kemeny : public multiwinner_method {
 			int numcands, int fact) const;
 
 	public:
-		std::list<size_t> get_council(size_t council_size, size_t num_candidates,
+		council_t get_council(size_t council_size, size_t num_candidates,
 			const election_t & ballots) const;
 
 		string name() const {
@@ -327,7 +327,7 @@ void mw_kemeny::recurse_ranking(const std::vector<q_ballot> & ballots,
 
 // Make properly recursive later
 
-std::list<size_t> mw_kemeny::get_council(size_t council_size,
+council_t mw_kemeny::get_council(size_t council_size,
 	size_t num_candidates, const election_t & vballots) const {
 
 	election_t compressed_ballots = btools.compress(vballots);
@@ -359,7 +359,7 @@ std::list<size_t> mw_kemeny::get_council(size_t council_size,
 	recurse_ranking(xlat_ballots, rank, recordholder, record, centroids, 0,
 		0, num_candidates, factorial(num_candidates));
 
-	std::list<size_t> toRet;
+	council_t toRet;
 
 	std::vector<int> already(num_candidates, false);
 

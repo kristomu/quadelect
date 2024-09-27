@@ -115,7 +115,7 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 	return (record_pos); // next winner
 }
 
-std::list<size_t> r_auction::get_council(size_t council_size,
+council_t r_auction::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 
@@ -126,7 +126,7 @@ std::list<size_t> r_auction::get_council(size_t council_size,
 
 	double minimum = 0, maximum = 100; // FIX LATER
 
-	std::list<size_t> council;
+	council_t council;
 
 	for (size_t counter = 0; counter < council_size; ++counter) {
 		// Bad programmer, bad! (Side effects ahoy.)

@@ -72,7 +72,7 @@ void MeekSTV::absorb_ballot_warren(const ballot_group & ballot,
 // This can be turned into a boolean limiter that breaks early, but later.
 double MeekSTV::absolute_quota_error(const std::vector<double> &
 	cand_tally,
-	const std::list<size_t> & elected, double quota) const {
+	const council_t & elected, double quota) const {
 
 	// Return the worst discrepancy from quota for those candidates that
 	// have already been elected.
@@ -81,7 +81,7 @@ double MeekSTV::absolute_quota_error(const std::vector<double> &
 
 	double record = 0;
 
-	for (std::list<size_t>::const_iterator cand_pos = elected.begin();
+	for (council_t::const_iterator cand_pos = elected.begin();
 		cand_pos !=
 		elected.end(); ++cand_pos)
 		if (fabs(cand_tally[*cand_pos] - quota) > record) {
@@ -92,7 +92,7 @@ double MeekSTV::absolute_quota_error(const std::vector<double> &
 }
 
 
-std::list<size_t> MeekSTV::get_council(size_t council_size,
+council_t MeekSTV::get_council(size_t council_size,
 	size_t num_candidates,
 	const election_t & ballots) const {
 
@@ -129,7 +129,7 @@ std::list<size_t> MeekSTV::get_council(size_t council_size,
 			false);
 
 	size_t num_elected = 0, counter;
-	std::list<size_t> council;
+	council_t council;
 
 	std::vector<double> cand_tally(num_candidates);
 	std::vector<double> candidate_weight(num_candidates, 1);
@@ -179,7 +179,7 @@ std::list<size_t> MeekSTV::get_council(size_t council_size,
 		double error = absolute_quota_error(cand_tally, council, quota);
 
 		while (error > epsilon) {
-			for (std::list<size_t>::const_iterator cpos = council.begin();
+			for (council_t::const_iterator cpos = council.begin();
 				cpos != council.end(); ++cpos) {
 
 				candidate_weight[*cpos] = (candidate_weight[*cpos] * quota) /
@@ -302,7 +302,7 @@ std::list<size_t> MeekSTV::get_council(size_t council_size,
 			}
 
 			// Fix cut and paste code later!
-			std::list<size_t> tied_for_last;
+			council_t tied_for_last;
 
 			for (counter = 0; counter < cand_tally.size();
 				++counter) {
@@ -317,9 +317,9 @@ std::list<size_t> MeekSTV::get_council(size_t council_size,
 
 			if ((++tied_for_last.begin()) != tied_for_last.end()) {
 
-				std::list<size_t> recordholders;
+				council_t recordholders;
 				std::vector<bool> contained(num_candidates, false);
-				for (std::list<size_t>::const_iterator lp =
+				for (council_t::const_iterator lp =
 						tied_for_last.begin(); lp !=
 					tied_for_last.end(); ++lp) {
 					contained[*lp] = true;

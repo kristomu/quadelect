@@ -33,17 +33,20 @@ VSE_limits get_proportionality_limits(
 			lfac(num_seats) + lfac(num_candidates-num_seats));
 
 	std::vector<size_t> candidates(num_candidates, 0);
+	std::vector<size_t> council(num_seats, 0);
 	std::iota(candidates.begin(), candidates.end(), 0);
 
 	VSE_limits limits(MINIMIZE); // higher error is worse
 
 	auto evaluate = // TODO, const measure
-		[&limits, &measure](std::vector<size_t>::const_iterator start,
+		[&limits, &measure, &council](
+			std::vector<size_t>::const_iterator start,
 	std::vector<size_t>::const_iterator end) -> bool {
 
+		std::copy(start, end, council.begin());
+
 		// TODO: measures: templating and iterators...
-		limits.update(measure.get_error(
-				std::list<size_t>(start, end)));
+		limits.update(measure.get_error(council));
 
 		// keep going
 		return false;
@@ -82,8 +85,6 @@ int main() {
 	size_t maxiters = 50000;
 	size_t delta_spacing = 10;
 
-	std::cout << gauss.pdf(std::vector<double>(5, 0.1)) << "\n";
-
 	cluster_proportionality test(num_clusters);
 	normal_proportionality ntest(gauss);
 	binary_proportionality btest;
@@ -95,7 +96,9 @@ int main() {
 
 		bingen.bias_generator(num_issues, rnd);
 
-		std::cerr << i << "/" << maxiters << "    \r" << std::flush;
+		if ((i & 15) == 0) {
+			std::cerr << i << "/" << maxiters << "    \r" << std::flush;
+		}
 
 		positions_election p_e = bingen.generate_election_result(
 				num_voters, num_candidates, false, rnd);
@@ -112,7 +115,7 @@ int main() {
 
 			// Elect using, say, QPQ.
 
-			std::list<size_t> qpq_council = QPQ(delta, true).get_council(
+			std::vector<size_t> qpq_council = QPQ(delta, true).get_council(
 					num_seats, num_candidates, p_e.ballots);
 
 			double disprop = btest.get_error(qpq_council);
@@ -125,9 +128,9 @@ int main() {
 	}
 
 
+	std::cerr << "\n";
 	for (size_t j = 1; j <= delta_spacing; ++j) {
 		double delta = j / (double)delta_spacing;
-		std::cerr << "\n";
 		std::cout << delta << "\t" << error_per_delta[delta] << " (VSE: " <<
 			vse_per_delta[delta].get() << ")" << std::endl;
 	}

@@ -23,7 +23,7 @@ class set_webster : public multiwinner_method {
 			size_t num_candidates, const election_t & ballots) const;
 
 	public:
-		std::list<size_t> get_council(size_t council_size,
+		council_t get_council(size_t council_size,
 			size_t num_candidates, const election_t & ballots) const;
 
 		std::string name() const {
@@ -48,7 +48,7 @@ exhaustive_optima set_webster::get_opt(double proposed_factor,
 	return optimum;
 }
 
-std::list<size_t> set_webster::get_council(size_t council_size,
+council_t set_webster::get_council(size_t council_size,
 	size_t num_candidates, const election_t & ballots) const {
 
 	double num_voters = ballot_tools::get_num_voters(ballots);
@@ -81,7 +81,7 @@ std::list<size_t> set_webster::get_council(size_t council_size,
 	// Do something about it. And about this ugly conversion.
 
 	std::vector<size_t> om = opt_middle.get_optimal_solution();
-	std::list<size_t> output;
+	council_t output;
 	std::copy(om.begin(), om.end(), std::back_inserter(output));
 
 	return output;

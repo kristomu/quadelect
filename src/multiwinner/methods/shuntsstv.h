@@ -16,7 +16,7 @@
 class SchulzeSTV : public multiwinner_method {
 
 	public:
-		std::list<size_t> get_council(size_t council_size,
+		council_t get_council(size_t council_size,
 			size_t num_candidates, const election_t & ballots) const;
 
 		std::string name() const {
