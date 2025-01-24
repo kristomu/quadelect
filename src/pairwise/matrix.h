@@ -1,5 +1,4 @@
-#ifndef _VOTE_C_MATRIX
-#define _VOTE_C_MATRIX
+#pragma once
 
 #include "common/ballots.h"
 #include "tools/tools.h"
@@ -90,5 +89,3 @@ class condmat : public abstract_condmat {
 			type = type_in;
 		}
 };
-
-#endif

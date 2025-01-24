@@ -49,7 +49,7 @@ else()
 	# warning as it falsely triggers on SpookyHash.
 	# -flto may lead to further speedups, but linking with it enabled is way
 	# too slow, so it's been omitted here.
-	set(CMAKE_CXX_FLAGS "-gdwarf-4 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros -Wno-unknown-warning-option")
+	set(CMAKE_CXX_FLAGS "-gdwarf-4 -ggdb -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -Werror -march=native -mtune=native -fno-math-errno -fno-trapping-math -fno-signed-zeros -Wno-unknown-warning-option -fopenmp")
 endif()
 
 # g++: Disable the free-nonheap-object warning as it seems to be buggy.
@@ -120,6 +120,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/cardinal/cumulative.cc
 	src/singlewinner/contingent/donation.cc
 	src/singlewinner/desc_coalitions/desc_coalition.cc
+	src/singlewinner/dmt/cyclecut.cc
 	src/singlewinner/dmt/fpa_fpc.cc
 	src/singlewinner/dmt/ifpp_like.cc
 	src/singlewinner/dmt/strat_ifpp.cc

@@ -15,6 +15,10 @@
 // The candidate with the maximum score through this process wins.
 // The method is very slow and may be better set as experimental...
 
+// It is not monotone, but it seems to be pushover-proof (??). That is, while
+// nonmonotonicity exists, it doesn't seem to be possible for voters who prefer
+// a candidate A to B to make A win instead of B by exploiting nonmonotonicity.
+
 #pragma once
 
 #include "../method.h"

@@ -231,6 +231,9 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 	all_methods.push_back(std::make_shared<donated_contingent_vote>());
 
 	if (include_experimental) {
+
+		all_methods.push_back(std::make_shared<cycle_cutting>());
+
 		for (int i = 0; i < TEXP_TOTAL; ++i) {
 			all_methods.push_back(std::make_shared<three_experimental>((texp_type)i));
 		}
