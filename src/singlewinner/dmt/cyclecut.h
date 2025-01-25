@@ -45,7 +45,8 @@ class cycle_fpa_fpc {
 		double fpA_fpC_score;
 
 		cycle_fpa_fpc(const std::vector<size_t> & cycle_in,
-			const subelect_count_t & subelect_count);
+			const subelect_count_t & subelect_count,
+			bool verbose);
 
 		// We need an empty constructor for std::vector to work
 		// properly. Don't use this.
@@ -134,14 +135,34 @@ to LIIA:
 
 A possible LIIA failure:
 	4: A > B > C
-    5: A > C > B
-    1: B > A > C
-    4: B > C > A
-    1: C > A > B
-    5: C > B > A
+	5: A > C > B
+	1: B > A > C
+	4: B > C > A
+	1: C > A > B
+	5: C > B > A
 
-    A ties both B and C, B beats C pairwise. Cycle-cutting currently gives
-    A=C>B. Going by that order, we would expect A>B if we remove C, but
-    instead the outcome can only be A=B. The only possible outcome consistent
-    with LIIA is A=B=C, I think?
+	This requires a tiebreaker to be imposed ahead of time or it will
+	necessarily fail LIIA (I think).
+
+A monotonicity failure:
+	1: A > C > D > B
+	1: A > D > B > C
+	2: B > C > A > D
+	1: C > B > D > A
+	1: C > D > B > A
+	1: D > A > B > C
+	1: D > B > A > C
+
+	C wins. Then raise C:
+
+	1: A > C > D > B
+	1: A > D > B > C
+	2: C > B > A > D		<-- here
+	1: C > B > D > A
+	1: C > D > B > A
+	1: D > A > B > C
+	1: D > B > A > C
+
+	and A wins.
+
 }*/

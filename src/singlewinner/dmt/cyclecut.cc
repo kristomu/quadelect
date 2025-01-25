@@ -90,7 +90,7 @@ subelect_count_t get_triple_counts(const election_t & scores,
 // cycle_fpa_fpc
 
 cycle_fpa_fpc::cycle_fpa_fpc(const std::vector<size_t> & cycle_in,
-	const subelect_count_t & subelect_count) {
+	const subelect_count_t & subelect_count, bool verbose) {
 
 	cycle = cycle_in;
 	std::vector<size_t> sorted_cycle = cycle;
@@ -111,11 +111,15 @@ cycle_fpa_fpc::cycle_fpa_fpc(const std::vector<size_t> & cycle_in,
 		}
 	}
 
-	/*std::cout << "Adding cycle ";
-	std::copy(cycle_in.begin(), cycle_in.end(), std::ostream_iterator<size_t>(std::cout, " "));
-	std::cout << " with first prefs ";
-	std::copy(cycle_order_fpps.begin(), cycle_order_fpps.end(), std::ostream_iterator<double>(std::cout, " "));
-	std::cout << "\n";*/
+	if (verbose) {
+		std::cout << "Registering a cycle ";
+		std::copy(cycle_in.begin(), cycle_in.end(),
+			std::ostream_iterator<size_t>(std::cout, " "));
+		std::cout << " with first prefs ";
+		std::copy(cycle_order_fpps.begin(), cycle_order_fpps.end(),
+			std::ostream_iterator<double>(std::cout, " "));
+		std::cout << "\n";
+	}
 
 	fpA_fpC_score = cycle_order_fpps[0] - cycle_order_fpps[2];
 }
@@ -138,14 +142,20 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 
 	size_t numcands = num_candidates; // HACK
 
+	bool verbose = false; // For debugging.
+
 	// First get the Condorcet matrix and triple subelection count.
-	condmat matrix(papers, num_candidates, CM_WV);
+	// The Condorcet matrix needs to be in pairwise opposition (raw) mode
+	// because we're going to modify its values later.
+	condmat matrix(papers, num_candidates, CM_PAIRWISE_OPP);
 	subelect_count_t subelect_count = get_triple_counts(
 			papers, hopefuls);
 
-	// non-neutrality test. HACK
-	for (size_t a = 0; a < numcands; ++a) {
-		for (size_t b = a+1; b < numcands; ++b) {
+	// Make it non-neutral so we don't have to deal with lots of ties.
+	// HACK
+	size_t a, b;
+	for (a = 0; a < numcands; ++a) {
+		for (b = a+1; b < numcands; ++b) {
 			if (matrix.get_magnitude(a, b) == matrix.get_magnitude(b, a)) {
 				matrix.add(a, b, 1e-5);
 			}
@@ -186,7 +196,7 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 				}
 
 				cycle_scores.push_back(cycle_fpa_fpc(
-						cycle, subelect_count));
+						cycle, subelect_count, verbose));
 			}
 		}
 	}
@@ -198,18 +208,47 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 	std::sort(cycle_scores.begin(), cycle_scores.end(), std::greater<>());
 
 	for (const cycle_fpa_fpc & cur_cycle: cycle_scores) {
+		if (verbose) {
+			std::cout << "Checking earlier cycle ";
+			std::copy(cur_cycle.cycle.begin(), cur_cycle.cycle.end(),
+				std::ostream_iterator<size_t>(std::cout, " "));
+			std::cout << " with score " << cur_cycle.fpA_fpC_score << "\n";
+		}
+
 		// Check if it's still a cycle, since earlier cycle-breaking
 		// might have broken this cycle too.
 		if (!is_cycle(matrix, cur_cycle.cycle)) {
+			if (verbose) {
+				std::cout << "\tBroken already, skip.\n";
+			}
 			continue;
 		}
 
+		if (verbose) {
+			std::cout << "\tDropping defeat " << (char)('A' + cur_cycle.cycle[2])
+				<< " > " << (char)('A' + cur_cycle.cycle[0]) << "\n";
+		}
+
 		// Break the cycle between the last and first candidate.
+		double involved_voters = matrix.get_magnitude(
+				cur_cycle.cycle[2], cur_cycle.cycle[0]) +
+			matrix.get_magnitude(
+				cur_cycle.cycle[0], cur_cycle.cycle[2]) - 1e-5;
+
 		matrix.set(cur_cycle.cycle[2], cur_cycle.cycle[0], 0);
+		matrix.set(cur_cycle.cycle[0], cur_cycle.cycle[2], involved_voters);
+		// Re-establish tiebreak
+		if (cur_cycle.cycle[0] < cur_cycle.cycle[2]) {
+			matrix.add(cur_cycle.cycle[0], cur_cycle.cycle[2], 1e-5);
+		} else {
+			matrix.add(cur_cycle.cycle[2], cur_cycle.cycle[0], 1e-5);
+		}
 	}
 
 	// Once all of that is done, hand the modified matrix to a Condorcet
 	// method and return its outcome.
+
+	matrix.set_type(CM_WV);
 
 	return ord_minmax(CM_WV).pair_elect(matrix,
 			hopefuls, cache, winner_only);
