@@ -124,6 +124,7 @@ jobs:
             libglpk-dev \
             libconfig++-dev \
             libeigen3-dev \
+            libomp-dev \
             libboost-container-dev
 
       - name: Set reusable strings
