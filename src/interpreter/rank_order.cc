@@ -78,7 +78,7 @@ names_and_election rank_order_int::interpret_ballots(
 
 	std::map<std::string, size_t> fwd;
 	names_and_election to_ret;
-	int candidates = 0;
+	size_t candidates = 0;
 
 	if (debug) {
 		std::cout << "Interpreting...." << std::endl;
@@ -103,16 +103,18 @@ names_and_election rank_order_int::interpret_ballots(
 		ballot_group to_add;
 
 		for (sec = 0; sec < inputs[counter].size() && num_end == -1;
-			++sec)
+			++sec) {
 			if (inputs[counter][sec] == ':') {
 				num_end = sec;
 			}
+		}
 
 		double weight = 1;
-		// If we found something, then hi-ho hi-ho to the stod you go.
-		if (num_end > 0)
+		// If we found something, then parse it as a number.
+		if (num_end > 0) {
 			weight = str_tod(inputs[counter].substr(0,
 						num_end));
+		}
 
 		assert(weight > 0);
 
@@ -199,25 +201,53 @@ names_and_election rank_order_int::interpret_ballots(
 		}
 	}
 
-	// Invert the fwd map.
-	to_ret.first = invert(fwd);
+	// Create a sorted version of the forward map so that ballots using
+	// candidate names like A, B, C, D, will have them mapped to increasing
+	// integer candidate numbers, no matter what order the first ballots
+	// put them in.
 
-	// Postprocess the ballots so the ratings are all positive (seems to
-	// make a diff for median, etc).
+	std::map<std::string, size_t> sorted_candmap;
+	std::map<size_t, std::string> inverse_sorted_candmap;
+
+	std::vector<std::string> candidate_names;
+
+	for (auto pos = fwd.begin(); pos != fwd.end(); ++pos) {
+		candidate_names.push_back(pos->first);
+	}
+
+	std::sort(candidate_names.begin(), candidate_names.end());
+	for (size_t i = 0; i < candidate_names.size(); ++i) {
+		sorted_candmap[candidate_names[i]] = i;
+		inverse_sorted_candmap[i] = candidate_names[i];
+	}
+
+	// Invert the fwd map.
+	std::map<size_t, std::string> inverse_candmap = invert(fwd);
+
+	// Relabel candidate indices. Also change the ratings so that
+	// they are all positive, which seems to make a difference for
+	// some methods.
 	for (election_t::iterator lbpos = to_ret.second.begin();
 		lbpos != to_ret.second.end(); ++lbpos) {
 		ordering replacement;
 
 		for (ordering::const_iterator opos = lbpos->contents.begin();
-			opos != lbpos->contents.end(); ++opos)
-			replacement.insert(candscore(opos->
-					get_candidate_num(),
+			opos != lbpos->contents.end(); ++opos) {
+
+			size_t candidate_num = opos->get_candidate_num();
+			size_t sorted_candidate_num = sorted_candmap[
+			inverse_candmap[candidate_num]];
+
+			replacement.insert(candscore(
+					sorted_candidate_num,
 					opos->get_score() - min_rank));
+		}
 
 		lbpos->contents = replacement;
 	}
 
+	to_ret.first = inverse_sorted_candmap;
 	// And done!
 
-	return (to_ret);
+	return to_ret;
 }

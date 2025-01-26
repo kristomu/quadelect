@@ -400,8 +400,9 @@ std::vector<std::string> slurp_file(std::ifstream & source,
 	// TODO: Handle blank lines.
 
 	while (!source.eof()) {
+		next = "";
 		getline(source, next);
-		if (!source.eof()) {
+		if (next != "") {
 			if (print_while_slurping) {
 				std::cout << next << std::endl;
 			}
