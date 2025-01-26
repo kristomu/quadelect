@@ -165,4 +165,15 @@ A monotonicity failure:
 
 	and A wins.
 
+	This happens because raising C leads C to win against B, which
+	produces a cycle, which then is broken in a way that doesn't favor C,
+	because it removes a piece of a later cycle that would have given C
+	the victory when broken according to fpA-fpC.
+
+	I can't quite see how to keep that from happening, apart from
+	something very ugly where we check if it's to anybody's benefit
+	if they were to lose this cycle instead of winning... or by going
+	the other way and whenever A>B, B>C, "pretend" there's a C>A and
+	see if that would benefit A.
+
 }*/
