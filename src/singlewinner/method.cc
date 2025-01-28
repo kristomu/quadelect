@@ -112,6 +112,23 @@ std::pair<ordering, bool> election_method::elect_detailed(
 					winner_only));
 	}
 
+	if (num_hopefuls == 0) {
+		throw std::invalid_argument("Error: Can't call election with "
+			"no candidates!");
+	}
+
+	// If only one candidate is in play, return only that candidate.
+	if (num_hopefuls == 1) {
+		// Only one viable candidate.
+		ordering hopeful;
+		for (size_t cand = 0; cand < hopefuls.size(); ++cand) {
+			if (hopefuls[cand]) {
+				hopeful.insert(candscore(cand, 1));
+			}
+		}
+		return std::pair<ordering, bool>(hopeful, false);
+	}
+
 	// Otherwise, go about it the hard way.
 
 	std::pair<ordering, bool> toRet = elect_inner(papers, hopefuls,
