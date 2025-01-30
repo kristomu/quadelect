@@ -27,38 +27,42 @@ std::pair<ordering, bool> ord_minmax::pair_elect(const abstract_condmat &
 	// Being able to generalize argmin/argmax here would have been very
 	// nice.
 	// Could try winner_only here, but for now, just return the full result.
-	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (size_t candidate = 0; candidate < input.get_num_candidates();
+		++candidate) {
+
+		if (!hopefuls[candidate]) {
 			continue;
 		}
 
-		int record_pos = 0;
+		size_t record_pos = 0;
 
-		for (int sec = 1; sec < input.get_num_candidates(); ++sec) {
-			if (input.get_magnitude(sec, counter, hopefuls) >
+		for (size_t challenger = 1; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (input.get_magnitude(challenger, candidate, hopefuls) >
 				input.get_magnitude(record_pos,
-					counter, hopefuls)) {
-				record_pos = sec;
+					candidate, hopefuls)) {
+				record_pos = challenger;
 			}
 		}
 
 		if (debug) {
-			std::cout << "ord_minmax: candidate " << counter
+			std::cout << "ord_minmax: candidate " << candidate
 				<< " has maximal defeat " <<
-				input.get_magnitude(record_pos, counter) << " by " <<
+				input.get_magnitude(record_pos, candidate) << " by " <<
 				record_pos << std::endl;
 		}
 
 		if (reverse_perspective) {
-			toRet.insert(candscore(counter, input.get_magnitude(
-						counter, record_pos)));
+			toRet.insert(candscore(candidate, input.get_magnitude(
+						candidate, record_pos)));
 		} else {
-			toRet.insert(candscore(counter, -input.get_magnitude(
-						record_pos, counter)));
+			toRet.insert(candscore(candidate, -input.get_magnitude(
+						record_pos, candidate)));
 		}
 	}
 
-	return (std::pair<ordering, bool>(toRet, false));
+	return std::pair<ordering, bool>(toRet, false);
 }
 
 // Ext-minmax and minmin.
@@ -79,27 +83,30 @@ std::pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat &
 
 	std::vector<std::pair<std::vector<double>, int> > scores;
 
-	size_t counter;
+	size_t cand;
 
 	std::pair<std::vector<double>, int> beat_data;
 	beat_data.first.resize(input.get_num_candidates());
 
-	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (cand = 0; cand < input.get_num_candidates(); ++cand) {
+		if (!hopefuls[cand]) {
 			continue;
 		}
 
-		for (size_t sec = 0; sec < input.get_num_candidates(); ++sec)
-			if (counter != sec && hopefuls[sec])
-				beat_data.first[sec] = (input.
-						get_magnitude(sec, counter,
+		for (size_t challenger = 0; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (cand != challenger && hopefuls[challenger])
+				beat_data.first[challenger] = (input.
+						get_magnitude(challenger, cand,
 							hopefuls));
 			else {
-				beat_data.first[sec] = 0;
+				beat_data.first[challenger] = 0;
 			}
+		}
 
 		if (debug) {
-			std::cout << "Before sorting: " << counter << "\t";
+			std::cout << "Before sorting: " << cand << "\t";
 			copy(beat_data.first.begin(), beat_data.first.end(),
 				std::ostream_iterator<double>(std::cout, "   "));
 			std::cout << std::endl;
@@ -113,7 +120,7 @@ std::pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat &
 			sort(beat_data.first.begin(), beat_data.first.end(),
 				std::greater<double>());
 
-		beat_data.second = counter;
+		beat_data.second = cand;
 		scores.push_back(beat_data);
 	}
 
@@ -122,11 +129,11 @@ std::pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat &
 	sort(scores.begin(), scores.end());
 
 	if (debug) {
-		for (size_t counter = 0; counter < scores.size(); ++counter) {
-			std::cout << "After sorting: " << scores[counter].second
+		for (size_t cand = 0; cand < scores.size(); ++cand) {
+			std::cout << "After sorting: " << scores[cand].second
 				<< "\t";
-			copy(scores[counter].first.begin(),
-				scores[counter].first.end(),
+			copy(scores[cand].first.begin(),
+				scores[cand].first.end(),
 				std::ostream_iterator<double>(std::cout, "   "));
 			std::cout << std::endl;
 		}
@@ -136,67 +143,77 @@ std::pair<ordering, bool> ext_minmax::pair_elect(const abstract_condmat &
 
 	// Start adding to the output ordering
 	int rank = 0;
-	for (counter = 0; counter < scores.size(); ++counter) {
+	for (cand = 0; cand < scores.size(); ++cand) {
 		// If it's not first rank and the previous score array is
 		// different from this one, then we're worse than the previous
 		// one, otherwise it's equal rank.
-		if (counter != 0)
-			if (scores[counter].first != scores[counter-1].first) {
+		if (cand != 0) {
+			if (scores[cand].first != scores[cand-1].first) {
 				--rank;
 			}
+		}
 
-		to_ret.insert(candscore(scores[counter].second, rank));
+		to_ret.insert(candscore(scores[cand].second, rank));
 	}
 
-	return (std::pair<ordering, bool>(to_ret, false));
+	return std::pair<ordering, bool>(to_ret, false);
 }
 
 // "Maxmin"
-std::pair<ordering, bool> maxmin::pair_elect(const abstract_condmat &
-	input,
+std::pair<ordering, bool> maxmin::pair_elect(
+	const abstract_condmat & input,
 	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	ordering toRet;
 
-	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (size_t candidate = 0; candidate < input.get_num_candidates();
+		++candidate) {
+
+		if (!hopefuls[candidate]) {
 			continue;
 		}
-		int record_pos = -1, first = -1;
 
-		for (int sec = 0; sec < input.get_num_candidates(); ++sec) {
-			if (!hopefuls[sec]) {
+		size_t record_pos, first;
+		bool seen_record = false, seen_first = false;
+
+		for (size_t challenger = 0; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (!hopefuls[challenger]) {
 				continue;
 			}
-			if (counter == sec) {
+			if (candidate == challenger) {
 				continue;
 			}
-			if (first == -1) {
-				first = sec;
+			if (!seen_first) {
+				first = challenger;
+				seen_first = true;
 			}
 
-			if ((record_pos == -1 || input.get_magnitude(counter,
-						sec, hopefuls) <
-					input.get_magnitude(counter,
+			if ((!seen_record || input.get_magnitude(candidate,
+						challenger, hopefuls) <
+					input.get_magnitude(candidate,
 						record_pos,
 						hopefuls)) &&
-				input.get_magnitude(counter, sec,
+				input.get_magnitude(candidate, challenger,
 					hopefuls) != 0) {
-				record_pos = sec;
+				record_pos = challenger;
+				seen_record = true;
 			}
 		}
 
-		if (record_pos == -1) {
+		if (!seen_record) {
 			record_pos = first;    // force 0 if loser
+			seen_record = true;
 		}
 
-		toRet.insert(candscore(counter, input.get_magnitude(counter,
+		toRet.insert(candscore(candidate, input.get_magnitude(candidate,
 					record_pos)));
 
 	}
 
-	return (std::pair<ordering, bool>(toRet, false));
+	return std::pair<ordering, bool>(toRet, false);
 }
 
 // Copeland and n-th order Copeland. WV, Margins, PO doesn't matter.
@@ -216,42 +233,48 @@ std::string copeland::pw_name() const {
 	}
 }
 
-std::vector<double> copeland::get_copeland(const abstract_condmat & input,
+std::vector<double> copeland::get_copeland(
+	const abstract_condmat & input,
 	const std::vector<bool> & hopefuls,
 	const std::vector<double> & counterscores) const {
 
 	std::vector<double> scores(input.get_num_candidates(), 0);
 
-	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (size_t candidate = 0; candidate < input.get_num_candidates();
+		++candidate) {
+
+		if (!hopefuls[candidate]) {
 			continue;
 		}
-		int wins = 0, ties = 0;
-		for (int sec = 0; sec < input.get_num_candidates(); ++sec) {
-			if (!hopefuls[sec]) {
+		size_t wins = 0, ties = 0;
+
+		for (size_t challenger = 0; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (!hopefuls[challenger]) {
 				continue;
 			}
-			if (input.get_magnitude(counter, sec, hopefuls) >
-				input.get_magnitude(sec, counter,
+			if (input.get_magnitude(candidate, challenger, hopefuls) >
+				input.get_magnitude(challenger, candidate,
 					hopefuls)) {
-				wins += counterscores[sec];
-			} else if (input.get_magnitude(counter, sec, hopefuls) ==
-				input.get_magnitude(sec, counter,
+				wins += counterscores[challenger];
+			} else if (input.get_magnitude(candidate, challenger, hopefuls) ==
+				input.get_magnitude(challenger, candidate,
 					hopefuls)) {
-				ties += counterscores[sec];
+				ties += counterscores[challenger];
 			}
 		}
 
-		scores[counter] = wins * win + ties * tie;
+		scores[candidate] = wins * win + ties * tie;
 	}
 
-	return (scores);
+	return scores;
 }
 
-std::pair<ordering, bool> copeland::pair_elect(const abstract_condmat &
-	input,
-	const std::vector<bool> & hopefuls, cache_map * cache,
-	bool winner_only) const {
+std::pair<ordering, bool> copeland::pair_elect(
+	const abstract_condmat & input,
+	const std::vector<bool> & hopefuls,
+	cache_map * cache, bool winner_only) const {
 
 	ordering toRet;
 
@@ -263,25 +286,27 @@ std::pair<ordering, bool> copeland::pair_elect(const abstract_condmat &
 	}
 
 	// Spool it all into the ordering
-	for (int counter = 0; counter < input.get_num_candidates(); ++counter)
-		if (hopefuls[counter]) {
-			toRet.insert(candscore(counter, scores[counter]));
+	for (size_t candidate = 0; candidate < input.get_num_candidates();
+		++candidate) {
+		if (hopefuls[candidate]) {
+			toRet.insert(candscore(candidate, scores[candidate]));
 		}
+	}
 
-	return (std::pair<ordering, bool>(toRet, false));
+	return std::pair<ordering, bool>(toRet, false);
 }
 
 // Schulze!
 
-std::pair<ordering, bool> schulze::pair_elect(const abstract_condmat &
-	input,
+std::pair<ordering, bool> schulze::pair_elect(
+	const abstract_condmat & input,
 	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	beatpath bpath(input, CM_PAIRWISE_OPP, hopefuls);
 
 	// Count defeats.
-	int i, j, numcand = bpath.get_num_candidates();
+	size_t i, j, numcand = bpath.get_num_candidates();
 	std::vector<int> defeats(numcand, 0);
 
 	for (i = 0; i < numcand; ++i)
@@ -302,5 +327,5 @@ std::pair<ordering, bool> schulze::pair_elect(const abstract_condmat &
 			social_ordering.insert(candscore(i, -defeats[i]));
 		}
 
-	return (std::pair<ordering, bool>(social_ordering, false));
+	return std::pair<ordering, bool>(social_ordering, false);
 }

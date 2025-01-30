@@ -1,6 +1,4 @@
-
-#ifndef _SET_ME_SDOM
-#define _SET_ME_SDOM
+#pragma once
 
 #include "det_sets.h"
 
@@ -28,11 +26,14 @@
 
 // We need more testing here.
 
+// NOTE: I strongly suspect this is wrong. It does need testing,
+// but I don't know where to get good test vectors.
+
 class sdom_set : public pairwise_method, private det_sets_relation {
 	private:
 
-		// 1 = dominates, -1 = dominated, 0 = nondominated
-		int strongly_dominates(int dominator, int dominated,
+		// truw = dominates, false = nondominated
+		bool strongly_dominates(size_t dominator, size_t dominated,
 			const abstract_condmat & input,
 			const std::vector<bool> & hopefuls) const;
 
@@ -58,5 +59,3 @@ class sdom_set : public pairwise_method, private det_sets_relation {
 		}
 
 };
-
-#endif

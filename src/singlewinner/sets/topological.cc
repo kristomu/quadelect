@@ -9,12 +9,18 @@ std::vector<int> topological_set::find_indegree(const abstract_condmat &
 	std::vector<int> indegree(input.get_num_candidates(), 0);
 
 	// Then count incoming edges.
-	for (int counter = 0; counter < input.get_num_candidates(); ++counter)
-		for (int sec = 0; sec < input.get_num_candidates(); ++sec)
-			if (counter != sec && relation(input, hopefuls,
-					counter, sec)) {
-				++indegree[sec];
+	for (size_t candidate = 0; candidate < input.get_num_candidates();
+		++candidate) {
+
+		for (size_t challenger = 0; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (candidate != challenger && relation(input, hopefuls,
+					candidate, challenger)) {
+				++indegree[challenger];
 			}
+		}
+	}
 
 	return (indegree);
 }

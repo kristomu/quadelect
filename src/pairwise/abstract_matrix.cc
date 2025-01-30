@@ -19,17 +19,33 @@ double abstract_condmat::get_magnitude(size_t candidate, size_t against,
 	}
 
 	// Make sure num_voters is properly set.
-	assert(get_num_voters() != -INFINITY);
+	if (!finite(get_num_voters())) {
+		throw std::out_of_range(
+			"get_magnitude: number of voters is not finite!");
+	}
 
 	if (hopefuls[candidate] && hopefuls[against]) {
-		return (get_magnitude(candidate, against));
-	} else	{
-		return (0);
+		return get_magnitude(candidate, against);
+	} else {
+		return 0;
 	}
 }
 
 bool abstract_condmat::set(size_t candidate, size_t against_candidate,
 	double value) {
-	return (set_internal(candidate, against_candidate, value));
+
+	return set_internal(candidate, against_candidate, value);
 }
 
+void abstract_condmat::debug_print_raw_values() const {
+	for (size_t row_cand = 0; row_cand < get_num_candidates(); ++row_cand) {
+		for (size_t col_cand = 0; col_cand < get_num_candidates(); ++col_cand) {
+			if (row_cand == col_cand) {
+				std::cout << "--- ";
+			} else {
+				std::cout << get_internal(row_cand, col_cand, true) << " ";
+			}
+		}
+		std::cout << "\n";
+	}
+}

@@ -6,8 +6,7 @@
 // Approximability of Dodgson’s rule. Social Choice and Welfare, 2008,
 // 31.2: 311-330.
 
-#ifndef _VOTE_P_DQUICK
-#define _VOTE_P_DQUICK
+#pragma once
 
 #include "pairwise/matrix.h"
 #include "method.h"
@@ -28,5 +27,3 @@ class dquick : public pairwise_method {
 		}
 
 };
-
-#endif

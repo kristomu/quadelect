@@ -3,7 +3,7 @@
 
 // Perhaps turn into matrix?
 
-int sdom_set::strongly_dominates(int y, int x,
+bool sdom_set::strongly_dominates(size_t y, size_t x,
 	const abstract_condmat & input,
 	const std::vector<bool> & hopeful) const {
 
@@ -26,7 +26,7 @@ int sdom_set::strongly_dominates(int y, int x,
 	// For each other candidate Z,
 	bool still_dominates = true;
 
-	for (int z = 0; z < input.get_num_candidates() && still_dominates;
+	for (size_t z = 0; z < input.get_num_candidates() && still_dominates;
 		++z) {
 		if (!hopeful[z]) {
 			continue;
@@ -72,15 +72,11 @@ int sdom_set::strongly_dominates(int y, int x,
 					input.get_magnitude(y, z, hopeful));
 	}
 
-	if (still_dominates) {
-		return (1);
-	} else	{
-		return (0);
-	}
+	return still_dominates;
 }
 
-std::pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat &
-	input,
+std::pair<ordering, bool> sdom_set::pair_elect(
+	const abstract_condmat & input,
 	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
@@ -92,7 +88,8 @@ std::pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat &
 	std::vector<int> dominated(input.get_num_candidates(), 0);
 
 	// Fill it with the results.
-	int counter, sec;
+	size_t counter, sec;
+
 	//std::cout << "Row dominates col" << std::endl;
 	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
 		if (!hopefuls[counter]) {
@@ -102,20 +99,18 @@ std::pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat &
 			if (!hopefuls[sec]) {
 				continue;
 			}
-			int result = 0;
+			bool result = false;
 
-			if (counter != sec)
+			if (counter != sec) {
 				result = strongly_dominates(counter, sec,
 						input, hopefuls);
-			if (result < 0) {
+			}
+			if (result) {
 				++dominated[counter];
 				sdom_matrix.add(counter, sec, result);
 				assert(sdom_matrix.get_magnitude(counter, sec) == result);
 			}
-			//		std::cout << sdom_matrix.get_magnitude(counter, sec) << "\t";
-			//sdom_matrix.add(sec, counter, -result);
 		}
-		//	std::cout << std::endl;
 	}
 
 	ordering toRet;
@@ -127,7 +122,7 @@ std::pair<ordering, bool> sdom_set::pair_elect(const abstract_condmat &
 		toRet.insert(candscore(counter, -dominated[counter]));
 	}
 
-	return (std::pair<ordering, bool>(toRet, false));
+	return std::pair<ordering, bool>(toRet, false);
 
 	// Return the Smith set for this matrix.
 	//return(std::pair<ordering,bool>(nested_sets(sdom_matrix, hopefuls), false));

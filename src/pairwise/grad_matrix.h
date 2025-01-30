@@ -9,8 +9,7 @@
 // Borda and Condorcet into a method that will give as little as possible in
 // the direction of Borda as required to break cycles or ties.
 
-#ifndef _VOTE_GCB_MATRIX
-#define _VOTE_GCB_MATRIX
+#pragma once
 
 #include "matrix.h"
 #include "grad_median/grad_median.h"
@@ -52,8 +51,8 @@ class cond_borda_matrix : public abstract_condmat {
 
 		// set_num_cands - realloc when called??
 
-		double get_num_candidates() const {
-			return (num_candidates);
+		size_t get_num_candidates() const {
+			return num_candidates;
 		}
 		void set_num_candidates(size_t candidates);
 
@@ -67,5 +66,3 @@ class cond_borda_matrix : public abstract_condmat {
 		bool reinit(completion_type completion);
 		bool update();
 };
-
-#endif

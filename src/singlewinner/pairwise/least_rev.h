@@ -10,8 +10,7 @@
 // slow in the general case, though, so we only do it after we detect a negative
 // value and we're using a fractional power.
 
-#ifndef _VOTE_P_LR
-#define _VOTE_P_LR
+#pragma once
 
 #include "method.h"
 #include "../method.h"
@@ -53,13 +52,11 @@ class least_rev : public pairwise_method {
 inline double least_rev::spow(const double & num,
 	const double & exponent) const {
 	if (num == 0) {
-		return (0);
+		return 0;
 	}
 	if (num == 1) {
-		return (num);
+		return num;
 	} else	{
 		return (pow(num, exponent));
 	}
 }
-
-#endif

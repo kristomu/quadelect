@@ -1,5 +1,4 @@
-#ifndef _VOTE_C_AMATRIX
-#define _VOTE_C_AMATRIX
+#pragma once
 
 // This is for the abstract Condorcet matrix base class. The way it is set up,
 // it lets us derive both direct classes (condmat) and not-so-direct (cache ones
@@ -9,10 +8,6 @@
 #include "tools/tools.h"
 
 #include "types.h"
-
-#include <iterator>
-#include <iostream>
-
 
 class abstract_condmat {
 
@@ -50,21 +45,30 @@ class abstract_condmat {
 				get_magnitude(challenger, candidate);
 		}
 
+		// Eh, is this bad?
+		bool add(size_t candidate, size_t against, double value) {
+			return (set_internal(candidate, against,
+						get_internal(candidate, against, true) +
+						value));
+		}
+
 		virtual double get_num_voters() const {
-			return (num_voters);
+			return num_voters;
 		}
 		void set_num_voters(double nv_in) {
 			num_voters = nv_in;
 		}
 
-		virtual double get_num_candidates() const = 0;
+		virtual size_t get_num_candidates() const = 0;
 
 		pairwise_type get_type() const {
-			return (type);
+			return type;
 		}
 
 		bool set(size_t candidate, size_t against_candidate, double value);
-		// Perhaps also + - / * etc
+
+		// Debugging functions
+		void debug_print_raw_values() const;
 
 		// In case the matrix we derive is abstractly deleted.
 		virtual ~abstract_condmat() {}
@@ -79,5 +83,3 @@ inline double abstract_condmat::get_magnitude(size_t candidate,
 
 	return (get_internal(candidate, against, false));
 }
-
-#endif

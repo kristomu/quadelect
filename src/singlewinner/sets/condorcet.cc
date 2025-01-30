@@ -13,7 +13,7 @@ int condorcet_or_loser::get_extreme_candidate(
 	// one between the first and second in line wins. If there's a CW, we'll
 	// end up with the CW.
 
-	int incumbent = 0, challenger;
+	size_t incumbent = 0, challenger;
 
 	// Find the first hopeful candidate
 	for (incumbent = 0; incumbent < input.get_num_candidates() &&

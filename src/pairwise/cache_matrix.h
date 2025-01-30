@@ -1,5 +1,4 @@
-#ifndef _VOTE_C_CMATRIX
-#define _VOTE_C_CMATRIX
+#pragma once
 
 #include "matrix.h"
 
@@ -24,12 +23,10 @@ class cache_condmat : public abstract_condmat {
 			pairwise_type in);
 
 		bool is_loaded() const;
-		double get_num_candidates() const;
+		size_t get_num_candidates() const;
 		double get_num_voters() const;
 
 		cache_condmat(const condmat * reference_in,
 			pairwise_type kind);
 		cache_condmat(pairwise_type kind);
 };
-
-#endif

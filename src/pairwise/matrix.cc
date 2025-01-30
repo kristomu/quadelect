@@ -21,10 +21,10 @@ double condmat::get_internal(size_t candidate, size_t against,
 	}
 
 	if (raw) {
-		return (contents[candidate][against]);
+		return contents[candidate][against];
 	} else {
-		return (type.transform(contents[candidate][against],
-					contents[against][candidate], num_voters));
+		return type.transform(contents[candidate][against],
+				contents[against][candidate], num_voters);
 	}
 }
 
@@ -38,7 +38,7 @@ bool condmat::set_internal(size_t candidate, size_t against,
 
 	contents[candidate][against] = value;
 
-	return (true);
+	return true;
 }
 
 condmat::condmat(pairwise_type type_in) : abstract_condmat(type_in) {}

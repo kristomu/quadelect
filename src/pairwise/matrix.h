@@ -65,21 +65,14 @@ class condmat : public abstract_condmat {
 		condmat(size_t num_candidates_in, double num_voters_in,
 			pairwise_type type_in);
 
-		// Eh, is this bad?
-		bool add(size_t candidate, size_t against, double value) {
-			return (set_internal(candidate, against,
-						get_internal(candidate, against, true) +
-						value));
-		}
-
 		void count_ballots(const election_t & scores,
 			size_t num_candidates);
 
 		// Perhaps "expand candidates by one, contract by one" here?
 		// Clear, etc...
 
-		double get_num_candidates() const {
-			return (contents.size());
+		size_t get_num_candidates() const {
+			return contents.size();
 		}
 
 		void zeroize();

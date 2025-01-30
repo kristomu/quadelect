@@ -1,55 +1,57 @@
 #include "mdd.h"
 
-std::pair<ordering, bool> mdd_set::pair_elect(const abstract_condmat &
-	input,
+std::pair<ordering, bool> mdd_set::pair_elect(
+	const abstract_condmat & input,
 	const std::vector<bool> & hopefuls, cache_map * cache,
 	bool winner_only) const {
 
 	std::vector<int> num_defeats(input.get_num_candidates(), 0);
 
-	int counter, sec;
+	size_t candidate, challenger;
 
-	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (candidate = 0; candidate < input.get_num_candidates(); ++candidate) {
+		if (!hopefuls[candidate]) {
 			continue;
 		}
-		for (sec = 0; sec < input.get_num_candidates(); ++sec) {
-			if (counter == sec) {
+		for (challenger = 0; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (candidate == challenger) {
 				continue;
 			}
-			if (!hopefuls[sec]) {
+			if (!hopefuls[challenger]) {
 				continue;
 			}
 
-			if (input.get_magnitude(counter, sec, hopefuls) >
+			if (input.get_magnitude(candidate, challenger, hopefuls) >
 				input.get_num_voters() * 0.5) {
-				++num_defeats[sec];
+				++num_defeats[challenger];
 			}
 		}
 	}
 
 	ordering toRet;
 
-	for (counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (candidate = 0; candidate < input.get_num_candidates(); ++candidate) {
+		if (!hopefuls[candidate]) {
 			continue;
 		}
 
 		int score;
 		if (sum_defeats) {
-			score = -num_defeats[counter];
+			score = -num_defeats[candidate];
 		} else {
-			if (num_defeats[counter] > 0) {
+			if (num_defeats[candidate] > 0) {
 				score = -1;
 			} else	{
 				score = 0;
 			}
 		}
 
-		toRet.insert(candscore(counter, score));
+		toRet.insert(candscore(candidate, score));
 	}
 
-	return (std::pair<ordering, bool>(toRet, false));
+	return std::pair<ordering, bool>(toRet, false);
 }
 
 mdd_set::mdd_set(bool sum_defeats_in) : pairwise_method(CM_WV) {

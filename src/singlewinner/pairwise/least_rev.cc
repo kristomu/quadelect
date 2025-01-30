@@ -28,30 +28,34 @@ std::pair<ordering, bool> least_rev::pair_elect(const abstract_condmat &
 	std::complex<double> comp_score(0, 0), cpwr(power, 0);
 	double real_score, cur_off, cur_def;
 
-	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (size_t incumbent = 0; incumbent < input.get_num_candidates();
+		++incumbent) {
+
+		if (!hopefuls[incumbent]) {
 			continue;
 		}
 
 		comp_score = 0;	// 0 + 0i
 		real_score = 0;
 
-		for (int sec = 0; sec < input.get_num_candidates(); ++sec) {
-			if (counter == sec || !hopefuls[sec]) {
+		for (size_t challenger = 0; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (incumbent == challenger || !hopefuls[challenger]) {
 				continue;
 			}
 
-			if (offense)
-				cur_off = input.get_magnitude(counter, sec,
+			if (offense) {
+				cur_off = input.get_magnitude(incumbent, challenger,
 						hopefuls);
-			else	{
+			} else {
 				cur_off = 0;
 			}
 
-			if (defense)
-				cur_def = input.get_magnitude(sec, counter,
+			if (defense) {
+				cur_def = input.get_magnitude(challenger, incumbent,
 						hopefuls);
-			else	{
+			} else {
 				cur_def = 0;
 			}
 
@@ -59,12 +63,13 @@ std::pair<ordering, bool> least_rev::pair_elect(const abstract_condmat &
 			// to complex so it knows to use the complex power
 			// function.
 			if ((cur_def < 0 || cur_off < 0) && power !=
-				round(power))
+				round(power)) {
 				comp_score += pow(cur_off, cpwr) -
 					pow(cur_def, cpwr);
-			else
+			} else {
 				real_score += spow(cur_off, power) -
 					spow(cur_def, power);
+			}
 		}
 
 		// Combine real and complex to get a score.
@@ -80,7 +85,7 @@ std::pair<ordering, bool> least_rev::pair_elect(const abstract_condmat &
 		}
 
 		// Finally, set the candidate to have this score.
-		toRet.insert(candscore(counter, real_score));
+		toRet.insert(candscore(incumbent, real_score));
 	}
 
 	return (std::pair<ordering, bool>(toRet, false));
@@ -138,4 +143,3 @@ bool least_rev::set_approach(bool offense_in, bool defense_in) {
 
 	return (true);
 }
-

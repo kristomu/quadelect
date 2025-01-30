@@ -15,22 +15,26 @@ std::pair<ordering, bool> dquick::pair_elect(const abstract_condmat &
 
 	ordering out;
 
-	for (int counter = 0; counter < input.get_num_candidates(); ++counter) {
-		if (!hopefuls[counter]) {
+	for (size_t incumbent = 0; incumbent < input.get_num_candidates();
+		++incumbent) {
+
+		if (!hopefuls[incumbent]) {
 			continue;
 		}
 		double sum = 0;
 
-		for (int sec = 0; sec < input.get_num_candidates(); ++sec) {
-			if (counter == sec || !hopefuls[sec]) {
+		for (size_t challenger = 0; challenger < input.get_num_candidates();
+			++challenger) {
+
+			if (incumbent == challenger || !hopefuls[challenger]) {
 				continue;
 			}
 
-			sum += ceil(input.get_magnitude(sec, counter,
+			sum += ceil(input.get_magnitude(challenger, incumbent,
 						hopefuls)/2.0);
 		}
 
-		out.insert(candscore(counter, -sum));
+		out.insert(candscore(incumbent, -sum));
 	}
 
 	return (std::pair<ordering, bool>(out, false));

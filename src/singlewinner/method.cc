@@ -28,8 +28,10 @@ std::pair<ordering, bool> election_method::elect_detailed(
 	const election_t & papers, int num_candidates,
 	cache_map * cache, bool winner_only) const {
 
-	// Do a few sanity checks.
-	assert(num_candidates > 0);
+	if (num_candidates == 0) {
+		throw std::invalid_argument("Error: Can't call election with "
+			"no candidates!");
+	}
 
 	// If there are only two candidates, then winner_only and full ordering
 	// is the same, so set winner_only to true for a speedup. (It might also
@@ -76,9 +78,15 @@ std::pair<ordering, bool> election_method::elect_detailed(
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
-	// A few sanity checks...
-	assert(num_candidates > 0);
-	assert((int)hopefuls.size() == num_candidates);
+	if (num_candidates == 0) {
+		throw std::invalid_argument("Error: Can't call election with "
+			"no candidates!");
+	}
+
+	if (hopefuls.size() != (size_t)num_candidates) {
+		throw std::invalid_argument("Error: The list of hopefuls doesn't"
+			"match the number of candidates!");
+	}
 
 	// ... a little optimization...
 	if (num_candidates <= 2) {

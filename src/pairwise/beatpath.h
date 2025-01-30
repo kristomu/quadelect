@@ -40,8 +40,8 @@ class beatpath : public abstract_condmat {
 		beatpath(const election_t & scores, size_t num_candidates,
 			pairwise_type kind);
 
-		double get_num_candidates() const {
-			return (contents.size());
+		size_t get_num_candidates() const {
+			return contents.size();
 		}
 };
 
