@@ -147,13 +147,13 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 	// First get the Condorcet matrix and triple subelection count.
 	// The Condorcet matrix needs to be in pairwise opposition (raw) mode
 	// because we're going to modify its values later.
-	condmat matrix(papers, num_candidates, CM_PAIRWISE_OPP);
+	condmat matrix(papers, num_candidates, initial_type);
 	subelect_count_t subelect_count = get_triple_counts(
 			papers, hopefuls);
 
+	size_t a, b;
 	// Make it non-neutral so we don't have to deal with lots of ties.
 	// HACK
-	size_t a, b;
 	for (a = 0; a < numcands; ++a) {
 		for (b = a+1; b < numcands; ++b) {
 			if (matrix.get_magnitude(a, b) == matrix.get_magnitude(b, a)) {
@@ -193,6 +193,15 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 				// We only care about cycles.
 				if (!is_cycle(matrix, cycle)) {
 					continue;
+				}
+
+				if (verbose) {
+					std::cout << (char)(cycle[0] + 'A') << " > " << (char)(
+							cycle[1] + 'A') << ":" << matrix.get_magnitude(cycle[0], cycle[1]) << "\n";
+					std::cout << (char)(cycle[1] + 'A') << " > " << (char)(
+							cycle[2] + 'A') << ":" << matrix.get_magnitude(cycle[1], cycle[2]) << "\n";
+					std::cout << (char)(cycle[2] + 'A') << " > " << (char)(
+							cycle[0] + 'A') << ":" << matrix.get_magnitude(cycle[2], cycle[0]) << "\n";
 				}
 
 				cycle_scores.push_back(cycle_fpa_fpc(

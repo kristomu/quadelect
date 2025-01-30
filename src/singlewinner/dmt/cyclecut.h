@@ -66,6 +66,11 @@ class cycle_cutting : public election_method {
 		bool is_cycle(const condmat & matrix,
 			const std::vector<size_t> & c) const;
 
+		// For trying to figure out what's going on with
+		// different matrix types and why it makes such a
+		// difference to strategy resistance.
+		pairwise_type initial_type;
+
 	public:
 		std::pair<ordering, bool> elect_inner(
 			const election_t & papers,
@@ -74,7 +79,15 @@ class cycle_cutting : public election_method {
 			bool winner_only) const;
 
 		std::string name() const {
-			return "Cycle-cutting";
+			return "Cycle-cutting(" + initial_type.explain() + ")";
+		}
+
+		cycle_cutting(pairwise_type initial_type_in) {
+			initial_type = initial_type_in;
+		}
+
+		cycle_cutting() {
+			initial_type = CM_PAIRWISE_OPP;
 		}
 
 		//void test();
