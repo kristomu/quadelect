@@ -161,7 +161,6 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/pairwise/rpairs.cc
 	src/singlewinner/pairwise/simple_methods.cc
 	src/singlewinner/pairwise/sinkhorn.cc
-	src/singlewinner/pairwise/tournament.cc
 	src/singlewinner/positional/aggregator.cc
 	src/singlewinner/positional/positional.cc
 	src/singlewinner/positional/simple_methods.cc
