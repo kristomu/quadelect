@@ -232,7 +232,12 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 
 	if (include_experimental) {
 
-		all_methods.push_back(std::make_shared<cycle_cutting>());
+		for (int p = 0; p <= CM_LAST; ++p) {
+			all_methods.push_back(std::make_shared<cycle_cutting>(
+					pairwise_ident(p), false));
+			all_methods.push_back(std::make_shared<cycle_cutting>(
+					pairwise_ident(p), true));
+		}
 
 		for (int i = 0; i < TEXP_TOTAL; ++i) {
 			all_methods.push_back(std::make_shared<three_experimental>((texp_type)i));

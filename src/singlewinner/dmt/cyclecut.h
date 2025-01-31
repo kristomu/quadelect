@@ -32,6 +32,9 @@
 #pragma once
 
 #include "../method.h"
+#include "../meta/comma.h"
+#include "../sets/max_elements/smith.h"
+
 #include "pairwise/matrix.h"
 
 typedef std::map<std::vector<size_t>, std::vector<double> >
@@ -71,6 +74,12 @@ class cycle_cutting : public election_method {
 		// difference to strategy resistance.
 		pairwise_type initial_type;
 
+		// Original is the "buggy" version that seems to have
+		// better strategy resistance.
+		bool original;
+
+		smith_set smith;
+
 	public:
 		std::pair<ordering, bool> elect_inner(
 			const election_t & papers,
@@ -79,15 +88,20 @@ class cycle_cutting : public election_method {
 			bool winner_only) const;
 
 		std::string name() const {
+			if (original) {
+				return "Cycle-cutting(" + initial_type.explain() + ", original)";
+			}
 			return "Cycle-cutting(" + initial_type.explain() + ")";
 		}
 
-		cycle_cutting(pairwise_type initial_type_in) {
+		cycle_cutting(pairwise_type initial_type_in, bool is_original) {
 			initial_type = initial_type_in;
+			original = is_original;
 		}
 
 		cycle_cutting() {
 			initial_type = CM_PAIRWISE_OPP;
+			original = false;
 		}
 
 		//void test();

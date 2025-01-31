@@ -144,12 +144,28 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 
 	bool verbose = false; // For debugging.
 
+	double num_voters = 0;
+	for (const ballot_group & b: papers) {
+		num_voters += b.get_weight();
+	}
+
 	// First get the Condorcet matrix and triple subelection count.
 	// The Condorcet matrix needs to be in pairwise opposition (raw) mode
 	// because we're going to modify its values later.
 	condmat matrix(papers, num_candidates, initial_type);
 	subelect_count_t subelect_count = get_triple_counts(
 			papers, hopefuls);
+
+	if (verbose) {
+		std::cout << "Raw pairwise values before modifying the matrix:\n";
+		matrix.debug_print_raw_values();
+	}
+
+	// Get the Smith set before we do anything to the matrix, so we can be
+	// sure that the method passes Smith no matter what kind of "bugs" it
+	// may have.
+	std::pair<ordering, bool> smith_result = smith.pair_elect(
+			matrix, hopefuls, cache, false);
 
 	size_t a, b;
 	// Make it non-neutral so we don't have to deal with lots of ties.
@@ -160,6 +176,11 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 				matrix.add(a, b, 1e-5);
 			}
 		}
+	}
+
+	if (verbose) {
+		std::cout << "Raw pairwise values after modifying the matrix:\n";
+		matrix.debug_print_raw_values();
 	}
 
 	// Then determine what three-candidate cycles exist, and for each
@@ -215,6 +236,7 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 	// pointing to the fpA-fpC winner.
 
 	std::sort(cycle_scores.begin(), cycle_scores.end(), std::greater<>());
+	size_t priority = 0;
 
 	for (const cycle_fpa_fpc & cur_cycle: cycle_scores) {
 		if (verbose) {
@@ -239,26 +261,51 @@ std::pair<ordering, bool> cycle_cutting::elect_inner(
 		}
 
 		// Break the cycle between the last and first candidate.
-		double involved_voters = matrix.get_magnitude(
-				cur_cycle.cycle[2], cur_cycle.cycle[0]) +
-			matrix.get_magnitude(
-				cur_cycle.cycle[0], cur_cycle.cycle[2]) - 1e-5;
+		// We should set the magnitude to maximum so that any method
+		// like ranked pairs will process it first. But somehow that
+		// makes the method more manipulable.
+		double involved_voters = num_voters;
 
-		matrix.set(cur_cycle.cycle[2], cur_cycle.cycle[0], 0);
-		matrix.set(cur_cycle.cycle[0], cur_cycle.cycle[2], involved_voters);
+		// Hence this replicates the old behavior.
+		if (original) {
+			involved_voters = matrix.get_magnitude(
+					cur_cycle.cycle[2], cur_cycle.cycle[0]) +
+				matrix.get_magnitude(
+					cur_cycle.cycle[0], cur_cycle.cycle[2]) - 1e-5;
+		}
+
+		matrix.set(cur_cycle.cycle[2], cur_cycle.cycle[0], priority * 1e-6);
+		matrix.set(cur_cycle.cycle[0], cur_cycle.cycle[2],
+			involved_voters - priority * 1e-6);
 		// Re-establish tiebreak
 		if (cur_cycle.cycle[0] < cur_cycle.cycle[2]) {
 			matrix.add(cur_cycle.cycle[0], cur_cycle.cycle[2], 1e-5);
 		} else {
 			matrix.add(cur_cycle.cycle[2], cur_cycle.cycle[0], 1e-5);
 		}
+
+		++priority;
+	}
+
+	if (verbose) {
+		std::cout << "Raw pairwise values after cutting cycles:\n";
+		matrix.debug_print_raw_values();
 	}
 
 	// Once all of that is done, hand the modified matrix to a Condorcet
-	// method and return its outcome.
+	// method and return its outcome. Ensure Smith compliance by placing
+	// all Smith members first in the ranking.
 
 	matrix.set_type(CM_WV);
 
-	return ord_minmax(CM_WV).pair_elect(matrix,
-			hopefuls, cache, winner_only);
+	std::pair<ordering, bool> minmax_result = ext_minmax(CM_WV,
+			false).pair_elect(matrix, hopefuls, cache, winner_only);
+
+	ordering_tools otools;
+
+	minmax_result.first = otools.ranked_tiebreak(smith_result.first,
+			minmax_result.first, num_candidates);
+
+	return minmax_result;
+
 }
