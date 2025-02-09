@@ -19,7 +19,7 @@ double abstract_condmat::get_magnitude(size_t candidate, size_t against,
 	}
 
 	// Make sure num_voters is properly set.
-	if (!finite(get_num_voters())) {
+	if (!isfinite(get_num_voters())) {
 		throw std::out_of_range(
 			"get_magnitude: number of voters is not finite!");
 	}
