@@ -361,3 +361,5 @@ target_link_libraries(multiwinner qe_multiwinner_methods qe_singlewinner_methods
 
 add_executable(yee_reference_benchmark src/reference/yee/yee_borda.cc)
 add_executable(vse_reference src/reference/vse/vse.cc)
+
+add_executable(rs_monotonicity src/design/resistant/monotone.cc)
