@@ -106,10 +106,23 @@ subelections::subelections(size_t numcands_in) {
 
 class fingerprint {
 	public:
-		std::vector<std::vector<size_t> > above_quota;
+		// "members" are indexed by the candidates present *in that
+		// subelection*. On the other hand, "candidates" refer to the
+		// total set of candidates for the election as a whole.
+
+		// For each subelection, a boolean vector of whether the
+		// kth member has exceeded the quota.
+		std::vector<std::vector<bool> > is_member_above_quota;
+
+		// Translation function for turning a boolean vector
+		// into a vector of candidates above the quota.
+		// Used for printing.
+		std::vector<size_t> get_candidates_above_quota(
+			const subelections & se, size_t subelection_idx,
+			const std::vector<bool> & above_quota_here) const;
 
 		void decode(const subelections & se, size_t index);
-		size_t encode() const;
+		size_t encode(const subelections & se) const;
 		void print(const subelections & se) const;
 };
 
@@ -125,9 +138,13 @@ void fingerprint::decode(const subelections & se, size_t index) {
 		size_t num_options = se.num_options[subelec_idx];
 		size_t digit = index % num_options;
 
+		std::cout << "index is " << index << " and digit is " << digit <<
+			std::endl;
+		std::cout << "num options: " << num_options << "\n";
+
 		// Then decode it.
 		size_t num_members = se.subelection_members[subelec_idx].size();
-		std::vector<size_t> candidates_above_quota;
+		std::vector<bool> above_quota_here;
 
 		// Since at least one candidate must exceed the quota,
 		// an index of zero, which would correspond to an all-false
@@ -136,17 +153,91 @@ void fingerprint::decode(const subelections & se, size_t index) {
 
 		for (size_t member_idx = 0; member_idx < num_members; ++member_idx) {
 			if (digit % 2 == 1) {
-				candidates_above_quota.push_back(
-					se.subelection_members[subelec_idx][member_idx]);
+				above_quota_here.push_back(true);
+			} else {
+				above_quota_here.push_back(false);
 			}
 			digit >>= 1;
 		}
 
-		above_quota.push_back(candidates_above_quota);
+		is_member_above_quota.push_back(above_quota_here);
 
 		std::cout << digit << " of " << num_options << "\n";
 		index /= num_options;
 	}
+}
+
+std::vector<size_t> fingerprint::get_candidates_above_quota(
+	const subelections & se, size_t subelection_idx,
+	const std::vector<bool> & above_quota_here) const {
+
+	std::vector<size_t> candidates_above_quota;
+	size_t num_members = se.subelection_members[subelection_idx].size();
+
+	for (size_t member_idx = 0; member_idx < num_members; ++member_idx) {
+		if (above_quota_here[member_idx]) {
+			candidates_above_quota.push_back(
+				se.subelection_members[subelection_idx][member_idx]);
+		}
+	}
+
+	return candidates_above_quota;
+}
+
+size_t fingerprint::encode(const subelections & se) const {
+
+	size_t output_index = 0;
+
+	// Get the "places" ("tens", "ones", etc) for the
+	// mixed radix number system.
+	std::vector<size_t> places;
+	size_t running_count = 1;
+	for (size_t i = 0; i < se.num_options.size(); ++i) {
+		places.push_back(running_count);
+		running_count *= se.num_options[i];
+	}
+
+	for (size_t i = 0; i < se.num_options.size(); ++i) {
+
+		// We need to go from the last subelection to get the
+		// digits in the proper order.
+		size_t subelec_idx = i;
+
+		// Get the contribution to the output index by the chosen
+		// candidates for this subelection.
+
+		size_t digit = 0, range = 0;
+
+		for (size_t j = 0; j < is_member_above_quota[subelec_idx].size();
+			++j) {
+
+			if (is_member_above_quota[subelec_idx][j]) {
+				digit += (1<<j);
+			}
+		}
+
+		range = (1<<is_member_above_quota[subelec_idx].size())-1;
+
+		if (digit == 0) {
+			throw std::logic_error("Bug: no candidate above quota"
+				" in subelection???");
+		}
+		if (digit == range) {
+			throw std::logic_error("Bug: every candidate above quota"
+				" in subelection???");
+		}
+
+		--digit;
+
+		std::cout << "index is " << output_index << " and digit is " << digit <<
+			std::endl;
+		std::cout << "range is " << range << "\n";
+
+		output_index += digit * places[i];
+	}
+
+	return output_index;
+
 }
 
 void fingerprint::print(const subelections & se) const {
@@ -168,17 +259,30 @@ void fingerprint::print(const subelections & se) const {
 
 		std::cout << "}: above quota: ";
 
-		for (i = 0; i < above_quota[subelec_idx].size(); ++i) {
+		std::vector<size_t> cands_above_quota =
+			get_candidates_above_quota(se, subelec_idx,
+				is_member_above_quota[subelec_idx]);
+
+		for (i = 0; i < cands_above_quota.size(); ++i) {
 			if (i != 0) {
 				std::cout << ", ";
 			}
 
-			std::cout << (char)('A' + above_quota[subelec_idx][i]);
+			std::cout << (char)('A' + cands_above_quota[i]);
 		}
 
 		std::cout << "\n";
 	}
 }
+
+// TODO: encode()
+// TODO: monotonicity. Raising A can stop B from being above the quota in
+// any subelection where A and B are both present. It doesn't do anything
+// in subelections not having A. It may also (irrespective of the above)
+// make A pass the quota in some subelection he didn't have it before.
+// Probably devise a function that lists every subelection change that
+// may occur; then a recursive function that creates the n-ary Cartesian
+// product of these. (That might be a lot of edges...)
 
 int main() {
 
@@ -192,6 +296,8 @@ int main() {
 
 	test.decode(se, 19001);
 	test.print(se);
+
+	std::cout << test.encode(se) << "\n";
 
 	return 0;
 }
