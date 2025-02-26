@@ -138,10 +138,6 @@ void fingerprint::decode(const subelections & se, size_t index) {
 		size_t num_options = se.num_options[subelec_idx];
 		size_t digit = index % num_options;
 
-		std::cout << "index is " << index << " and digit is " << digit <<
-			std::endl;
-		std::cout << "num options: " << num_options << "\n";
-
 		// Then decode it.
 		size_t num_members = se.subelection_members[subelec_idx].size();
 		std::vector<bool> above_quota_here;
@@ -162,7 +158,6 @@ void fingerprint::decode(const subelections & se, size_t index) {
 
 		is_member_above_quota.push_back(above_quota_here);
 
-		std::cout << digit << " of " << num_options << "\n";
 		index /= num_options;
 	}
 }
@@ -188,20 +183,13 @@ size_t fingerprint::encode(const subelections & se) const {
 
 	size_t output_index = 0;
 
-	// Get the "places" ("tens", "ones", etc) for the
-	// mixed radix number system.
-	std::vector<size_t> places;
-	size_t running_count = 1;
-	for (size_t i = 0; i < se.num_options.size(); ++i) {
-		places.push_back(running_count);
-		running_count *= se.num_options[i];
-	}
+	// To encode with least significant digit first, we'll
+	// need to keep track of the value of the current place
+	// ("tens", "ones", etc.) in the mixed radix system.
+	size_t place = 1;
 
-	for (size_t i = 0; i < se.num_options.size(); ++i) {
-
-		// We need to go from the last subelection to get the
-		// digits in the proper order.
-		size_t subelec_idx = i;
+	for (size_t subelec_idx = 0; subelec_idx < se.num_options.size();
+		++subelec_idx) {
 
 		// Get the contribution to the output index by the chosen
 		// candidates for this subelection.
@@ -227,13 +215,16 @@ size_t fingerprint::encode(const subelections & se) const {
 				" in subelection???");
 		}
 
+		// Digit values are shifted by one because all zero would
+		// correspond to no candidate being above the quota, which
+		// is impossible.
+
 		--digit;
 
-		std::cout << "index is " << output_index << " and digit is " << digit <<
-			std::endl;
-		std::cout << "range is " << range << "\n";
+		// Add the current digit and shift the place value.
 
-		output_index += digit * places[i];
+		output_index += digit * place;
+		place *= se.num_options[subelec_idx];
 	}
 
 	return output_index;
@@ -275,7 +266,8 @@ void fingerprint::print(const subelections & se) const {
 	}
 }
 
-// TODO: encode()
+// TODO: encode(). DONE
+
 // TODO: monotonicity. Raising A can stop B from being above the quota in
 // any subelection where A and B are both present. It doesn't do anything
 // in subelections not having A. It may also (irrespective of the above)
@@ -294,8 +286,12 @@ int main() {
 	std::cout << "Number of distinct fingerprints: "
 		<< se.distinct_fingerprints << "\n";
 
+	std::cout << "Decoding 19001" << "\n";
+
 	test.decode(se, 19001);
 	test.print(se);
+
+	std::cout << "Re-encoding...\n";
 
 	std::cout << test.encode(se) << "\n";
 
