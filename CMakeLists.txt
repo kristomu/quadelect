@@ -170,6 +170,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/random/randcand.cc
 	src/singlewinner/sets/condorcet.cc
 	src/singlewinner/sets/debug/venzke_landau.cc
+	src/singlewinner/sets/disqset.cc
 	src/singlewinner/sets/dmt.cc
 	src/singlewinner/sets/inner_burial.cc
 	src/singlewinner/sets/max_elements/det_sets.cc

@@ -8,6 +8,7 @@
 #include "tools/ballot_tools.h"
 #include "common/ballots.h"
 
+#include "singlewinner/dmt/all.h"
 #include "singlewinner/elimination/all.h"
 #include "singlewinner/experimental/all.h"
 #include "singlewinner/meta/all.h"
@@ -19,20 +20,23 @@
 
 int main() {
 
-	int max_numvoters = 30, max_numcands = 4; // E.g.
+	int max_numvoters = 30, max_numcands = 3; // E.g.
 
 	// TODO get seed from an entropy source, see quadelect proper
 	std::shared_ptr<rng> rnd = std::make_shared<rng>(0);
 
 	auto method_tested =
-		std::make_shared<disqelim>();
-	//std::make_shared<instant_runoff_voting>(PT_WHOLE, true);
-	/*std::make_shared<slash>(std::make_shared<rmr1>(RMR_DEFEATING),
-		std::make_shared<ext_minmax>(CM_WV, false));*/
-	//std::make_shared<rmr1>(RMR_TWO_WAY);
-	/*std::make_shared<comma>(std::make_shared<inner_burial_set>(),
-		std::make_shared<rmr1>(RMR_TWO_WAY));*/
-	//std::make_shared<ext_minmax>(CM_WV, false);
+		/*	std::make_shared<loser_elimination>(
+				std::make_shared<plurality>(PT_WHOLE),
+				false, true, true);*/
+		//std::make_shared<cycle_cutting>();
+		//std::make_shared<instant_runoff_voting>(PT_WHOLE, true);
+		/*std::make_shared<slash>(std::make_shared<rmr1>(RMR_DEFEATING),
+			std::make_shared<ext_minmax>(CM_WV, false));*/
+		//std::make_shared<rmr1>(RMR_TWO_WAY);
+		//std::make_shared<comma>(std::make_shared<idisqualif_set>(),
+		//std::make_shared<rmr1>(RMR_TWO_WAY));
+		std::make_shared<idisqualif_set>();
 
 	std::shared_ptr<impartial> ballot_gen =
 		std::make_shared<impartial>(false, false);

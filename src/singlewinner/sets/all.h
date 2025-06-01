@@ -8,6 +8,7 @@
 #pragma once
 
 #include "condorcet.h"
+#include "disqset.h"
 #include "dmt.h"
 #include "inner_burial.h"
 #include "mdd.h"

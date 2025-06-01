@@ -15,11 +15,44 @@
 #include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
 
+// Helper class for first preference counts for every subelection (way to
+// eliminate candidates).
 
-class inner_burial_set : public election_method {
+class subelections {
 	private:
 		plurality plurality_method;
 
+	public:
+		// The hopeful power set lists the candidates included in each
+		// subelection, while the first_pref_scores list their first
+		// preferences, and the num_remaining_candidates and num_remaining
+		// voters vectors list how many candidates are included in the
+		// subelection and how many continuing (non-exhausted) voters are
+		// involved.
+
+		std::vector<std::vector<bool > > hopeful_power_set;
+		std::vector<std::vector<double> > first_pref_scores;
+		std::vector<int> num_remaining_candidates;
+		std::vector<double> num_remaining_voters;
+
+		// The hopefuls that make up the full election.
+		std::vector<bool> included_candidates;
+		size_t num_candidates; // including already eliminated (non-hopefuls)
+
+		// Determine the subelection first-preference counts for
+		// the given election. If tiebreak is true, add a small
+		// value to lower-numbered candidates so that true ties
+		// never occur. (Doing so breaks neutrality.)
+		void count_subelections(const election_t & papers,
+			const std::vector<bool> & hopefuls,
+			bool tiebreak);
+
+		// I'm not sure which is better; IFPP Method X uses
+		// whole, and this uses fractional.
+		subelections() : plurality_method(PT_FRACTIONAL) {}
+};
+
+class inner_burial_set : public election_method {
 	public:
 		std::pair<ordering, bool> elect_inner(
 			const election_t & papers,
@@ -30,8 +63,4 @@ class inner_burial_set : public election_method {
 		std::string name() const {
 			return "Inner burial set";
 		}
-
-		// I'm not sure which is better; IFPP Method X uses
-		// whole, and this uses fractional.
-		inner_burial_set() : plurality_method(PT_FRACTIONAL) {}
 };
