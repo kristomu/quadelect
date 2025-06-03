@@ -83,7 +83,7 @@ std::pair<ordering, bool> inner_burial_set::elect_inner(
 		for (int sec_cand = 0; sec_cand < num_candidates; ++sec_cand) {
 			// Skip candidates who aren't hopeful or who have already
 			// been disqualified.
-			if (first_cand == sec_cand || undisqualified_candidates[sec_cand]) {
+			if (first_cand == sec_cand || !undisqualified_candidates[sec_cand]) {
 				continue;
 			}
 
