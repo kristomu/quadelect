@@ -7,6 +7,14 @@
 // subelection of a given election. The first preference information is used
 // in resistant set-based methods to determine or elect from the resistant set.
 
+// beats[k][x][y] is true iff candidate x disqualifies y on
+// every set of cardinality k and less.
+
+typedef std::vector<std::vector<std::vector<bool> > > disqual_tensor;
+
+// for rmr1 until we've refactored
+typedef std::vector<std::vector<std::vector<bool> > > beats_tensor;
+
 class subelections {
 	private:
 		plurality plurality_method;
@@ -35,6 +43,15 @@ class subelections {
 		void count_subelections(const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			bool tiebreak);
+
+		// Determine the disqualification relation for each level
+		// of set cardinality. disqualifies[i][a][b] gives whether
+		// a ~> b when considering subelections of i members or
+		// fewer (cumulative) or subelections of exactly i members
+		// (not cumulative).
+		disqual_tensor get_level_disqualifications(
+			const std::vector<bool> & hopefuls,
+			bool cumulative) const;
 
 		// I'm not sure which is better; IFPP Method X uses
 		// whole, and this uses fractional.

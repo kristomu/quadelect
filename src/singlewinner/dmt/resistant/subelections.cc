@@ -60,3 +60,106 @@ void subelections::count_subelections(
 		num_remaining_voters.push_back(num_remaining_voters_here);
 	}
 }
+
+// Determine the disqualification relation for each level of set
+// cardinality. disqualifies[i][a][b] gives whether a ~> b when
+// considering subelections of i members or fewer.
+
+// TODO? Handle higher levels with hopefuls... e.g. suppose
+// A is hopeful and everybody else is not, then we don't need
+// n levels. Needs testing. XXX
+disqual_tensor subelections::get_level_disqualifications(
+	const std::vector<bool> & hopefuls,
+	bool cumulative) const {
+
+	size_t numcands = hopefuls.size();
+
+	std::vector<std::vector<std::vector<bool> > > disqualifies(
+		numcands+1, std::vector<std::vector<bool> >(numcands,
+			std::vector<bool>(numcands, true)));
+
+	// For zero and one-candidate sets, it's impossible to get
+	// two candidates into the set, so the disqualification relation
+	// makes no sense. To make things easier on ourselves, we consider
+	// A~>B vacuously true when there are no sets containing both A
+	// and B. This makes every pair on level zero (even non-hopefuls)
+	// true, and every pair except A~>A true on level one.
+
+	size_t level, cand, against;
+	for (level = 1; level <= numcands; ++level) {
+		for (cand = 0; cand < numcands; ++cand) {
+			if (!hopefuls[cand]) {
+				for (against = 0; against < numcands; ++against) {
+					disqualifies[level][cand][against] = false;
+				}
+				continue;
+			}
+			disqualifies[level][cand][cand] = false;
+		}
+	}
+
+	// Go through every subelection and candidate pair, and see if the
+	// former disqualifies the latter. If not, set disqualifies
+
+	for (size_t subelection = 0; subelection < first_pref_scores.size();
+		++subelection) {
+
+		for (cand = 0; cand < numcands; ++cand) {
+			if (!hopeful_power_set[subelection][cand]) {
+				continue;
+			}
+
+			// The candidate's first prefs
+			size_t cardinality = hopeful_power_set[subelection].size();
+			double cand_fpp = first_pref_scores[subelection][cand];
+
+			for (against = 0; against < numcands; ++against) {
+				if (cand == against) {
+					continue;
+				}
+
+				if (!hopeful_power_set[subelection][against]) {
+					continue;
+				}
+
+				// For A ~> B to still hold, we need
+				// fpA_S > 1/cardinality, i.e.
+				// cardinality * fpA_S > 1.
+				if (cardinality * cand_fpp > 1) {
+					disqualifies[cardinality][cand][against] = false;
+				}
+			}
+		}
+	}
+
+	// We now have each disqualifies giving the disqualification relation
+	// for *exactly* that cardinality level. If that's what we were asked
+	// for, return it...
+
+	if (!cumulative) {
+		return disqualifies;
+	}
+
+	// Otherwise use the prior level results to make each level's pair
+	// true only if it's true for that level and every level below.
+
+	for (cand = 0; cand < numcands; ++cand) {
+		if (!hopefuls[cand]) {
+			continue;
+		}
+
+		for (against = 0; against < numcands; ++against) {
+			if (!hopefuls[against] || cand == against) {
+				continue;
+			}
+
+			for (level = 1; level < numcands; ++level) {
+				if (!disqualifies[level-1][cand][against]) {
+					disqualifies[level][cand][against] = false;
+				}
+			}
+		}
+	}
+
+	return disqualifies;
+}
