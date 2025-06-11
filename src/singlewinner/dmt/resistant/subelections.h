@@ -12,9 +12,6 @@
 
 typedef std::vector<std::vector<std::vector<bool> > > disqual_tensor;
 
-// for rmr1 until we've refactored
-typedef std::vector<std::vector<std::vector<bool> > > beats_tensor;
-
 class subelections {
 	private:
 		plurality plurality_method;

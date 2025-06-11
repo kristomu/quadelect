@@ -1,5 +1,8 @@
 #include "subelections.h"
 
+// TODO: Ignore exhausted ballots (as the definition states) instead of
+// fractionally attributing them to every candidate.
+
 void subelections::count_subelections(
 	const election_t & papers,
 	const std::vector<bool> & hopefuls,
@@ -72,10 +75,10 @@ disqual_tensor subelections::get_level_disqualifications(
 	const std::vector<bool> & hopefuls,
 	bool cumulative) const {
 
-	size_t numcands = hopefuls.size();
+	size_t numcands = hopefuls.size(), num_levels = numcands + 1;
 
 	std::vector<std::vector<std::vector<bool> > > disqualifies(
-		numcands+1, std::vector<std::vector<bool> >(numcands,
+		num_levels, std::vector<std::vector<bool> >(numcands,
 			std::vector<bool>(numcands, true)));
 
 	// For zero and one-candidate sets, it's impossible to get
@@ -86,7 +89,7 @@ disqual_tensor subelections::get_level_disqualifications(
 	// true, and every pair except A~>A true on level one.
 
 	size_t level, cand, against;
-	for (level = 1; level <= numcands; ++level) {
+	for (level = 1; level < num_levels; ++level) {
 		for (cand = 0; cand < numcands; ++cand) {
 			if (!hopefuls[cand]) {
 				for (against = 0; against < numcands; ++against) {
@@ -110,8 +113,15 @@ disqual_tensor subelections::get_level_disqualifications(
 			}
 
 			// The candidate's first prefs
-			size_t cardinality = hopeful_power_set[subelection].size();
+			size_t numcands_here = num_remaining_candidates[subelection];
 			double cand_fpp = first_pref_scores[subelection][cand];
+
+			// For A ~> B to still hold, we need
+			// fpA_S > numvoters/numcands_here, i.e.
+			// numcands_here * fpA_S > numvoters.
+			if (numcands_here * cand_fpp > num_remaining_voters[subelection]) {
+				continue;
+			}
 
 			for (against = 0; against < numcands; ++against) {
 				if (cand == against) {
@@ -122,12 +132,7 @@ disqual_tensor subelections::get_level_disqualifications(
 					continue;
 				}
 
-				// For A ~> B to still hold, we need
-				// fpA_S > 1/cardinality, i.e.
-				// cardinality * fpA_S > 1.
-				if (cardinality * cand_fpp > 1) {
-					disqualifies[cardinality][cand][against] = false;
-				}
+				disqualifies[numcands_here][cand][against] = false;
 			}
 		}
 	}
@@ -153,7 +158,7 @@ disqual_tensor subelections::get_level_disqualifications(
 				continue;
 			}
 
-			for (level = 1; level < numcands; ++level) {
+			for (level = 1; level < num_levels; ++level) {
 				if (!disqualifies[level-1][cand][against]) {
 					disqualifies[level][cand][against] = false;
 				}

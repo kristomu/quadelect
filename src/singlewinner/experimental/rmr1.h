@@ -64,42 +64,41 @@
 #include "../method.h"
 #include "pairwise/matrix.h"
 #include "../positional/simple_methods.h"
+#include "../dmt/resistant/subelections.h"
 
 enum rmr_type { RMR_DEFEATED, RMR_DEFEATING, RMR_TWO_WAY, RMR_SCHWARTZ_EXP };
 
 // beats[k][x][y] is true iff candidate x disqualifies y on
 // every set of cardinality k and less.
 
-typedef std::vector<std::vector<std::vector<bool> > > beats_tensor;
-
 class rmr1 : public election_method {
 	private:
 		plurality plurality_method;
 		rmr_type chosen_type;
 
-		beats_tensor get_k_disqualifications(
+		disqual_tensor get_k_disqualifications(
 			const election_t & papers,
 			const std::vector<bool> & hopefuls,
 			int num_candidates) const;
 
-		condmat get_defeating_matrix(const beats_tensor & beats,
+		condmat get_defeating_matrix(const disqual_tensor & beats,
 			const std::vector<bool> & hopefuls, int level) const;
 
-		ordering iterative_schwartz(const beats_tensor & beats,
+		ordering iterative_schwartz(const disqual_tensor & beats,
 			const std::vector<bool> & hopefuls) const;
 
 		int get_score_defeated(
-			const beats_tensor & beats,
+			const disqual_tensor & beats,
 			const std::vector<bool> & hopefuls,
 			int candidate, int num_candidates) const;
 
 		int get_score_defeating(
-			const beats_tensor & beats,
+			const disqual_tensor & beats,
 			const std::vector<bool> & hopefuls,
 			int candidate, int num_candidates) const;
 
 		int get_score_two_way(
-			const beats_tensor & beats,
+			const disqual_tensor & beats,
 			const std::vector<bool> & hopefuls,
 			int candidate, int num_candidates) const;
 
