@@ -81,9 +81,6 @@ class rmr1 : public election_method {
 			const std::vector<bool> & hopefuls,
 			int num_candidates) const;
 
-		condmat get_defeating_matrix(const disqual_tensor & beats,
-			const std::vector<bool> & hopefuls, int level) const;
-
 		ordering iterative_schwartz(const disqual_tensor & beats,
 			const std::vector<bool> & hopefuls) const;
 

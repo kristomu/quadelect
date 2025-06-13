@@ -168,3 +168,40 @@ disqual_tensor subelections::get_level_disqualifications(
 
 	return disqualifies;
 }
+
+condmat subelection_tools::get_defeating_matrix(const disqual_tensor &
+	beats,
+	const std::vector<bool> & hopefuls, size_t level) {
+
+	size_t num_candidates = hopefuls.size();
+
+	// Define a Condorcet matrix for the weak defeats relation.
+	// A weakly defeats B if the highest level k where either A~(k)~>B
+	// or B~(k)~>A, we have A~(k)~>B.
+
+	condmat matrix(num_candidates, 1, CM_PAIRWISE_OPP);
+
+	for (size_t candidate = 0; candidate < num_candidates; ++candidate) {
+		if (!hopefuls[candidate]) {
+			continue;
+		}
+
+		for (size_t challenger = 0; challenger < candidate; ++challenger) {
+			if (!hopefuls[challenger]) {
+				continue;
+			}
+
+			if (beats[level][candidate][challenger]) {
+				matrix.add(candidate, challenger, 1);
+				matrix.add(challenger, candidate, 0);
+			}
+
+			if (beats[level][challenger][candidate]) {
+				matrix.add(candidate, challenger, 0);
+				matrix.add(challenger, candidate, 1);
+			}
+		}
+	}
+
+	return matrix;
+}

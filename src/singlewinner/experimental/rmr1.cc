@@ -17,42 +17,6 @@ disqual_tensor rmr1::get_k_disqualifications(const election_t & papers,
 	return se.get_level_disqualifications(hopefuls, true);
 }
 
-condmat rmr1::get_defeating_matrix(const disqual_tensor & beats,
-	const std::vector<bool> & hopefuls, int level) const {
-
-	int num_candidates = hopefuls.size();
-
-	// Define a Condorcet matrix for the weak defeats relation.
-	// A weakly defeats B if the highest level k where either A~(k)~>B
-	// or B~(k)~>A, we have A~(k)~>B.
-
-	condmat matrix(num_candidates, 1, CM_PAIRWISE_OPP);
-
-	for (int candidate = 0; candidate < num_candidates; ++candidate) {
-		if (!hopefuls[candidate]) {
-			continue;
-		}
-
-		for (int challenger = 0; challenger < candidate; ++challenger) {
-			if (!hopefuls[challenger]) {
-				continue;
-			}
-
-			if (beats[level][candidate][challenger]) {
-				matrix.add(candidate, challenger, 1);
-				matrix.add(challenger, candidate, 0);
-			}
-
-			if (beats[level][challenger][candidate]) {
-				matrix.add(candidate, challenger, 0);
-				matrix.add(challenger, candidate, 1);
-			}
-		}
-	}
-
-	return matrix;
-}
-
 ordering rmr1::iterative_schwartz(const disqual_tensor & beats,
 	const std::vector<bool> & hopefuls) const {
 
@@ -63,7 +27,8 @@ ordering rmr1::iterative_schwartz(const disqual_tensor & beats,
 	// Either direction works. But only this one appears to be Smith.
 	//for (int level = num_candidates; level >= 2; --level) {
 	for (int level = 2; level <= (int)num_candidates; ++level) {
-		condmat matrix = get_defeating_matrix(beats, hopefuls, level);
+		condmat matrix = subelection_tools::get_defeating_matrix(beats,
+				hopefuls, level);
 		ordering this_level_out = schwartz_set().pair_elect(
 				matrix, hopefuls, NULL, false).first;
 

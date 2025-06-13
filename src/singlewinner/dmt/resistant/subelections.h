@@ -1,6 +1,7 @@
 #pragma once
 
 #include "singlewinner/positional/simple_methods.h"
+#include "pairwise/matrix.h"
 
 // A subelection, given by a set S, is an election with every candidate not
 // in S eliminated. This class counts the first preferences for every
@@ -53,4 +54,12 @@ class subelections {
 		// I'm not sure which is better; IFPP Method X uses
 		// whole, and this uses fractional.
 		subelections() : plurality_method(PT_FRACTIONAL) {}
+};
+
+class subelection_tools {
+	public:
+		// Turn a disqualification level into a boolean
+		// Condorcet matrix.
+		static condmat get_defeating_matrix(const disqual_tensor & beats,
+			const std::vector<bool> & hopefuls, size_t level);
 };
