@@ -4,15 +4,17 @@
 // a more monotone resistant set, but with the aim of eventually
 // becoming a fully monotone set or method.
 
-// Let there be a /path/, A ~> X_1 ~> ... ~> X_n if
+// Let there be a /path/, A -> X_1 -> ... -> X_n if
 //	A disqualifies X_1 on every subelection that has both in them;
 //
-//	and then for all X_k:
-//		X_(k-1) disqualifies X_k in every subelection containing
-//			X_(k-1) and X_k
-//		The combined first preferences of the k candidates
-//			A ... X_(k-1) exceeds k/|S| in every subelection
-//			containing all of them plus X_k.
+//	and then for all X_k, for X_(k-1) -> X_k to hold the following must be true:
+//		For all subelections S:
+//			If X_k is not in S, no constraint.
+//			Let C be the earliest candidate on the path that's in the
+//				subelection, and Q be the set of C and all subsequent candidates
+//				on the path.
+//			If every candidate in Q is in S, then the sum of the first preferences
+//				of candidates in Q must be greater than |Q|/|S|.
 
 // Then the indirect disqualification set is everybody who isn't at the
 // receiving end of a path.
@@ -36,6 +38,9 @@
 
 class idisqualif_set : public election_method {
 	private:
+		// For determining what candidates indirectly
+		// disqualify others.
+
 		void explore_paths(
 			const std::vector<bool> & hopefuls,
 			const subelections & se,
@@ -47,6 +52,8 @@ class idisqualif_set : public election_method {
 		std::vector<std::vector<bool> > explore_all_paths(
 			const election_t & papers,
 			const std::vector<bool> & hopefuls) const;
+
+		// Helper functions.
 
 		bool has_cycle(const std::vector<std::vector<bool> > &
 			disqualifications, std::vector<bool> & visited,

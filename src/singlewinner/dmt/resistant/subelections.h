@@ -52,8 +52,10 @@ class subelections {
 			bool cumulative) const;
 
 		// I'm not sure which is better; IFPP Method X uses
-		// whole, and this uses fractional.
+		// whole, and this uses fractional. Probably fractional.
 		subelections() : plurality_method(PT_FRACTIONAL) {}
+
+		void print_subelection_counts() const;
 };
 
 class subelection_tools {

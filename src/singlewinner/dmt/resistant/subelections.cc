@@ -169,8 +169,34 @@ disqual_tensor subelections::get_level_disqualifications(
 	return disqualifies;
 }
 
-condmat subelection_tools::get_defeating_matrix(const disqual_tensor &
-	beats,
+void subelections::print_subelection_counts() const {
+
+	size_t num_subelections = hopeful_power_set.size();
+
+	for (size_t i = 0; i < num_subelections; ++i) {
+		std::cout << "Subelection " << i << " contains { ";
+		size_t j;
+
+		for (j = 0; j < hopeful_power_set[i].size(); ++j) {
+			if (hopeful_power_set[i][j]) {
+				std::cout << j << " ";
+			}
+		}
+		std::cout << "}\n";
+
+		for (j = 0; j < hopeful_power_set[i].size(); ++j) {
+			if (!hopeful_power_set[i][j]) {
+				continue;
+			}
+			std::cout << "fp(" << j <<"): " <<
+				first_pref_scores[i][j] << "\n";
+		}
+		std::cout << "\n";
+	}
+}
+
+condmat subelection_tools::get_defeating_matrix(
+	const disqual_tensor & beats,
 	const std::vector<bool> & hopefuls, size_t level) {
 
 	size_t num_candidates = hopefuls.size();

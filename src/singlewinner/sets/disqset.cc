@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 
 #include "disqset.h"
@@ -12,11 +13,10 @@
 //		If root is not in S, but both last and leaf are in it:
 //			If fp{last} <= 1/|S|, then return (last doesn't disqualify
 //				leaf).
-//		If the whole chain_members list, *and* leaf is in S,
-//			If the sum of first prefs of the chain_members list, does
-//				not exceed k/|S|, then return (last doesn't
-//				disqualify leaf through the root), where k is the
-//				length of that list.
+//		If some suffix of chain_members list, *and* leaf is in S,
+//			If the sum of first prefs of the suffix set Q, does
+//				not exceed |Q|/|S|, then return (last doesn't
+//				disqualify leaf through the root).
 //	If we have gone through every applicable subelection without
 //		aborting, then:
 //		Set disqualified[leaf], and add leaf to the chain.
@@ -37,11 +37,9 @@ void idisqualif_set::explore_paths(
 			"explore_paths: Chain must contain root!");
 	}
 
-	size_t root = chain_members[0],
-		   last = *chain_members.rbegin();
+	/*size_t root = chain_members[0],
+		   last = *chain_members.rbegin();*/
 	size_t num_subelections = se.hopeful_power_set.size();
-
-	// TODO: Check that this also verifies pairwise.
 
 	for (size_t se_idx = 0; se_idx < num_subelections; ++se_idx) {
 		// If leaf isn't in it, then it's not interesting.
@@ -49,32 +47,36 @@ void idisqualif_set::explore_paths(
 			continue;
 		}
 
-		/*if (se.num_remaining_candidates[se_idx] == 2) {
-			std::cout << "debug, pairwise included" << std::endl;
-		}*/
+		// Find the earliest chain_members candidate in the
+		// subelection.
+		bool found_candidate = false;
+		size_t earliest_chain_idx = 0;
 
-		// If last and leaf are in it but root isn't, check
-		// ordinary disqualification.
-
-		if (se.hopeful_power_set[se_idx][last] &&
-			!se.hopeful_power_set[se_idx][root]) {
-			// fp(last)_S <= numvoters/|S|, or for numerical stability,
-			// |S| * fp(last)_S <= numvoters
-			if (se.num_remaining_candidates[se_idx] *
-				se.first_pref_scores[se_idx][last] <=
-				se.num_remaining_voters[se_idx]) {
-				// last doesn't disqualify leaf.
-				return;
+		for (size_t i = 0; i < chain_members.size() && !found_candidate; ++i) {
+			if (se.hopeful_power_set[se_idx][chain_members[i]]) {
+				earliest_chain_idx = i;
+				found_candidate = true;
 			}
 		}
 
-		// Skip if not everybody in the current chain is in the
-		// subelection.
+		// If we didn't find any, then the subelection doesn't contain
+		// last either, and so is uninteresting.
+		if (!found_candidate) {
+			continue;
+		}
+
+		// Skip if not everybody in the suffix set Q is in the subelection.
 		bool all_members = true;
 		double combined_first_prefs = 0;
-		for (size_t chain_cand : chain_members) {
+		size_t seen_candidates = 0;
+		for (size_t chain_cand_idx = earliest_chain_idx;
+			chain_cand_idx < chain_members.size(); ++chain_cand_idx) {
+
+			size_t chain_cand = chain_members[chain_cand_idx];
+
 			all_members &= se.hopeful_power_set[se_idx][chain_cand];
 			combined_first_prefs += se.first_pref_scores[se_idx][chain_cand];
+			++seen_candidates;
 
 			if (!all_members) {
 				continue;
@@ -84,12 +86,12 @@ void idisqualif_set::explore_paths(
 			continue;
 		}
 
-		// If we fail to disqualify leaf through the root, abort.
-		// combined_first_prefs <= numvoters * chain_members.size() / |S|
-		// i.e. |S| * cfs <= numvoters * chain_members.size()
+		// If we fail to disqualify leaf through the suffix set, abort.
+		// combined_first_prefs <= numvoters * |Q| / |S|
+		// i.e. |S| * cfs <= numvoters * |Q|
 		if (se.num_remaining_candidates[se_idx] *
 			combined_first_prefs <=
-			se.num_remaining_voters[se_idx] * chain_members.size()) {
+			se.num_remaining_voters[se_idx] * seen_candidates) {
 			// last doesn't disqualify leaf.
 			return;
 		}
@@ -224,6 +226,8 @@ std::pair<ordering, bool> idisqualif_set::elect_inner(
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
 
+	//std::cout << "Let's calculate!" << std::endl;
+
 	std::vector<std::vector<bool> > disq_matrix = explore_all_paths(
 			papers, hopefuls);
 
@@ -234,49 +238,105 @@ std::pair<ordering, bool> idisqualif_set::elect_inner(
 
 	size_t numcands = hopefuls.size(); // handle sign-compare warning
 
+	// Antisymmetry check
+	for (size_t cand = 0; cand < numcands; ++cand) {
+		for (size_t i = 0; i < numcands; ++i) {
+			if (cand != i && disq_matrix[cand][i] && disq_matrix[i][cand]) {
+				std::cout << "[Antisymmetry] failure from " << cand << " to " << i << "\n";
+				ballot_tools().print_ranked_ballots(papers);
+				std::cout << "[Antisymmetry] Disqualification matrix\n";
+				print(disq_matrix);
+				throw std::runtime_error("idisqualif_set: Antisymmetry violation detected!");
+			}
+		}
+	}
+
 	// Turn the set vector into an ordering and return.
 	ordering inner_set;
+
+	/*std::vector<double> disqscore = get_proximity_scores(
+		papers, hopefuls);*/
+
+	// Consistency check
+
+	for (size_t cand = 0; cand < numcands; ++cand) {
+		if (!hopefuls[cand]) {
+			continue;
+		}
+
+		size_t defeats = 0;
+		size_t num_other_hopefuls = 0;
+
+		for (size_t i = 0; i < numcands; ++i) {
+			if (!hopefuls[i] || i == cand) {
+				continue;
+			}
+			++num_other_hopefuls;
+
+			if (disq_matrix[cand][i]) {
+				++defeats;
+			}
+		}
+
+		/*if (disqscore[cand] > 0 && defeats < num_other_hopefuls) {
+			std::cout << "Oops! Candidate " << cand << " with " << defeats << " defeats vs " << num_other_hopefuls << "\n";
+			print(disq_matrix);
+			std::cout << "Scores: ";
+			std::copy(disqscore.begin(), disqscore.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << "\n";
+			throw std::runtime_error("Disqualification score > 0 but "
+				"didn't defeat everybody");
+		}
+
+		if (disqscore[cand] <= 0 && defeats == num_other_hopefuls) {
+						std::cout << "Oops! Candidate " << cand << " with " << defeats << " defeats vs " << num_other_hopefuls << "\n";
+			print(disq_matrix);
+			std::cout << "Scores: ";
+			std::copy(disqscore.begin(), disqscore.end(), std::ostream_iterator<double>(std::cout, " "));
+			std::cout << "\n";
+			throw std::runtime_error("Disqualification score <= 0 but "
+				"did defeat everybody");
+		}*/
+
+	}
 
 	for (size_t cand = 0; cand < numcands; ++cand) {
 		if (!hopefuls[cand]) {
 			continue;
 		}
 		size_t defeated_by = 0;
+		size_t defeats = 0;
+		size_t num_other_hopefuls = 0;
 
 		for (size_t i = 0; i < numcands; ++i) {
 			if (!hopefuls[i] || i == cand) {
 				continue;
 			}
+
+			++num_other_hopefuls;
+
 			if (disq_matrix[i][cand]) {
 				++defeated_by;
 			}
-		}
-
-		inner_set.insert(candscore(cand, numcands-defeated_by));
-	}
-
-	return std::pair<ordering, bool>(inner_set, false);
-
-	/*
-	// TODO, don't make it count, just do a blank matrix.
-	condmat matrix(papers, num_candidates, CM_PAIRWISE_OPP);
-
-	for (size_t incumbent = 0; incumbent < numcands; ++incumbent) {
-		for (size_t challenger = 0; challenger < numcands; ++challenger) {
-			matrix.set(incumbent, challenger, 0);
-			if (!hopefuls[incumbent])  { continue; }
-			if (!hopefuls[challenger] || incumbent == challenger) { continue; }
-
-			if (disq_matrix[incumbent][challenger]) {
-				matrix.set(incumbent, challenger, 1);
-				if (disq_matrix[challenger][incumbent]) {
-					throw std::runtime_error("Yowza! Cycle detected!");
-				}
+			if (disq_matrix[cand][i]) {
+				++defeats;
 			}
 		}
+
+		// defeats also works, but is slightly more manipulable, by
+		// about 5%. I'll need to ponder more theory.
+		inner_set.insert(candscore(cand, numcands-defeated_by));
+
+		//inner_set.insert(candscore(cand, disqscore[cand]));
 	}
 
-	return smith_set().pair_elect(matrix, hopefuls,
-		cache, winner_only);
-	*/
+	/*std::cout << "DEBUG: Proximity scores: \n";
+
+	for (size_t cand = 0; cand < numcands; ++cand) {
+		if (!hopefuls[cand]) { continue; }
+		std::cout << (char)(cand + 'A') << ": " << disqscore[cand] << "\t";
+	}
+	std::cout << std::endl;*/
+
+	return std::pair<ordering, bool>(inner_set, false);
 }
