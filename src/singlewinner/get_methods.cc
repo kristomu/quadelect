@@ -138,7 +138,9 @@ std::vector<std::shared_ptr<pairwise_method> > get_pairwise_sets() {
 	return pw_sets;
 }
 
-std::vector<std::shared_ptr<election_method> > get_sets() {
+std::vector<std::shared_ptr<election_method> > get_sets(
+	bool include_experimental) {
+
 	std::vector<std::shared_ptr<election_method> > sets;
 
 	for (std::shared_ptr<election_method> em_set: get_pairwise_sets()) {
@@ -148,6 +150,11 @@ std::vector<std::shared_ptr<election_method> > get_sets() {
 	sets.push_back(std::make_shared<mutual_majority_set>());
 	sets.push_back(std::make_shared<dmt_set>());
 	sets.push_back(std::make_shared<inner_burial_set>());
+	sets.push_back(std::make_shared<super_condorcet_set>());
+
+	if (include_experimental) {
+		sets.push_back(std::make_shared<idisqualif_set>());
+	}
 
 	return sets;
 }
@@ -165,7 +172,8 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 
 	std::vector<std::shared_ptr<positional> > positional_methods =
 		get_positional_methods(truncate);
-	std::vector<std::shared_ptr<election_method> > sets = get_sets();
+	std::vector<std::shared_ptr<election_method> > sets = get_sets(
+			include_experimental);
 
 	// We have to do it in this clumsy manner because of possible bugs in
 	// handling methods with some candidates excluded.
@@ -229,6 +237,8 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 	all_methods.push_back(std::make_shared<btr_irv>(PT_WHOLE, true));
 
 	all_methods.push_back(std::make_shared<donated_contingent_vote>());
+
+	all_methods.push_back(std::make_shared<hash_random_cand>());
 
 	if (include_experimental) {
 

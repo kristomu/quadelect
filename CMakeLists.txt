@@ -181,6 +181,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/sets/mdd.cc
 	src/singlewinner/sets/mutual_majority.cc
 	src/singlewinner/sets/partition.cc
+	src/singlewinner/sets/scw.cc
 	src/singlewinner/sets/topological.cc
 	src/singlewinner/stats/cardinal.cc
 	src/singlewinner/stats/mode.cc

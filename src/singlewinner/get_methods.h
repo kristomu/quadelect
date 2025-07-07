@@ -11,7 +11,8 @@ std::vector<std::shared_ptr<positional> > get_positional_methods(
 	bool truncate);
 
 std::vector<std::shared_ptr<pairwise_method> > get_pairwise_sets();
-std::vector<std::shared_ptr<election_method> > get_sets();
+std::vector<std::shared_ptr<election_method> > get_sets(
+	bool include_experimental);
 
 // This function could stand being split into two or more: one for
 // comma and slash combinations, and one for loser elimination and

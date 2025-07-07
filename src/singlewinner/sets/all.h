@@ -15,6 +15,7 @@
 #include "mutual_majority.h"
 #include "partition.h"
 #include "topological.h"
+#include "scw.h"
 
 #include "debug/venzke_landau.h"
 
