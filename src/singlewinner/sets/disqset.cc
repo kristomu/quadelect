@@ -133,7 +133,7 @@ std::vector<std::vector<bool> > idisqualif_set::explore_all_paths(
 	size_t numcands = hopefuls.size();
 
 	subelections se;
-	se.count_subelections(papers, hopefuls, true);
+	se.count_subelections(papers, hopefuls, false);
 
 	std::vector<std::vector<bool> > disqualification_matrix(
 		numcands, std::vector<bool>(numcands, false));
@@ -246,6 +246,10 @@ std::pair<ordering, bool> idisqualif_set::elect_inner(
 				ballot_tools().print_ranked_ballots(papers);
 				std::cout << "[Antisymmetry] Disqualification matrix\n";
 				print(disq_matrix);
+				std::cout << "[Antisymmetry] Subelection first preference counts\n";
+				subelections se;
+				se.count_subelections(papers, hopefuls, false);
+				se.print_subelection_counts();
 				throw std::runtime_error("idisqualif_set: Antisymmetry violation detected!");
 			}
 		}
