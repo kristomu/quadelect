@@ -214,7 +214,7 @@ void idisqualif_set::print(const std::vector<std::vector<bool> > &
 	for (size_t i = 0; i < numcands; ++i) {
 		for (size_t j = 0; j < numcands; ++j) {
 			if (disqualifications[i][j]) {
-				std::cout << (char)('A' + i) << " disqualifies "
+				std::cout << (char)('A' + i) << " indirectly disqualifies "
 					<< (char)('A'+j) << "\n";
 			}
 		}
@@ -225,8 +225,6 @@ std::pair<ordering, bool> idisqualif_set::elect_inner(
 	const election_t & papers,
 	const std::vector<bool> & hopefuls,
 	int num_candidates, cache_map * cache, bool winner_only) const {
-
-	//std::cout << "Let's calculate!" << std::endl;
 
 	std::vector<std::vector<bool> > disq_matrix = explore_all_paths(
 			papers, hopefuls);
@@ -250,16 +248,14 @@ std::pair<ordering, bool> idisqualif_set::elect_inner(
 				subelections se;
 				se.count_subelections(papers, hopefuls, false);
 				se.print_subelection_counts();
-				throw std::runtime_error("idisqualif_set: Antisymmetry violation detected!");
+				throw std::runtime_error("idisqualif_set: Antisymmetry violation "
+					"detected!");
 			}
 		}
 	}
 
 	// Turn the set vector into an ordering and return.
 	ordering inner_set;
-
-	/*std::vector<double> disqscore = get_proximity_scores(
-		papers, hopefuls);*/
 
 	// Consistency check
 
@@ -282,26 +278,6 @@ std::pair<ordering, bool> idisqualif_set::elect_inner(
 			}
 		}
 
-		/*if (disqscore[cand] > 0 && defeats < num_other_hopefuls) {
-			std::cout << "Oops! Candidate " << cand << " with " << defeats << " defeats vs " << num_other_hopefuls << "\n";
-			print(disq_matrix);
-			std::cout << "Scores: ";
-			std::copy(disqscore.begin(), disqscore.end(), std::ostream_iterator<double>(std::cout, " "));
-			std::cout << "\n";
-			throw std::runtime_error("Disqualification score > 0 but "
-				"didn't defeat everybody");
-		}
-
-		if (disqscore[cand] <= 0 && defeats == num_other_hopefuls) {
-						std::cout << "Oops! Candidate " << cand << " with " << defeats << " defeats vs " << num_other_hopefuls << "\n";
-			print(disq_matrix);
-			std::cout << "Scores: ";
-			std::copy(disqscore.begin(), disqscore.end(), std::ostream_iterator<double>(std::cout, " "));
-			std::cout << "\n";
-			throw std::runtime_error("Disqualification score <= 0 but "
-				"did defeat everybody");
-		}*/
-
 	}
 
 	for (size_t cand = 0; cand < numcands; ++cand) {
@@ -309,38 +285,19 @@ std::pair<ordering, bool> idisqualif_set::elect_inner(
 			continue;
 		}
 		size_t defeated_by = 0;
-		size_t defeats = 0;
-		size_t num_other_hopefuls = 0;
 
 		for (size_t i = 0; i < numcands; ++i) {
 			if (!hopefuls[i] || i == cand) {
 				continue;
 			}
 
-			++num_other_hopefuls;
-
 			if (disq_matrix[i][cand]) {
 				++defeated_by;
 			}
-			if (disq_matrix[cand][i]) {
-				++defeats;
-			}
 		}
 
-		// defeats also works, but is slightly more manipulable, by
-		// about 5%. I'll need to ponder more theory.
 		inner_set.insert(candscore(cand, numcands-defeated_by));
-
-		//inner_set.insert(candscore(cand, disqscore[cand]));
 	}
-
-	/*std::cout << "DEBUG: Proximity scores: \n";
-
-	for (size_t cand = 0; cand < numcands; ++cand) {
-		if (!hopefuls[cand]) { continue; }
-		std::cout << (char)(cand + 'A') << ": " << disqscore[cand] << "\t";
-	}
-	std::cout << std::endl;*/
 
 	return std::pair<ordering, bool>(inner_set, false);
 }
