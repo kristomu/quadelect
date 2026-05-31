@@ -126,9 +126,9 @@ std::vector<int> old_qltd_pr::QuotaBucklin(
 							num_candidates, council_size, !hare,
 							use_card, rated_ballots));
 			} else {
-				std::cout << "This shouldn't happen. Allocated size: "
+				/*std::cout << "This shouldn't happen. Allocated size: "
 					<< allocated.size() << ", now using "<<
-					"previous tally." << std::endl;
+					"previous tally." << std::endl;*/
 				failsafe = true;
 			}
 		}

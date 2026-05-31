@@ -376,7 +376,7 @@ std::set<std::set<int> > mono_webster_640::get_highest_scoring_tiebreak(
 		spos =
 			first_sort.begin(); spos != first_sort.end() &&
 		eligible; ++spos) {
-		cout << "Eligible: " << show_membership(spos->second) << endl;
+		//cout << "Eligible: " << show_membership(spos->second) << endl;
 		toRet.insert(spos->second);
 
 		// Check if the next is also eligible.
@@ -400,7 +400,7 @@ std::set<int> mono_webster_640::naive_sweb(const
 
 	std::set<std::set<int> > psout;
 	power_set(num_seats, 0, std::set<int>(), constraints[0].candidates, psout);
-	cout << "Engaging divisor engine." << endl;
+	//cout << "Engaging divisor engine." << endl;
 	double divisor;
 	std::vector<double> tiebreak_array(0); // NOT TO BE ACCESSED
 
@@ -413,16 +413,16 @@ std::set<int> mono_webster_640::naive_sweb(const
 	if (accepted_limiters.size() == 1) {
 		return (*accepted_limiters.begin());
 	} else {
-		cout << "Time for breaking some ties, methinks." << endl;
+		//cout << "Time for breaking some ties, methinks." << endl;
 		accepted_limiters = get_highest_scoring_tiebreak(constraints,
 				accepted_limiters, tiebreak_array, divisor);
 	}
 
-	cout << "Now there are " << accepted_limiters.size() << " sets. ";
+	/*cout << "Now there are " << accepted_limiters.size() << " sets. ";
 	if (accepted_limiters.size() > 1) {
 		cout << "Breaking randomly.";
 	}
-	cout << endl;
+	cout << endl;*/
 
 	return (*accepted_limiters.begin());
 
@@ -451,7 +451,7 @@ std::set<int> mono_webster_640::check_one_brute() const {
 	int a = random() % mxv, b = random() % mxv, c = (random() % mxv) + 1,
 		d = random() % mxv, e = random() % mxv, f = random() % mxv;
 
-	cout << "----- Generating original council ---" << endl;
+	//cout << "----- Generating original council ---" << endl;
 
 	int num_seats = 1 + random()%2;
 	double stepsize = 0.005;

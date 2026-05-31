@@ -368,7 +368,7 @@ std::set<std::set<int> > mono_webster_f03::get_highest_scoring_tiebreak(
 		spos =
 			first_sort.begin(); spos != first_sort.end() &&
 		eligible; ++spos) {
-		cout << "Eligible: " << sf.show_membership(spos->second) << endl;
+		//cout << "Eligible: " << sf.show_membership(spos->second) << endl;
 		toRet.insert(spos->second);
 
 		// Check if the next is also eligible.
@@ -440,16 +440,18 @@ std::set<int> mono_webster_f03::naive_sweb(const
 				accepted_limiters, tiebreak_array, divisor);
 	}
 
-	cout << "Now there are " << accepted_limiters.size() << " sets. ";
-	if (accepted_limiters.size() > 1) {
-		cout << "Breaking randomly.";
+	if (debug) {
+		cout << "Now there are " << accepted_limiters.size() << " sets. ";
+		if (accepted_limiters.size() > 1) {
+			cout << "Breaking randomly.";
+		}
+		cout << "Our sets are:";
+		for (std::set<std::set<int> >::const_iterator vpos =
+				accepted_limiters.begin(); vpos != accepted_limiters.end(); ++vpos) {
+			cout << " {" << sf.show_membership(*vpos) << "}";
+		}
+		cout << endl;
 	}
-	cout << "Our sets are:";
-	for (std::set<std::set<int> >::const_iterator vpos =
-			accepted_limiters.begin(); vpos != accepted_limiters.end(); ++vpos) {
-		cout << " {" << sf.show_membership(*vpos) << "}";
-	}
-	cout << endl;
 
 	return (*accepted_limiters.begin());
 
