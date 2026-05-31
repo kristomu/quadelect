@@ -42,6 +42,7 @@ std::vector<std::shared_ptr<pairwise_method> > get_pairwise_methods(
 			out.push_back(std::make_shared<keener>(*pos, 0.001, true, true));
 		}
 
+		out.push_back(std::make_shared<max_ab>(*pos));
 		out.push_back(std::make_shared<ext_minmax>(*pos, false));
 		out.push_back(std::make_shared<ext_minmax>(*pos, true));
 		out.push_back(std::make_shared<ord_minmax>(*pos));

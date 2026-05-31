@@ -10,6 +10,7 @@
 #include "method.h"
 #include "simple_methods.h"
 #include "minmaxy_exper.h"
+#include "max_ab.h"
 
 #include "odm/all.h"
 #include "random/all.h"

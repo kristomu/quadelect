@@ -153,6 +153,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/pairwise/keener.cc
 	src/singlewinner/pairwise/kemeny.cc
 	src/singlewinner/pairwise/least_rev.cc
+	src/singlewinner/pairwise/max_ab.cc
 	src/singlewinner/pairwise/method.cc
 	src/singlewinner/pairwise/minmaxy_exper.cc
 	src/singlewinner/pairwise/odm/hits.cc
