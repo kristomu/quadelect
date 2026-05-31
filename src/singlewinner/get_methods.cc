@@ -152,9 +152,9 @@ std::vector<std::shared_ptr<election_method> > get_sets(
 	sets.push_back(std::make_shared<inner_burial_set>());
 	sets.push_back(std::make_shared<super_condorcet_set>());
 
-	if (include_experimental) {
-		sets.push_back(std::make_shared<idisqualif_set>());
-	}
+	//if (include_experimental) {
+	sets.push_back(std::make_shared<idisqualif_set>());
+	//}
 
 	return sets;
 }
@@ -276,6 +276,8 @@ std::vector<std::shared_ptr<election_method> > get_singlewinner_methods(
 				std::make_shared<comma>(
 					std::make_shared<schwartz_set>(),
 					std::make_shared<ext_plurality>(PT_WHOLE))));
+
+		all_methods.push_back(std::make_shared<res_minmax>());
 	}
 
 	// Then expand:

@@ -123,6 +123,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/dmt/cyclecut.cc
 	src/singlewinner/dmt/fpa_fpc.cc
 	src/singlewinner/dmt/ifpp_like.cc
+	src/singlewinner/dmt/res_minmax.cc
 	src/singlewinner/dmt/strat_ifpp.cc
 	src/singlewinner/dmt/resistant/subelections.cc
 	src/singlewinner/elimination/auto_runoff.cc
