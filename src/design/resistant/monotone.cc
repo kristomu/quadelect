@@ -276,6 +276,59 @@ void fingerprint::print(const subelections & se) const {
 // may occur; then a recursive function that creates the n-ary Cartesian
 // product of these. (That might be a lot of edges...)
 
+/*std::vector<std::vector<bool> > get_mono_raise_results(
+	const std::vector<bool> & members_above_quota_before,
+	const std::vector<std::vector<size_t> > & subelection_members,
+	size_t candidate_to_raise, size_t numcands) {
+
+	// Raising the candidate on one ballot may cause one of
+	// the other candidates to no longer be above the quota.
+	// E.g. if A is raised on a C>A>B ballot to become A>C>B,
+	// then that might lead C to no longer be above the quota.
+
+	// In addition, if A is not already above the quota, then
+	// raising A might also make him pass.
+
+	// First check if the candidate to raise is part of the
+	// subelection. If he's not, raising him doesn't change anything.
+	size_t member_idx, num_members = subelection_members.size();
+	bool candidate_in_subelection = false;
+	size_t raise_candidate_member_idx = 0;
+
+	for (member_idx = 0; member_idx < num_members
+		&& !candidate_in_subelection; ++member_idx) {
+
+		if (subelection_members[member_idx] == candidate_to_raise) {
+			raise_candidate_member_idx = member_idx;
+			candidate_in_subelection = true;
+		}
+	}
+
+	if (!candidate_in_subelection) {
+		return {members_above_quota_before};
+	}
+
+	for (member_idx = 0; member_idx < num_members; ++member_idx) {
+		size_t candidate = subelection_members[member_idx];
+
+		std::vector<bool> after_raising = members_above_quota_before;
+
+		// Change the vector so that the current candidate loses, if
+		// he's not the candidate who's about to be raised.
+		if (members_above_quota_before[member_idx] && member_idx !=
+			raise_candidate_member_idx) {
+			after_raising[member_idx] = false;
+			possible_outcome.push_back(after_raising);
+			after_raising[member_idx] = true;
+		}
+	}
+
+	// If the candidate to be raised wasn't above quota before, dupe all
+	// the outcomes with the candidate now above quota.
+
+	// And add the outcome where nothing changes.
+}*/
+
 int main() {
 
 	size_t numcands = 4;
