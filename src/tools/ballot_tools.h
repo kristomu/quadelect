@@ -138,6 +138,10 @@ class ballot_tools {
 		election_t rescale(const election_t & ballots,
 			double factor) const;
 
+		// Return a larger election where every voter has weight
+		// one, if every voter of the input election has integer weight.
+		election_t uncompress(const election_t & compressed) const;
+
 };
 
 // These templated functions find the first iterator that refers to

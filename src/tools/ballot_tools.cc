@@ -757,3 +757,25 @@ election_t ballot_tools::rescale(
 
 	return out;
 }
+
+election_t ballot_tools::uncompress(
+	const election_t & compressed) const {
+
+	election_t out;
+
+	for (ballot_group group: compressed) {
+		if (fabs(group.get_weight() - round(group.get_weight())) > 1e-10) {
+			throw std::invalid_argument("uncompress: can only uncompress "
+				"integer-weight ballots!");
+		}
+
+		ballot_group uncompressed_group = group;
+		uncompressed_group.set_weight(1);
+
+		for (size_t i = 0; i < round(group.get_weight()); ++i) {
+			out.push_back(uncompressed_group);
+		}
+	}
+
+	return out;
+}

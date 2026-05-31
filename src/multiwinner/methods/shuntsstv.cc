@@ -362,23 +362,28 @@ void print3(const council_t & input) {
 void read_ballot_input(const election_t & input, size_t council_size,
 	size_t num_candidates) {
 
+	// This shunt doesn't handle weighted votes, so make them
+	// unweighted.
+	election_t uncompressed_election =
+		ballot_tools().uncompress(input);
+
+	/*std::cout << "Compressed:\n";
+	ballot_tools().print_ranked_ballots(input);
+	std::cout << "\nUncompressed:\n";
+	ballot_tools().print_ranked_ballots(uncompressed_election);*/
+
 	// Set the parameters
-	M = council_size;	// number of seats
-	C = num_candidates;	// number of candidates
-	N = input.size();	// number of voters
+	M = council_size;					// number of seats
+	C = num_candidates;					// number of candidates
+	N = uncompressed_election.size();	// number of voters
 
 	Vote = std::vector<int>(N*C + 1, INT_MAX);
 	// Vote[C*i + j] is the pref. of voter i for cand j.
 
 	// Now fill the vote array.
 	int voter = 0;
-	for (election_t::const_iterator pos = input.begin(); pos !=
-		input.end(); ++pos) {
-
-		if (pos->get_weight() != 1) {
-			throw std::invalid_argument(
-				"Schulze STV: weighted votes are not supported");
-		}
+	for (election_t::const_iterator pos = uncompressed_election.begin();
+		pos != uncompressed_election.end(); ++pos) {
 
 		// TODO: Handle equal rank.
 		int rank_count = 0;
@@ -4112,8 +4117,8 @@ council_t SchulzeSTV::get_council(size_t council_size,
 	Kombinationen();
 	Kombinationen2();
 	council_t council = Dijkstra();
-	//cout << "DEBUG: Winners are ";
-	//print3(council);
+	/*std::cout << "DEBUG: Winners are ";
+	print3(council);*/
 	return council;
 }
 
