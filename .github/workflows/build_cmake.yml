@@ -42,7 +42,7 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-            vckpgCommitId: '7f9f0e44db287e8e67c0e888141bfa200ab45121'
+            vcpkgCommitId: '9849e070ad4c3383890fb1c80ae0c54325e2484a'
         exclude:
           - os: ubuntu-22.04
             cpp_compiler: cl
@@ -53,8 +53,7 @@ jobs:
             # CMakeLists.
             # Currently disabled because it can't find libconfig++.
             cpp_compiler: g++
-            #c_compiler: gcc
-            #vckpgCommitId: '7f9f0e44db287e8e67c0e888141bfa200ab45121'
+            # c_compiler: gcc
 
     name: ${{ matrix.os }}, ${{ matrix.cpp_compiler }}
 
@@ -72,19 +71,19 @@ jobs:
 
       - name: Checkout source code
         if: github.event_name == 'push'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
 
       - name: Checkout source code
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: true
 
       - if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1.4.1
+        uses: ilammy/msvc-dev-cmd@v1.13.0
 
       - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
         run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
@@ -99,7 +98,7 @@ jobs:
       # when it is being run afterwards by CMake.
       - name: Setup vcpkg (Windows)
         if: matrix.os == 'windows-latest'
-        uses: lukka/run-vcpkg@v11
+        uses: lukka/run-vcpkg@v11.6
         id: runvcpkg
         with:
           # This specifies the location of vcpkg, where it is going to be restored from cache, or create from scratch.
