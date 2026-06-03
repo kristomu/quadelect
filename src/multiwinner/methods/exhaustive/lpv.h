@@ -1,3 +1,5 @@
+#pragma once
+
 #include "scored_method.h"
 #include "tools/tools.h"
 
@@ -34,7 +36,8 @@ class log_penalty_eval : public scored_method {
 		}
 };
 
-double log_penalty_eval::evaluate(combo::it & start, combo::it & end,
+inline double log_penalty_eval::evaluate(combo::it & start,
+	combo::it & end,
 	const scored_ballot & this_ballot) {
 
 	/*

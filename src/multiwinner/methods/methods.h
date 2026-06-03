@@ -33,6 +33,8 @@ class multiwinner_method {
 			return true;
 		}
 
+		virtual ~multiwinner_method() {}
+
 };
 
 class majoritarian_council : public multiwinner_method {

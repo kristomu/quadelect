@@ -1,3 +1,5 @@
+#pragma once
+
 // Schulze STV.
 
 // Added minimal shunt functions to enable this for thirdelect usage, although
@@ -9,6 +11,10 @@
 // It happens even when we start from the round in question, so I guess it's
 // a memory allocation problem, and not any retention problem.
 //		Do this again now that I have greater debugging skills? :-P
+
+// TODO: Also add some test vectors because I'm not sure this is proper.
+// And BLUESKY: Something to test the Droop proportionality criterion so
+// I can "fuzz test" it.
 
 #include "methods.h"
 #include <list>

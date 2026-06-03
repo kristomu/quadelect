@@ -1,3 +1,5 @@
+#pragma once
+
 #include "scored_method.h"
 #include "tools/tools.h"
 
@@ -26,7 +28,7 @@ class isoelastic_eval : public scored_method {
 		}
 };
 
-double isoelastic_eval::evaluate(combo::it & start, combo::it & end,
+inline double isoelastic_eval::evaluate(combo::it & start, combo::it & end,
 	const scored_ballot & this_ballot) {
 
 	/* Peter Zbornik's suggestion of

@@ -1,3 +1,4 @@
+#pragma once
 #include "scored_method.h"
 
 class birational_eval : public scored_method {
@@ -46,7 +47,7 @@ class birational_eval : public scored_method {
 
 };
 
-double birational_eval::evaluate(combo::it & start, combo::it & end,
+inline double birational_eval::evaluate(combo::it & start, combo::it & end,
 	const scored_ballot & this_ballot) {
 
 	//                                     x_w

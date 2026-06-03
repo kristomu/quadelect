@@ -108,8 +108,46 @@ add_library(qe_rpn_search src/singlewinner/brute_force/general_rpn/gen_custom_fu
 	src/singlewinner/brute_force/general_rpn/composition/groups/test_generator_group.cc
 	src/config/general_rpn.cc)
 
-add_library(qe_singlewinner_methods
+add_library(qe_election_methods
+	# First multiwinner
+	# TODO: The stats stuff should probably not be here.
+	src/multiwinner/get_methods.cc
+	src/multiwinner/helper/digamma.cc
+	src/multiwinner/helper/errors.cc
+	src/multiwinner/methods/auction.cc
+	src/multiwinner/methods/exhaustive/scored_method.cc
+	src/multiwinner/methods/compat_qbuck.cc
+	src/multiwinner/methods/dhwl.cc
+	src/multiwinner/methods/dhwl_mat.cc
+	src/multiwinner/methods/meek_stv.cc
+	src/multiwinner/methods/methods.cc
+	src/multiwinner/methods/prbucklin.cc
+	src/multiwinner/methods/psc.cc
+	src/multiwinner/methods/quotas.cc
+	src/multiwinner/methods/qbuck.cc
+	src/multiwinner/methods/qpq.cc
+	src/multiwinner/methods/qrange_stv.cc
+	src/multiwinner/methods/randballots.cc
+	src/multiwinner/methods/range_stv.cc
+	src/multiwinner/methods/rusty/fc_kemeny.cc
+	src/multiwinner/methods/rusty/mono_webst_c37.cc
+	src/multiwinner/methods/rusty/mw_kemeny2_34e.cc
+	src/multiwinner/methods/rusty/mono_webst_640.cc
+	src/multiwinner/methods/rusty/mono_webst_f03.cc
+	src/multiwinner/methods/rusty/mw_kemeny_db0.cc
+	src/multiwinner/methods/rusty/auxiliary/dsc.cc
+	src/multiwinner/methods/rusty/auxiliary/greedy_cluster.cc
+	src/multiwinner/methods/rusty/kemeny_solvers/assignment.cc
+	src/multiwinner/methods/set_webster.cc
+	src/multiwinner/methods/shuntsstv.cc
+	src/multiwinner/methods/stv.cc
+	src/multiwinner/pr_measures/binary.cc
+	src/multiwinner/pr_measures/clustering.cc
+	src/multiwinner/pr_measures/normal_fit.cc
+	src/stats/multiwinner/convex_hull.cc
+	src/stats/multiwinner/mwstats.cc
 	src/coalitions/coalitions.cc
+	# Then singlewinner
 	src/singlewinner/get_methods.cc
 	src/singlewinner/acp/acp.cc
 	src/singlewinner/acp/general_acp.cc
@@ -192,33 +230,7 @@ add_library(qe_singlewinner_methods
 	src/singlewinner/young.cc)
 
 # Includes Young and Kemeny, which need GLPK.
-target_link_libraries(qe_singlewinner_methods ${GLPK_LIBRARIES})
-
-add_library(qe_multiwinner_methods
-	src/multiwinner/helper/errors.cc
-	src/multiwinner/methods/auction.cc
-	src/multiwinner/methods/exhaustive/scored_method.cc
-	src/multiwinner/methods/compat_qbuck.cc
-	src/multiwinner/methods/dhwl.cc
-	src/multiwinner/methods/dhwl_mat.cc
-	src/multiwinner/methods/meek_stv.cc
-	src/multiwinner/methods/methods.cc
-	src/multiwinner/methods/prbucklin.cc
-	src/multiwinner/methods/psc.cc
-	src/multiwinner/methods/quotas.cc
-	src/multiwinner/methods/qbuck.cc
-	src/multiwinner/methods/qpq.cc
-	src/multiwinner/methods/qrange_stv.cc
-	src/multiwinner/methods/randballots.cc
-	src/multiwinner/methods/range_stv.cc
-	src/multiwinner/methods/rusty/auxiliary/dsc.cc
-	src/multiwinner/methods/shuntsstv.cc
-	src/multiwinner/methods/stv.cc
-	src/multiwinner/pr_measures/binary.cc
-	src/multiwinner/pr_measures/clustering.cc
-	src/multiwinner/pr_measures/normal_fit.cc
-	src/stats/multiwinner/convex_hull.cc
-	src/stats/multiwinner/mwstats.cc)
+target_link_libraries(qe_election_methods ${GLPK_LIBRARIES})
 
 add_library(quadelect_lib src/common/ballots.cc
 	src/bandit/lilucb.cc
@@ -313,7 +325,7 @@ target_link_libraries(qe_verifier qe_rpn_search quadelect_lib config++)
 target_link_libraries(qe_verifier ${GLPK_LIBRARIES})
 
 add_executable(qe_compositor src/singlewinner/brute_force/general_rpn/composition/polytope_compositor.cc)
-target_link_libraries(qe_compositor qe_rpn_search qe_singlewinner_methods quadelect_lib config++)
+target_link_libraries(qe_compositor qe_rpn_search qe_election_methods quadelect_lib config++)
 
 add_executable(qe_sifter src/singlewinner/brute_force/general_rpn/sifter.cc)
 target_link_libraries(qe_sifter qe_rpn_search quadelect_lib)
@@ -322,26 +334,27 @@ add_executable(qe_invariance_sifter src/singlewinner/brute_force/general_rpn/inv
 target_link_libraries(qe_invariance_sifter qe_rpn_search quadelect_lib)
 
 add_executable(qe_find_distinguisher src/main/find_distinguisher.cc)
-target_link_libraries(qe_find_distinguisher qe_singlewinner_methods quadelect_lib)
+target_link_libraries(qe_find_distinguisher qe_election_methods quadelect_lib)
 
 # TODO: Better name and description.
+
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
-target_link_libraries(brute_detail qe_singlewinner_methods quadelect_lib)
+target_link_libraries(brute_detail qe_election_methods quadelect_lib)
 
 add_executable(bandit_search src/main/test_strategy_linbrute_bandit.cc)
-target_link_libraries(bandit_search qe_singlewinner_methods quadelect_lib)
+target_link_libraries(bandit_search qe_election_methods quadelect_lib)
 
 add_executable(bandit_monotonicity src/main/test_monotonicity_bandit.cc)
-target_link_libraries(bandit_monotonicity qe_singlewinner_methods quadelect_lib)
+target_link_libraries(bandit_monotonicity qe_election_methods quadelect_lib)
 
 add_executable(fixed_strategy src/main/test_strategy_fixed.cc)
-target_link_libraries(fixed_strategy qe_singlewinner_methods quadelect_lib)
+target_link_libraries(fixed_strategy qe_election_methods quadelect_lib)
 
 add_executable(criterion_test src/main/ttetest_cache.cc)
-target_link_libraries(criterion_test qe_singlewinner_methods quadelect_lib)
+target_link_libraries(criterion_test qe_election_methods quadelect_lib)
 
 add_executable(quadelect src/main/combined.cc)
-target_link_libraries(quadelect qe_singlewinner_methods quadelect_lib)
+target_link_libraries(quadelect qe_election_methods quadelect_lib)
 
 # Getopt needs to be declared separately on Windows.
 if (MSVC)
@@ -349,22 +362,22 @@ if (MSVC)
 endif()
 
 add_executable(qe_dim src/main/dimensionality.cc)
-target_link_libraries(qe_dim qe_singlewinner_methods quadelect_lib)
+target_link_libraries(qe_dim qe_election_methods quadelect_lib)
 
 add_executable(monotonator src/main/monotonator.cc)
-target_link_libraries(monotonator qe_singlewinner_methods quadelect_lib)
+target_link_libraries(monotonator qe_election_methods quadelect_lib)
 
 add_executable(vse_brute src/main/test_vse_brute.cc)
-target_link_libraries(vse_brute qe_singlewinner_methods quadelect_lib)
+target_link_libraries(vse_brute qe_election_methods quadelect_lib)
 
 add_executable(vse_bandit src/main/test_vse_bandit.cc)
-target_link_libraries(vse_bandit qe_singlewinner_methods quadelect_lib)
+target_link_libraries(vse_bandit qe_election_methods quadelect_lib)
 
 add_executable(test_bandit_correctness src/main/test_bandit_correctness.cc)
-target_link_libraries(test_bandit_correctness qe_singlewinner_methods quadelect_lib)
+target_link_libraries(test_bandit_correctness qe_election_methods quadelect_lib)
 
 add_executable(multiwinner src/main/multiwinner.cc)
-target_link_libraries(multiwinner qe_multiwinner_methods qe_singlewinner_methods quadelect_lib)
+target_link_libraries(multiwinner qe_election_methods quadelect_lib)
 
 add_executable(yee_reference_benchmark src/reference/yee/yee_borda.cc)
 add_executable(vse_reference src/reference/vse/vse.cc)

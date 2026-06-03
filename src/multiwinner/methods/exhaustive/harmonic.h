@@ -1,3 +1,5 @@
+#pragma once
+
 #include "scored_method.h"
 #include "tools/tools.h"
 
@@ -46,7 +48,8 @@ class harmonic_voting_eval : public scored_method {
 };
 
 
-double harmonic_voting_eval::evaluate(combo::it & start, combo::it & end,
+inline double harmonic_voting_eval::evaluate(combo::it & start,
+	combo::it & end,
 	const scored_ballot & this_ballot) {
 
 	// Sort the ratings given to the candidates proposed for election

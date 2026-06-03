@@ -2,5 +2,5 @@
 
 struct q_ballot {
 	int strength;
-	vector<int> rank;
+	std::vector<int> rank;
 };

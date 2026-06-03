@@ -19,13 +19,15 @@ typedef std::vector<size_t>::const_iterator it;
 }
 
 // Because the combinations library's way of doing things clashes with my
-// functional style, there are two classes to this setup. A mthod, which does
+// functional style, there are two classes to this setup. A method, which does
 // the calculation, and a runner, which iterates it over every combination. We
 // hide this implementation inelegance under typedefs later.
 
 // It's still not ideal. The way we set parameters by cloning onto a type T
 // is very hacky, for instance, and exposes the internals to the caller.
 // Maybe find a better way to do this later...
+
+// Perhaps also find a way to make a sequential version of the runner.
 
 class exhaustive_method {
 	private:
@@ -42,6 +44,8 @@ class exhaustive_method {
 		virtual bool maximize() const = 0;
 
 	public:
+
+		virtual ~exhaustive_method() {}
 
 		bool operator()(combo::it start, combo::it end) {
 			double objective_value = evaluate(start, end);
@@ -116,7 +120,8 @@ exhaustive_method_runner<T>::get_council(
 
 	council_t out;
 
-	// FIX LATER
+	// FIX LATER - we should cache the result in case the
+	// evaluation is expensive.
 	for (size_t i: optimum.get_optimal_solution()) {
 		out.push_back(i);
 	}

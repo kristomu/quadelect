@@ -42,7 +42,7 @@ class quota_helper : public exhaustive_method {
 		}
 };
 
-double quota_helper::evaluate(combo::it & start, combo::it & end) {
+inline double quota_helper::evaluate(combo::it & start, combo::it & end) {
 	std::set<size_t> council(start, end);
 
 	// Assumes that we can get the total weight from the first solid

@@ -1,3 +1,5 @@
+#pragma once
+
 // Warren's "Vickrey auction" idea.
 // Can be generalized to any sort of reweighting. The method is always house-
 // monotone.

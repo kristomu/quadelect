@@ -1,3 +1,5 @@
+#include "exhaustive/all.h"
+
 #include "auction.h"
 #include "compat_qbuck.h"
 #include "cpo_stv.h"

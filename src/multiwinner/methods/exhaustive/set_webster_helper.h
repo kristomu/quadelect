@@ -1,3 +1,5 @@
+#pragma once
+
 // The Set Webster method works like this:
 //	Find the largest value x so that, when solid coalitions' support values are
 //	transformed by y = round(support * x), there exists at least one council
@@ -46,7 +48,8 @@ class set_webster_helper : public exhaustive_method {
 		}
 };
 
-double set_webster_helper::evaluate(combo::it & start, combo::it & end) {
+inline double set_webster_helper::evaluate(combo::it & start,
+	combo::it & end) {
 	// TODO: Optimization where we can signal that we're done as soon as
 	// we find a satisfying coalition set. When doing the bisection search,
 	// we're not interested in how many feasible solutions we can find,
