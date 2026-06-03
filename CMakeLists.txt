@@ -274,6 +274,7 @@ add_library(quadelect_lib src/common/ballots.cc
 	src/reference_tests/tests/rev_symmetry.cc
 	src/reference_tests/two_tests.cc
 	src/singlewinner/brute_force/rpn/chaotic_functions.cc
+	src/singlewinner/reverse_multiwinner.cc
 	src/singlewinner/stats/cardinal.cc
 	src/simulator/bernoulli.cc
 	src/simulator/runtime.cc
