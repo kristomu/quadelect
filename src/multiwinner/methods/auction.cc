@@ -56,15 +56,22 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 	// Determine the winner and the second place. Tiebreak is non-neutral!
 
 	size_t record_pos = 0;
-	for (counter = 1; counter < (size_t)num_candidates; ++counter)
-		if (sum[counter] > sum[record_pos] && !elected[counter]) {
-			record_pos = counter;
+	bool record_set = false;
+	for (counter = 0; counter < (size_t)num_candidates; ++counter) {
+		if (elected[counter]) {
+			continue;
 		}
+
+		if ((!record_set || sum[counter] > sum[record_pos])) {
+			record_pos = counter;
+			record_set = true;
+		}
+	}
 
 	size_t second_place = 0;
 	bool set_second_place = false;
 	for (counter = 0; counter < (size_t)num_candidates; ++counter) {
-		if (counter == record_pos) {
+		if (counter == record_pos || elected[counter]) {
 			continue;    // first place
 		}
 		if (!set_second_place) {
@@ -72,7 +79,7 @@ int r_auction::elect_and_update(std::vector<bool> & elected,
 			set_second_place = true;
 			continue;
 		}
-		if (sum[counter] > sum[second_place] && !elected[counter]) {
+		if (sum[counter] > sum[second_place]) {
 			second_place = counter;
 		}
 	}

@@ -62,7 +62,7 @@ class spatial_generator : public pure_ballot_generator {
 		std::vector<std::vector<double> > fixed_cand_positions;
 
 	protected:
-		bool uses_center, uses_dispersion;
+		bool uses_center = false, uses_dispersion = false;
 		std::vector<double> center;
 		std::vector<double> dispersion;
 
