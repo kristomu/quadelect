@@ -120,6 +120,8 @@ jobs:
             cmake \
             extra-cmake-modules \
             build-essential \
+            googletest \
+            libgtest-dev \
             libglpk-dev \
             libconfig++-dev \
             libeigen3-dev \

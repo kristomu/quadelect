@@ -89,6 +89,8 @@ find_package(Eigen3 REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Boost REQUIRED)
 
+find_package(GTest REQUIRED)
+
 find_library(GETOPT_LIB getopt)
 
 include_directories(${Boost_INCLUDE_DIRS})
@@ -337,6 +339,8 @@ add_executable(qe_find_distinguisher src/main/find_distinguisher.cc)
 target_link_libraries(qe_find_distinguisher qe_election_methods quadelect_lib)
 
 # TODO: Better name and description.
+# And perhaps reduce the sheer number of executables here. Use more
+# modes etc.
 
 add_executable(brute_detail src/main/test_strategy_brute_detail.cc)
 target_link_libraries(brute_detail qe_election_methods quadelect_lib)
@@ -383,3 +387,14 @@ add_executable(yee_reference_benchmark src/reference/yee/yee_borda.cc)
 add_executable(vse_reference src/reference/vse/vse.cc)
 
 add_executable(rs_monotonicity src/design/resistant/monotone.cc)
+
+# -- TESTS --
+# TODO: Put these elsewhere?
+
+enable_testing()
+
+add_executable(run_tests src/multiwinner/methods/tests/shuntsstv.cc)
+target_link_libraries(run_tests qe_election_methods quadelect_lib GTest::gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(run_tests)

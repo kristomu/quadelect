@@ -3,4 +3,4 @@ Voting method exploration/simulation tool
 
 ## Required libraries
 
-Quadelect requires glpk, libconfig++, Eigen3, Boost::Container, and cmake.
+Quadelect requires glpk, libconfig++, Eigen3, Boost::Container, Google Test, and cmake.
