@@ -248,3 +248,62 @@ TEST(SchulzeSTV, FRVMPRSTVp38Result) {
 			election),
 		desired_outcome);
 }
+
+TEST(SchulzeSTV, A04Result) {
+	// The A04.dat election.
+
+	SchulzeSTV SSTV;
+
+	std::vector<std::string> election = {
+		"1: A > B",
+		"1: A > B > F",
+		"1: A > B > I",
+		"1: A > C > N",
+		"1: A > H > B",
+		"1: A > I > B > H",
+		"1: A > I > L > M",
+		"2: B > A",
+		"1: B > E > I > A > J > K",
+		"1: C > F > I",
+		"1: C > F > M > I",
+		"1: C > I > F > K",
+		"1: C > I > K",
+		"1: C > I > K > J > N > G > H > M",
+		"1: D > E > C > K > I",
+		"1: D > F > I > K > C",
+		"1: D > H > F > M > N > K > A > B > C > E > I > J > L > G",
+		"1: E > F > B > M",
+		"1: E > I > N > K > H > C > L > J > A > B > G > F > M > D",
+		"1: E > J > I > N > F",
+		"1: F > A > I > E > C > K",
+		"1: F > I > K",
+		"1: F > I > K > C > B > A",
+		"1: G > I > H",
+		"1: G > I > J",
+		"1: G > K > I > F > E > H > A > C > L > D > M > B > N > J",
+		"1: H > M > K",
+		"3: I > K",
+		"1: I > K > F",
+		"1: I > K > F > E > A",
+		"1: I > K > F > E > C",
+		"1: I > K > H > E > A > B > F",
+		"1: I > M > F > N > J > B",
+		"1: J > E > I",
+		"1: K > H > E > I > L",
+		"1: K > I > A > G > J > C > F > H > M > B > E > N > L > D",
+		"1: K > I > F > A > M > N > L > J > H > G > E > D > C > B",
+		"1: K > N > E",
+		"1: L > N > E",
+		"1: M > I > B > F > J > E > H"
+	};
+
+	std::vector<std::string> desired_outcome =
+	{"A", "I"};
+
+	size_t num_seats = desired_outcome.size();
+
+	EXPECT_EQ(
+		interpret_ballots_get_outcome(&SSTV, num_seats,
+			election),
+		desired_outcome);
+}
