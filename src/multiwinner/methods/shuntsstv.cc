@@ -32,8 +32,6 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#pragma GCC diagnostic ignored "-Wunused-result"
 
 const long double eps1=0.00000000000001;
 const long double eps2=0.0000000001;
@@ -3619,7 +3617,7 @@ council_t Dijkstra() {
 	int i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,erster,letzter;
 	int *pairwise,*p1,*p2,*rank;
 	long double d1,d2;
-	bool j1,j2,j3;
+	bool j1,j2;
 	bool *marked;
 
 	council_t winner; // -KM
@@ -3978,7 +3976,7 @@ council_t Dijkstra() {
 									|| ((i6>=i7) && (i8< i9)))
 
 								{
-									j3=true;
+									//j3=true;
 								} else {
 									j2=false;
 								}
