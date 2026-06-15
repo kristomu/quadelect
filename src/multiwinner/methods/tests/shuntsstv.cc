@@ -11,6 +11,10 @@
 // for mutable state.
 // Could perhaps also make a fuzzer that does that...
 
+// TODO: https://sites.math.duke.edu/%7Ebray/Courses/49s/Additional%20Reading/Schulze/schulze2.pdf p. 38
+// this has a very large number of voters and so could test
+// compressed ballot handling.
+
 // Helper function
 std::vector<std::string> interpret_ballots_get_outcome(
 	const multiwinner_method * method, size_t num_seats,

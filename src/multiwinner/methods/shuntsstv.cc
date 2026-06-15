@@ -28,10 +28,10 @@
 
 
 // This isn't my code, I'm not going to prioritize fixing the warnings here.
+// 2026-06-15: Maybe I should???
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #pragma GCC diagnostic ignored "-Wunused-result"
 
@@ -394,6 +394,7 @@ void read_ballot_input(const election_t & input, size_t council_size,
 
 		++voter;
 	}
+
 }
 
 void Reading_the_Input() {
@@ -542,7 +543,7 @@ void Analyzing_the_Input() {
 			}
 
 			else {
-				Value2[i2]=Value2[i2]++;
+				++Value2[i2];
 			}
 		}
 
