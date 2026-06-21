@@ -33,6 +33,9 @@ template<typename T> T inc(T in) {
 
 int factorial(int x);
 
+// Calculate n choose k. Throws an exception on overflow.
+int choose(int n, int k);
+
 // Create a synthetic candidate name corresponding to the given index, by
 // a variant of counting in base 26.
 std::string cand_name(ssize_t candidate_index);

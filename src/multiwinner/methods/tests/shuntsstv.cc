@@ -21,18 +21,18 @@ std::vector<std::string> interpret_ballots_get_outcome(
 	// Returns a pair: the first is a map from candidate
 	// names to integers, and the second is an election (ballot set).
 
-	names_and_election unanimity =
+	names_and_election interpreted_election =
 		interpreter.interpret_ballots(ballots, false);
 
-	size_t num_candidates = unanimity.first.size();
+	size_t num_candidates = interpreted_election.first.size();
 
 	council_t outcome = method->get_council(num_seats,
-			num_candidates, unanimity.second);
+			num_candidates, interpreted_election.second);
 
 	std::vector<std::string> winners;
 
 	for (auto i: outcome) {
-		winners.push_back(unanimity.first[i]);
+		winners.push_back(interpreted_election.first[i]);
 	}
 
 	// Sort the winners in alphabetical order.
@@ -307,3 +307,29 @@ TEST(SchulzeSTV, A04Result) {
 			election),
 		desired_outcome);
 }
+
+TEST(SchulzeSTV, OverflowWith100Cands50Seats) {
+
+	SchulzeSTV SSTV;
+
+	size_t num_candidates = 100, num_seats = 50;
+
+	election_t election;
+	ordering large_ordering;
+	for (size_t i = 0; i < num_candidates; ++i) {
+		large_ordering.insert(candscore(i, i));
+	}
+
+	election.push_back(
+		ballot_group(1, large_ordering, true, false));
+
+	EXPECT_THROW(
+		SSTV.get_council(num_seats,
+			num_candidates, election),
+		std::invalid_argument);
+}
+
+// TODO: Test unreasonable candidate and seat numbers - should
+// return an exception. (See the "over" statements in the code,
+// these are binomial numbers, don't accept any that would overflow.
+// Probably place the no-go threshold a lot lower, or at least warn.)

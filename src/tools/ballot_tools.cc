@@ -763,8 +763,9 @@ election_t ballot_tools::uncompress(
 
 	election_t out;
 
-	for (ballot_group group: compressed) {
-		if (fabs(group.get_weight() - round(group.get_weight())) > 1e-10) {
+	for (const ballot_group & group: compressed) {
+		size_t integer_weight = round(group.get_weight());
+		if (fabs(group.get_weight() - integer_weight) > 1e-10) {
 			throw std::invalid_argument("uncompress: can only uncompress "
 				"integer-weight ballots!");
 		}
@@ -772,7 +773,7 @@ election_t ballot_tools::uncompress(
 		ballot_group uncompressed_group = group;
 		uncompressed_group.set_weight(1);
 
-		for (size_t i = 0; i < round(group.get_weight()); ++i) {
+		for (size_t i = 0; i < integer_weight; ++i) {
 			out.push_back(uncompressed_group);
 		}
 	}

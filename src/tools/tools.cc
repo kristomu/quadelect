@@ -1,6 +1,7 @@
 #include <math.h>
 #include <ctype.h>
 #include <assert.h>
+#include <climits>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -31,6 +32,52 @@ int factorial(int x) {
 		return (1);
 	}
 	return (x * factorial(x-1));
+}
+
+// GCD helper function for n choose k
+// https://blogs.perl.org/users/dana_jacobsen/2014/05/fun-with-binomials.html
+
+static int gcd_ui(int x, int y) {
+	if (y < x) {
+		int t = x;
+		x = y;
+		y = t;
+	}
+	while (y > 0) {
+		int t = y;  y = x % y;  x = t;  /* y1 <- x0 % y0 ; x1 <- y0 */
+	}
+	return x;
+}
+
+int choose(int n, int k) {
+	int d, g, r = 1;
+
+	if (k >= n) {
+		return (k == n);
+	}
+	if (k > n/2) {
+		k = n-k;
+	}
+
+	for (d = 1; d <= k; d++) {
+		if (r >= INT_MAX/n) {  /* Possible overflow */
+			int nr, dr;  /* reduced numerator / denominator */
+			g = gcd_ui(n, d);  nr = n/g;  dr = d/g;
+			g = gcd_ui(r, dr);  r = r/g;  dr = dr/g;
+			if (r >= INT_MAX/nr) {
+				// Unavoidable overflow
+				throw std::invalid_argument("choose: overflow calculating binomial coeff.");
+			}
+			r *= nr;
+			r /= dr;
+			n--;
+		} else {
+			r *= n--;
+			r /= d;
+		}
+	}
+
+	return r;
 }
 
 std::string cand_name(ssize_t candidate_index) {

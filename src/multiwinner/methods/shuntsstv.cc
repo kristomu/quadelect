@@ -26,6 +26,7 @@
 #include <list>
 #include <set>
 
+#include "tools/tools.h"
 
 // This isn't my code, I'm not going to prioritize fixing the warnings here.
 // 2026-06-15: Maybe I should???
@@ -147,24 +148,6 @@ FILE *datafile;
 std::vector<int> Sets;
 struct DefeatElement *Link;
 int *Zeilenerster,*Spaltenerster;
-
-/*******************************************************************************/
-
-int over(int i1, int i2) {
-
-	/* over(i,j) is the number of combinations */
-	/* to choose j elements out of i elements  */
-
-	int i3,i4;
-
-	i3=i1;
-
-	for (i4=1; i4<i2; i4++) {
-		i3=(i3*(i1-i4))/(1+i4);
-	}
-
-	return i3;
-}
 
 /*******************************************************************************/
 
@@ -3573,11 +3556,11 @@ void Kombinationen2() {
 			i5=Comb1-1;
 
 			for (i6=0; i6<i4; i6++) {
-				i5=i5-over(C-KombG1[i6]-1,M-i6);
+				i5=i5-choose(C-KombG1[i6]-1,M-i6);
 			}
 
 			for (i6=i4+1; i6<=M; i6++) {
-				i5=i5-over(C-KombG1[i6]-1,M-(i6-1));
+				i5=i5-choose(C-KombG1[i6]-1,M-(i6-1));
 			}
 
 			KombG2[i4]=i5;
@@ -4069,8 +4052,8 @@ council_t Dijkstra() {
 {
  Reading_the_Input();
  Analyzing_the_Input();
- Comb1=over(C,M);
- Comb2=over(C,M+1);
+ Comb1=choose(C,M);
+ Comb2=choose(C,M+1);
  Calculation_of_the_Strengths_of_the_Vote_Managements();
  Kombinationen();
  Kombinationen2();
@@ -4110,8 +4093,8 @@ council_t SchulzeSTV::get_council(size_t council_size,
 	read_ballot_input(ballots, council_size, num_candidates);
 	Analyzing_the_Input();
 	// Really large numbers, and they're used for allocation!
-	Comb1 = over(C, M);
-	Comb2 = over(C, M+1);
+	Comb1 = choose(C, M);
+	Comb2 = choose(C, M+1);
 	Calculation_of_the_Strengths_of_the_Vote_Managements();
 	Kombinationen();
 	Kombinationen2();
