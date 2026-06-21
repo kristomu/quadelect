@@ -2,19 +2,9 @@
 
 // Schulze STV.
 
-// Added minimal shunt functions to enable this for thirdelect usage, although
-// it may be too slow. -KM
-
-// TODO: Fix unexplained crash that appears after a few rounds. It's probably
-// related to the archaic allocation practice of the system, or the global
-// variables that retain their value between rounds.
-// It happens even when we start from the round in question, so I guess it's
-// a memory allocation problem, and not any retention problem.
-//		Do this again now that I have greater debugging skills? :-P
-
-// TODO: Also add some test vectors because I'm not sure this is proper.
-// And BLUESKY: Something to test the Droop proportionality criterion so
-// I can "fuzz test" it.
+// This is a shunt function for thirdelect/quadelect usage, though
+// Schulze's main code could definitely be improved, particularly as
+// regards the C-style callocs and frees. -KM
 
 #include "methods.h"
 #include <list>

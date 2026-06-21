@@ -28,12 +28,6 @@
 
 #include "tools/tools.h"
 
-// This isn't my code, I'm not going to prioritize fixing the warnings here.
-// 2026-06-15: Maybe I should???
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-
 const long double eps1=0.00000000000001;
 const long double eps2=0.0000000001;
 const long double eps3=0.0000000005;
@@ -339,7 +333,7 @@ void print3(const council_t & input) {
 /*******************************************************************************/
 
 // KM
-// Note that all weights must be unitary.
+// Note that every ballot must have weight one.
 void read_ballot_input(const election_t & input, size_t council_size,
 	size_t num_candidates) {
 
@@ -347,11 +341,6 @@ void read_ballot_input(const election_t & input, size_t council_size,
 	// unweighted.
 	election_t uncompressed_election =
 		ballot_tools().uncompress(input);
-
-	/*std::cout << "Compressed:\n";
-	ballot_tools().print_ranked_ballots(input);
-	std::cout << "\nUncompressed:\n";
-	ballot_tools().print_ranked_ballots(uncompressed_election);*/
 
 	// Set the parameters
 	M = council_size;					// number of seats
@@ -366,12 +355,16 @@ void read_ballot_input(const election_t & input, size_t council_size,
 	for (election_t::const_iterator pos = uncompressed_election.begin();
 		pos != uncompressed_election.end(); ++pos) {
 
+		assert(uncompressed_election.get_weight() == 1);
+
 		// TODO: Handle equal rank.
 		int rank_count = 0;
 		for (ordering::const_iterator opos = pos->contents.begin();
-			opos != pos->contents.end(); ++opos)
+			opos != pos->contents.end(); ++opos) {
+
 			Vote[C*voter + opos->get_candidate_num()] =
 				rank_count++;
+		}
 
 		++voter;
 	}
@@ -884,6 +877,12 @@ void EKarp() {
 	long double Flow,PossFlow,d1,d2,d3;
 	long double LowerBounce7,UpperBounce7,UpperBounce7a,
 		 LowerBounce8,UpperBounce8,UpperBounce8a;
+
+	// These are (potentially) used before being set, and optimized
+	// code doesn't automatically set them to zero on entry, so fix
+	// that.
+	i47 = 0;
+	i48 = 0;
 
 	tobecompleted=0;
 	for (i1=1; i1<M; i1++) {
@@ -2452,7 +2451,9 @@ void EKarpSimple() {
 	NArcs=M;
 	Flow=0.0;
 	MaxPossFlow=N+0.0;
-	i5=0;
+
+	i4 = 0;
+	i5 = 0;
 
 	if (N4>Length6) {
 		free(Indiff);
@@ -3603,6 +3604,8 @@ council_t Dijkstra() {
 	bool j1,j2;
 	bool *marked;
 
+	i4 = 0;
+
 	council_t winner; // -KM
 
 	std::vector<long double> Von(Comb1+1), Nach(Comb1+1);
@@ -4048,31 +4051,29 @@ council_t Dijkstra() {
 
 
 
-/*int main()
-{
- Reading_the_Input();
- Analyzing_the_Input();
- Comb1=choose(C,M);
- Comb2=choose(C,M+1);
- Calculation_of_the_Strengths_of_the_Vote_Managements();
- Kombinationen();
- Kombinationen2();
- council_t winners = Dijkstra();
+/*int main() {
+	Reading_the_Input();
+	Analyzing_the_Input();
+	Comb1=choose(C,M);
+	Comb2=choose(C,M+1);
+	Calculation_of_the_Strengths_of_the_Vote_Managements();
+	Kombinationen();
+	Kombinationen2();
+	council_t winners = Dijkstra();
 
- cout << "And the winners are: ";
- print3(winners);
- cout << endl;
+	std::cout << "And the winners are: ";
+	print3(winners);
+	std::cout << endl;
 
- time(&finish);
- time2=clock();
+	time(&finish);
+	time2=clock();
 
- elapsed_time=difftime(finish,start);
+	elapsed_time=difftime(finish,start);
 
- printf("runtime=%d seconds (%d processor timer ticks)\n",elapsed_time,time2-time1);
+	printf("runtime=%d seconds (%d processor timer ticks)\n",elapsed_time,
+		time2-time1);
 
 }*/
-
-#pragma GCC diagnostic pop
 
 council_t SchulzeSTV::get_council(size_t council_size,
 	size_t num_candidates,
@@ -4099,8 +4100,6 @@ council_t SchulzeSTV::get_council(size_t council_size,
 	Kombinationen();
 	Kombinationen2();
 	council_t council = Dijkstra();
-	/*std::cout << "DEBUG: Winners are ";
-	print3(council);*/
 	return council;
 }
 
@@ -4121,6 +4120,7 @@ void SchulzeSTV::print_schulze_stv_prefs(size_t council_size,
 		std::cerr << voter++ << " ";
 		for (ordering::const_iterator opos = pos->contents.begin();
 			opos != pos->contents.end(); ++opos) {
+			// TODO: check for equal rank, which is disallowed...
 			std::cerr << (char)('A' + opos->get_candidate_num()) << " ";
 		}
 		std::cerr << "\n";
