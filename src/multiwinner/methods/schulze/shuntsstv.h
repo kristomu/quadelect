@@ -6,8 +6,20 @@
 // Schulze's main code could definitely be improved, particularly as
 // regards the C-style callocs and frees. -KM
 
-#include "methods.h"
+#include "common.h"
+#include "multiwinner/methods/methods.h"
 #include <list>
+
+class SchulzeSTVCalc : public SchulzeCommon {
+	public:
+		void Elimination();
+		void Calculation_of_the_Strengths_of_the_Vote_Managements();
+		void Kombinationen();
+		void Kombinationen2();
+		council_t Dijkstra();
+
+		council_t analyze_and_get_outcome();
+};
 
 class SchulzeSTV : public multiwinner_method {
 

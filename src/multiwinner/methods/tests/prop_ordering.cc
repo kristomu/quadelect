@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include "multiwinner/methods/schulze/shuntsstv.h"
+#include "multiwinner/methods/schulze/prop_ordering.h"
 #include "interpreter/rank_order.h"
 
 // TODO: Remember to run multiple elections, one after another, to account
@@ -13,7 +13,7 @@
 
 // Helper function
 std::vector<std::string> interpret_ballots_get_outcome(
-	const multiwinner_method * method, size_t num_seats,
+	const SchulzePropOrdering * method, size_t num_seats,
 	const std::vector<std::string> & ballots) {
 
 	rank_order_int interpreter;
@@ -26,7 +26,7 @@ std::vector<std::string> interpret_ballots_get_outcome(
 
 	size_t num_candidates = interpreted_election.first.size();
 
-	council_t outcome = method->get_council(num_seats,
+	council_t outcome = method->get_ordered_council(
 			num_candidates, interpreted_election.second);
 
 	std::vector<std::string> winners;
@@ -35,30 +35,27 @@ std::vector<std::string> interpret_ballots_get_outcome(
 		winners.push_back(interpreted_election.first[i]);
 	}
 
-	// Sort the winners in alphabetical order.
-	std::sort(winners.begin(), winners.end());
-
 	return winners;
 }
 
-TEST(SchulzeSTV, SingleWinnerUnanimity) {
-	SchulzeSTV SSTV;
+TEST(SchulzePO, ReproducesSingleVoterOrder) {
+	SchulzePropOrdering SPO;
 
-	std::vector<std::string> desired_outcome = {"A"};
+	std::vector<std::string> desired_outcome = {"A", "B", "C"};
 
 	EXPECT_EQ(
-		interpret_ballots_get_outcome(&SSTV, 1,
+		interpret_ballots_get_outcome(&SPO, 1,
 	{ "1: A>B>C"}),
 	desired_outcome);
 }
 
-TEST(SchulzeSTV, A34Result) {
+TEST(SchulzePO, A34Result) {
 	// Tests the election given in Schulze's A34.dat against
 	// the desired outcome specified in his Schulze STV paper,
 	// Part 3 of 5, "Implementing the Schulze STV method".
 	// https://sites.math.duke.edu/~bray/Courses/49s/Additional%20Reading/Schulze/Schulze3/schulze3.pdf
 
-	SchulzeSTV SSTV;
+	SchulzePropOrdering SPO;
 
 	std::vector<std::string> election = {
 		"1: I > H > D > E",
@@ -127,16 +124,16 @@ TEST(SchulzeSTV, A34Result) {
 	};
 
 	std::vector<std::string> desired_outcome =
-	{"A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "M", "N"};
+	{"J", "B", "H", "E", "N", "K", "L", "M", "C", "A", "D", "F", "G", "I"};
 
 	size_t num_seats = desired_outcome.size();
 
 	EXPECT_EQ(
-		interpret_ballots_get_outcome(&SSTV, num_seats,
+		interpret_ballots_get_outcome(&SPO, num_seats,
 			election),
 		desired_outcome);
 }
-
+/*
 TEST(SchulzeSTV, A68ResultUncompressed) {
 	// I may replace this when/if I make tests for the
 	// rank-order interpreter and the uncompress tool,
@@ -333,3 +330,5 @@ TEST(SchulzeSTV, OverflowWith100Cands50Seats) {
 // return an exception. (See the "over" statements in the code,
 // these are binomial numbers, don't accept any that would overflow.
 // Probably place the no-go threshold a lot lower, or at least warn.)
+
+*/

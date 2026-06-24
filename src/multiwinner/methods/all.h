@@ -1,4 +1,5 @@
 #include "exhaustive/all.h"
+#include "schulze/all.h"
 
 #include "auction.h"
 #include "compat_qbuck.h"
@@ -16,5 +17,4 @@
 #include "randballots.h"
 #include "range_stv.h"
 #include "set_webster.h"
-#include "shuntsstv.h"
 #include "stv.h"

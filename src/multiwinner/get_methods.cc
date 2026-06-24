@@ -77,7 +77,13 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 	// TODO: Better name for the vector.
 	condorcet.push_back(std::make_shared<ext_minmax>(CM_MARGINS, true));
 	condorcet.push_back(std::make_shared<ext_minmax>(CM_MARGINS, false));
-	condorcet.push_back(std::make_shared<schulze>(CM_WV));
+	condorcet.push_back(std::make_shared<ext_minmax>(CM_PAIRWISE_OPP, true));
+	condorcet.push_back(std::make_shared<ext_minmax>(CM_PAIRWISE_OPP, false));
+	//condorcet.push_back(std::make_shared<schulze>(CM_WV));
+	condorcet.push_back(std::make_shared<ranked_pairs>(CM_WV, false));
+	condorcet.push_back(std::make_shared<ranked_pairs>(CM_MARGINS, false));
+	condorcet.push_back(std::make_shared<ranked_pairs>(CM_MARGINS, true));
+	condorcet.push_back(std::make_shared<max_ab>(CM_PAIRWISE_OPP));
 
 	for (counter = 0; counter < condorcet.size(); ++counter) {
 		other_methods.push_back(condorcet[counter]);
@@ -149,7 +155,7 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 
 	methods.push_back(std::make_shared<STV>(BTR_NONE));
 	methods.push_back(std::make_shared<STV>(BTR_PLUR));
-	methods.push_back(std::make_shared<STV>(BTR_COND));
+	methods.push_back(std::make_shared<STV>(BTR_COND)); // Schulze
 	methods.push_back(std::make_shared<MeekSTV>(true));
 	methods.push_back(std::make_shared<MeekSTV>(false));
 	/**/
@@ -188,6 +194,7 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 	// Put on hold until we can do something about the huge memory
 	// demands.
 	methods.push_back(std::make_shared<SchulzeSTV>());
+	methods.push_back(std::make_shared<SchulzePropOrdering>());
 
 	// Not very good. Takes time, too.
 	// And these were supposed to be "very good indeed"! What failed?
@@ -259,21 +266,23 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 		// The Kemeny methods below are *very* slow.
 
 		methods.push_back(
-			std::make_shared<fc_kemeny>(true)); // FC-Kemeny
-		methods.push_back(
-			std::make_shared<fc_kemeny>(false)); // CFC-Kemeny
+			std::make_shared<fc_kemeny>(true)); // CFC-Kemeny
+		//methods.push_back(
+		//	std::make_shared<fc_kemeny>(false)); // FC-Kemeny
 
-		methods.push_back(
-			std::make_shared<mw_kemeny2_34e>());
+		//methods.push_back(
+		//	std::make_shared<mw_kemeny2_34e>());
 
 		// MW-Kemeny
-		methods.push_back(
-			std::make_shared<mw_kemeny>());
+		//methods.push_back(
+		//	std::make_shared<mw_kemeny>());
 	}
 
 	// Slow but okay quality values. May be something to investigate further,
 	// later, since it's much better than my recent attempt at
 	// reimplementing Set Webster.
+
+	/*
 
 	methods.push_back(std::make_shared<mono_webster_640>(
 			MM_INVERTED, false, false));
@@ -281,6 +290,7 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 			MM_PLUSHALF, false, false));
 	methods.push_back(std::make_shared<mono_webster_c37>(
 			false, MMC_PLUSONE, true, false));
+	*/
 
 	return methods;
 }
