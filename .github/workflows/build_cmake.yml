@@ -39,11 +39,13 @@ jobs:
             cpp_compiler: g++
           - os: ubuntu-22.04
             cpp_compiler: clang++
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
-            vcpkgCommitId: '9849e070ad4c3383890fb1c80ae0c54325e2484a'
         exclude:
+          # cl fails for some reason: the script can't find Ninja
+          # even though the Github docs say that it comes preinstalled
+          # on every image. Find out why later, perhaps by experimenting
+          # with a test project.
+          - os: windows-latest
+            cpp_compiler: cl
           - os: ubuntu-22.04
             cpp_compiler: cl
           - os: windows-latest

@@ -87,7 +87,7 @@ endif()
 find_package(GLPK REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(PNG REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS container)
 
 find_package(GTest REQUIRED)
 
