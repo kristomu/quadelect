@@ -85,7 +85,7 @@ inline double log_penalty_eval::evaluate(combo::it & start,
 		voter_contribution += *score_pos * log_denom;
 	}
 
-	return voter_contribution * this_ballot.weight;
+	return this_ballot.weight * voter_contribution;
 }
 
 typedef exhaustive_method_runner<log_penalty_eval> log_penalty;

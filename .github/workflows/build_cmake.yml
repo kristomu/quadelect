@@ -157,3 +157,6 @@ jobs:
 
       - name: Build
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
+
+      - name: Run tests
+        run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }}

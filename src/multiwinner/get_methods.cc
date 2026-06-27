@@ -214,6 +214,12 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 			methods.push_back(
 				std::make_shared<harmonic_voting>(x*0.01));
 		}
+
+		for (int x = 0; x <= 100; ++x) {
+			methods.push_back(
+				std::make_shared<sequential_harmonic_voting>(
+					x * 0.01));
+		}
 	} else {
 		methods.push_back(
 			std::make_shared<psi_voting>(0));
@@ -227,6 +233,12 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 			std::make_shared<harmonic_voting>(0.5));
 		methods.push_back(
 			std::make_shared<harmonic_voting>(1));
+		methods.push_back(
+			std::make_shared<sequential_harmonic_voting>(0));
+		methods.push_back(
+			std::make_shared<sequential_harmonic_voting>(0.5));
+		methods.push_back(
+			std::make_shared<sequential_harmonic_voting>(1));
 	}
 
 	methods.push_back(std::make_shared<harmonic_voting>
@@ -267,6 +279,8 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 
 		methods.push_back(
 			std::make_shared<fc_kemeny>(true)); // CFC-Kemeny
+
+		// These don't seem as good as CFC.
 		//methods.push_back(
 		//	std::make_shared<fc_kemeny>(false)); // FC-Kemeny
 

@@ -396,7 +396,8 @@ add_executable(rs_monotonicity src/design/resistant/monotone.cc)
 enable_testing()
 
 add_executable(run_tests src/multiwinner/methods/tests/shuntsstv.cc
-	src/multiwinner/methods/tests/prop_ordering.cc)
+	src/multiwinner/methods/tests/prop_ordering.cc
+	src/multiwinner/methods/exhaustive/tests/lcr.cc)
 target_link_libraries(run_tests qe_election_methods quadelect_lib GTest::gtest_main)
 
 include(GoogleTest)
