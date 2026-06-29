@@ -32,37 +32,28 @@ ballot_group get_ballot_group(double weight,
 	return out;
 }
 
-/*std::vector<std::string> interpret_ballots_get_outcome_x(
-	const multiwinner_method * method, size_t num_seats,
-	const std::vector<std::string> & ballots) {
+// Do a typed test on every exhaustive multiwinner method that
+// reduces to Range, that we know is at least somewhat proportional.
 
-	rank_order_int interpreter;
+// We should see every such method elect the center candidate when
+// single-winner and elect the two wing candidates when doing
+// two-seat PR, because to elect the center would unbalance the
+// outcome.
 
-	// Returns a pair: the first is a map from candidate
-	// names to integers, and the second is an election (ballot set).
+template <typename T>
+class LeftCenterRightTest : public ::testing::Test {};
 
-	names_and_election interpreted_election =
-		interpreter.interpret_ballots(ballots, false);
+// Apparently just using the RHS directly inside TYPED_TEST_SUITE fails.
+// This took me some time to figure out.
+// Surprising outcomes: LPV0+ passes??? Isoelastic fails???
+// I've removed both for now.
+using ExhaustiveMethods
+	= ::testing::Types<birational, harmonic_voting, psi_voting>;
 
-	size_t num_candidates = interpreted_election.first.size();
+TYPED_TEST_SUITE(LeftCenterRightTest, ExhaustiveMethods);
 
-	council_t outcome = method->get_council(num_seats,
-			num_candidates, interpreted_election.second);
-
-	std::vector<std::string> winners;
-
-	for (auto i: outcome) {
-		winners.push_back(interpreted_election.first[i]);
-	}
-
-	// Sort the winners in alphabetical order.
-	std::sort(winners.begin(), winners.end());
-
-	return winners;
-}*/
-
-TEST(HarmonicVoting, SingleWinnerLCRElectsCenter) {
-	harmonic_voting harmonic(1);
+TYPED_TEST(LeftCenterRightTest, SingleWinnerLCRElectsCenter) {
+	TypeParam method;
 
 	// Candidate 0 is Center, 1 is Left, 2 is Right.
 
@@ -77,13 +68,13 @@ TEST(HarmonicVoting, SingleWinnerLCRElectsCenter) {
 		get_ballot_group(10, { {0, 1.0}, {2, 0.5}, {1, 0} })
 	};
 
-	EXPECT_EQ(harmonic.get_council(1, 3, lcr_election),
+	EXPECT_EQ(method.get_council(1, 3, lcr_election),
 		desired_outcome);
 
 }
 
-TEST(HarmonicVoting, TwoWinnerLCRElectsWings) {
-	harmonic_voting harmonic(1);
+TYPED_TEST(LeftCenterRightTest, TwoWinnerLCRElectsWings) {
+	TypeParam method;
 
 	std::vector<size_t> desired_outcome = {1, 2};
 
@@ -96,9 +87,13 @@ TEST(HarmonicVoting, TwoWinnerLCRElectsWings) {
 		get_ballot_group(10, { {0, 1.0}, {2, 0.5}, {1, 0} })
 	};
 
-	EXPECT_EQ(harmonic.get_council(2, 3, lcr_election),
+	EXPECT_EQ(method.get_council(2, 3, lcr_election),
 		desired_outcome);
 }
+
+// Do a house monotonicity test with sequential harmonic voting.
+// The other sequential methods should behave similarly if the
+// base method passes the tests above.
 
 TEST(SequentialHarmonicVoting, TwoWinnerLCRHouseMonotone) {
 	sequential_harmonic_voting s_harmonic(1);
