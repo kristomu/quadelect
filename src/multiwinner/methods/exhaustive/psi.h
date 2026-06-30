@@ -5,6 +5,14 @@
 
 #include "multiwinner/helper/digamma.h"
 
+// TESTED: This agrees with Warren Smith's CleanOptPRVote.c,
+// https://www.rangevoting.org/CleanOptPRVote.c
+
+// as long as every ballot both rates someone minimum and
+// someone maximum. Otherwise, Quadelect's renormalization
+// uses more of the span than CleanOptPRVote does, which can
+// lead to discrepancies.
+
 class psi_voting_eval : public scored_method {
 	private:
 		double evaluate(combo::it & start, combo::it & end,
@@ -45,6 +53,8 @@ inline double psi_voting_eval::evaluate(combo::it & start, combo::it & end,
 
 	// Sum over voters v: digamma( delta +
 	//		sum over elected candidates c: v's score of c)
+	// where scores/ratings are normalized so that the max one may cast
+	// is 1, and minimum is 0.
 
 	// From https://rangevoting.org/QualityMulti.html
 
@@ -54,13 +64,18 @@ inline double psi_voting_eval::evaluate(combo::it & start, combo::it & end,
 		norm_rating_sum += this_ballot.get_norm_score(*pos);
 	}
 
-	// digamma(0) = infinity. HACK to deal with this without having
+	// digamma(0) = +/- infinity. HACK to deal with this without having
 	// to bring in infinities.
+	// Since we're given normalized scores, these can't ever be below
+	// zero, so it makes more sense to take the limit approaching from
+	// the positive side, i.e. x -> 0+; and intuitively, it makes sense
+	// that not being represented (all scores 0) is bad, not good.
 	if (delta + norm_rating_sum == 0) {
-		return 1e9 * this_ballot.weight;
+		return -1e9 * this_ballot.weight;
 	}
 
 	return digamma(delta + norm_rating_sum) * this_ballot.weight;
 }
 
 typedef exhaustive_method_runner<psi_voting_eval> psi_voting;
+typedef sequential_method_runner<psi_voting_eval> sequential_psi_voting;
