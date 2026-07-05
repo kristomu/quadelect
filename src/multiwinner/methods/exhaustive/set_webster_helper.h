@@ -17,11 +17,8 @@
 
 class set_webster_helper : public exhaustive_method {
 	private:
-		bool maximize() const {
-			return true;
-		}
 
-		double evaluate(combo::it & start, combo::it & end);
+		sum_scores evaluate(combo::it & start, combo::it & end);
 
 		std::vector<coalition_data> solid_coalitions;
 		double factor; // the x in the explanation above
@@ -48,7 +45,7 @@ class set_webster_helper : public exhaustive_method {
 		}
 };
 
-inline double set_webster_helper::evaluate(combo::it & start,
+inline sum_scores set_webster_helper::evaluate(combo::it & start,
 	combo::it & end) {
 	// TODO: Optimization where we can signal that we're done as soon as
 	// we find a satisfying coalition set. When doing the bisection search,
@@ -57,6 +54,7 @@ inline double set_webster_helper::evaluate(combo::it & start,
 	// of exhaustive_method, though.
 
 	std::set<size_t> council(start, end);
+	sum_scores out_method_scores;
 
 	for (auto cc_pos = solid_coalitions.begin();
 		cc_pos != solid_coalitions.end(); ++cc_pos) {
@@ -76,9 +74,11 @@ inline double set_webster_helper::evaluate(combo::it & start,
 				proposed_in_coalition.begin()));
 
 		if (proposed_in_coalition.size() < elect_constraint) {
-			return -1000;
+			out_method_scores.insert(1, -10000);
+			return out_method_scores;
 		}
 	}
 
-	return 1000;
+	out_method_scores.insert(1, 10000);
+	return out_method_scores;
 }

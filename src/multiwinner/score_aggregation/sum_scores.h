@@ -1,10 +1,14 @@
 #include "score_aggregate.h"
 
 #include <stdexcept>
+#include <math.h>
 
 class sum_scores : public score_aggregate {
 	private:
-		double value;
+		// The value should never be exposed, but it could technically
+		// happen if asserts are off and we do comparisons, so set it
+		// to NaN.
+		double value = std::numeric_limits<double>::signaling_NaN();
 		bool value_set = false;
 
 	public:
@@ -39,9 +43,14 @@ class sum_scores : public score_aggregate {
 		}
 
 		void insert(double weight, double score) {
-			if (weight < 0 || isnan(weight) || isnan(score)) {
+			if (weight <= 0 || isnan(weight)) {
 				throw std::invalid_argument(
-					"sum_scores: negative weight or NaN score");
+					"sum_scores: tried to insert with invalid weight (non-positive or NaN)");
+			}
+
+			if (isnan(score)) {
+				throw std::invalid_argument(
+					"sum_scores: tried to insert NaN score");
 			}
 
 			if (value_set) {

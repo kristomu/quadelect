@@ -41,32 +41,21 @@ class exhaustive_method {
 		// This function takes iterators to the beginning and end of the
 		// vector of seat assignments, and outputs an objective value, i.e.
 		// a score or penalty for that particular assignment.
-		virtual double evaluate(combo::it & start, combo::it & end) = 0;
-
-		// What is the direction of optimization - greater is better or
-		// less is better?
-		virtual bool maximize() const = 0;
+		virtual sum_scores evaluate(combo::it & start, combo::it & end) = 0;
 
 	public:
 
 		virtual ~exhaustive_method() {}
 
 		bool operator()(combo::it start, combo::it end) {
-			double objective_value = evaluate(start, end);
+			sum_scores objective_value = evaluate(start, end);
 
-			current_optimum.update(objective_value,
-				start, end);
+			current_optimum.update(objective_value, start, end);
 
 			return false; // Keep going.
 		}
 
 		operator exhaustive_optima() {
-			// Update the optimum variable so we know which direction
-			// is optimum. We don't need to do this before it's returned,
-			// so let's do it here instead of wasting cycles inside
-			// operator() which will be called tons of times.
-
-			current_optimum.set_optimum_direction(maximize());
 			return current_optimum;
 		}
 
@@ -126,7 +115,7 @@ exhaustive_method_runner<T>::get_council(
 
 	// FIX LATER - we should cache the result in case the
 	// evaluation is expensive.
-	for (size_t i: optimum.get_optimal_solution()) {
+	for (size_t i: optimum.get_maximum_solution()) {
 		out.push_back(i);
 	}
 
@@ -197,7 +186,7 @@ sequential_method_runner<T>::get_council(
 
 		already_elected.clear();
 
-		for (size_t i: optimum.get_optimal_solution()) {
+		for (size_t i: optimum.get_maximum_solution()) {
 			already_elected.push_back(i);
 			already_elected_bool[i] = true;
 		}

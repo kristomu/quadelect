@@ -29,6 +29,12 @@ council_t set_webster::get_council(size_t council_size,
 
 	exhaustive_optima opt_middle(true);
 
+	// Create a sum_scores barrier that distinguishes success
+	// (value > 0) from failure (value < 0). This is pretty ugly; I
+	// really ought to do something about for_each_combination.
+	sum_scores barrier;
+	barrier.insert(1, 0);
+
 	// Do the bisection search.
 	while (max_factor - min_factor > 1e-6) {
 		double factor = (min_factor + max_factor)/2.0;
@@ -36,21 +42,21 @@ council_t set_webster::get_council(size_t council_size,
 		opt_middle = get_opt(factor, council_size, num_candidates, ballots);
 
 		// Positive means success, negative is failure.
-		bool sat_middle = opt_middle.get_optimum() > 0;
+		bool sat_middle = opt_middle.get_maximum() > barrier;
 
 		if (sat_middle == sat_min) {
 			min_factor = factor;
 			sat_min = sat_middle;
 		} else {
 			max_factor = factor;
-			//sat_max = sat_middle;
 		}
 	}
 
 	// TODO: This only picks "a" solution. We don't know if it's unique.
 	// Do something about it. And about this ugly conversion.
+	// Perhaps some kind of tiebreak?
 
-	std::vector<size_t> om = opt_middle.get_optimal_solution();
+	std::vector<size_t> om = opt_middle.get_maximum_solution();
 	council_t output;
 	std::copy(om.begin(), om.end(), std::back_inserter(output));
 

@@ -5,8 +5,9 @@
 
 class log_penalty_eval : public scored_method {
 	private:
-		double evaluate(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot);
+		void add_method_score(combo::it & start, combo::it & end,
+			const scored_ballot & this_ballot,
+			score_aggregate & output);
 
 		double K;
 
@@ -36,9 +37,9 @@ class log_penalty_eval : public scored_method {
 		}
 };
 
-inline double log_penalty_eval::evaluate(combo::it & start,
-	combo::it & end,
-	const scored_ballot & this_ballot) {
+inline void log_penalty_eval::add_method_score(combo::it & start,
+	combo::it & end, const scored_ballot & this_ballot,
+	score_aggregate & output) {
 
 	/*
 	                                        /     K + |W|    \
@@ -69,9 +70,10 @@ inline double log_penalty_eval::evaluate(combo::it & start,
 	}
 
 	if (inner_denominator == 0 && K == 0) {
-		// This will return an infinity. Return a very large value as
-		// a HACK.
-		return this_ballot.weight * 1e15;
+		// This will produce an infinity. Add a very large value
+		// as a HACK.
+		output.insert(this_ballot.weight, 1e15);
+		return;
 	}
 
 	// Otherwise calculate the product.
@@ -85,7 +87,7 @@ inline double log_penalty_eval::evaluate(combo::it & start,
 		voter_contribution += *score_pos * log_denom;
 	}
 
-	return this_ballot.weight * voter_contribution;
+	output.insert(this_ballot.weight, voter_contribution);
 }
 
 typedef exhaustive_method_runner<log_penalty_eval> log_penalty;

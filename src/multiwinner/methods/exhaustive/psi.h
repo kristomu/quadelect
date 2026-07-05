@@ -15,8 +15,9 @@
 
 class psi_voting_eval : public scored_method {
 	private:
-		double evaluate(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot);
+		void add_method_score(combo::it & start, combo::it & end,
+			const scored_ballot & this_ballot,
+			score_aggregate & output);
 
 		double delta;
 
@@ -48,8 +49,9 @@ class psi_voting_eval : public scored_method {
 		}
 };
 
-inline double psi_voting_eval::evaluate(combo::it & start, combo::it & end,
-	const scored_ballot & this_ballot) {
+inline void psi_voting_eval::add_method_score(combo::it & start,
+	combo::it & end,
+	const scored_ballot & this_ballot, score_aggregate & output) {
 
 	// Sum over voters v: digamma( delta +
 	//		sum over elected candidates c: v's score of c)
@@ -71,10 +73,12 @@ inline double psi_voting_eval::evaluate(combo::it & start, combo::it & end,
 	// the positive side, i.e. x -> 0+; and intuitively, it makes sense
 	// that not being represented (all scores 0) is bad, not good.
 	if (delta + norm_rating_sum == 0) {
-		return -1e9 * this_ballot.weight;
+		output.insert(this_ballot.weight, -1e9);
+		return;
 	}
 
-	return digamma(delta + norm_rating_sum) * this_ballot.weight;
+	output.insert(this_ballot.weight,
+		digamma(delta + norm_rating_sum));
 }
 
 typedef exhaustive_method_runner<psi_voting_eval> psi_voting;

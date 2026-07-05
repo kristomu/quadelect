@@ -5,8 +5,9 @@
 
 class isoelastic_eval : public scored_method {
 	private:
-		double evaluate(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot);
+		void add_method_score(combo::it & start, combo::it & end,
+			const scored_ballot & this_ballot,
+			score_aggregate & output);
 
 		double r;
 
@@ -28,8 +29,9 @@ class isoelastic_eval : public scored_method {
 		}
 };
 
-inline double isoelastic_eval::evaluate(combo::it & start, combo::it & end,
-	const scored_ballot & this_ballot) {
+inline void isoelastic_eval::add_method_score(combo::it & start,
+	combo::it & end, const scored_ballot & this_ballot,
+	score_aggregate & output) {
 
 	/* Peter Zbornik's suggestion of
 
@@ -63,10 +65,11 @@ inline double isoelastic_eval::evaluate(combo::it & start, combo::it & end,
 	if (r == 1) {
 		// We should return an infinite value, but doing it like this
 		// lets us tie-break on the finite values.
+		// Maybe I should make the sum_scores class do that???
 		r_adj = 1 + 1e-15;
 	}
 
-	return this_ballot.weight * pow(total_rating, r_adj-1)/(r_adj-1);
+	output.insert(this_ballot.weight, pow(total_rating, r_adj-1)/(r_adj-1));
 }
 
 typedef exhaustive_method_runner<isoelastic_eval> isoelastic;

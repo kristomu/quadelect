@@ -3,8 +3,9 @@
 
 class birational_eval : public scored_method {
 	private:
-		double evaluate(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot);
+		void add_method_score(combo::it & start, combo::it & end,
+			const scored_ballot & this_ballot,
+			score_aggregate & output);
 
 		double K;
 		bool relative;
@@ -47,8 +48,9 @@ class birational_eval : public scored_method {
 
 };
 
-inline double birational_eval::evaluate(combo::it & start, combo::it & end,
-	const scored_ballot & this_ballot) {
+inline void birational_eval::add_method_score(
+	combo::it & start, combo::it & end,
+	const scored_ballot & this_ballot, score_aggregate & output) {
 
 	//                                     x_w
 	// L(w) = SUM      SUM      SUM      -------
@@ -99,7 +101,7 @@ inline double birational_eval::evaluate(combo::it & start, combo::it & end,
 		}
 	}
 
-	return total * this_ballot.weight;
+	output.insert(this_ballot.weight, total);
 }
 
 typedef exhaustive_method_runner<birational_eval> birational;

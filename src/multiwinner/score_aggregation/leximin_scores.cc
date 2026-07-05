@@ -1,5 +1,8 @@
 #include "leximin_scores.h"
 
+#include <stdexcept>
+#include <math.h>
+
 ordinal leximin_scores::three_way_compare(
 	const leximin_scores & other) const {
 
@@ -83,6 +86,17 @@ ordinal leximin_scores::three_way_compare(
 }
 
 void leximin_scores::insert(double weight, double score) {
+
+	if (weight <= 0 || isnan(weight)) {
+		throw std::invalid_argument(
+			"leximin_scores: tried to insert with invalid weight (non-positive or NaN)");
+	}
+
+	if (isnan(score)) {
+		throw std::invalid_argument(
+			"leximin_scores: tried to insert NaN score");
+	}
+
 	std::map<double, double>::iterator score_entry = entries.find(score);
 
 	if (score_entry == entries.end()) {

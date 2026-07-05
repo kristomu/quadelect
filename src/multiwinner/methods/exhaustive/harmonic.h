@@ -15,8 +15,9 @@
 
 class harmonic_voting_eval : public scored_method {
 	private:
-		double evaluate(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot);
+		void add_method_score(combo::it & start, combo::it & end,
+			const scored_ballot & this_ballot,
+			score_aggregate & output);
 
 		double delta;
 
@@ -61,8 +62,9 @@ class harmonic_voting_eval : public scored_method {
 };
 
 
-inline double harmonic_voting_eval::evaluate(combo::it & start,
-	combo::it & end, const scored_ballot & this_ballot) {
+inline void harmonic_voting_eval::add_method_score(combo::it & start,
+	combo::it & end, const scored_ballot & this_ballot,
+	score_aggregate & output) {
 
 	// Sort the ratings given to the candidates proposed for election
 	// by this voter in descending order. Then the quality contributed
@@ -89,9 +91,11 @@ inline double harmonic_voting_eval::evaluate(combo::it & start,
 
 	// Note that this will work as a "no opinion" marker; if the voter
 	// hasn't rated anybody, then we don't return below-minimum, we
-	// return zero.
+	// just don't update anything.
+	// This might lead to strange consequences with egalitarian mode;
+	// check later (compare to adding zero, etc).
 	if (elected_ratings.empty()) {
-		return 0;
+		return;
 	}
 
 	// Handle division by zero (delta = 0) by only caring about the
@@ -99,7 +103,8 @@ inline double harmonic_voting_eval::evaluate(combo::it & start,
 	// of the file for how this makes sense.)
 
 	if (delta == 0) {
-		return this_ballot.weight * elected_ratings[0];
+		output.insert(this_ballot.weight, elected_ratings[0]);
+		return;
 	}
 
 	// Otherwise, do full Harmonic.
@@ -108,7 +113,7 @@ inline double harmonic_voting_eval::evaluate(combo::it & start,
 		quality += elected_ratings[i] / (i + delta);
 	}
 
-	return this_ballot.weight * quality;
+	output.insert(this_ballot.weight, quality);
 }
 
 typedef exhaustive_method_runner<harmonic_voting_eval> harmonic_voting;

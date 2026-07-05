@@ -2,6 +2,8 @@
 
 #include "method.h"
 
+#include "multiwinner/score_aggregation/score_aggregate.h"
+
 // These methods optimize a function that depends on the proposed
 // seat assignment and the number of points given to each candidate
 // by each voter.
@@ -26,11 +28,11 @@ class scored_ballot {
 
 class scored_method : public exhaustive_method {
 	private:
-		double evaluate(combo::it & start, combo::it & end) {
-			double sum = 0;
+		sum_scores evaluate(combo::it & start, combo::it & end) {
+			sum_scores sum;
 
 			for (const scored_ballot & ballot: scored_ballots) {
-				sum += evaluate(start, end, ballot);
+				add_method_score(start, end, ballot, sum);
 			}
 
 			return sum;
@@ -39,8 +41,12 @@ class scored_method : public exhaustive_method {
 	protected:
 		std::vector<scored_ballot> scored_ballots;
 
-		virtual double evaluate(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot) = 0;
+		// Use a more imperative style both so we can pass both
+		// weight and objective to the aggregate, and so that we
+		// can use a leximin aggregate later.
+		virtual void add_method_score(combo::it & start, combo::it & end,
+			const scored_ballot & this_ballot,
+			score_aggregate & output) = 0;
 
 	public:
 		void process_ballots(const election_t & ballots,
