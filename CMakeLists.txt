@@ -148,6 +148,7 @@ add_library(qe_election_methods
 	src/multiwinner/pr_measures/binary.cc
 	src/multiwinner/pr_measures/clustering.cc
 	src/multiwinner/pr_measures/normal_fit.cc
+	src/multiwinner/score_aggregation/leximin_scores.cc
 	src/stats/multiwinner/convex_hull.cc
 	src/stats/multiwinner/mwstats.cc
 	src/coalitions/coalitions.cc
@@ -395,7 +396,9 @@ add_executable(rs_monotonicity src/design/resistant/monotone.cc)
 
 enable_testing()
 
-add_executable(run_tests src/multiwinner/methods/tests/shuntsstv.cc
+add_executable(run_tests
+	src/multiwinner/score_aggregation/tests/leximin_scores.cc
+	src/multiwinner/methods/tests/shuntsstv.cc
 	src/multiwinner/methods/tests/prop_ordering.cc
 	src/multiwinner/methods/exhaustive/tests/lcr.cc)
 target_link_libraries(run_tests qe_election_methods quadelect_lib GTest::gtest_main)
