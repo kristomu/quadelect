@@ -38,7 +38,7 @@ inline void isoelastic_eval::add_method_score(combo::it & start,
 	   F=( s(1)^(r-1)+...+s(n)^(r-1) ) / (r-1),
 
 	   where s(k) is the number of elected candidates that the kth
-	   candidate approved of.
+	   voter approved of.
 
 	   We can rewrite this as sum over voters: s(v)^(r-1) / (r-1).
 
@@ -60,16 +60,19 @@ inline void isoelastic_eval::add_method_score(combo::it & start,
 		total_rating += this_ballot.get_norm_score(*pos);
 	}
 
-	double r_adj = r;
-
 	if (r == 1) {
-		// We should return an infinite value, but doing it like this
-		// lets us tie-break on the finite values.
-		// Maybe I should make the sum_scores class do that???
-		r_adj = 1 + 1e-15;
+		if (total_rating == 0) {
+			output.insert(this_ballot.weight,
+				-std::numeric_limits<double>::infinity());
+			return;
+		}
+
+		output.insert(this_ballot.weight,
+			log(total_rating));
+		return;
 	}
 
-	output.insert(this_ballot.weight, pow(total_rating, r_adj-1)/(r_adj-1));
+	output.insert(this_ballot.weight, pow(total_rating, r-1)/(r-1));
 }
 
 typedef exhaustive_method_runner<isoelastic_eval> isoelastic;

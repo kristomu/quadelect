@@ -70,9 +70,9 @@ inline void log_penalty_eval::add_method_score(combo::it & start,
 	}
 
 	if (inner_denominator == 0 && K == 0) {
-		// This will produce an infinity. Add a very large value
-		// as a HACK.
-		output.insert(this_ballot.weight, 1e15);
+		// This will resolve to an infinity, so add it directly.
+		output.insert(this_ballot.weight,
+			std::numeric_limits<double>::infinity());
 		return;
 	}
 

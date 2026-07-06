@@ -66,14 +66,14 @@ inline void psi_voting_eval::add_method_score(combo::it & start,
 		norm_rating_sum += this_ballot.get_norm_score(*pos);
 	}
 
-	// digamma(0) = +/- infinity. HACK to deal with this without having
-	// to bring in infinities.
+	// digamma(0) = +/- infinity.
 	// Since we're given normalized scores, these can't ever be below
 	// zero, so it makes more sense to take the limit approaching from
 	// the positive side, i.e. x -> 0+; and intuitively, it makes sense
 	// that not being represented (all scores 0) is bad, not good.
 	if (delta + norm_rating_sum == 0) {
-		output.insert(this_ballot.weight, -1e9);
+		output.insert(this_ballot.weight,
+			-std::numeric_limits<double>::infinity());
 		return;
 	}
 
