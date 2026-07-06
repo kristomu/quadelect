@@ -32,10 +32,6 @@ class psi_voting_eval : public scored_method {
 			return "Cardinal: Psi (delta = " + dtos(delta) + ")";
 		}
 
-		bool maximize() const {
-			return true;
-		}
-
 		psi_voting_eval() {
 			delta = 0.5;
 		}

@@ -9,10 +9,6 @@
 
 class quota_helper : public exhaustive_method {
 	private:
-		bool maximize() const {
-			return true;
-		}
-
 		sum_scores evaluate(combo::it & start, combo::it & end);
 
 		std::vector<coalition_data> solid_coalitions;

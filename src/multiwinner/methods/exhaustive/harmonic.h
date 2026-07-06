@@ -43,10 +43,6 @@ class harmonic_voting_eval : public scored_method {
 			return "Cardinal: Harmonic (delta = " + dtos(delta) + ")";
 		}
 
-		bool maximize() const {
-			return true;
-		}
-
 		harmonic_voting_eval() {
 			delta = 0.5;
 		}

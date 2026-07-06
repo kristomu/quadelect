@@ -16,10 +16,6 @@ class isoelastic_eval : public scored_method {
 			return "Cardinal: Isoelastic (r = " + dtos(r) + ")";
 		}
 
-		bool maximize() const {
-			return true;
-		}
-
 		isoelastic_eval() {
 			r = 1;
 		}

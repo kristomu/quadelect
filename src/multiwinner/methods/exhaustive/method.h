@@ -40,7 +40,7 @@ class exhaustive_method {
 	protected:
 		// This function takes iterators to the beginning and end of the
 		// vector of seat assignments, and outputs an objective value, i.e.
-		// a score or penalty for that particular assignment.
+		// a score for that particular assignment.
 		virtual sum_scores evaluate(combo::it & start, combo::it & end) = 0;
 
 	public:

@@ -20,10 +20,6 @@ class log_penalty_eval : public scored_method {
 			}
 		}
 
-		bool maximize() const {
-			return false;
-		}
-
 		log_penalty_eval() {
 			K = 0;
 		}
@@ -46,16 +42,17 @@ inline void log_penalty_eval::add_method_score(combo::it & start,
 	   L_k(W) = SUM     SUM       x_j *   ln| -------------- |
 	            vote    j in C              | K + SUM    x_s |
 	            vector                      \     s in W     /
+	             x
+
+	   to be minimized, with x_s being voter x's rating of candidate s,
+	   C being the set of all candidates, and W the set of winners.
 	*/
 
 	// From https://rangevoting.org/WarrenSmithPages/homepage/multisurv.pdf
 	// method 7.9, "Logarithmic penalty voting".
 
-	// We might get infinities if K=0. In that case, we should score
-	// by the number of infinities and then secondarily on the sum of
-	// the finite values. Done with somewhat of a hack so far; I'm going
-	// to need another type if it's to be done properly, and threading
-	// that through the base class is going to be annoying.
+	// We might get infinities if K=0, but that is not a problem:
+	// the score aggregate classes can manage.
 
 	// ----- //
 
@@ -69,25 +66,28 @@ inline void log_penalty_eval::add_method_score(combo::it & start,
 		inner_denominator += this_ballot.get_norm_score(*pos);
 	}
 
+	double penalty = 0;
+
+	// If we have an infinity, add it directly.
 	if (inner_denominator == 0 && K == 0) {
-		// This will resolve to an infinity, so add it directly.
-		output.insert(this_ballot.weight,
-			std::numeric_limits<double>::infinity());
-		return;
+		penalty = std::numeric_limits<double>::infinity();
+	} else {
+		// Otherwise calculate the product.
+
+		double voter_contribution = 0;
+		size_t num_seats = end - start;
+		double log_denom = log((K +  num_seats) / (K + inner_denominator));
+
+		for (size_t candidate = 0; candidate < this_ballot.scores.size();
+			++candidate) {
+			voter_contribution += log_denom *
+				this_ballot.get_norm_score(candidate);
+		}
+
+		penalty = voter_contribution;
 	}
 
-	// Otherwise calculate the product.
-
-	double voter_contribution = 0;
-	size_t num_seats = end - start;
-	double log_denom = log((K +  num_seats) / (K + inner_denominator));
-
-	for (auto score_pos = this_ballot.scores.begin();
-		score_pos != this_ballot.scores.end(); ++score_pos) {
-		voter_contribution += *score_pos * log_denom;
-	}
-
-	output.insert(this_ballot.weight, voter_contribution);
+	output.insert(this_ballot.weight, -penalty);
 }
 
 typedef exhaustive_method_runner<log_penalty_eval> log_penalty;

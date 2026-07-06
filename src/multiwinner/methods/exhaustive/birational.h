@@ -27,10 +27,6 @@ class birational_eval : public scored_method {
 			}
 		}
 
-		bool maximize() const {
-			return true;
-		}
-
 		birational_eval() {
 			K = 1;
 			relative = true;
