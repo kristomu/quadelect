@@ -28,14 +28,12 @@ class scored_ballot {
 
 class scored_method : public exhaustive_method {
 	private:
-		sum_scores evaluate(combo::it & start, combo::it & end) {
-			sum_scores sum;
+		void add_method_scores(combo::it & start, combo::it & end,
+			score_aggregate & output) {
 
 			for (const scored_ballot & ballot: scored_ballots) {
-				add_method_score(start, end, ballot, sum);
+				add_method_score(start, end, ballot, output);
 			}
-
-			return sum;
 		}
 
 	protected:
@@ -44,8 +42,8 @@ class scored_method : public exhaustive_method {
 		// Use a more imperative style both so we can pass both
 		// weight and objective to the aggregate, and so that we
 		// can use a leximin aggregate later.
-		virtual void add_method_score(combo::it & start, combo::it & end,
-			const scored_ballot & this_ballot,
+		virtual void add_method_score(combo::it & start,
+			combo::it & end, const scored_ballot & this_ballot,
 			score_aggregate & output) = 0;
 
 	public:

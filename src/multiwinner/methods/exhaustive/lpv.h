@@ -1,5 +1,11 @@
 #pragma once
 
+// TODO: Implement test from figure 8.1. (and possibly also 8.3) of
+// https://rangevoting.org/WarrenSmithPages/homepage/multisurv.pdf
+// Scale the ratings to some large multiple so that renorm is tested.
+
+// 8.6 might make a good LPV0+-specific test.
+
 #include "scored_method.h"
 #include "tools/tools.h"
 

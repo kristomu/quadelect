@@ -9,7 +9,8 @@
 
 class quota_helper : public exhaustive_method {
 	private:
-		sum_scores evaluate(combo::it & start, combo::it & end);
+		void add_method_scores(combo::it & start, combo::it & end,
+			score_aggregate & positive_valid);
 
 		std::vector<coalition_data> solid_coalitions;
 		size_t council_size;
@@ -38,8 +39,8 @@ class quota_helper : public exhaustive_method {
 		}
 };
 
-inline sum_scores quota_helper::evaluate(combo::it & start,
-	combo::it & end) {
+inline void quota_helper::add_method_scores(combo::it & start,
+	combo::it & end, score_aggregate & positive_valid) {
 	std::set<size_t> council(start, end);
 
 	// Assumes that we can get the total weight from the first solid
@@ -48,8 +49,6 @@ inline sum_scores quota_helper::evaluate(combo::it & start,
 	// Or get the total weight (num voters) from somewhere else.
 
 	double total_weight = solid_coalitions.begin()->support;
-
-	sum_scores positive_valid;
 
 	if (council_size == 0) {
 		throw std::runtime_error("Quota helper: council size not set!");
@@ -79,12 +78,11 @@ inline sum_scores quota_helper::evaluate(combo::it & start,
 
 		if (proposed_in_coalition.size() < elect_constraint) {
 			positive_valid.insert(1, -1000);
-			return positive_valid;
+			return;
 		}
 	}
 
 	positive_valid.insert(1, 1000);
-	return positive_valid;
 }
 
 typedef exhaustive_method_runner<quota_helper> quota_determiner;

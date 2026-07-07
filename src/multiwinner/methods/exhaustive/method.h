@@ -14,9 +14,28 @@
 #include "multiwinner/methods/methods.h"
 #include "optima.h"
 
+#include "multiwinner/score_aggregation/sum_scores.h"
+
+#include "tools/combinations.h"
+
 namespace combo {
 typedef std::vector<size_t>::const_iterator it;
 }
+
+// 2026-07-06: This is the point at which I can no longer hold off
+// refactoring the combinations function.
+
+// See https://stackoverflow.com/questions/127704/algorithm-to-return-all-combinations-of-k-elements-from-n
+// for some approaches, then remove this.
+
+// Exhaustive_method should have an update function that accepts two iterators
+// like it does now, but also a score aggregate. It should also have
+// process_ballots. Everything else should go in the runners: egalitarian,
+// utilitarian, sequential, reverse sequential, whatever.
+
+// Old stuff below.
+
+// --------------------------------------------------------------------------
 
 // Because the combinations library's way of doing things clashes with my
 // functional style, there are two classes to this setup. A method, which does
@@ -39,16 +58,20 @@ class exhaustive_method {
 
 	protected:
 		// This function takes iterators to the beginning and end of the
-		// vector of seat assignments, and outputs an objective value, i.e.
-		// a score for that particular assignment.
-		virtual sum_scores evaluate(combo::it & start, combo::it & end) = 0;
+		// vector of seat assignments, as well as a score aggregate to
+		// insert values into, and inserts one or more component
+		// objective values, i.e. scores for that particular assignment
+		// (usually one per voter, though this may differ).
+		virtual void add_method_scores(combo::it & start,
+			combo::it & end, score_aggregate & output) = 0;
 
 	public:
 
 		virtual ~exhaustive_method() {}
 
 		bool operator()(combo::it start, combo::it end) {
-			sum_scores objective_value = evaluate(start, end);
+			sum_scores objective_value;
+			add_method_scores(start, end, objective_value);
 
 			current_optimum.update(objective_value, start, end);
 
@@ -95,8 +118,10 @@ exhaustive_method_runner<T>::get_council(
 	size_t council_size, size_t num_candidates,
 	const election_t & ballots) const {
 
-	std::vector<size_t> v(num_candidates);
-	std::iota(v.begin(), v.end(), 0);
+	std::vector<size_t> eligible(num_candidates);
+	std::iota(eligible.begin(), eligible.end(), 0);
+
+	std::vector<size_t> v = eligible;
 
 	// This is a bit hacky, but necessary due to how
 	// for_each_combination works. We clone our derived
@@ -105,11 +130,20 @@ exhaustive_method_runner<T>::get_council(
 	// through operator(). The constructor initializes
 	// any auxiliary structures we might need, like score
 	// arrays.
+	//
+	// We now have the ability to drastically clean this up
+	// by making exhaustive_method only carry the necessary
+	// logic. Do that later. TODO
 	T evaluator(params_set);
 	evaluator.process_ballots(ballots, num_candidates);
 
-	exhaustive_optima optimum = for_each_combination(v.begin(),
-			v.begin() + council_size, v.end(), evaluator);
+	combination_generator combo(num_candidates, council_size);
+
+	do {
+		evaluator(combo.begin(), combo.end());
+	} while (combo.next());
+
+	exhaustive_optima optimum(evaluator);
 
 	council_t out;
 
