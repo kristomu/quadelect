@@ -2,6 +2,7 @@
 
 #include "score_aggregate.h"
 
+#include <limits>
 #include <stdexcept>
 #include <math.h>
 

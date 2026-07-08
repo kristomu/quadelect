@@ -1,62 +1,95 @@
 
 #include "set_webster.h"
 
-exhaustive_optima set_webster::get_opt(double proposed_factor,
-	size_t council_size, size_t num_candidates,
-	const election_t & ballots) const {
+#include "coalitions/coalitions.h"
+#include "tools/combinations.h"
 
-	std::vector<size_t> v(num_candidates);
-	std::iota(v.begin(), v.end(), 0);
+double set_webster::get_min_disallowed_factor(
+	combo::it outcome_start, combo::it outcome_end,
+	const std::vector<coalition_data> & solid_coalitions) const {
 
-	set_webster_helper swh(proposed_factor);
+	// The algorithm works as follows: We start with a max
+	// permissible factor of infinity. For each solid coalition,
+	// we determine its intersection with our proposed outcome.
+	// If this is the whole solid coalition, then the coalition
+	// isn't binding (due to the min |S| factor) and we skip.
 
-	swh.process_ballots(ballots, num_candidates);
+	// Otherwise, let the number of candidates in the
+	// intersection be C. Then there exists a maximal factor
+	// x_max so that round(support * x_max) = C.
+	// This occurs at support * x_max = (C + 0.5 - epsilon), i.e.
+	// x_max = (C + 0.5 - epsilon) / support, so that the
+	// minimum disallowed factor is (C + 0.5) / support.
 
-	exhaustive_optima optimum = for_each_combination(v.begin(),
-			v.begin() + council_size, v.end(), swh);
+	// If the current disallowed minimum is greater than this,
+	// we reduce it.
 
-	return optimum;
+	std::set<size_t> outcome(outcome_start, outcome_end);
+
+	double min_disallowed = std::numeric_limits<double>::infinity();
+
+	for (auto cc_pos = solid_coalitions.begin();
+		cc_pos != solid_coalitions.end(); ++cc_pos) {
+
+		std::set<size_t> proposed_in_coalition;
+
+		std::set_intersection(
+			outcome.begin(), outcome.end(),
+			cc_pos->coalition.begin(), cc_pos->coalition.end(),
+			std::inserter(proposed_in_coalition,
+				proposed_in_coalition.begin()));
+
+		if (proposed_in_coalition.size() == cc_pos->coalition.size()) {
+			continue; // Not binding
+		}
+
+		double min_disallowed_here = (proposed_in_coalition.size()
+				+ 0.5) / cc_pos->support;
+
+		min_disallowed = std::min(min_disallowed,
+				min_disallowed_here);
+	}
+
+	return min_disallowed;
 }
 
 council_t set_webster::get_council(size_t council_size,
 	size_t num_candidates, const election_t & ballots) const {
 
-	double num_voters = ballot_tools::get_num_voters(ballots);
+	// Get the solid coalitions.
+	std::vector<coalition_data> solid_coalitions =
+		get_solid_coalitions(ballots,
+			std::vector<bool>(num_candidates, true),
+			num_candidates);
 
-	// The factor must be somewhere between these endpoints.
-	double min_factor = 0, max_factor = 2 * council_size/num_voters;
-	bool sat_min = true;//, sat_max = false;
+	// Determine the council/s with the greatest minimum
+	// infeasible factor (and thus, unless there are ties,
+	// the greatest maximum feasible factor).
 
-	exhaustive_optima opt_middle;
+	double record_minimum_factor =
+		-std::numeric_limits<double>::infinity();
+	std::vector<std::vector<size_t> > best_outcomes;
 
-	// Create a sum_scores barrier that distinguishes success
-	// (value > 0) from failure (value < 0). This is pretty ugly; I
-	// really ought to do something about for_each_combination.
-	sum_scores barrier;
-	barrier.insert(1, 0);
-
-	// Do the bisection search.
-	while (max_factor - min_factor > 1e-6) {
-		double factor = (min_factor + max_factor)/2.0;
-
-		opt_middle = get_opt(factor, council_size, num_candidates, ballots);
-
-		// Positive means success, negative is failure.
-		bool sat_middle = opt_middle.get_maximum() > barrier;
-
-		if (sat_middle == sat_min) {
-			min_factor = factor;
-			sat_min = sat_middle;
-		} else {
-			max_factor = factor;
+	combination_generator combo(num_candidates, council_size);
+	do {
+		double proposed_minimum = get_min_disallowed_factor(
+				combo.begin(), combo.end(), solid_coalitions);
+		if (proposed_minimum > record_minimum_factor) {
+			best_outcomes.clear();
 		}
-	}
+		if (proposed_minimum >= record_minimum_factor) {
+			best_outcomes.push_back(std::vector<size_t>(
+					combo.begin(), combo.end()));
+			record_minimum_factor = proposed_minimum;
+		}
+	} while (combo.next());
 
 	// TODO: This only picks "a" solution. We don't know if it's unique.
 	// Do something about it. And about this ugly conversion.
 	// Perhaps some kind of tiebreak?
 
-	std::vector<size_t> om = opt_middle.get_maximum_solution();
+	std::vector<size_t> om = best_outcomes[0];
+
 	council_t output;
 	std::copy(om.begin(), om.end(), std::back_inserter(output));
 

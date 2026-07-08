@@ -53,9 +53,10 @@ VSE_limits get_proportionality_limits(
 	};
 
 	if (log_combinations <= log(max_iters)) {
-		for_each_combination(candidates.begin(),
-			candidates.begin() + num_seats, candidates.end(),
-			evaluate);
+		combination_generator combo(num_candidates, num_seats);
+		do {
+			evaluate(combo.begin(), combo.end());
+		} while (combo.next());
 	} else {
 		for (size_t i = 0; i < max_iters; ++i) {
 			std::shuffle(candidates.begin(), candidates.end(), rnd);

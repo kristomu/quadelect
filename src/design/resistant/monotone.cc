@@ -3,7 +3,7 @@
 #include <numeric>
 #include <vector>
 
-#include "lib/combinations/combinations.h"
+#include "tools/combinations.h"
 
 // First define the resistant set "fingerprint" classes.
 
@@ -81,8 +81,12 @@ subelections::subelections(size_t numcands_in) {
 		std::vector<size_t> cands(numcands, 0);
 		std::iota(cands.begin(), cands.end(), 0);
 
-		for_each_combination(cands.begin(), cands.begin() + i,
-			cands.end(), this_add_subelection);
+		/*for_each_combination(cands.begin(), cands.begin() + i,
+			cands.end(), this_add_subelection);*/
+		combination_generator combo(numcands, i);
+		do {
+			this_add_subelection(combo.begin(), combo.end());
+		} while (combo.next());
 	}
 
 	// Calculate the number of distinct fingerprints

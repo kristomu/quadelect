@@ -9,8 +9,6 @@
 #include <math.h>
 #include <assert.h>
 
-#include "lib/combinations/combinations.h"
-
 #include "multiwinner/methods/methods.h"
 #include "optima.h"
 
