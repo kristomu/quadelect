@@ -2,6 +2,8 @@
 // This is used for (will be used for) keeping track of optima
 // for egalitarian optimizing methods.
 
+#pragma once
+
 #include <vector>
 #include <map>
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "score_aggregate.h"
 
 #include <stdexcept>

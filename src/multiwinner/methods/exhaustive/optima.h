@@ -24,21 +24,9 @@ class exhaustive_optima {
 	private:
 		bool is_set = false;
 		sum_scores maximum;
-		std::vector<std::vector<size_t> >
-		minimum_solutions, maximum_solutions;
+		std::vector<std::vector<size_t> > maximum_solutions;
 
 	public:
-
-		// should be set by the combinatorial method
-		exhaustive_optima(bool maximize_in) {
-			if (!maximize_in) {
-				throw std::logic_error("Only maximization is supported.");
-			}
-		}
-
-		exhaustive_optima() {
-		}
-
 		void update(sum_scores objective_value,
 			std::vector<size_t>::const_iterator & solution_start,
 			std::vector<size_t>::const_iterator & solution_end) {

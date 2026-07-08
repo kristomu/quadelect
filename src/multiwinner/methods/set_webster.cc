@@ -27,7 +27,7 @@ council_t set_webster::get_council(size_t council_size,
 	double min_factor = 0, max_factor = 2 * council_size/num_voters;
 	bool sat_min = true;//, sat_max = false;
 
-	exhaustive_optima opt_middle(true);
+	exhaustive_optima opt_middle;
 
 	// Create a sum_scores barrier that distinguishes success
 	// (value > 0) from failure (value < 0). This is pretty ugly; I
