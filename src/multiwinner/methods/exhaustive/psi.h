@@ -15,7 +15,8 @@
 
 class psi_voting_eval : public scored_method {
 	private:
-		void add_method_score(combo::it & start, combo::it & end,
+		void add_method_score(const combo::it & start,
+			const combo::it & end,
 			const scored_ballot & this_ballot,
 			score_aggregate & output);
 
@@ -45,9 +46,9 @@ class psi_voting_eval : public scored_method {
 		}
 };
 
-inline void psi_voting_eval::add_method_score(combo::it & start,
-	combo::it & end,
-	const scored_ballot & this_ballot, score_aggregate & output) {
+inline void psi_voting_eval::add_method_score(const combo::it & start,
+	const combo::it & end, const scored_ballot & this_ballot,
+	score_aggregate & output) {
 
 	// Sum over voters v: digamma( delta +
 	//		sum over elected candidates c: v's score of c)
@@ -77,5 +78,5 @@ inline void psi_voting_eval::add_method_score(combo::it & start,
 		digamma(delta + norm_rating_sum));
 }
 
-typedef exhaustive_method_runner<psi_voting_eval> psi_voting;
-typedef sequential_method_runner<psi_voting_eval> sequential_psi_voting;
+/*typedef exhaustive_method_runner<psi_voting_eval> psi_voting;
+typedef sequential_method_runner<psi_voting_eval> sequential_psi_voting;*/

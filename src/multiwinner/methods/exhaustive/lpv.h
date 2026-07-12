@@ -11,7 +11,8 @@
 
 class log_penalty_eval : public scored_method {
 	private:
-		void add_method_score(combo::it & start, combo::it & end,
+		void add_method_score(const combo::it & start,
+			const combo::it & end,
 			const scored_ballot & this_ballot,
 			score_aggregate & output);
 
@@ -39,8 +40,8 @@ class log_penalty_eval : public scored_method {
 		}
 };
 
-inline void log_penalty_eval::add_method_score(combo::it & start,
-	combo::it & end, const scored_ballot & this_ballot,
+inline void log_penalty_eval::add_method_score(const combo::it & start,
+	const combo::it & end, const scored_ballot & this_ballot,
 	score_aggregate & output) {
 
 	/*
@@ -96,4 +97,4 @@ inline void log_penalty_eval::add_method_score(combo::it & start,
 	output.insert(this_ballot.weight, -penalty);
 }
 
-typedef exhaustive_method_runner<log_penalty_eval> log_penalty;
+//typedef exhaustive_method_runner<log_penalty_eval> log_penalty;

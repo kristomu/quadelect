@@ -117,6 +117,7 @@ add_library(qe_election_methods
 	src/multiwinner/helper/digamma.cc
 	src/multiwinner/helper/errors.cc
 	src/multiwinner/methods/auction.cc
+	src/multiwinner/methods/exhaustive/runners.cc
 	src/multiwinner/methods/exhaustive/scored_method.cc
 	src/multiwinner/methods/compat_qbuck.cc
 	src/multiwinner/methods/dhwl.cc

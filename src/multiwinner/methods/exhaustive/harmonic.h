@@ -15,7 +15,8 @@
 
 class harmonic_voting_eval : public scored_method {
 	private:
-		void add_method_score(combo::it & start, combo::it & end,
+		void add_method_score(const combo::it & start,
+			const combo::it & end,
 			const scored_ballot & this_ballot,
 			score_aggregate & output);
 
@@ -58,9 +59,9 @@ class harmonic_voting_eval : public scored_method {
 };
 
 
-inline void harmonic_voting_eval::add_method_score(combo::it & start,
-	combo::it & end, const scored_ballot & this_ballot,
-	score_aggregate & output) {
+inline void harmonic_voting_eval::add_method_score(
+	const combo::it & start, const combo::it & end,
+	const scored_ballot & this_ballot, score_aggregate & output) {
 
 	// Sort the ratings given to the candidates proposed for election
 	// by this voter in descending order. Then the quality contributed
@@ -112,6 +113,6 @@ inline void harmonic_voting_eval::add_method_score(combo::it & start,
 	output.insert(this_ballot.weight, quality);
 }
 
-typedef exhaustive_method_runner<harmonic_voting_eval> harmonic_voting;
+/*typedef exhaustive_method_runner<harmonic_voting_eval> harmonic_voting;
 typedef sequential_method_runner<harmonic_voting_eval>
-sequential_harmonic_voting;
+sequential_harmonic_voting;*/

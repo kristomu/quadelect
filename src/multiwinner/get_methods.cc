@@ -200,79 +200,72 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 	// And these were supposed to be "very good indeed"! What failed?
 	// (Whatever I do, I get lousy results.)
 
-	methods.push_back(std::make_shared<birational>());
-	methods.push_back(std::make_shared<log_penalty>());
-	methods.push_back(std::make_shared<isoelastic>());
+	std::vector<std::shared_ptr<exhaustive_method> > exh_methods;
+
+	exh_methods.push_back(std::make_shared<birational_eval>());
+	exh_methods.push_back(std::make_shared<log_penalty_eval>());
+	exh_methods.push_back(std::make_shared<isoelastic_eval>());
 
 	if (extensive_param_sweep) {
 		for (int x = 0; x <= 100; ++x) {
-			methods.push_back(
-				std::make_shared<psi_voting>(x*0.01));
+			exh_methods.push_back(
+				std::make_shared<psi_voting_eval>(x*0.01));
 		}
 
 		for (int x = 0; x <= 100; ++x) {
-			methods.push_back(
-				std::make_shared<harmonic_voting>(x*0.01));
-		}
-
-		for (int x = 0; x <= 100; ++x) {
-			methods.push_back(
-				std::make_shared<sequential_harmonic_voting>(
-					x * 0.01));
+			exh_methods.push_back(
+				std::make_shared<harmonic_voting_eval>(x*0.01));
 		}
 	} else {
-		methods.push_back(
-			std::make_shared<psi_voting>(0));
-		methods.push_back(
-			std::make_shared<psi_voting>(0.5));
-		methods.push_back(
-			std::make_shared<psi_voting>(1));
-		methods.push_back(
-			std::make_shared<harmonic_voting>(0));
-		methods.push_back(
-			std::make_shared<harmonic_voting>(0.5));
-		methods.push_back(
-			std::make_shared<harmonic_voting>(1));
-		methods.push_back(
-			std::make_shared<sequential_harmonic_voting>(0));
-		methods.push_back(
-			std::make_shared<sequential_harmonic_voting>(0.5));
-		methods.push_back(
-			std::make_shared<sequential_harmonic_voting>(1));
+		exh_methods.push_back(
+			std::make_shared<psi_voting_eval>(0));
+		exh_methods.push_back(
+			std::make_shared<psi_voting_eval>(0.5));
+		exh_methods.push_back(
+			std::make_shared<psi_voting_eval>(1));
+		exh_methods.push_back(
+			std::make_shared<harmonic_voting_eval>(0));
+		exh_methods.push_back(
+			std::make_shared<harmonic_voting_eval>(0.5));
+		exh_methods.push_back(
+			std::make_shared<harmonic_voting_eval>(1));
 	}
 
-	methods.push_back(std::make_shared<harmonic_voting>
+	exh_methods.push_back(std::make_shared<harmonic_voting_eval>
 		(10));
-	methods.push_back(std::make_shared<harmonic_voting>
+	exh_methods.push_back(std::make_shared<harmonic_voting_eval>
 		(100));
-	methods.push_back(std::make_shared<harmonic_voting>
+	exh_methods.push_back(std::make_shared<harmonic_voting_eval>
 		(1000));
-	methods.push_back(std::make_shared<harmonic_voting>
+	exh_methods.push_back(std::make_shared<harmonic_voting_eval>
 		(100000));
-	methods.push_back(std::make_shared<harmonic_voting>
+	exh_methods.push_back(std::make_shared<harmonic_voting_eval>
 		(1e9));
 
 	// Not the most elegant way to parameterize.
+
 	if (extensive_param_sweep) {
 		for (double p = -10; p < 10; p += 0.1) {
-			methods.push_back(
-				std::make_shared<isoelastic>(isoelastic_eval(p)));
+			exh_methods.push_back(
+				std::make_shared<isoelastic_eval>(p));
 		}
 	} else {
-		methods.push_back(std::make_shared<isoelastic>(
-				isoelastic_eval(-0.5)));
-		methods.push_back(std::make_shared<isoelastic>(
-				isoelastic_eval(0)));
-		methods.push_back(std::make_shared<isoelastic>(
-				isoelastic_eval(2)));
+		exh_methods.push_back(std::make_shared<isoelastic_eval>(-0.5));
+		exh_methods.push_back(std::make_shared<isoelastic_eval>(0));
+		exh_methods.push_back(std::make_shared<isoelastic_eval>(2));
 	}
 
-	methods.push_back(std::make_shared<log_penalty>(
-			log_penalty_eval(1)));
-	methods.push_back(std::make_shared<log_penalty>(
-			log_penalty_eval(10)));
-	methods.push_back(std::make_shared<log_penalty>(
-			log_penalty_eval(1000)));
+	exh_methods.push_back(std::make_shared<log_penalty_eval>(1));
+	exh_methods.push_back(std::make_shared<log_penalty_eval>(10));
+	exh_methods.push_back(std::make_shared<log_penalty_eval>(1000));
+
+	for (std::shared_ptr<exhaustive_method> em: exh_methods) {
+		methods.push_back(std::make_shared<global_exhaustive_runner>(em));
+	}
+
+	for (std::shared_ptr<exhaustive_method> em: exh_methods) {
+		methods.push_back(std::make_shared<sequential_exhaustive_runner>(em));
+	}
 
 	if (expensive_experimental_methods) {
 		// The Kemeny methods below are *very* slow.

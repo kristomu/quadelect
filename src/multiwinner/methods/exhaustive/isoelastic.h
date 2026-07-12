@@ -5,7 +5,8 @@
 
 class isoelastic_eval : public scored_method {
 	private:
-		void add_method_score(combo::it & start, combo::it & end,
+		void add_method_score(const combo::it & start,
+			const combo::it & end,
 			const scored_ballot & this_ballot,
 			score_aggregate & output);
 
@@ -25,8 +26,8 @@ class isoelastic_eval : public scored_method {
 		}
 };
 
-inline void isoelastic_eval::add_method_score(combo::it & start,
-	combo::it & end, const scored_ballot & this_ballot,
+inline void isoelastic_eval::add_method_score(const combo::it & start,
+	const combo::it & end, const scored_ballot & this_ballot,
 	score_aggregate & output) {
 
 	/* Peter Zbornik's suggestion of
@@ -71,4 +72,4 @@ inline void isoelastic_eval::add_method_score(combo::it & start,
 	output.insert(this_ballot.weight, pow(total_rating, r-1)/(r-1));
 }
 
-typedef exhaustive_method_runner<isoelastic_eval> isoelastic;
+//typedef exhaustive_method_runner<isoelastic_eval> isoelastic;

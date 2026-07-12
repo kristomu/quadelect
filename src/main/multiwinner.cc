@@ -5,6 +5,7 @@
 
 #include "random/random.h"
 #include "tools/tools.h"
+#include "tools/combinations.h"
 
 #include "multiwinner/helper/errors.h"
 

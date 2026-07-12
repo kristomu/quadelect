@@ -3,7 +3,8 @@
 
 class birational_eval : public scored_method {
 	private:
-		void add_method_score(combo::it & start, combo::it & end,
+		void add_method_score(const combo::it & start,
+			const combo::it & end,
 			const scored_ballot & this_ballot,
 			score_aggregate & output);
 
@@ -45,7 +46,7 @@ class birational_eval : public scored_method {
 };
 
 inline void birational_eval::add_method_score(
-	combo::it & start, combo::it & end,
+	const combo::it & start, const combo::it & end,
 	const scored_ballot & this_ballot, score_aggregate & output) {
 
 	//                                     x_w
@@ -100,4 +101,4 @@ inline void birational_eval::add_method_score(
 	output.insert(this_ballot.weight, total);
 }
 
-typedef exhaustive_method_runner<birational_eval> birational;
+//typedef exhaustive_method_runner<birational_eval> birational;

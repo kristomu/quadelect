@@ -48,12 +48,12 @@ class LeftCenterRightTest : public ::testing::Test {};
 // Surprising outcomes: LPV0+ passes??? Isoelastic fails???
 // I've removed both for now.
 using ExhaustiveMethods
-	= ::testing::Types<birational, harmonic_voting, psi_voting>;
+	= ::testing::Types<birational_eval, harmonic_voting_eval, psi_voting_eval>;
 
 TYPED_TEST_SUITE(LeftCenterRightTest, ExhaustiveMethods);
 
 TYPED_TEST(LeftCenterRightTest, SingleWinnerLCRElectsCenter) {
-	TypeParam method;
+	global_exhaustive_runner method(std::make_shared<TypeParam>());
 
 	// Candidate 0 is Center, 1 is Left, 2 is Right.
 
@@ -74,7 +74,7 @@ TYPED_TEST(LeftCenterRightTest, SingleWinnerLCRElectsCenter) {
 }
 
 TYPED_TEST(LeftCenterRightTest, TwoWinnerLCRElectsWings) {
-	TypeParam method;
+	global_exhaustive_runner method(std::make_shared<TypeParam>());
 
 	std::vector<size_t> desired_outcome = {1, 2};
 
@@ -96,7 +96,8 @@ TYPED_TEST(LeftCenterRightTest, TwoWinnerLCRElectsWings) {
 // base method passes the tests above.
 
 TEST(SequentialHarmonicVoting, TwoWinnerLCRHouseMonotone) {
-	sequential_harmonic_voting s_harmonic(1);
+	sequential_exhaustive_runner s_harmonic(
+		std::make_shared<harmonic_voting_eval>(1));
 
 	// We have to elect Center to satisfy house monotonicity.
 	// With that given, the ballot set is symmetric in Left vs

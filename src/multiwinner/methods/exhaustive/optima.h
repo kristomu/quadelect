@@ -27,9 +27,10 @@ class exhaustive_optima {
 		std::vector<std::vector<size_t> > maximum_solutions;
 
 	public:
-		void update(sum_scores objective_value,
-			std::vector<size_t>::const_iterator & solution_start,
-			std::vector<size_t>::const_iterator & solution_end) {
+		void update(
+			std::vector<size_t>::const_iterator solution_start,
+			std::vector<size_t>::const_iterator solution_end,
+			sum_scores objective_value) {
 
 			// If the maximum isn't set, just set it directly.
 			// We need to do this because the comparison operator

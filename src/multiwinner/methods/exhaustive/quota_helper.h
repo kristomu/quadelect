@@ -3,13 +3,15 @@
 // of set_webster_helper; trying to make a base class to specialize into
 // bnoth this and set_webster_helper probably wouldn't be useful with only
 // two examples.
+// TODO: Rewrite this comment since set_webster_helper is no more.
 
 #include "coalitions/coalitions.h"
 #include "method.h"
 
 class quota_helper : public exhaustive_method {
 	private:
-		void add_method_scores(combo::it & start, combo::it & end,
+		void add_method_scores(const combo::it & start,
+			const combo::it & end,
 			score_aggregate & positive_valid);
 
 		std::vector<coalition_data> solid_coalitions;
@@ -39,8 +41,8 @@ class quota_helper : public exhaustive_method {
 		}
 };
 
-inline void quota_helper::add_method_scores(combo::it & start,
-	combo::it & end, score_aggregate & positive_valid) {
+inline void quota_helper::add_method_scores(const combo::it & start,
+	const combo::it & end, score_aggregate & positive_valid) {
 	std::set<size_t> council(start, end);
 
 	// Assumes that we can get the total weight from the first solid
@@ -85,4 +87,4 @@ inline void quota_helper::add_method_scores(combo::it & start,
 	positive_valid.insert(1, 1000);
 }
 
-typedef exhaustive_method_runner<quota_helper> quota_determiner;
+//typedef exhaustive_method_runner<quota_helper> quota_determiner;
