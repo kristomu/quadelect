@@ -24,6 +24,15 @@ double set_webster::get_min_disallowed_factor(
 	// If the current disallowed minimum is greater than this,
 	// we reduce it.
 
+	// It's possible to generalize other divisor methods by
+	// using an offset other than 0.5. Higher offsets are more
+	// d'Hondtian and lower ones are more factional; but the
+	// method likely has some IIA problems due to being solid
+	// coalition-based, and I'd expect this to harm the quality
+	// of the winner set as the method is forced in the d'Hondt
+	// (center favoring) direction. (Consider the single-winner
+	// case: it's not Condorcet.)
+
 	std::set<size_t> outcome(outcome_start, outcome_end);
 
 	double min_disallowed = std::numeric_limits<double>::infinity();

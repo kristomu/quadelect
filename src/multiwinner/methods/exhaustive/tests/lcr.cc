@@ -53,7 +53,7 @@ using ExhaustiveMethods
 TYPED_TEST_SUITE(LeftCenterRightTest, ExhaustiveMethods);
 
 TYPED_TEST(LeftCenterRightTest, SingleWinnerLCRElectsCenter) {
-	global_exhaustive_runner method(std::make_shared<TypeParam>());
+	global_exhaustive_maxsum_runner method(std::make_shared<TypeParam>());
 
 	// Candidate 0 is Center, 1 is Left, 2 is Right.
 
@@ -74,7 +74,7 @@ TYPED_TEST(LeftCenterRightTest, SingleWinnerLCRElectsCenter) {
 }
 
 TYPED_TEST(LeftCenterRightTest, TwoWinnerLCRElectsWings) {
-	global_exhaustive_runner method(std::make_shared<TypeParam>());
+	global_exhaustive_maxsum_runner method(std::make_shared<TypeParam>());
 
 	std::vector<size_t> desired_outcome = {1, 2};
 

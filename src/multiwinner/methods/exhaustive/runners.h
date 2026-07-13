@@ -17,7 +17,12 @@
 // This is for global optimization, currently utilitarian (max sum) only, but
 // that will change.
 
-class global_exhaustive_runner : public multiwinner_method {
+// It's easier to just duplicate this for utilitarian/maxsum and
+// egalitarian/maxmin optimization approaches than add a ton of
+// switch/cases.
+// Do that later if required; we're not gonna need it yet,
+
+class global_exhaustive_maxsum_runner : public multiwinner_method {
 	private:
 		std::shared_ptr<exhaustive_method> method_ref;
 
@@ -33,7 +38,30 @@ class global_exhaustive_runner : public multiwinner_method {
 			method_ref = reference;
 		}
 
-		global_exhaustive_runner(std::shared_ptr<exhaustive_method> reference) {
+		global_exhaustive_maxsum_runner(std::shared_ptr<exhaustive_method>
+			reference) {
+			set_parameters(reference);
+		}
+};
+
+class global_exhaustive_maxmin_runner : public multiwinner_method {
+	private:
+		std::shared_ptr<exhaustive_method> method_ref;
+
+	public:
+		council_t get_council(size_t council_size,
+			size_t num_candidates, const election_t & ballots) const;
+
+		std::string name() const {
+			return "Maxmin " + method_ref->name();
+		}
+
+		void set_parameters(std::shared_ptr<exhaustive_method> reference) {
+			method_ref = reference;
+		}
+
+		global_exhaustive_maxmin_runner(std::shared_ptr<exhaustive_method>
+			reference) {
 			set_parameters(reference);
 		}
 };

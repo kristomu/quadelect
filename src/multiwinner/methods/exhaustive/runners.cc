@@ -2,6 +2,7 @@
 
 #include "tools/combinations.h"
 
+#include "multiwinner/score_aggregation/leximin_scores.h"
 #include "multiwinner/score_aggregation/sum_scores.h"
 
 #include "optima.h"
@@ -9,7 +10,7 @@
 #include <iostream>
 #include <iterator>
 
-council_t global_exhaustive_runner::get_council(
+council_t global_exhaustive_maxsum_runner::get_council(
 	size_t council_size, size_t num_candidates,
 	const election_t & ballots) const {
 
@@ -24,10 +25,44 @@ council_t global_exhaustive_runner::get_council(
 	method_ref->process_ballots(ballots, num_candidates);
 
 	combination_generator combo(num_candidates, council_size);
-	exhaustive_optima optimum;
+	exhaustive_optima<sum_scores> optimum;
 
 	do {
 		sum_scores objective_value;
+		method_ref->add_method_scores(combo.begin(), combo.end(),
+			objective_value);
+		optimum.update(combo.begin(), combo.end(),
+			objective_value);
+	} while (combo.next());
+
+	council_t out;
+
+	for (size_t i: optimum.get_maximum_solution()) {
+		out.push_back(i);
+	}
+
+	return out;
+}
+
+council_t global_exhaustive_maxmin_runner::get_council(
+	size_t council_size, size_t num_candidates,
+	const election_t & ballots) const {
+
+	std::vector<size_t> eligible(num_candidates);
+	std::iota(eligible.begin(), eligible.end(), 0);
+
+	std::vector<size_t> v = eligible;
+
+	// Note that this probably alters state in the exhaustive method
+	// object because we're using a const pointer, not a pointer to
+	// a const. We want the method state to be mutable, though.
+	method_ref->process_ballots(ballots, num_candidates);
+
+	combination_generator combo(num_candidates, council_size);
+	exhaustive_optima<leximin_scores> optimum;
+
+	do {
+		leximin_scores objective_value;
 		method_ref->add_method_scores(combo.begin(), combo.end(),
 			objective_value);
 		optimum.update(combo.begin(), combo.end(),
@@ -54,7 +89,7 @@ council_t sequential_exhaustive_runner::get_council(
 
 	for (size_t seat = 0; seat < council_size; ++seat) {
 
-		exhaustive_optima optimum;
+		exhaustive_optima<sum_scores> optimum;
 
 		std::vector<size_t> proposed_extension = chosen;
 		proposed_extension.push_back(0);

@@ -20,17 +20,17 @@
 
 #include "multiwinner/score_aggregation/sum_scores.h"
 
-class exhaustive_optima {
+template<typename T> class exhaustive_optima {
 	private:
 		bool is_set = false;
-		sum_scores maximum;
+		T maximum;
 		std::vector<std::vector<size_t> > maximum_solutions;
 
 	public:
 		void update(
 			std::vector<size_t>::const_iterator solution_start,
 			std::vector<size_t>::const_iterator solution_end,
-			sum_scores objective_value) {
+			const T & objective_value) {
 
 			// If the maximum isn't set, just set it directly.
 			// We need to do this because the comparison operator

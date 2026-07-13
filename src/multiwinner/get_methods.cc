@@ -22,8 +22,13 @@ std::vector<std::shared_ptr<multiwinner_method> > get_bloc_methods(
 }
 
 std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
-	bool extensive_param_sweep,
-	bool expensive_experimental_methods) {
+	int method_selection) {
+
+	bool extensive_param_sweep = (method_selection & EXTENSIVE_PARAM_SWEEP);
+	bool expensive_experimental_methods =
+		(method_selection & EXPENSIVE_EXPERIMENTAL_METHODS);
+	bool expensive_maxmin_methods =
+		(method_selection & EXPENSIVE_MAXMIN_METHODS);
 
 	// Set up some majoritarian election methods and their stats.
 	// Condorcet methods should probably have their own arrays.
@@ -259,8 +264,20 @@ std::vector<std::shared_ptr<multiwinner_method> > get_multiwinner_methods(
 	exh_methods.push_back(std::make_shared<log_penalty_eval>(10));
 	exh_methods.push_back(std::make_shared<log_penalty_eval>(1000));
 
+	// Insert the whole block per runner; this is why there're
+	// multiple for loops instead of just one with a number of push_back
+	// instructions inside.
 	for (std::shared_ptr<exhaustive_method> em: exh_methods) {
-		methods.push_back(std::make_shared<global_exhaustive_runner>(em));
+		methods.push_back(std::make_shared<global_exhaustive_maxsum_runner>(em));
+	}
+
+	if (expensive_maxmin_methods) {
+		// Egalitarian methods are very slow. I think it's because inserting new
+		// values into the leximin map is O(log n), but profile and check later.
+		// TODO.
+		for (std::shared_ptr<exhaustive_method> em: exh_methods) {
+			methods.push_back(std::make_shared<global_exhaustive_maxmin_runner>(em));
+		}
 	}
 
 	for (std::shared_ptr<exhaustive_method> em: exh_methods) {
