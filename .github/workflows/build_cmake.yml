@@ -39,13 +39,14 @@ jobs:
             cpp_compiler: g++
           - os: ubuntu-22.04
             cpp_compiler: clang++
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
         exclude:
           # cl fails for some reason: the script can't find Ninja
           # even though the Github docs say that it comes preinstalled
           # on every image. Find out why later, perhaps by experimenting
           # with a test project.
-          - os: windows-latest
-            cpp_compiler: cl
           - os: ubuntu-22.04
             cpp_compiler: cl
           - os: windows-latest
@@ -106,7 +107,9 @@ jobs:
           # This specifies the location of vcpkg, where it is going to be restored from cache, or create from scratch.
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
           # The Git commit id of vcpkg to be checked out. This is only needed because we are not using a submodule.
-          vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
+          # See vcpkg-configuration.json for this. NOTE: The commit ID must
+          # be updated regularly or future builds may fail.
+          ## vcpkgGitCommitId: '${{ matrix.vcpkgCommitId}}'
           # The vcpkg.json file, which will be part of cache key computation.
           vcpkgJsonGlob: '**/vcpkg.json'
 

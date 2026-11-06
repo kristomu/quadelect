@@ -1,6 +1,7 @@
 {
 	"dependencies": [
 		"glpk",
+		"gtest",
 		"libconfig",
 		"libpng",
 		"eigen3",
