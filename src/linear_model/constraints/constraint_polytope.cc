@@ -2,6 +2,8 @@
 #include "constraint_tools.h"
 #include <iostream>
 
+#include <assert.h>
+
 int constraint_polytope::add_new_variables(
 	const constraint_set & fixed_param_ref, const relation_side & in) {
 
